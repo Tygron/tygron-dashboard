@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="main" name="Concatenate js files" xmlns:fx="javafx:com.sun.javafx.tools.ant">
+	
+	<!-- Specify "-Dservertype=preview" in bat arguments to build preview -->
+	<property name="servertype" value="development"/>
+	<property name="destination" value="build/${servertype}"/>
+	<!-- Adjust intros from * to a particular intro to only build that intro -->
+    <property name="dashboard" value="*"/>
+	
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="lib/ant-contrib-1.0b3.jar"/>
+		</classpath>
+	</taskdef>
+
+	<target name="main" description="Concatenate all js files">
+		
+		<delete dir="build/"/>
+		
+		<foreach target="concatenate_js" param="file">
+			<path>
+				<fileset id="dashboardset" dir="src/js/dashboards/" includes="${dashboard}.js" />
+			</path>
+		</foreach>
+		<foreach target="create_html_css" param="file">
+			<path>
+				<fileset id="dashboardset" dir="src/js/dashboards/" includes="${dashboard}.js" />
+			</path>
+		</foreach>
+	</target>
+
+	<target name="concatenate_js">
+
+		<basename property="filename" file="${file}"/>
+		<echo message="/${filename}" />
+
+		<concat destfile="${destination}/lib/${filename}" fixlastline="true" eol="unix">
+			<!-- Naming conventions first -->
+			<fileset dir="src/js/">
+				<include name="**/**/NC.js"/>
+			</fileset>
+						
+			<fileset dir="src/js/">
+		 		<include name="**"/>
+				<exclude name="**/**/NC.js"/>
+				<exclude name="**/dashboards/*.js"/>
+			</fileset>
+				
+			<fileset dir="src/js/dashboards/" includes="${filename}" />
+		</concat>
+		<property name="filepath" value="${destination}/lib/${filename}"/>
+			
+		<replaceregexp file="${filepath}" match="^import \{.*\}.*;" replace="" byline="true"/>
+		<replaceregexp file="${filepath}" match='^import \{.*\}.*;' replace="" byline="true"/>
+		<replaceregexp file="${filepath}" match="^export class" replace="class" byline="true"/>
+		<replaceregexp file="${filepath}" match="^export function" replace="function" byline="true"/>
+		<replaceregexp file="${filepath}" match="^export const" replace="const" byline="true"/>
+	</target>
+
+	<target name="create_html_css">
+
+		<basename property="filename" file="${file}"/>
+		<propertyregex property="base.name"
+		    input="${filename}"
+		    regexp="(.*)\.(.*)"
+		    select="\1"/>
+		<echo message="${base.name}" />
+
+		<copy file="html/dashboard.html" tofile="${destination}/${base.name}.html"/>
+		<copy file="css/dashboard.css" tofile="${destination}/css/${base.name}.css"/>
+		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_NAME" replace="${base.name}" byline="true"/>
+		<replaceregexp file="${destination}/${base.name}.html" match="FILENAME" replace="${filename}" byline="true"/>
+		
+		<!--<loadfile property="contents" srcFile="example.txt" />
+		<echo message="${contents}" />-->
+			
+	</target>
+
+
+</project>
