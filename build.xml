@@ -6,6 +6,9 @@
 	<property name="destination" value="build/${servertype}"/>
 	<!-- Adjust intros from * to a particular intro to only build that intro -->
     <property name="dashboard" value="*"/>
+	<basename property="filename" file="${file}"/>
+	<echo message="/${filename}" />
+	<property name="filepath" value="${destination}/lib/${filename}"/>
 	
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
@@ -31,8 +34,7 @@
 
 	<target name="concatenate_js">
 
-		<basename property="filename" file="${file}"/>
-		<echo message="/${filename}" />
+		
 
 		<concat destfile="${destination}/lib/${filename}" fixlastline="true" eol="unix">
 			<!-- Naming conventions first -->
@@ -48,7 +50,7 @@
 				
 			<fileset dir="src/js/dashboards/" includes="${filename}" />
 		</concat>
-		<property name="filepath" value="${destination}/lib/${filename}"/>
+		
 			
 		<replaceregexp file="${filepath}" match="^import \{.*\}.*;" replace="" byline="true"/>
 		<replaceregexp file="${filepath}" match='^import \{.*\}.*;' replace="" byline="true"/>
@@ -70,9 +72,10 @@
 		<copy file="css/dashboard.css" tofile="${destination}/css/${base.name}.css"/>
 		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_NAME" replace="${base.name}" byline="true"/>
 		<replaceregexp file="${destination}/${base.name}.html" match="FILENAME" replace="${filename}" byline="true"/>
-		
-		<!--<loadfile property="contents" srcFile="example.txt" />
-		<echo message="${contents}" />-->
+				
+		<loadfile property="contents" srcFile="${filepath}"/>
+		<replaceregexp file="${destination}/${base.name}.html" match="BODYSCRIPT" replace="${contents}" byline="true"/>
+				
 			
 	</target>
 
