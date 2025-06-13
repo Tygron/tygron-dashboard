@@ -10,41 +10,86 @@ body {
 	padding: 0px;
 }
 
- /* Style the button that is used to open and close the collapsible content */
+/* Style the button that is used to open and close the collapsible content */
 .collapsible {
-  background-color: #eee;
-  color: #444;
-  cursor: pointer;
-  padding: 18px;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 15px;
+	background-color: #eee;
+	color: #444;
+	cursor: pointer;
+	padding: 18px;
+	width: 100%;
+	border: none;
+	text-align: left;
+	outline: none;
+	font-size: 15px;
+}
+
+.active,
+.collapsible {
+	font-weight: bold;
+	font-size: 1.5em;
+
 }
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active, .collapsible:hover {
-  background-color: #ccc;
+.active,
+.collapsible:hover {
+	background-color: cornflowerblue;
+	color: white;
 }
 
 /* Style the collapsible content. Note: hidden by default */
 .content {
-  padding: 0 18px;
-  background-color: white;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.2s ease-out;
+	padding: 0 0.25em;
+	background-color: white;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.2s ease-out;
 }
 
 .collapsible:after {
-  content: '\02795'; /* Unicode character for "plus" sign (+) */
-  font-size: 13px;
-  color: white;
-  float: right;
-  margin-left: 5px;
+	content: '\02795';
+	/* Unicode character for "plus" sign (+) */
+	font-size: 13px;
+	color: white;
+	float: right;
+	margin-left: 5px;
 }
 
 .active:after {
-  content: "\2796"; /* Unicode character for "minus" sign (-) */
+	content: "\2796";
+	/* Unicode character for "minus" sign (-) */
+}
+
+.datatable thead {
+	font-weight: bold;
+}
+
+.datatable {
+	height: 1px;
+	border-collapse: collapse;
+	width: 100%;
+	table-layout: auto;
+	margin-top: 1em;
+}
+
+.datatable tr {
+	/*border-bottom: 1px solid black;*/
+	height: 100%;
+}
+
+.datatable tr:nth-child(even) {
+	background-color: rgb(240, 240, 240)
+}
+
+.datatable td {
+	height: 100%;
+
+}
+
+.datatable td>div {
+	margin: 0.25em;
+	padding: 0.25em 0.25em 0.25em 0.25em;
+
+	position: relative;
+	border-radius: 0.5em;
 }
