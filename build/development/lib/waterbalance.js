@@ -1,27 +1,79 @@
 
 function initCollapsibles() {
-	
+
 	var coll = document.getElementsByClassName("collapsible");
 	var i;
 
 	for (i = 0; i < coll.length; i++) {
-	  coll[i].addEventListener("click", function() {
-	    this.classList.toggle("active");
-	    var content = this.nextElementSibling;
-	    if (content.style.maxHeight){
-	      content.style.maxHeight = null;
-	    } else {
-	      content.style.maxHeight = content.scrollHeight + "px";
-	    }
-	  });
+		coll[i].addEventListener("click", function() {
+
+			this.classList.toggle("active");
+			var content = this.nextElementSibling;
+							
+			if (content.classList.contains("delayed")) {
+				if (content.style.maxHeight) {
+					content.style.maxHeight = null;
+				} else {
+					content.style.maxHeight = content.scrollHeight + "px";
+				}
+			} else {
+				if (content.style.display === "block") {
+					content.style.display = "none";
+				} else {
+					content.style.display = "block";
+				}
+			}
+
+
+		});
 	}
 }
 
 function openCollapsibles() {
 	var coll = document.getElementsByClassName("collapsible");
 	for (i = 0; i < coll.length; i++) {
-	  coll[i].click();
+		const collapsible = coll[i];
+		setTimeout(function() {
+			collapsible.click();
+		}, i * 100);
 	}
+}
+
+function volumeStackedPlot(plotDivName, data, properties, colors, layout) {
+
+	var traces = [];
+	for (let i = 1; i < properties.length; i++) {
+		series = {};
+
+		series.x = [];
+		series.y = [];
+
+		series.stackgroup = 'one';
+		if (i == 1) {
+			series.groupnorm = 'percent';
+		}
+		series.fillcolor = "rgba(" + colors[properties[i]].join(",") + ")";
+
+		for (let t = 0; t < data[properties[i]].length; t++) {
+			series.x.push(data[properties[0]]);
+			series.y.push(data[properties[i]]);
+		}
+
+		traces.push(series);
+	}
+
+	if (layout == undefined) {
+		layout = {
+
+			title: {
+
+				text: 'Hover on <i>points</i> or <i>fill</i>'
+
+			}
+		};
+	}
+
+	Plotly.newPlot(plotDivName, traces, layout)
 }
 
 function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
@@ -92,6 +144,7 @@ const M3WATER = 'm3Water';
 const M3SEWER = 'm3Sewer';
 const M3STORAGE = 'm3Storage';
 const M3GROUND = 'm3Ground';
+const M3EVAPORATED = "m3Evaporated"
 const TIMEFRAMES = 'timeframes';
 
 const timeframes = 15;
@@ -114,6 +167,7 @@ data[M3WATER] = [112746, 144310, 147322, 149971, 152520, 155013, 157511, 160028,
 data[M3GROUND] = [2316283, 2316850, 2317271, 2317700, 2318122, 2318543, 2318954, 2319384, 2319805, 2320226, 2320647, 2321062, 2321476, 2321886, 2322301];
 data[M3STORAGE] = [3.60, 71.44, 143, 212, 278, 342, 404, 465, 466, 466, 467, 467, 467, 467, 467];
 data[M3SEWER] = [0, 0.01, 0.01, 0.04, 0.01, 0.01, 0.07, 0.02, 0, 0, 0, 0, 0, 0, 0];
+data[M3EVAPORATED] = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140];
 
 
 data[M3LAND] = [];
@@ -131,16 +185,18 @@ titles[TIMEFRAMES] = "Timeframes";
 titles[M3LAND] = "Maaiveld [m3]";
 titles[M3WATER] = "Oppervlaktewater [m3]";
 titles[M3GROUND] = "Groundwater [m3]";
-titles[M3STORAGE] = "Waterbergende voorzieningen";
-titles[M3SEWER] = "Riool";
+titles[M3STORAGE] = "Waterbergende voorzieningen [m3]";
+titles[M3SEWER] = "Riool [m3]";
+titles[M3EVAPORATED] = "Evaporated [m3]";
 
-const properties = [TIMEFRAMES, M3LAND, M3WATER, M3GROUND, M3SEWER, M3STORAGE];
+const properties = [TIMEFRAMES, M3LAND, M3WATER, M3GROUND, M3SEWER, M3STORAGE, M3EVAPORATED];
 const colors = {};
 colors[M3WATER] = [10, 10, 218, 0.5];
 colors[M3LAND] = [10, 218, 10, 0.5];
 colors[M3GROUND] = [165, 42, 42, 0.5];
 colors[M3STORAGE] = [218, 10, 10, 0.5];
 colors[M3SEWER] = [128, 128, 128, 0.5];
+colors[M3EVAPORATED] = [0, 128, 128, 0.5];
 
 initCollapsibles();
 

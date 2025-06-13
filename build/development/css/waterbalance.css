@@ -40,10 +40,18 @@ body {
 /* Style the collapsible content. Note: hidden by default */
 .content {
 	padding: 0 0.25em;
-	background-color: white;
-	max-height: 0;
+	background-color: white;	
 	overflow: hidden;
-	transition: max-height 0.2s ease-out;
+	
+}
+
+.content .direct{
+	display: none;
+}
+
+.content .delayed {
+	max-height: 0;
+	transition: max-height 0.2s ease-out;	
 }
 
 .collapsible:after {
