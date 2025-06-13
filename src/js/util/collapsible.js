@@ -16,3 +16,10 @@ export function initCollapsibles() {
 	  });
 	}
 }
+
+export function openCollapsibles() {
+	var coll = document.getElementsByClassName("collapsible");
+	for (i = 0; i < coll.length; i++) {
+	  coll[i].click();
+	}
+}
