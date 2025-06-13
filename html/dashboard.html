@@ -2,18 +2,29 @@
 <html lang="en-US">
 
 <head>
-	<meta charset="UTF-8" />
-	 <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-	<title>DASHBOARD_NAME</title>
-	<link rel="stylesheet" href="./css/DASHBOARD_NAME.css">	
-	<script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>	
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DASHBOARD_NAME</title>
+<link rel="stylesheet" href="./css/DASHBOARD_NAME.css">
+<script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
 </head>
 <body>
-<button type="button" class="collapsible">Waterbalance: Bergin</button>
-<div class="content">  
-<table id="waterBalanceTable" class="datatable"></table>
-<div id="myDiv"></div>
-</div> 
-<script>BODYSCRIPT</script>
+	<button type="button" class="collapsible direct">Waterbalance:
+		Bergin</button>
+	<div class="content">
+		
+			<button type="button" class="collapsible">Table:</button>
+			<div class="content delayed">
+				<table id="waterBalanceTable" class="datatable"></table>
+			</div>
+			<button type="button" class="collapsible">Plot:</button>
+			<div class="content delayed">
+				<div id="balancePlot"></div>
+			</div>
+		
+	</div>
+	<script>
+		BODYSCRIPT
+	</script>
 </body>
 </html>
