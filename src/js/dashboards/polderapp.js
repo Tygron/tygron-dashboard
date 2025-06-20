@@ -16,14 +16,15 @@ const timeframeTimes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
 //const timeframes = $SELECT_ATTRIBUTE_WHERE_GRIDTYPE_IS_RAINFALL_AND_NAME_IS_TIMEFRAMES;
 //const timeframeTimes = $SELECT_ATTRIBUTE_WHERE_GRIDTYPE_IS_RAINFALL_AND_INDEX_IS_0_AND_NAME_IS_TIMEFRAME_TIMES;
+var timeframe = timeframes - 1;
 
 const data = {};
 /*
-data[M3TOTAL] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SURFACE_LAST_VALUE_AND_TIMEFRAME_IS_X];
-data[M3WATER] = [$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_M3WATER_AND_TIMEFRAME_IS_X];
-data[M3GROUND] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_LAST_VALUE_AND_TIMEFRAME_IS_X];
-data[M3STORAGE] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_BUILDING_LAST_STORAGE_AND_TIMEFRAME_IS_X];
-data[M3SEWER] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIMEFRAME_IS_X];
+data[M3TOTAL] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SURFACE_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
+data[M3WATER] = [$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_M3WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
+data[M3GROUND] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
+data[M3STORAGE] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_BUILDING_LAST_STORAGE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
+data[M3SEWER] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
 */
 
 data[M3TOTAL] = [172479, 178205, 184075, 189937, 195813, 201688, 207574, 213439, 213691, 213944, 214196, 214456, 214716, 214981, 215241];
@@ -33,16 +34,16 @@ data[M3STORAGE] = [3.60, 71.44, 143, 212, 278, 342, 404, 465, 466, 466, 467, 467
 data[M3SEWER] = [0, 0.01, 0.01, 0.04, 0.01, 0.01, 0.07, 0.02, 0, 0, 0, 0, 0, 0, 0];
 data[M3EVAPORATED] = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140];
 
-
 data[M3LAND] = [];
 data[TIMEFRAMES] = [];
-
 
 for (var i = 0; i < data[M3TOTAL].length && i < data[M3WATER].length; i++)
 	data[M3LAND].push(data[M3TOTAL][i] - data[M3WATER][i]);
 
 for (var i = 0; i < timeframes; i++)
 	data[TIMEFRAMES].push(i);
+
+const properties = [TIMEFRAMES, M3LAND, M3WATER, M3GROUND, M3SEWER, M3STORAGE, M3EVAPORATED];
 
 const titles = {};
 titles[TIMEFRAMES] = "Timeframes";
@@ -53,7 +54,6 @@ titles[M3STORAGE] = "Waterbergende voorzieningen [m3]";
 titles[M3SEWER] = "Riool [m3]";
 titles[M3EVAPORATED] = "Evaporated [m3]";
 
-const properties = [TIMEFRAMES, M3LAND, M3WATER, M3GROUND, M3SEWER, M3STORAGE, M3EVAPORATED];
 const colors = {};
 colors[M3WATER] = [10, 10, 218, 0.5];
 colors[M3LAND] = [10, 218, 10, 0.5];
@@ -69,6 +69,101 @@ createTable("waterBalanceTable", data, properties, colors);
 const volumePlotLayout = createVolumePlotLayout();
 volumePlotLayout.title.text = "Waterbalans over tijd";
 
-volumeStackedPlot("balancePlot", data, properties, colors, titles, volumePlotLayout) 
+volumeStackedPlot("balancePlot", data, properties, colors, titles, volumePlotLayout)
+
+const sankeyLayout = createSankeyPlotLayout();
+
+let links = createLinks(properties);
+addLink(links, 0, M3WATER, M3EVAPORATED, 40) /* Use your calculated values here */
+addLink(links, 0, M3WATER, M3GROUND, 88) /* Use your calculated values here */
+addLink(links, 0, M3LAND, M3GROUND, 200) /* Use your calculated values here */
+addLink(links, 0, M3LAND, M3SEWER, 24) /* Use your calculated values here */
+addLink(links, 0, M3WATER, M3EVAPORATED, 50) /* Use your calculated values here */
+
+addLink(links, 1, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 1, M3WATER, M3GROUND, 98) /* Use your calculated values here */
+addLink(links, 1, M3LAND, M3GROUND, 22) /* Use your calculated values here */
+addLink(links, 1, M3LAND, M3SEWER, 84) /* Use your calculated values here */
+addLink(links, 1, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+
+addLink(links, 2, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 2, M3WATER, M3GROUND, 14) /* Use your calculated values here */
+addLink(links, 2, M3LAND, M3GROUND, 44) /* Use your calculated values here */
+addLink(links, 2, M3LAND, M3SEWER, 23) /* Use your calculated values here */
+addLink(links, 2, M3WATER, M3EVAPORATED, 58) /* Use your calculated values here */
+
+addLink(links, 3, M3WATER, M3EVAPORATED, 74) /* Use your calculated values here */
+addLink(links, 3, M3WATER, M3GROUND, 56) /* Use your calculated values here */
+addLink(links, 3, M3LAND, M3GROUND, 44) /* Use your calculated values here */
+addLink(links, 3, M3LAND, M3SEWER, 25) /* Use your calculated values here */
+addLink(links, 3, M3WATER, M3EVAPORATED, 11) /* Use your calculated values here */
+
+addLink(links, 4, M3WATER, M3EVAPORATED, 47) /* Use your calculated values here */
+addLink(links, 4, M3WATER, M3GROUND, 45) /* Use your calculated values here */
+addLink(links, 4, M3LAND, M3GROUND, 45) /* Use your calculated values here */
+addLink(links, 4, M3LAND, M3SEWER, 65) /* Use your calculated values here */
+addLink(links, 4, M3WATER, M3EVAPORATED, 68) /* Use your calculated values here */
+
+addLink(links, 5, M3WATER, M3EVAPORATED, 65) /* Use your calculated values here */
+addLink(links, 5, M3WATER, M3GROUND, 55) /* Use your calculated values here */
+addLink(links, 5, M3LAND, M3GROUND, 2) /* Use your calculated values here */
+addLink(links, 5, M3LAND, M3SEWER, 1) /* Use your calculated values here */
+addLink(links, 5, M3WATER, M3EVAPORATED, 170) /* Use your calculated values here */
+
+addLink(links, 6, M3WATER, M3EVAPORATED, 277) /* Use your calculated values here */
+addLink(links, 6, M3WATER, M3GROUND, 398) /* Use your calculated values here */
+addLink(links, 6, M3LAND, M3GROUND, 422) /* Use your calculated values here */
+addLink(links, 6, M3LAND, M3SEWER, 284) /* Use your calculated values here */
+addLink(links, 6, M3WATER, M3EVAPORATED,170) /* Use your calculated values here */
+
+addLink(links, 7, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 7, M3WATER, M3GROUND, 98) /* Use your calculated values here */
+addLink(links, 7, M3LAND, M3GROUND, 22) /* Use your calculated values here */
+addLink(links, 7, M3LAND, M3SEWER, 84) /* Use your calculated values here */
+addLink(links, 7, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+
+addLink(links, 8, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 8, M3WATER, M3GROUND, 98) /* Use your calculated values here */
+addLink(links, 8, M3LAND, M3GROUND, 22) /* Use your calculated values here */
+addLink(links, 8, M3LAND, M3SEWER, 84) /* Use your calculated values here */
+addLink(links, 8, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+
+addLink(links, 9, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 9, M3WATER, M3GROUND, 98) /* Use your calculated values here */
+addLink(links, 9, M3LAND, M3GROUND, 22) /* Use your calculated values here */
+addLink(links, 9, M3LAND, M3SEWER, 84) /* Use your calculated values here */
+addLink(links, 9, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+
+addLink(links, 10, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 10, M3WATER, M3GROUND, 98) /* Use your calculated values here */
+addLink(links, 10, M3LAND, M3GROUND, 22) /* Use your calculated values here */
+addLink(links, 10, M3LAND, M3SEWER, 84) /* Use your calculated values here */
+addLink(links, 10, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+
+addLink(links, 11, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 11, M3WATER, M3GROUND, 98) /* Use your calculated values here */
+addLink(links, 11, M3LAND, M3GROUND, 22) /* Use your calculated values here */
+addLink(links, 11, M3LAND, M3SEWER, 84) /* Use your calculated values here */
+addLink(links, 11, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+
+addLink(links, 12, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 12, M3WATER, M3GROUND, 98) /* Use your calculated values here */
+addLink(links, 12, M3LAND, M3GROUND, 22) /* Use your calculated values here */
+addLink(links, 12, M3LAND, M3SEWER, 84) /* Use your calculated values here */
+addLink(links, 12, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+
+addLink(links, 13, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 13, M3WATER, M3GROUND, 98) /* Use your calculated values here */
+addLink(links, 13, M3LAND, M3GROUND, 22) /* Use your calculated values here */
+addLink(links, 13, M3LAND, M3SEWER, 84) /* Use your calculated values here */
+addLink(links, 13, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+
+addLink(links, 14, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
+addLink(links, 14, M3WATER, M3GROUND, 98) /* Use your calculated values here */
+addLink(links, 14, M3LAND, M3GROUND, 22) /* Use your calculated values here */
+addLink(links, 14, M3LAND, M3SEWER, 84) /* Use your calculated values here */
+addLink(links, 14, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+
+sankeyPlot("sankeyPlot", links, timeframe, properties, colors, titles, sankeyLayout);
 
 openCollapsibles();
