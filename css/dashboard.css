@@ -45,8 +45,8 @@ body {
 	
 }
 
-.content .direct{
-	display: none;
+.content .direct {
+	padding: 0 0em;	
 }
 
 .content .delayed {
@@ -62,6 +62,7 @@ body {
 	float: right;
 	margin-left: 5px;
 }
+
 
 .active:after {
 	content: "\2796";
