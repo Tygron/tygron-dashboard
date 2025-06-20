@@ -428,6 +428,13 @@ addLink(links, 14, M3LAND, M3GROUND, 22) /* Use your calculated values here */
 addLink(links, 14, M3LAND, M3SEWER, 84) /* Use your calculated values here */
 addLink(links, 14, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
 
-sankeyPlot("sankeyPlot", links, timeframe, properties, colors, titles, sankeyLayout);
+const sankeySlider = document.getElementById("sankeySlider");
+sankeySlider.max = timeframes-1;
+sankeySlider.value = timeframe;
 
+sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
+
+sankeySlider.oninput = function() {
+  sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
+} 
 openCollapsibles();
