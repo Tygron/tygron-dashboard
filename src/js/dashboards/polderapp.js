@@ -1,5 +1,6 @@
 import { initCollapsibles, openCollapsibles } from "../util/collapsible.js";
 import { createTable } from "../util/table.js";
+import { volumeStackedPlot, createVolumePlotLayout } from "../util/plot.js";
 
 const M3TOTAL = 'm3Total';
 const M3LAND = 'm3Land';
@@ -64,5 +65,10 @@ colors[M3EVAPORATED] = [0, 128, 128, 0.5];
 initCollapsibles();
 
 createTable("waterBalanceTable", data, properties, colors);
+
+const volumePlotLayout = createVolumePlotLayout();
+volumePlotLayout.title.text = "Waterbalans over tijd";
+
+volumeStackedPlot("balancePlot", data, properties, colors, titles, volumePlotLayout) 
 
 openCollapsibles();
