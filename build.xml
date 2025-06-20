@@ -3,13 +3,15 @@
 
 	<!-- Specify "-Dservertype=preview" in bat arguments to build preview -->
 	<property name="servertype" value="development" />
-	<property name="plotly" value="src='https://cdn.plot.ly/plotly-3.0.1.min.js'"/>
+	<property name="plotly" value="src='https://cdn.plot.ly/plotly-3.0.1.min.js'" />
+	<property name="combined" value="true" />
 	<property name="destination" value="build/${servertype}" />
 	<!-- Adjust intros from * to a particular intro to only build that intro -->
 	<property name="dashboard" value="*" />
 	<basename property="filename" file="${file}" />
 	<echo message="/${filename}" />
 	<property name="filepath" value="${destination}/lib/${filename}" />
+	<property name="bodypath" value="${destination}/body/${filename}" />
 
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
@@ -21,11 +23,18 @@
 
 		<delete dir="build/" />
 
-		<foreach target="concatenate_js" param="file">
+		<foreach target="combined_js" param="file">
 			<path>
 				<fileset id="dashboardset" dir="src/js/dashboards/" includes="${dashboard}.js" />
 			</path>
 		</foreach>
+
+		<foreach target="split_js" param="file">
+			<path>
+				<fileset id="dashboardset" dir="src/js/dashboards/" includes="${dashboard}.js" />
+			</path>
+		</foreach>
+
 		<foreach target="create_html_css" param="file">
 			<path>
 				<fileset id="dashboardset" dir="src/js/dashboards/" includes="${dashboard}.js" />
@@ -33,11 +42,9 @@
 		</foreach>
 	</target>
 
-	<target name="concatenate_js">
+	<target name="combined_js" if="${combined}">
 
-
-
-		<concat destfile="${destination}/lib/${filename}" fixlastline="true" eol="unix">
+		<concat destfile="${filepath}" fixlastline="true" eol="unix">
 			<!-- Naming conventions first -->
 			<fileset dir="src/js/">
 				<include name="**/**/NC.js" />
@@ -60,6 +67,38 @@
 		<replaceregexp file="${filepath}" match="^export const" replace="const" byline="true" />
 	</target>
 
+	<target name="split_js" unless="${combined}">
+
+		<concat destfile="${destination}/lib/${filename}" fixlastline="true" eol="unix">
+			<!-- Naming conventions first -->
+			<fileset dir="src/js/">
+				<include name="**/**/NC.js" />
+			</fileset>
+
+			<fileset dir="src/js/">
+				<include name="**" />
+				<exclude name="**/**/NC.js" />
+				<exclude name="**/dashboards/*.js" />
+			</fileset>
+		</concat>
+
+		<replaceregexp file="${filepath}" match="^import \{.*\}.*;" replace="" byline="true" />
+		<replaceregexp file="${filepath}" match='^import \{.*\}.*;' replace="" byline="true" />
+		<replaceregexp file="${filepath}" match="^export class" replace="class" byline="true" />
+		<replaceregexp file="${filepath}" match="^export function" replace="function" byline="true" />
+		<replaceregexp file="${filepath}" match="^export const" replace="const" byline="true" />
+
+		<concat destfile="${bodypath}" fixlastline="true" eol="unix">
+			<fileset dir="src/js/dashboards/" includes="${filename}" />
+		</concat>
+
+		<replaceregexp file="${bodypath}" match="^import \{.*\}.*;" replace="" byline="true" />
+		<replaceregexp file="${bodypath}" match='^import \{.*\}.*;' replace="" byline="true" />
+		<replaceregexp file="${bodypath}" match="^export class" replace="class" byline="true" />
+		<replaceregexp file="${bodypath}" match="^export function" replace="function" byline="true" />
+		<replaceregexp file="${bodypath}" match="^export const" replace="const" byline="true" />
+	</target>
+
 	<target name="create_html_css">
 
 		<basename property="filename" file="${file}" />
@@ -79,13 +118,25 @@
 
 		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_NAME" replace="${base.name}" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="FILENAME" replace="${filename}" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="PLOTLY" replace="${plotly}" byline="true" />
-		
-		<loadfile property="contents" srcFile="${filepath}" />
-		<replaceregexp file="${destination}/${base.name}.html" match="BODYSCRIPT" replace="${contents}" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_PLOTLY" replace="${plotly}" byline="true" />
 
+		<antcall target="splitScript" />
+		<antcall target="combinedScript" />
 
 	</target>
 
+	<target name="splitScript" unless="${combined}">
+		<loadfile property="contents" srcFile="${bodypath}" />
+		<replaceregexp file="${destination}/${base.name}.html" match="BODYSCRIPT" replace="${contents}" byline="true" />
+		<basename property="libsource" file="${file}" />
+		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_LIBS" replace='src="./lib/FILENAME"' byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="FILENAME" replace="${filename}" byline="true" />
+	</target>
+
+	<target name="combinedScript" if="${combined}">
+		<loadfile property="contents" srcFile="${filepath}" />
+		<replaceregexp file="${destination}/${base.name}.html" match="BODYSCRIPT" replace="${contents}" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_LIBS" replace="" byline="true" />
+	</target>
 
 </project>
