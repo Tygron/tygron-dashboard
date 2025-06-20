@@ -41,7 +41,7 @@ export function createLayout() {
 	/**
 	 * See https://plotly.com/javascript/reference/layout/
 	 */
-	
+
 	const layout = {
 		title: {
 			automargin: undefined,
@@ -76,9 +76,9 @@ export function createLayout() {
 			font: undefined,
 			groupclick: undefined,
 			grouptitlefont: undefined,
-			indentation:undefined,
+			indentation: undefined,
 			itemclick: undefined,
-			itemdoubleclick: undefined, 
+			itemdoubleclick: undefined,
 			itemsizing: undefined,
 		}, //etc
 
@@ -94,3 +94,71 @@ export function createVolumePlotLayout() {
 	 */
 	return layout;
 }
+
+export function createLinks(properties){
+	return {properties:properties};
+}
+
+export function getLink(links, timeframe){
+	if(links.timeframeLinks == undefined){
+		links.timeframeLinks = [];		
+	} 
+	while(links.timeframeLinks.length-1 < timeframe){
+		links.timeframeLinks.push({
+			source:[],
+			target:[],
+			value:[],
+		});
+	}
+	return links.timeframeLinks[timeframe];
+}
+
+export function addLink(links, timeframe, from, to, amount) {
+	let link = getLink(links, timeframe)
+	if (link.source == undefined) {
+		link.source = [];
+	}
+	if (link.target == undefined) {
+		link.target = [];
+	}
+	if (link.value == undefined) {
+		link.value = [];
+	}
+	link.source.push(properties.indexOf(from));
+	link.target.push(properties.indexOf(to));
+	link.value.push(amount);
+}
+
+export function createSankeyPlotLayout() {
+	const layout = createLayout();
+	/**
+	 * Override specific settings
+	 */
+	return layout;
+}
+
+export function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, layout) {
+
+	let link = getLink(links, timeframe);
+	labels = [];
+	for(var i = 0; i < properties.length; i++){
+		labels.push(titles[properties[i]]);	
+	}
+	let data = {
+
+		type: "sankey",
+		orientation: "h",
+
+		node: {
+			label: labels,
+			align: "right",
+		},
+
+		link: link
+	};
+	
+
+
+	Plotly.newPlot(plotDivName, [data], layout);
+}
+
