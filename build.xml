@@ -3,6 +3,7 @@
 
 	<!-- Specify "-Dservertype=preview" in bat arguments to build preview -->
 	<property name="servertype" value="development" />
+	<property name="plotly" value="src='https://cdn.plot.ly/plotly-3.0.1.min.js'"/>
 	<property name="destination" value="build/${servertype}" />
 	<!-- Adjust intros from * to a particular intro to only build that intro -->
 	<property name="dashboard" value="*" />
@@ -65,7 +66,7 @@
 		<propertyregex property="base.name" input="${filename}" regexp="(.*)\.(.*)" select="\1" />
 		<echo message="${base.name}" />
 
-		<copy file="html/dashboard.html" tofile="${destination}/${base.name}.html" />
+		<copy file="html/${base.name}.html" tofile="${destination}/${base.name}.html" />
 
 		<concat destfile="${destination}/css/${base.name}.css" fixlastline="true" eol="unix">
 			<fileset dir="css/">
@@ -78,7 +79,8 @@
 
 		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_NAME" replace="${base.name}" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="FILENAME" replace="${filename}" byline="true" />
-
+		<replaceregexp file="${destination}/${base.name}.html" match="PLOTLY" replace="${plotly}" byline="true" />
+		
 		<loadfile property="contents" srcFile="${filepath}" />
 		<replaceregexp file="${destination}/${base.name}.html" match="BODYSCRIPT" replace="${contents}" byline="true" />
 
