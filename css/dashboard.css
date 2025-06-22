@@ -5,8 +5,7 @@
 	--tygron-blue: rgb(10, 173, 207);
 }
 
-html,
-body {
+html, body {
 	padding: 0px;
 }
 
@@ -23,16 +22,13 @@ body {
 	font-size: 15px;
 }
 
-.active,
-.collapsible {
+.active, .collapsible {
 	font-weight: bold;
 	font-size: 1.5em;
-
 }
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active,
-.collapsible:hover {
+.active, .collapsible:hover {
 	background-color: cornflowerblue;
 	color: white;
 }
@@ -40,18 +36,17 @@ body {
 /* Style the collapsible content. Note: hidden by default */
 .content {
 	padding: 0 0.25em;
-	background-color: white;	
+	background-color: white;
 	overflow: hidden;
-	
 }
 
 .content.direct {
-	padding: 0 0em;	
+	padding: 0 0em;
 }
 
 .content .delayed {
 	max-height: 0;
-	transition: max-height 0.2s ease-out;	
+	transition: max-height 0.2s ease-out;
 }
 
 .collapsible:after {
@@ -62,7 +57,6 @@ body {
 	float: right;
 	margin-left: 5px;
 }
-
 
 .active:after {
 	content: "\2796";
@@ -92,47 +86,45 @@ body {
 
 .datatable td {
 	height: 100%;
-
 }
 
 .datatable td>div {
 	margin: 0.25em;
 	padding: 0.25em 0.25em 0.25em 0.25em;
-
 	position: relative;
 	border-radius: 0.5em;
 }
 
 .slidecontainer {
-  width: 100%; /* Width of the outside container */
+	width: 100%; /* Width of the outside container */
 }
 
 .slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 15px;
-  border-radius: 5px;  
-  background: #d3d3d3;
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+	-webkit-appearance: none;
+	width: 100%;
+	height: 15px;
+	border-radius: 5px;
+	background: #d3d3d3;
+	outline: none;
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
 }
 
 .slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%; 
-  background: #04AA6D;
-  cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
+	width: 25px;
+	height: 25px;
+	border-radius: 50%;
+	background: #04AA6D;
+	cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #04AA6D;
-  cursor: pointer;
+	width: 25px;
+	height: 25px;
+	border-radius: 50%;
+	background: #04AA6D;
+	cursor: pointer;
 }
