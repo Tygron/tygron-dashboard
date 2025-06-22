@@ -10,25 +10,22 @@
 <script src='https://cdn.plot.ly/plotly-3.0.1.min.js' charset="utf-8"></script>
 </head>
 <body>
-	<button type="button" class="collapsible direct">Waterbalance:
-		Bergin</button>
-	<div class="content direct">
-		<button type="button" class="collapsible">Plot:</button>
-		<div class="content delayed">
-			<div id="balancePlot"></div>
+	<div class="grid">
+		<div class="column">
+			<div id="balancePlot" /></div>
 		</div>
-		<button type="button" class="collapsible">Table:</button>
-		<div class="content delayed">
+		<div class="column">
 			<table id="waterBalanceTable" class="datatable"></table>
 		</div>
-		<button type="button" class="collapsible">Sankey:</button>
-		<div class="content delayed">
-			<div class="slidecontainer">
-				<input id="sankeySlider" type="range" min="0" max="0" value="0" class="slider">
-			</div>
-			<div id="sankeyPlot"></div>
-		</div>
 	</div>
+	<div class="column">
+		<div class="slidecontainer">
+			<input id="sankeySlider" type="range" min="0" max="0" value="0"
+				class="slider">
+		</div>
+		<div id="sankeyPlot"></div>
+	</div>
+
 	<script>
 		
 function initCollapsibles() {
