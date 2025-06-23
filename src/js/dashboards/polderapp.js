@@ -1,6 +1,6 @@
 import { initCollapsibles, openCollapsibles } from "../util/collapsible.js";
 import { createTable } from "../util/table.js";
-import { volumeStackedPlot, createVolumePlotLayout } from "../util/plot.js";
+import { barPlot,createBarPlotLayout, } from "../util/plot.js";
 import { setupTimeframeSlider } from "../util/timeframeslider.js";
 
 const M3TOTAL = 'm3Total';
@@ -67,10 +67,17 @@ initCollapsibles();
 
 createTable("waterBalanceTable", data, properties, colors);
 
-const volumePlotLayout = createVolumePlotLayout();
-volumePlotLayout.title.text = "Waterbalans over tijd";
+const barPlotLayout = createBarPlotLayout();
+barPlotLayout.title.text = "Berging per component";
+barPlotLayout.yaxis.title.text = "Volume [m3]";
+barPlotLayout.xaxis.title.text = "Component";
 
-volumeStackedPlot("balancePlot", data, properties, colors, titles, volumePlotLayout)
+const barSlider = document.getElementById("barSlider");
+barPlot("balancePlot", data, barSlider.value, properties, colors, titles, barPlotLayout);
+setupTimeframeSlider(barSlider, timeframe, timeframes, function() {
+	barPlot("balancePlot", data, barSlider.value, properties, colors, titles, barPlotLayout);
+});
+
 
 const sankeyLayout = createSankeyPlotLayout();
 
@@ -165,9 +172,10 @@ addLink(links, 14, M3LAND, M3GROUND, 22) /* Use your calculated values here */
 addLink(links, 14, M3LAND, M3SEWER, 84) /* Use your calculated values here */
 addLink(links, 14, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
 
-sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
 
 const sankeySlider = document.getElementById("sankeySlider");
+sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
+
 setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
 	sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
 });
