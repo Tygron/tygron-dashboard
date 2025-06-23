@@ -1,6 +1,7 @@
 import { initCollapsibles, openCollapsibles } from "../util/collapsible.js";
 import { createTable } from "../util/table.js";
 import { volumeStackedPlot, createVolumePlotLayout } from "../util/plot.js";
+import { setupTimeframeSlider } from "../util/timeframeslider.js";
 
 const M3TOTAL = 'm3Total';
 const M3LAND = 'm3Land';
@@ -114,7 +115,7 @@ addLink(links, 6, M3WATER, M3EVAPORATED, 277) /* Use your calculated values here
 addLink(links, 6, M3WATER, M3GROUND, 398) /* Use your calculated values here */
 addLink(links, 6, M3LAND, M3GROUND, 422) /* Use your calculated values here */
 addLink(links, 6, M3LAND, M3SEWER, 284) /* Use your calculated values here */
-addLink(links, 6, M3WATER, M3EVAPORATED,170) /* Use your calculated values here */
+addLink(links, 6, M3WATER, M3EVAPORATED, 170) /* Use your calculated values here */
 
 addLink(links, 7, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
 addLink(links, 7, M3WATER, M3GROUND, 98) /* Use your calculated values here */
@@ -164,13 +165,11 @@ addLink(links, 14, M3LAND, M3GROUND, 22) /* Use your calculated values here */
 addLink(links, 14, M3LAND, M3SEWER, 84) /* Use your calculated values here */
 addLink(links, 14, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
 
-const sankeySlider = document.getElementById("sankeySlider");
-sankeySlider.max = timeframes-1;
-sankeySlider.value = timeframe;
-
 sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
 
-sankeySlider.oninput = function() {
-  sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
-} 
+const sankeySlider = document.getElementById("sankeySlider");
+setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
+	sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
+});
+
 openCollapsibles();
