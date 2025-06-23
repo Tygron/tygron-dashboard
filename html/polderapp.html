@@ -17,15 +17,20 @@
 		<div class="column">
 			<table id="waterBalanceTable" class="datatable"></table>
 		</div>
-	</div>
-	<div class="column">
-		<div class="slidecontainer">
-			<input id="sankeySlider" type="range" min="0" max="0" value="0"
-				class="slider">
-		</div>
-		<div id="sankeyPlot"></div>
-	</div>
 
+		<div class="column">
+			<div id="sankeySliderBackground"
+				class="timeframe-slider range--ticks"
+				style='--step: 1; --min: 0; --max: 1; --value: 1; --text-value: "1"; --primaryColor: red; --fill-color: unset; --value-background: unset; --value-active-color: unset;'>
+				<input id="sankeySlider" class="timeframe-slider" type="range"
+					min="0" max="1" step="1" value="1"
+					oninput="this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))">
+				<output></output>
+				<div class='range__progress'></div>
+			</div>
+			<div id="sankeyPlot"></div>
+		</div>
+	</div>
 	<script>
 		BODYSCRIPT
 	</script>
