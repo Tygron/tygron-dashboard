@@ -182,7 +182,6 @@ html, body {
   }
   
   & > input {
-    -webkit-appearance: none;
     width: 100%;
     height: var(--thumb-size);
    /* margin: 0 calc(var(--thumb-size)/-2);*/

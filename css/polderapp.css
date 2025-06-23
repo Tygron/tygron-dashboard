@@ -15,7 +15,7 @@
 	height: 100%;
 }
 
-#sankeySliderBackground{
+.slider-background{
 	margin:1em;
 	width:95%;
 	height:15px;
