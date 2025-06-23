@@ -1,4 +1,27 @@
 
+export function barPlot(plotDivName, data, timeframe, properties, colors, titles, layout) {
+
+	var trace1 = {
+		x: [],
+		y: [],
+		marker: {
+			color: []
+		}
+		, type: 'bar'
+	}
+
+	for (let i = 1; i < properties.length; i++) {
+		let property = properties[i];
+		trace1.x.push(titles[property]);
+		trace1.y.push(data[property][timeframe]);
+		trace1.marker.color.push("rgba(" + colors[property].join(",") + ")");
+	}
+
+	var data = [trace1];
+
+	Plotly.newPlot(plotDivName, data, layout);
+}
+
 export function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout, percentual = false) {
 
 	var traces = [];
@@ -36,6 +59,73 @@ export function volumeStackedPlot(plotDivName, data, properties, colors, titles,
 
 	Plotly.newPlot(plotDivName, traces, layout)
 }
+
+
+
+
+
+
+export function createLinks(properties) {
+	return { properties: properties };
+}
+
+export function getLink(links, timeframe) {
+	if (links.timeframeLinks == undefined) {
+		links.timeframeLinks = [];
+	}
+	while (links.timeframeLinks.length - 1 < timeframe) {
+		links.timeframeLinks.push({
+			source: [],
+			target: [],
+			value: [],
+		});
+	}
+	return links.timeframeLinks[timeframe];
+}
+
+export function addLink(links, timeframe, from, to, amount) {
+	let link = getLink(links, timeframe)
+	if (link.source == undefined) {
+		link.source = [];
+	}
+	if (link.target == undefined) {
+		link.target = [];
+	}
+	if (link.value == undefined) {
+		link.value = [];
+	}
+	link.source.push(properties.indexOf(from));
+	link.target.push(properties.indexOf(to));
+	link.value.push(amount);
+}
+
+export function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, layout) {
+
+	let link = getLink(links, timeframe);
+	labels = [];
+	for (var i = 0; i < properties.length; i++) {
+		labels.push(titles[properties[i]]);
+	}
+	let data = {
+
+		type: "sankey",
+		orientation: "h",
+
+		node: {
+			label: labels,
+			align: "right",
+		},
+
+		link: link
+	};
+
+
+
+	Plotly.newPlot(plotDivName, [data], layout);
+}
+
+
+
 
 export function createLayout() {
 	/**
@@ -82,10 +172,36 @@ export function createLayout() {
 			itemsizing: undefined,
 		}, //etc
 
+		xaxis: {
+
+			title: {
+
+				text: '',
+
+				font: {
+
+				}
+
+			},
+
+		},
+
+		yaxis: {
+
+			title: {
+
+				text: '',
+
+				font: {
+
+				}
+
+			}
+
+		}
 	};
 	return layout;
 }
-
 
 export function createVolumePlotLayout() {
 	const layout = createLayout();
@@ -95,38 +211,13 @@ export function createVolumePlotLayout() {
 	return layout;
 }
 
-export function createLinks(properties){
-	return {properties:properties};
-}
-
-export function getLink(links, timeframe){
-	if(links.timeframeLinks == undefined){
-		links.timeframeLinks = [];		
-	} 
-	while(links.timeframeLinks.length-1 < timeframe){
-		links.timeframeLinks.push({
-			source:[],
-			target:[],
-			value:[],
-		});
-	}
-	return links.timeframeLinks[timeframe];
-}
-
-export function addLink(links, timeframe, from, to, amount) {
-	let link = getLink(links, timeframe)
-	if (link.source == undefined) {
-		link.source = [];
-	}
-	if (link.target == undefined) {
-		link.target = [];
-	}
-	if (link.value == undefined) {
-		link.value = [];
-	}
-	link.source.push(properties.indexOf(from));
-	link.target.push(properties.indexOf(to));
-	link.value.push(amount);
+export function createBarPlotLayout(title) {
+	const layout = createLayout();
+	/**
+	 * Override specific settings
+	 */
+	layout.title.text = title;
+	return layout;
 }
 
 export function createSankeyPlotLayout() {
@@ -135,30 +226,5 @@ export function createSankeyPlotLayout() {
 	 * Override specific settings
 	 */
 	return layout;
-}
-
-export function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, layout) {
-
-	let link = getLink(links, timeframe);
-	labels = [];
-	for(var i = 0; i < properties.length; i++){
-		labels.push(titles[properties[i]]);	
-	}
-	let data = {
-
-		type: "sankey",
-		orientation: "h",
-
-		node: {
-			label: labels,
-			align: "right",
-		},
-
-		link: link
-	};
-	
-
-
-	Plotly.newPlot(plotDivName, [data], layout);
 }
 
