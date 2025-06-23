@@ -414,8 +414,6 @@ colors[M3STORAGE] = [218, 10, 10, 0.5];
 colors[M3SEWER] = [128, 128, 128, 0.5];
 colors[M3EVAPORATED] = [0, 128, 128, 0.5];
 
-initCollapsibles();
-
 createTable("waterBalanceTable", data, properties, colors);
 
 const barPlotLayout = createBarPlotLayout();
@@ -429,14 +427,54 @@ setupTimeframeSlider(barSlider, timeframe, timeframes, function() {
 	barPlot("balancePlot", data, barSlider.value, properties, colors, titles, barPlotLayout);
 });
 
+const MODEL_IN = 'MODEL_IN';
+const MODEL_OUT = 'MODEL_OUT';
+const RAINM3 = 'RAINM3';
+const INFILTRATIONM3 = 'INFILTRATIONM3';
+const EVAPORATIONM3 = 'EVAPORATIONM3';
+const SEWER_IN = 'SEWER_IN';
+const SEWER_OVERFLOW = 'SEWER_OVERFLOW';
+const INLET_SURFACE = 'INLET_SURFACE';
+const INLET_GROUND = 'INLET_GROUND';
+const OUTLET_SURFACE = "OUTLET_SURFACE";
+const OUTLET_GROUND = "OUTLET_GROUND";
+const BOTTOM_FLOW_IN = "BOTTOM_FLOW_IN";
+const BOTTOM_FLOW_OUT = "BOTTOM_FLOW_OUT";
+const CULVERT_IN = "CULVERT_IN";
+const CULVERT_OUT = "CULVERT_OUT";
+const PUMP_IN = "PUMP_IN";
+const PUMP_OUT = "PUMP_OUT";
+const BREACH_IN = "BREACH_IN";
+const BREACH_OUT = "BREACH_OUT";
 
-const sankeyLayout = createSankeyPlotLayout();
+const flowTitles = {};
+flowTitles[RAINM3] = 'Neerslag';
+flowTitles[INFILTRATIONM3] = 'Infiltratie';
+flowTitles[EVAPORATIONM3] = 'Verdamping';
+flowTitles[SEWER_IN] = 'POCRiool';
+flowTitles[SEWER_OVERFLOW] = 'Riooloverstort';
+flowTitles[INLET_SURFACE] = 'Inlaat op maaiveld';
+flowTitles[INLET_GROUND] = 'Inlaat in de grond';
+flowTitles[OUTLET_SURFACE] = "Uitlaat op maaiveld";
+flowTitles[OUTLET_GROUND] = "Uitlaat uit de grond";
+flowTitles[BOTTOM_FLOW_IN] = "Kwel";
+flowTitles[BOTTOM_FLOW_OUT] = "Uitzijging";
+flowTitles[CULVERT_IN] = "Duiker in";
+flowTitles[CULVERT_OUT] = "Duiker uit";
+flowTitles[PUMP_IN] = "Pomp in";
+flowTitles[PUMP_OUT] = "Pomp uit";
+flowTitles[BREACH_IN] = "Dambruik in";
+flowTitles[BREACH_OUT] = "Dambruik uit";
+
+const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT];
+const flowData = {};
+
 
 let links = createLinks(properties);
-addLink(links, 0, M3WATER, M3EVAPORATED, 40) /* Use your calculated values here */
-addLink(links, 0, M3WATER, M3GROUND, 88) /* Use your calculated values here */
-addLink(links, 0, M3LAND, M3GROUND, 200) /* Use your calculated values here */
-addLink(links, 0, M3LAND, M3SEWER, 24) /* Use your calculated values here */
+addLink(links, 0, MODEL_IN, RAINM3, 40) /* Use your calculated values here */
+addLink(links, 0, MODEL_IN, BOTTOM_FLOW_IN, 88) /* Use your calculated values here */
+addLink(links, 0, MODEL_IN, INLET_SURFACE, 200) /* Use your calculated values here */
+addLink(links, 0, MODEL_IN, INLET_GROUND, 24) /* Use your calculated values here */
 addLink(links, 0, M3WATER, M3EVAPORATED, 50) /* Use your calculated values here */
 
 addLink(links, 1, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
@@ -524,11 +562,11 @@ addLink(links, 14, M3LAND, M3SEWER, 84) /* Use your calculated values here */
 addLink(links, 14, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
 
 
+const sankeyLayout = createSankeyPlotLayout();
+
 const sankeySlider = document.getElementById("sankeySlider");
 sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
 
 setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
 	sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
 });
-
-openCollapsibles();
