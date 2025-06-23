@@ -8,8 +8,7 @@
 	<property name="destination" value="build/${servertype}" />
 	<!-- Adjust intros from * to a particular intro to only build that intro -->
 	<property name="dashboard" value="*" />
-	<basename property="filename" file="${file}" />
-	<echo message="/${filename}" />
+	<basename property="filename" file="${file}" />		
 	<property name="filepath" value="${destination}/lib/${filename}" />
 	<property name="bodypath" value="${destination}/body/${filename}" />
 
