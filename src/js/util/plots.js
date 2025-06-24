@@ -64,41 +64,6 @@ export function volumeStackedPlot(plotDivName, data, properties, colors, titles,
 
 
 
-
-export function createLinks(properties) {
-	return { properties: properties };
-}
-
-export function getLink(links, timeframe) {
-	if (links.timeframeLinks == undefined) {
-		links.timeframeLinks = [];
-	}
-	while (links.timeframeLinks.length - 1 < timeframe) {
-		links.timeframeLinks.push({
-			source: [],
-			target: [],
-			value: [],
-		});
-	}
-	return links.timeframeLinks[timeframe];
-}
-
-export function addLink(links, timeframe, from, to, amount) {
-	let link = getLink(links, timeframe)
-	if (link.source == undefined) {
-		link.source = [];
-	}
-	if (link.target == undefined) {
-		link.target = [];
-	}
-	if (link.value == undefined) {
-		link.value = [];
-	}
-	link.source.push(properties.indexOf(from));
-	link.target.push(properties.indexOf(to));
-	link.value.push(amount);
-}
-
 export function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, layout) {
 
 	let link = getLink(links, timeframe);
@@ -123,9 +88,6 @@ export function sankeyPlot(plotDivName, links, timeframe, properties, colors, ti
 
 	Plotly.newPlot(plotDivName, [data], layout);
 }
-
-
-
 
 export function createLayout() {
 	/**
