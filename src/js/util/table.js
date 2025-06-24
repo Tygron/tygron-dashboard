@@ -15,7 +15,7 @@ export function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
 }
 
 
-export function createTable(divName, data, properties, colors) {
+export function createTable(divName, data, properties, colors, titles) {
 
 	let table = document.getElementById(divName);
 	if(table== undefined){
