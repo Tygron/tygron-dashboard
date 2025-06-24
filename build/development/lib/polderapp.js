@@ -40,50 +40,110 @@ function openCollapsibles() {
 }
 
 
-function createTimeframeData(timeframes) {
-	let data = {
-		dataframes: []
-	};
+function createLinks(properties) {
+	return { properties: properties };
+}
 
-	for (let i = 0; i < timeframes; i++) {
-		data.dataframes.push({});
+function getLink(links, timeframe) {
+	if (links.timeframeLinks == undefined) {
+		links.timeframeLinks = [];
+	}
+	while (links.timeframeLinks.length - 1 < timeframe) {
+		links.timeframeLinks.push({
+			source: [],
+			target: [],
+			value: [],
+		});
+	}
+	return links.timeframeLinks[timeframe];
+}
+
+function addLink(links, timeframe, from, to, amount) {
+	let link = getLink(links, timeframe)
+	if (link.source == undefined) {
+		link.source = [];
+	}
+	if (link.target == undefined) {
+		link.target = [];
+	}
+	if (link.value == undefined) {
+		link.value = [];
+	}
+	link.source.push(properties.indexOf(from));
+	link.target.push(properties.indexOf(to));
+	link.value.push(amount);
+}
+
+
+function createTimeframeData(timeframes, itemID, properties) {
+	let data = {
+		itemID: itemID,
+		timeframes: timeframes
+	};
+	for(let i = 0; i < properties.length; i++){
+		data[properties[i]]= [];
+		for(let j = 0; j < timeframes; j++){
+			data[properties[i]].push(0);
+		}
 	}
 	return data;
 }
 
-function setTimeframeValues(data, property, values) {
+function setTimeframeValues(data, property, values, relative = false) {
 
-	for (let i = 0; i < data.dataframes.length && i < values.length; i++) {
-		data.dataframes[i].property[property] = values[i];
+	for (let i = 0; i < data[property].length && i < values.length; i++) {
+		data[property][i] = values[i];
+	}
+
+	if (relative) {
+
+		for (let i = 0; i < data[property].length && i < values.length; i++) {
+			let previous = i == 0 ? 0 : data[property][i - 1];
+			data[property][i] -= previous;
+		}
 	}
 }
 
 function setTimeframeValue(data, property, value) {
 
 	for (let i = 0; i < data.dataframes.length; i++) {
-		data.dataframes[i].property[property] = value;
+		data[property][i] = value;
 	}
 }
 
-function addTimeframeValuesForID(data, property, id, idValues, values) {
+function addFlowValues(data,timeframe, propertyFrom, propertyTo, areaIDFrom, areaIDTo, values, condition=undefined) {
+	if (data[propertyFrom][timeframe] == undefined) {
+		data[propertyFrom][timeframe] = 0;
+	}
+	if (data[propertyTo][timeframe] == undefined) {
+		data[propertyTo][timeframe] = 0;
+	}
 
-	for (let i = 0; i < data.dataframes.length && i < values.length && i < idValues; i++) {
-		if (idValues[i] == id) {
-			if (data.dataframes[i].property[property] == undefined) {
-				data.dataframes[i].property[property] = 0;
+	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
+		if (areaIDFrom[i] == data.itemID && values[i] != 0 && (condition==undefined || condition[i])) {			
+			if (values[i] > 0) {
+				data[propertyFrom][timeframe] -= values[i];
+			} else {
+				data[propertyFrom][timeframe] += values[i];
 			}
-			data.dataframes[i].property[property] += values[i];
+		}
+		if (areaIDTo[i] == data.itemID && values[i] != 0 && (condition==undefined || condition[i])) {
+			if (values[i] > 0) {
+				data[propertyTo][timeframe] += values[i];
+			} else {
+				data[propertyTo][timeframe] -= values[i];
+			}
 		}
 	}
 }
-function addValuesForTimeframeAndID(data, timeframe, property, id, idValues, values) {
 
-	let dataframe = data.dataframes[timeframe];
-	if (idValues[i] == id) {
-		if (dataframe.property[property] == undefined) {
-			dataframe.property[property] = 0;
+function addValuesForTimeframeAndID(data, timeframe, property, idValues, values) {
+
+	if (idValues[i] == data.itemID) {
+		if (data[property][timeframe] == undefined) {
+			data[property][timeframe] = 0;
 		}
-		dataframe.property[property] += values[i];
+		data[property][timeframe] += values[i];
 	}
 
 }
@@ -153,41 +213,6 @@ function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout
 
 
 
-
-function createLinks(properties) {
-	return { properties: properties };
-}
-
-function getLink(links, timeframe) {
-	if (links.timeframeLinks == undefined) {
-		links.timeframeLinks = [];
-	}
-	while (links.timeframeLinks.length - 1 < timeframe) {
-		links.timeframeLinks.push({
-			source: [],
-			target: [],
-			value: [],
-		});
-	}
-	return links.timeframeLinks[timeframe];
-}
-
-function addLink(links, timeframe, from, to, amount) {
-	let link = getLink(links, timeframe)
-	if (link.source == undefined) {
-		link.source = [];
-	}
-	if (link.target == undefined) {
-		link.target = [];
-	}
-	if (link.value == undefined) {
-		link.value = [];
-	}
-	link.source.push(properties.indexOf(from));
-	link.target.push(properties.indexOf(to));
-	link.value.push(amount);
-}
-
 function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, layout) {
 
 	let link = getLink(links, timeframe);
@@ -212,9 +237,6 @@ function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, l
 
 	Plotly.newPlot(plotDivName, [data], layout);
 }
-
-
-
 
 function createLayout() {
 	/**
@@ -334,7 +356,7 @@ function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
 }
 
 
-function createTable(divName, data, properties, colors) {
+function createTable(divName, data, properties, colors, titles) {
 
 	let table = document.getElementById(divName);
 	if(table== undefined){
@@ -402,6 +424,7 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput){
 
 
 
+
 const M3TOTAL = 'm3Total';
 const M3LAND = 'm3Land';
 const M3WATER = 'm3Water';
@@ -450,7 +473,7 @@ colors[M3STORAGE] = [218, 10, 10, 0.5];
 colors[M3SEWER] = [128, 128, 128, 0.5];
 colors[M3EVAPORATED] = [0, 128, 128, 0.5];
 
-createTable("waterBalanceTable", data, properties, colors);
+createTable("waterBalanceTable", data, properties, colors, titles);
 
 const barPlotLayout = createBarPlotLayout();
 barPlotLayout.title.text = "Berging per component";
@@ -484,6 +507,7 @@ const BREACH_IN = "BREACH_IN";
 const BREACH_OUT = "BREACH_OUT";
 
 const flowTitles = {};
+flowTitles[TIMEFRAMES] = "Timeframes";
 flowTitles[RAINM3] = 'Neerslag';
 flowTitles[INFILTRATIONM3] = 'Infiltratie';
 flowTitles[EVAPORATIONM3] = 'Verdamping';
@@ -500,168 +524,114 @@ flowTitles[CULVERT_OUT] = "Duiker uit";
 flowTitles[PUMP_IN] = "Pomp in";
 flowTitles[PUMP_OUT] = "Pomp uit";
 
-const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT];
-const flowData = createTimeframeData();
+const flowColors = {};
+flowColors[RAINM3] = [10, 10, 218, 0.5];
+flowColors[INFILTRATIONM3] = [10, 218, 10, 0.5];
+flowColors[EVAPORATIONM3] = [165, 42, 42, 0.5];
+flowColors[SEWER_IN] = [218, 10, 10, 0.5];
+flowColors[SEWER_OVERFLOW] = [128, 128, 128, 0.5];
+flowColors[INLET_SURFACE] = [128, 128, 128, 0.5];
+flowColors[INLET_GROUND] = [128, 128, 128, 0.5];
+flowColors[OUTLET_SURFACE] = [128, 128, 128, 0.5];
+flowColors[OUTLET_GROUND] = [128, 128, 128, 0.5];
+flowColors[BOTTOM_FLOW_IN] = [128, 128, 128, 0.5];
+flowColors[BOTTOM_FLOW_OUT] = [128, 128, 128, 0.5];
+flowColors[CULVERT_IN] = [128, 128, 128, 0.5];
+flowColors[CULVERT_OUT] = [128, 128, 128, 0.5];
+flowColors[PUMP_IN] = [128, 128, 128, 0.5];
+flowColors[PUMP_OUT] = [128, 128, 128, 0.5];
+
+const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT];
+const flowData = createTimeframeData(timeframes, $ID, flowproperties);
 
 const culvertAreaFrom = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0];
 const culvertAreaTo = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_1];
-var culverFlowM3 = [];
-var inletFlowM3 = [];
-var pumpFlowM3 = [];
+const pumpAreaFrom = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_0];
+const pumpAreaTo = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_1];
+const inletAreaFrom = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0];
+const inletAreaTo = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_1];
+const inletUnderground = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_UNDERGROUND_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0];
+const inletSurface = [];
 
-let links = createLinks(properties);
+for (let i = 0; i < inletUnderground.length; i++) {
+	inletSurface.push(inletUnderground[i] <= 0);
+	inletUnderground[i] = inletUnderground[i] > 0;
 
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_0];
+}
 
-addLink(links, 0, MODEL_IN, RAINM3, 40) /* Use your calculated values here */
-addLink(links, 0, MODEL_IN, BOTTOM_FLOW_IN, 88) /* Use your calculated values here */
-addLink(links, 0, MODEL_IN, INLET_SURFACE, 200) /* Use your calculated values here */
-addLink(links, 0, MODEL_IN, INLET_GROUND, 24) /* Use your calculated values here */
-addLink(links, 0, M3WATER, M3EVAPORATED, 50) /* Use your calculated values here */
+setTimeframeValues(flowData, RAINM3, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_LAST_RAIN_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID]);
+setTimeframeValues(flowData, EVAPORATIONM3, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_LAST_RAIN_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID]);
+setTimeframeValues(flowData, BOTTOM_FLOW_IN, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_BOTTOM_FLOW_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID]);
+setTimeframeValues(flowData, SEWER_IN, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID], relative = true);
 
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_1];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_1];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_1];
+addFlowValues(flowData, 0, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0]);
+addFlowValues(flowData, 1, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_1]);
+addFlowValues(flowData, 2, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_2]);
+addFlowValues(flowData, 3, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_3]);
+addFlowValues(flowData, 4, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_4]);
+addFlowValues(flowData, 5, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_5]);
+addFlowValues(flowData, 6, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_6]);
+addFlowValues(flowData, 7, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_7]);
+addFlowValues(flowData, 8, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_8]);
+addFlowValues(flowData, 9, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_9]);
+addFlowValues(flowData, 10, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_10]);
+addFlowValues(flowData, 11, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_11]);
+addFlowValues(flowData, 12, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_12]);
+addFlowValues(flowData, 13, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_13]);
+addFlowValues(flowData, 14, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_14]);
 
-addLink(links, 1, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 1, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 1, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 1, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 1, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+addFlowValues(flowData, 0, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0], condition = inletSurface);
+addFlowValues(flowData, 1, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_1], condition = inletSurface);
+addFlowValues(flowData, 2, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_2], condition = inletSurface);
+addFlowValues(flowData, 3, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_3], condition = inletSurface);
+addFlowValues(flowData, 4, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_4], condition = inletSurface);
+addFlowValues(flowData, 5, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_5], condition = inletSurface);
+addFlowValues(flowData, 6, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_6], condition = inletSurface);
+addFlowValues(flowData, 7, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_7], condition = inletSurface);
+addFlowValues(flowData, 8, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_8], condition = inletSurface);
+addFlowValues(flowData, 9, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_9], condition = inletSurface);
+addFlowValues(flowData, 10, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_10], condition = inletSurface);
+addFlowValues(flowData, 11, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_11], condition = inletSurface);
+addFlowValues(flowData, 12, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_12], condition = inletSurface);
+addFlowValues(flowData, 13, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_13], condition = inletSurface);
+addFlowValues(flowData, 14, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_14], condition = inletSurface);
 
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_2];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_2];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_2];
+addFlowValues(flowData, 0, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0], condition = inletUnderground);
+addFlowValues(flowData, 1, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_1], condition = inletUnderground);
+addFlowValues(flowData, 2, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_2], condition = inletUnderground);
+addFlowValues(flowData, 3, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_3], condition = inletUnderground);
+addFlowValues(flowData, 4, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_4], condition = inletUnderground);
+addFlowValues(flowData, 5, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_5], condition = inletUnderground);
+addFlowValues(flowData, 6, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_6], condition = inletUnderground);
+addFlowValues(flowData, 7, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_7], condition = inletUnderground);
+addFlowValues(flowData, 8, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_8], condition = inletUnderground);
+addFlowValues(flowData, 9, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_9], condition = inletUnderground);
+addFlowValues(flowData, 10, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_10], condition = inletUnderground);
+addFlowValues(flowData, 11, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_11], condition = inletUnderground);
+addFlowValues(flowData, 12, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_12], condition = inletUnderground);
+addFlowValues(flowData, 13, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_13], condition = inletUnderground);
+addFlowValues(flowData, 14, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_14], condition = inletUnderground);
 
-addLink(links, 2, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 2, M3WATER, M3GROUND, 14) /* Use your calculated values here */
-addLink(links, 2, M3LAND, M3GROUND, 44) /* Use your calculated values here */
-addLink(links, 2, M3LAND, M3SEWER, 23) /* Use your calculated values here */
-addLink(links, 2, M3WATER, M3EVAPORATED, 58) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_3];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_3];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_3];
-
-addLink(links, 3, M3WATER, M3EVAPORATED, 74) /* Use your calculated values here */
-addLink(links, 3, M3WATER, M3GROUND, 56) /* Use your calculated values here */
-addLink(links, 3, M3LAND, M3GROUND, 44) /* Use your calculated values here */
-addLink(links, 3, M3LAND, M3SEWER, 25) /* Use your calculated values here */
-addLink(links, 3, M3WATER, M3EVAPORATED, 11) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_4];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_4];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_4];
-
-addLink(links, 4, M3WATER, M3EVAPORATED, 47) /* Use your calculated values here */
-addLink(links, 4, M3WATER, M3GROUND, 45) /* Use your calculated values here */
-addLink(links, 4, M3LAND, M3GROUND, 45) /* Use your calculated values here */
-addLink(links, 4, M3LAND, M3SEWER, 65) /* Use your calculated values here */
-addLink(links, 4, M3WATER, M3EVAPORATED, 68) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_5];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_5];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_5];
-
-addLink(links, 5, M3WATER, M3EVAPORATED, 65) /* Use your calculated values here */
-addLink(links, 5, M3WATER, M3GROUND, 55) /* Use your calculated values here */
-addLink(links, 5, M3LAND, M3GROUND, 2) /* Use your calculated values here */
-addLink(links, 5, M3LAND, M3SEWER, 1) /* Use your calculated values here */
-addLink(links, 5, M3WATER, M3EVAPORATED, 170) /* Use your calculated values here */
+addFlowValues(flowData, 0, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_0]);
+addFlowValues(flowData, 1, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_1]);
+addFlowValues(flowData, 2, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_2]);
+addFlowValues(flowData, 3, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_3]);
+addFlowValues(flowData, 4, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_4]);
+addFlowValues(flowData, 5, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_5]);
+addFlowValues(flowData, 6, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_6]);
+addFlowValues(flowData, 7, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_7]);
+addFlowValues(flowData, 8, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_8]);
+addFlowValues(flowData, 9, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_9]);
+addFlowValues(flowData, 10, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_10]);
+addFlowValues(flowData, 11, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_11]);
+addFlowValues(flowData, 12, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_12]);
+addFlowValues(flowData, 13, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_13]);
+addFlowValues(flowData, 14, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_14]);
 
 
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_6];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_6];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_6];
+let links = createLinks(flowproperties);
 
-addLink(links, 6, M3WATER, M3EVAPORATED, 277) /* Use your calculated values here */
-addLink(links, 6, M3WATER, M3GROUND, 398) /* Use your calculated values here */
-addLink(links, 6, M3LAND, M3GROUND, 422) /* Use your calculated values here */
-addLink(links, 6, M3LAND, M3SEWER, 284) /* Use your calculated values here */
-addLink(links, 6, M3WATER, M3EVAPORATED, 170) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_7];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_7];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_7];
-
-addLink(links, 7, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 7, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 7, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 7, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 7, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_8];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_8];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_8];
-
-addLink(links, 8, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 8, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 8, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 8, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 8, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_9];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_9];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_9];
-
-addLink(links, 9, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 9, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 9, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 9, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 9, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_10];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_10];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_10];
-
-addLink(links, 10, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 10, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 10, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 10, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 10, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_11];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_11];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_11];
-
-addLink(links, 11, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 11, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 11, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 11, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 11, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_12];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_12];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_12];
-
-addLink(links, 12, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 12, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 12, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 12, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 12, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_13];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_13];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_13];
-
-addLink(links, 13, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 13, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 13, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 13, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 13, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_14];
-inletFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_14];
-pumpFlowM3 = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_14];
-
-addLink(links, 14, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 14, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 14, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 14, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 14, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
+createTable("waterFlowTable", flowData, flowproperties, flowColors, flowTitles);
 
 const sankeyLayout = createSankeyPlotLayout();
 

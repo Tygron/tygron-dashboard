@@ -35,6 +35,9 @@
 			</div>
 			<div id="sankeyPlot"></div>
 		</div>
+		<div class="column">
+			<table id="waterFlowTable" class="datatable"></table>
+		</div>
 	</div>
 	<script>
 		
@@ -79,50 +82,110 @@ function openCollapsibles() {
 }
 
 
-function createTimeframeData(timeframes) {
-	let data = {
-		dataframes: []
-	};
+function createLinks(properties) {
+	return { properties: properties };
+}
 
-	for (let i = 0; i < timeframes; i++) {
-		data.dataframes.push({});
+function getLink(links, timeframe) {
+	if (links.timeframeLinks == undefined) {
+		links.timeframeLinks = [];
+	}
+	while (links.timeframeLinks.length - 1 < timeframe) {
+		links.timeframeLinks.push({
+			source: [],
+			target: [],
+			value: [],
+		});
+	}
+	return links.timeframeLinks[timeframe];
+}
+
+function addLink(links, timeframe, from, to, amount) {
+	let link = getLink(links, timeframe)
+	if (link.source == undefined) {
+		link.source = [];
+	}
+	if (link.target == undefined) {
+		link.target = [];
+	}
+	if (link.value == undefined) {
+		link.value = [];
+	}
+	link.source.push(properties.indexOf(from));
+	link.target.push(properties.indexOf(to));
+	link.value.push(amount);
+}
+
+
+function createTimeframeData(timeframes, itemID, properties) {
+	let data = {
+		itemID: itemID,
+		timeframes: timeframes
+	};
+	for(let i = 0; i < properties.length; i++){
+		data[properties[i]]= [];
+		for(let j = 0; j < timeframes; j++){
+			data[properties[i]].push(0);
+		}
 	}
 	return data;
 }
 
-function setTimeframeValues(data, property, values) {
+function setTimeframeValues(data, property, values, relative = false) {
 
-	for (let i = 0; i < data.dataframes.length && i < values.length; i++) {
-		data.dataframes[i].property[property] = values[i];
+	for (let i = 0; i < data[property].length && i < values.length; i++) {
+		data[property][i] = values[i];
+	}
+
+	if (relative) {
+
+		for (let i = 0; i < data[property].length && i < values.length; i++) {
+			let previous = i == 0 ? 0 : data[property][i - 1];
+			data[property][i] -= previous;
+		}
 	}
 }
 
 function setTimeframeValue(data, property, value) {
 
 	for (let i = 0; i < data.dataframes.length; i++) {
-		data.dataframes[i].property[property] = value;
+		data[property][i] = value;
 	}
 }
 
-function addTimeframeValuesForID(data, property, id, idValues, values) {
+function addFlowValues(data,timeframe, propertyFrom, propertyTo, areaIDFrom, areaIDTo, values, condition=undefined) {
+	if (data[propertyFrom][timeframe] == undefined) {
+		data[propertyFrom][timeframe] = 0;
+	}
+	if (data[propertyTo][timeframe] == undefined) {
+		data[propertyTo][timeframe] = 0;
+	}
 
-	for (let i = 0; i < data.dataframes.length && i < values.length && i < idValues; i++) {
-		if (idValues[i] == id) {
-			if (data.dataframes[i].property[property] == undefined) {
-				data.dataframes[i].property[property] = 0;
+	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
+		if (areaIDFrom[i] == data.itemID && values[i] != 0 && (condition==undefined || condition[i])) {			
+			if (values[i] > 0) {
+				data[propertyFrom][timeframe] -= values[i];
+			} else {
+				data[propertyFrom][timeframe] += values[i];
 			}
-			data.dataframes[i].property[property] += values[i];
+		}
+		if (areaIDTo[i] == data.itemID && values[i] != 0 && (condition==undefined || condition[i])) {
+			if (values[i] > 0) {
+				data[propertyTo][timeframe] += values[i];
+			} else {
+				data[propertyTo][timeframe] -= values[i];
+			}
 		}
 	}
 }
-function addValuesForTimeframeAndID(data, timeframe, property, id, idValues, values) {
 
-	let dataframe = data.dataframes[timeframe];
-	if (idValues[i] == id) {
-		if (dataframe.property[property] == undefined) {
-			dataframe.property[property] = 0;
+function addValuesForTimeframeAndID(data, timeframe, property, idValues, values) {
+
+	if (idValues[i] == data.itemID) {
+		if (data[property][timeframe] == undefined) {
+			data[property][timeframe] = 0;
 		}
-		dataframe.property[property] += values[i];
+		data[property][timeframe] += values[i];
 	}
 
 }
@@ -192,41 +255,6 @@ function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout
 
 
 
-
-function createLinks(properties) {
-	return { properties: properties };
-}
-
-function getLink(links, timeframe) {
-	if (links.timeframeLinks == undefined) {
-		links.timeframeLinks = [];
-	}
-	while (links.timeframeLinks.length - 1 < timeframe) {
-		links.timeframeLinks.push({
-			source: [],
-			target: [],
-			value: [],
-		});
-	}
-	return links.timeframeLinks[timeframe];
-}
-
-function addLink(links, timeframe, from, to, amount) {
-	let link = getLink(links, timeframe)
-	if (link.source == undefined) {
-		link.source = [];
-	}
-	if (link.target == undefined) {
-		link.target = [];
-	}
-	if (link.value == undefined) {
-		link.value = [];
-	}
-	link.source.push(properties.indexOf(from));
-	link.target.push(properties.indexOf(to));
-	link.value.push(amount);
-}
-
 function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, layout) {
 
 	let link = getLink(links, timeframe);
@@ -251,9 +279,6 @@ function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, l
 
 	Plotly.newPlot(plotDivName, [data], layout);
 }
-
-
-
 
 function createLayout() {
 	/**
@@ -373,7 +398,7 @@ function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
 }
 
 
-function createTable(divName, data, properties, colors) {
+function createTable(divName, data, properties, colors, titles) {
 
 	let table = document.getElementById(divName);
 	if(table== undefined){
@@ -441,6 +466,7 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput){
 
 
 
+
 const M3TOTAL = 'm3Total';
 const M3LAND = 'm3Land';
 const M3WATER = 'm3Water';
@@ -489,7 +515,7 @@ colors[M3STORAGE] = [218, 10, 10, 0.5];
 colors[M3SEWER] = [128, 128, 128, 0.5];
 colors[M3EVAPORATED] = [0, 128, 128, 0.5];
 
-createTable("waterBalanceTable", data, properties, colors);
+createTable("waterBalanceTable", data, properties, colors, titles);
 
 const barPlotLayout = createBarPlotLayout();
 barPlotLayout.title.text = "Berging per component";
@@ -523,6 +549,7 @@ const BREACH_IN = "BREACH_IN";
 const BREACH_OUT = "BREACH_OUT";
 
 const flowTitles = {};
+flowTitles[TIMEFRAMES] = "Timeframes";
 flowTitles[RAINM3] = 'Neerslag';
 flowTitles[INFILTRATIONM3] = 'Infiltratie';
 flowTitles[EVAPORATIONM3] = 'Verdamping';
@@ -539,168 +566,114 @@ flowTitles[CULVERT_OUT] = "Duiker uit";
 flowTitles[PUMP_IN] = "Pomp in";
 flowTitles[PUMP_OUT] = "Pomp uit";
 
-const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT];
-const flowData = createTimeframeData();
+const flowColors = {};
+flowColors[RAINM3] = [10, 10, 218, 0.5];
+flowColors[INFILTRATIONM3] = [10, 218, 10, 0.5];
+flowColors[EVAPORATIONM3] = [165, 42, 42, 0.5];
+flowColors[SEWER_IN] = [218, 10, 10, 0.5];
+flowColors[SEWER_OVERFLOW] = [128, 128, 128, 0.5];
+flowColors[INLET_SURFACE] = [128, 128, 128, 0.5];
+flowColors[INLET_GROUND] = [128, 128, 128, 0.5];
+flowColors[OUTLET_SURFACE] = [128, 128, 128, 0.5];
+flowColors[OUTLET_GROUND] = [128, 128, 128, 0.5];
+flowColors[BOTTOM_FLOW_IN] = [128, 128, 128, 0.5];
+flowColors[BOTTOM_FLOW_OUT] = [128, 128, 128, 0.5];
+flowColors[CULVERT_IN] = [128, 128, 128, 0.5];
+flowColors[CULVERT_OUT] = [128, 128, 128, 0.5];
+flowColors[PUMP_IN] = [128, 128, 128, 0.5];
+flowColors[PUMP_OUT] = [128, 128, 128, 0.5];
+
+const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT];
+const flowData = createTimeframeData(timeframes, 2, flowproperties);
 
 const culvertAreaFrom = [2, 2, 1, 1, 2, 3];
 const culvertAreaTo = [2, 0, 2, 2, 1, 2];
-var culverFlowM3 = [];
-var inletFlowM3 = [];
-var pumpFlowM3 = [];
+const pumpAreaFrom = [2, 2, 1, 1, 2, 3];
+const pumpAreaTo = [2, 0, 2, 2, 1, 2];
+const inletAreaFrom = [2, 2, 1, 1, 2, 3];
+const inletAreaTo = [2, 0, 2, 2, 1, 2];
+const inletUnderground = [0, 0, 0, 0, 0, 1];
+const inletSurface = [];
 
-let links = createLinks(properties);
+for (let i = 0; i < inletUnderground.length; i++) {
+	inletSurface.push(inletUnderground[i] <= 0);
+	inletUnderground[i] = inletUnderground[i] > 0;
 
-culverFlowM3 = [1, 2, 3, 4, 5, 6];
-inletFlowM3 = [1, 2, 3, 4, 5, 6];
-pumpFlowM3 = [1, 2, 3, 4, 5, 6];
+}
 
-addLink(links, 0, MODEL_IN, RAINM3, 40) /* Use your calculated values here */
-addLink(links, 0, MODEL_IN, BOTTOM_FLOW_IN, 88) /* Use your calculated values here */
-addLink(links, 0, MODEL_IN, INLET_SURFACE, 200) /* Use your calculated values here */
-addLink(links, 0, MODEL_IN, INLET_GROUND, 24) /* Use your calculated values here */
-addLink(links, 0, M3WATER, M3EVAPORATED, 50) /* Use your calculated values here */
+setTimeframeValues(flowData, RAINM3, [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140]);
+setTimeframeValues(flowData, EVAPORATIONM3, [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140]);
+setTimeframeValues(flowData, BOTTOM_FLOW_IN, [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140]);
+setTimeframeValues(flowData, SEWER_IN, [0, 0.01, 0.01, 0.04, 0.01, 0.01, 0.07, 0.02, 0, 0, 0, 0, 0, 0, 0], relative = true);
 
-culverFlowM3 = [0, 0, 1, 0, 1, 2];
-inletFlowM3 = [0, 0, 1, 0, 1, 2];
-pumpFlowM3 = [0, 0, 1, 0, 1, 2];
+addFlowValues(flowData, 0, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 1, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 2, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 3, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 4, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 5, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 6, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 7, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 8, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 9, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 10, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 20]);
+addFlowValues(flowData, 11, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 21]);
+addFlowValues(flowData, 12, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 22]);
+addFlowValues(flowData, 13, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 23]);
+addFlowValues(flowData, 14, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 24]);
 
-addLink(links, 1, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 1, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 1, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 1, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 1, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
+addFlowValues(flowData, 0, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
+addFlowValues(flowData, 1, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
+addFlowValues(flowData, 2, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
+addFlowValues(flowData, 3, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
+addFlowValues(flowData, 4, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
+addFlowValues(flowData, 5, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
+addFlowValues(flowData, 6, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
+addFlowValues(flowData, 7, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
+addFlowValues(flowData, 8, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
+addFlowValues(flowData, 9, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
+addFlowValues(flowData, 10, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 20], condition = inletSurface);
+addFlowValues(flowData, 11, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 21], condition = inletSurface);
+addFlowValues(flowData, 12, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 22], condition = inletSurface);
+addFlowValues(flowData, 13, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 23], condition = inletSurface);
+addFlowValues(flowData, 14, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 24], condition = inletSurface);
 
-culverFlowM3 = [1, 2, 3, 4, 5, 6];
-inletFlowM3 = [1, 2, 3, 4, 5, 6];
-pumpFlowM3 = [1, 2, 3, 4, 5, 6];
+addFlowValues(flowData, 0, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
+addFlowValues(flowData, 1, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
+addFlowValues(flowData, 2, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
+addFlowValues(flowData, 3, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
+addFlowValues(flowData, 4, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
+addFlowValues(flowData, 5, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
+addFlowValues(flowData, 6, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
+addFlowValues(flowData, 7, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
+addFlowValues(flowData, 8, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
+addFlowValues(flowData, 9, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
+addFlowValues(flowData, 10, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 20], condition = inletUnderground);
+addFlowValues(flowData, 11, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 21], condition = inletUnderground);
+addFlowValues(flowData, 12, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 22], condition = inletUnderground);
+addFlowValues(flowData, 13, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 23], condition = inletUnderground);
+addFlowValues(flowData, 14, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 24], condition = inletUnderground);
 
-addLink(links, 2, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 2, M3WATER, M3GROUND, 14) /* Use your calculated values here */
-addLink(links, 2, M3LAND, M3GROUND, 44) /* Use your calculated values here */
-addLink(links, 2, M3LAND, M3SEWER, 23) /* Use your calculated values here */
-addLink(links, 2, M3WATER, M3EVAPORATED, 58) /* Use your calculated values here */
-
-culverFlowM3 = [0, 0, 1, 0, 1, 2];
-inletFlowM3 = [0, 0, 1, 0, 1, 2];
-pumpFlowM3 = [0, 0, 1, 0, 1, 2];
-
-addLink(links, 3, M3WATER, M3EVAPORATED, 74) /* Use your calculated values here */
-addLink(links, 3, M3WATER, M3GROUND, 56) /* Use your calculated values here */
-addLink(links, 3, M3LAND, M3GROUND, 44) /* Use your calculated values here */
-addLink(links, 3, M3LAND, M3SEWER, 25) /* Use your calculated values here */
-addLink(links, 3, M3WATER, M3EVAPORATED, 11) /* Use your calculated values here */
-
-culverFlowM3 = [1, 2, 3, 4, 5, 6];
-inletFlowM3 = [1, 2, 3, 4, 5, 6];
-pumpFlowM3 = [1, 2, 3, 4, 5, 6];
-
-addLink(links, 4, M3WATER, M3EVAPORATED, 47) /* Use your calculated values here */
-addLink(links, 4, M3WATER, M3GROUND, 45) /* Use your calculated values here */
-addLink(links, 4, M3LAND, M3GROUND, 45) /* Use your calculated values here */
-addLink(links, 4, M3LAND, M3SEWER, 65) /* Use your calculated values here */
-addLink(links, 4, M3WATER, M3EVAPORATED, 68) /* Use your calculated values here */
-
-culverFlowM3 = [0, 0, 1, 0, 1, 2];
-inletFlowM3 = [0, 0, 1, 0, 1, 2];
-pumpFlowM3 = [0, 0, 1, 0, 1, 2];
-
-addLink(links, 5, M3WATER, M3EVAPORATED, 65) /* Use your calculated values here */
-addLink(links, 5, M3WATER, M3GROUND, 55) /* Use your calculated values here */
-addLink(links, 5, M3LAND, M3GROUND, 2) /* Use your calculated values here */
-addLink(links, 5, M3LAND, M3SEWER, 1) /* Use your calculated values here */
-addLink(links, 5, M3WATER, M3EVAPORATED, 170) /* Use your calculated values here */
+addFlowValues(flowData, 0, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 1, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 2, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 3, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 4, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 5, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 6, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 7, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 8, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 9, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 10, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 20]);
+addFlowValues(flowData, 11, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 21]);
+addFlowValues(flowData, 12, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 22]);
+addFlowValues(flowData, 13, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 23]);
+addFlowValues(flowData, 14, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 24]);
 
 
-culverFlowM3 = [1, 2, 3, 4, 5, 6];
-inletFlowM3 = [1, 2, 3, 4, 5, 6];
-pumpFlowM3 = [1, 2, 3, 4, 5, 6];
+let links = createLinks(flowproperties);
 
-addLink(links, 6, M3WATER, M3EVAPORATED, 277) /* Use your calculated values here */
-addLink(links, 6, M3WATER, M3GROUND, 398) /* Use your calculated values here */
-addLink(links, 6, M3LAND, M3GROUND, 422) /* Use your calculated values here */
-addLink(links, 6, M3LAND, M3SEWER, 284) /* Use your calculated values here */
-addLink(links, 6, M3WATER, M3EVAPORATED, 170) /* Use your calculated values here */
-
-culverFlowM3 = [0, 0, 1, 0, 1, 2];
-inletFlowM3 = [0, 0, 1, 0, 1, 2];
-pumpFlowM3 = [0, 0, 1, 0, 1, 2];
-
-addLink(links, 7, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 7, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 7, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 7, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 7, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [1, 2, 3, 4, 5, 6];
-inletFlowM3 = [1, 2, 3, 4, 5, 6];
-pumpFlowM3 = [1, 2, 3, 4, 5, 6];
-
-addLink(links, 8, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 8, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 8, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 8, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 8, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [0, 0, 1, 0, 1, 2];
-inletFlowM3 = [0, 0, 1, 0, 1, 2];
-pumpFlowM3 = [0, 0, 1, 0, 1, 2];
-
-addLink(links, 9, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 9, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 9, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 9, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 9, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [0, 0, 1, 0, 1, 20];
-inletFlowM3 = [0, 0, 1, 0, 1, 20];
-pumpFlowM3 = [0, 0, 1, 0, 1, 20];
-
-addLink(links, 10, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 10, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 10, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 10, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 10, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [0, 0, 1, 0, 1, 21];
-inletFlowM3 = [0, 0, 1, 0, 1, 21];
-pumpFlowM3 = [0, 0, 1, 0, 1, 21];
-
-addLink(links, 11, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 11, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 11, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 11, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 11, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [0, 0, 1, 0, 1, 22];
-inletFlowM3 = [0, 0, 1, 0, 1, 22];
-pumpFlowM3 = [0, 0, 1, 0, 1, 22];
-
-addLink(links, 12, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 12, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 12, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 12, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 12, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [0, 0, 1, 0, 1, 23];
-inletFlowM3 = [0, 0, 1, 0, 1, 23];
-pumpFlowM3 = [0, 0, 1, 0, 1, 23];
-
-addLink(links, 13, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 13, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 13, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 13, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 13, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
-culverFlowM3 = [0, 0, 1, 0, 1, 24];
-inletFlowM3 = [0, 0, 1, 0, 1, 24];
-pumpFlowM3 = [0, 0, 1, 0, 1, 24];
-
-addLink(links, 14, M3WATER, M3EVAPORATED, 77) /* Use your calculated values here */
-addLink(links, 14, M3WATER, M3GROUND, 98) /* Use your calculated values here */
-addLink(links, 14, M3LAND, M3GROUND, 22) /* Use your calculated values here */
-addLink(links, 14, M3LAND, M3SEWER, 84) /* Use your calculated values here */
-addLink(links, 14, M3WATER, M3EVAPORATED, 70) /* Use your calculated values here */
-
+createTable("waterFlowTable", flowData, flowproperties, flowColors, flowTitles);
 
 const sankeyLayout = createSankeyPlotLayout();
 
