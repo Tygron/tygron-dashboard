@@ -5,11 +5,12 @@
 	<property name="servertype" value="development" />
 	<property name="plotly" value="src='https://cdn.plot.ly/plotly-3.0.1.min.js'" />
 	<property name="combined" value="true" />
-	<property name="replaceQueries" value="true" />
+	<property name="replaceQueries" value="false" />
 	<property name="destination" value="build/${servertype}" />
 	<!-- Adjust intros from * to a particular intro to only build that intro -->
 	<property name="dashboard" value="*" />
 	<basename property="filename" file="${file}" />
+	<property name="cssfilepath" value="${destination}/css/${filename}" />
 	<property name="filepath" value="${destination}/lib/${filename}" />
 	<property name="bodypath" value="${destination}/body/${filename}" />
 
@@ -130,15 +131,31 @@
 	<target name="splitScript" unless="${combined}">
 		<loadfile property="contents" srcFile="${bodypath}" />
 		<replaceregexp file="${destination}/${base.name}.html" match="BODYSCRIPT" replace="${contents}" byline="true" />
-		<basename property="libsource" file="${file}" />
-		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_LIBS" replace='src="./lib/FILENAME"' byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="FILENAME" replace="${filename}" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="BODYSTYLE" replace="" byline="true" />
+
+		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_LIBS" replace='src="./lib/${filename}"' byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_CSS" replace="href='./css/DASHBOARD_NAME.css'" byline="true" />
 	</target>
 
 	<target name="combinedScript" if="${combined}">
+
 		<loadfile property="contents" srcFile="${filepath}" />
-		<replaceregexp file="${destination}/${base.name}.html" match="BODYSCRIPT" replace="${contents}" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_LIBS" replace="" byline="true" />
+		<loadfile property="csscontent" srcFile="${destination}/css/${base.name}.css" />
+
+		<replace file="${destination}/${base.name}.html" token="BODYSCRIPT" value="${contents}" />
+		<replace file="${destination}/${base.name}.html" token="BODYSTYLE" value="${csscontent}" />
+
+
+		<replace file="${destination}/${base.name}.html" token="DASHBOARD_LIBS" value="" />
+		<replace file="${destination}/${base.name}.html" token="DASHBOARD_CSS" value="" />
+
+		<copy file="${destination}/${base.name}.html" tofile="${destination}/${base.name}.txt" />
+
+		<replaceregexp file="${destination}/${base.name}.txt" match="(.*\n)*\&lt;body\&gt;" replace="" byline="false" />
+		<replaceregexp file="${destination}/${base.name}.txt" match="\&lt;&#47;body\&gt;(.*(\n)*)*" replace="" byline="false" />
+
+
+
 	</target>
 
 	<target name="replaceTQL" if="${replaceQueries}">
