@@ -41,6 +41,7 @@
 			</path>
 		</foreach>
 
+		<antcall target="cleanup"/>
 	</target>
 
 	<target name="combined_js" if="${combined}">
@@ -132,7 +133,7 @@
 		<replaceregexp file="${destination}/${base.name}.html" match="BODYSTYLE" replace="" byline="true" />
 
 		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_LIBS" replace='src="./lib/${filename}"' byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_CSS" replace="href='./css/DASHBOARD_NAME.css'" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_CSS" replace="href='./css/${base.name}.css'" byline="true" />
 	</target>
 
 	<target name="combinedScript" if="${combined}">
@@ -155,7 +156,21 @@
 
 
 	</target>
-
+	
+	<target name="cleanup">
+		
+		<antcall target="cleanupcombined"/>
+		<delete dir="${destination}/body"/>
+		<delete dir="${destination}/body"/>
+	</target>
+	
+	<target name="cleanupcombined" if="${combined}">
+		<delete dir="${destination}/css" />
+		<delete dir="${destination}/lib" />
+		<delete file="${destination}/css" />
+		<delete file="${destination}/lib" />		
+	</target>
+	
 	<target name="replaceTQL" if="${replaceQueries}">
 		<basename property="filename" file="${file}" />
 		<propertyregex property="base.name" input="${filename}" regexp="(.*)\.(.*)" select="\1" />
