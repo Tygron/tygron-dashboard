@@ -10,7 +10,6 @@
 	<!-- Adjust intros from * to a particular intro to only build that intro -->
 	<property name="dashboard" value="*" />
 	<basename property="filename" file="${file}" />
-	<property name="cssfilepath" value="${destination}/css/${filename}" />
 	<property name="filepath" value="${destination}/lib/${filename}" />
 	<property name="bodypath" value="${destination}/body/${filename}" />
 
@@ -105,8 +104,7 @@
 
 		<basename property="filename" file="${file}" />
 		<propertyregex property="base.name" input="${filename}" regexp="(.*)\.(.*)" select="\1" />
-		<echo message="${base.name}" />
-
+		
 		<copy file="html/${base.name}.html" tofile="${destination}/${base.name}.html" />
 
 		<concat destfile="${destination}/css/${base.name}.css" fixlastline="true" eol="unix">
