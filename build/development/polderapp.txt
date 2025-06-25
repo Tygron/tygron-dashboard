@@ -1,15 +1,4 @@
-<!DOCTYPE html>
-<html lang="en-US">
 
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>polderapp</title>
-<link rel='stylesheet' >
-<script  charset="utf-8"></script>
-<script src='https://cdn.plot.ly/plotly-3.0.1.min.js' charset="utf-8"></script>
-</head>
-<body>
 	<style>@charset "UTF-8";
 
 :root {
@@ -949,5 +938,3 @@ setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
 });
 
 	</script>
-</body>
-</html>
