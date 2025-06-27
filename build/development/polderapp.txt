@@ -1002,7 +1002,7 @@ const sankeySlider = document.getElementById("sankeySlider");
 sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, flowColors, flowTitles, sankeyLayout);
 
 setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
-	sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, colors, titles, sankeyLayout);
+	sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, flowColors, flowTitles, sankeyLayout);
 });
 
 	</script>
