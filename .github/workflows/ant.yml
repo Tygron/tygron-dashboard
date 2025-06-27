@@ -33,3 +33,10 @@ jobs:
         name: my-artifact
         path: ${{github.workspace}}build/
         
+    - name: push changes to remote
+      run: |
+        git config --global user.name "user mane"
+        git config --global user.email "user email"
+
+        git add build git commit -m "commit message"
+        git push
