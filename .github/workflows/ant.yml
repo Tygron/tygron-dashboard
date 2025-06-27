@@ -38,5 +38,5 @@ jobs:
         git config --global user.name Tygron
         git config --global user.email ict@tygron.com
 
-        git add build git commit -m "commit message"
+        git add build git commit -m autobuild
         git push
