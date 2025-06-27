@@ -375,16 +375,16 @@ function createTimeframeData(timeframes, itemID, properties) {
 		itemID: itemID,
 		timeframes: timeframes
 	};
-	for(let i = 0; i < properties.length; i++){
-		data[properties[i]]= [];
-		for(let j = 0; j < timeframes; j++){
+	for (let i = 0; i < properties.length; i++) {
+		data[properties[i]] = [];
+		for (let j = 0; j < timeframes; j++) {
 			data[properties[i]].push(0);
 		}
 	}
 	return data;
 }
 
-function setTimeframeValues(data, property, values, relative = false) {
+function setTimeframeValues(data, property, values, relative = false, negative = undefined) {
 
 	for (let i = 0; i < data[property].length && i < values.length; i++) {
 		data[property][i] = values[i];
@@ -397,6 +397,17 @@ function setTimeframeValues(data, property, values, relative = false) {
 			data[property][i] -= previous;
 		}
 	}
+	if (negative != undefined) {
+		if (negative) {
+			for (let i = 0; i < data[property].length && i < values.length; i++) {
+				data[property][i] = Math.min(0, values[i]);
+			}
+		} else {
+			for (let i = 0; i < data[property].length && i < values.length; i++) {
+				data[property][i] = Math.max(0, values[i]);
+			}
+		}
+	}
 }
 
 function setTimeframeValue(data, property, value) {
@@ -406,7 +417,7 @@ function setTimeframeValue(data, property, value) {
 	}
 }
 
-function addFlowValues(data,timeframe, propertyFrom, propertyTo, areaIDFrom, areaIDTo, values, condition=undefined) {
+function addFlowValues(data, timeframe, propertyFrom, propertyTo, areaIDFrom, areaIDTo, values, condition = undefined) {
 	if (data[propertyFrom][timeframe] == undefined) {
 		data[propertyFrom][timeframe] = 0;
 	}
@@ -415,14 +426,14 @@ function addFlowValues(data,timeframe, propertyFrom, propertyTo, areaIDFrom, are
 	}
 
 	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
-		if (areaIDFrom[i] == data.itemID && values[i] != 0 && (condition==undefined || condition[i])) {			
+		if (areaIDFrom[i] == data.itemID && values[i] != 0 && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyFrom][timeframe] -= values[i];
 			} else {
 				data[propertyFrom][timeframe] += values[i];
 			}
 		}
-		if (areaIDTo[i] == data.itemID && values[i] != 0 && (condition==undefined || condition[i])) {
+		if (areaIDTo[i] == data.itemID && values[i] != 0 && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyTo][timeframe] += values[i];
 			} else {
@@ -864,7 +875,8 @@ for (let i = 0; i < inletUnderground.length; i++) {
 
 setTimeframeValues(flowData, RAINM3, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_LAST_RAIN_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID]);
 setTimeframeValues(flowData, EVAPORATIONM3, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_LAST_RAIN_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID]);
-setTimeframeValues(flowData, BOTTOM_FLOW_IN, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_BOTTOM_FLOW_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID]);
+setTimeframeValues(flowData, BOTTOM_FLOW_IN, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_BOTTOM_FLOW_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID], negative=false);
+setTimeframeValues(flowData, BOTTOM_FLOW_OUT, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_BOTTOM_FLOW_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID], negative=true);
 setTimeframeValues(flowData, SEWER_IN, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID], relative = true);
 
 addFlowValues(flowData, 0, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0]);
