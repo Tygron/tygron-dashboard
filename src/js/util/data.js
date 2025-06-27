@@ -29,8 +29,8 @@ export function addLink(links, timeframe, from, to, amount) {
 	if (link.value == undefined) {
 		link.value = [];
 	}
-	link.source.push(properties.indexOf(from));
-	link.target.push(properties.indexOf(to));
+	link.source.push(links.properties.indexOf(from));
+	link.target.push(links.properties.indexOf(to));
 	link.value.push(amount);
 }
 
