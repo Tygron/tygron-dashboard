@@ -29,5 +29,6 @@ jobs:
         git config --global user.name Tygron
         git config --global user.email ict@tygron.com
 
-        git add './build/*' git commit -m 'autoaction'
+        git add './build/*' 
+        git commit
         git push
