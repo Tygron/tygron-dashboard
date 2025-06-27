@@ -40,16 +40,16 @@ export function createTimeframeData(timeframes, itemID, properties) {
 		itemID: itemID,
 		timeframes: timeframes
 	};
-	for(let i = 0; i < properties.length; i++){
-		data[properties[i]]= [];
-		for(let j = 0; j < timeframes; j++){
+	for (let i = 0; i < properties.length; i++) {
+		data[properties[i]] = [];
+		for (let j = 0; j < timeframes; j++) {
 			data[properties[i]].push(0);
 		}
 	}
 	return data;
 }
 
-export function setTimeframeValues(data, property, values, relative = false) {
+export function setTimeframeValues(data, property, values, relative = false, negative = undefined) {
 
 	for (let i = 0; i < data[property].length && i < values.length; i++) {
 		data[property][i] = values[i];
@@ -62,6 +62,17 @@ export function setTimeframeValues(data, property, values, relative = false) {
 			data[property][i] -= previous;
 		}
 	}
+	if (negative != undefined) {
+		if (negative) {
+			for (let i = 0; i < data[property].length && i < values.length; i++) {
+				data[property][i] = Math.min(0, values[i]);
+			}
+		} else {
+			for (let i = 0; i < data[property].length && i < values.length; i++) {
+				data[property][i] = Math.max(0, values[i]);
+			}
+		}
+	}
 }
 
 export function setTimeframeValue(data, property, value) {
@@ -71,7 +82,7 @@ export function setTimeframeValue(data, property, value) {
 	}
 }
 
-export function addFlowValues(data,timeframe, propertyFrom, propertyTo, areaIDFrom, areaIDTo, values, condition=undefined) {
+export function addFlowValues(data, timeframe, propertyFrom, propertyTo, areaIDFrom, areaIDTo, values, condition = undefined) {
 	if (data[propertyFrom][timeframe] == undefined) {
 		data[propertyFrom][timeframe] = 0;
 	}
@@ -80,14 +91,14 @@ export function addFlowValues(data,timeframe, propertyFrom, propertyTo, areaIDFr
 	}
 
 	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
-		if (areaIDFrom[i] == data.itemID && values[i] != 0 && (condition==undefined || condition[i])) {			
+		if (areaIDFrom[i] == data.itemID && values[i] != 0 && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyFrom][timeframe] -= values[i];
 			} else {
 				data[propertyFrom][timeframe] += values[i];
 			}
 		}
-		if (areaIDTo[i] == data.itemID && values[i] != 0 && (condition==undefined || condition[i])) {
+		if (areaIDTo[i] == data.itemID && values[i] != 0 && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyTo][timeframe] += values[i];
 			} else {
