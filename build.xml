@@ -4,12 +4,12 @@
 	<!-- Specify "-Dservertype=preview" in bat arguments to build preview -->
 	<property name="servertype" value="development" />
 	<property name="destination" value="build/${servertype}" />
-		
+
 	<property name="plotly" value="src='https://cdn.plot.ly/plotly-3.0.1.min.js'" />
-	
+
 	<property name="combined" value="true" />
 	<property name="replaceQueries" value="true" />
-	
+
 	<!-- Adjust intros from * to a particular intro to only build that intro -->
 	<property name="dashboard" value="*" />
 	<basename property="filename" file="${file}" />
@@ -44,7 +44,7 @@
 			</path>
 		</foreach>
 
-		<antcall target="cleanup"/>
+		<antcall target="cleanup" />
 	</target>
 
 	<target name="combined_js" if="${combined}">
@@ -108,7 +108,7 @@
 
 		<basename property="filename" file="${file}" />
 		<propertyregex property="base.name" input="${filename}" regexp="(.*)\.(.*)" select="\1" />
-		
+
 		<copy file="html/${base.name}.html" tofile="${destination}/${base.name}.html" />
 
 		<concat destfile="${destination}/css/${base.name}.css" fixlastline="true" eol="unix">
@@ -159,21 +159,21 @@
 
 
 	</target>
-	
+
 	<target name="cleanup">
-		
-		<antcall target="cleanupcombined"/>
-		<delete dir="${destination}/body"/>
-		<delete dir="${destination}/body"/>
+
+		<antcall target="cleanupcombined" />
+		<delete dir="${destination}/body" />
+		<delete dir="${destination}/body" />
 	</target>
-	
+
 	<target name="cleanupcombined" if="${combined}">
 		<delete dir="${destination}/css" />
 		<delete dir="${destination}/lib" />
 		<delete file="${destination}/css" />
-		<delete file="${destination}/lib" />		
+		<delete file="${destination}/lib" />
 	</target>
-	
+
 	<target name="replaceTQL" if="${replaceQueries}">
 		<basename property="filename" file="${file}" />
 		<propertyregex property="base.name" input="${filename}" regexp="(.*)\.(.*)" select="\1" />
@@ -181,7 +181,6 @@
 		<replaceregexp file="${destination}/${base.name}.html" match="\$ID" replace="2" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_GRIDTYPE_IS_RAINFALL_AND_NAME_IS_TIMEFRAMES" replace="15" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_GRIDTYPE_IS_RAINFALL_AND_INDEX_IS_0_AND_NAME_IS_TIMEFRAME_TIMES" replace="1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15" byline="true" />
-
 
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SURFACE_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID" replace="172479, 178205, 184075, 189937, 195813, 201688, 207574, 213439, 213691, 213944, 214196, 214456, 214716, 214981, 215241" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_M3WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID" replace="112746, 144310, 147322, 149971, 152520, 155013, 157511, 160028, 161397, 162461, 163426, 164269, 165078, 165827, 166532" byline="true" />
@@ -199,8 +198,9 @@
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_1" replace="2, 0, 2, 2, 1, 2" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_0" replace="2, 2, 1, 1, 2, 3" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_1" replace="2, 0, 2, 2, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_0" replace="2, 2, 1, 1, 2, 3" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_1" replace="2, 0, 2, 2, 1, 2" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_UNDERGROUND_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0" replace="0, 0, 0, 0, 0, 1" byline="true" />
-
 
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0" replace="1, 2, 3, 4, 5, 6" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_1" replace="0, 0, 1, 0, 1, 2" byline="true" />
@@ -220,22 +220,22 @@
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_15" replace="0, 0, 1, 0, 1, 2" byline="true" />
 
 
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0" replace="1, 2, 3, 4, 5, 6" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_1" replace="0, 0, 1, 0, 1, 2" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_2" replace="1, 2, 3, 4, 5, 6" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_3" replace="0, 0, 1, 0, 1, 2" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_4" replace="1, 2, 3, 4, 5, 6" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_5" replace="0, 0, 1, 0, 1, 2" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_6" replace="1, 2, 3, 4, 5, 6" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_7" replace="0, 0, 1, 0, 1, 2" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_8" replace="1, 2, 3, 4, 5, 6" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_9" replace="0, 0, 1, 0, 1, 2" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_10" replace="1, 2, 3, 4, 5, 6" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_11" replace="0, 0, 1, 0, 1, 2" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_12" replace="1, 2, 3, 4, 5, 6" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_13" replace="0, 0, 1, 0, 1, 2" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_14" replace="1, 2, 3, 4, 5, 6" byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_15" replace="0, 0, 1, 0, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0" replace="1, 2, 3, 4, -5, -6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_1" replace="0, 0, 1, 0, -1, -2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_2" replace="1, 2, 3, 4, -5, -6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_3" replace="0, 0, 1, 0, -1, -2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_4" replace="1, 2, 3, 4, -5, -6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_5" replace="0, 0, 1, 0, -1, -2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_6" replace="1, 2, 3, 4, -5, -6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_7" replace="0, 0, 1, 0, -1, -2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_8" replace="1, 2, 3, 4, -5, -6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_9" replace="0, 0, 1, 0, -1, -2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_10" replace="1, 2, 3, 4, -5, -6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_11" replace="0, 0, 1, 0, -1, -2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_12" replace="1, 2, 3, 4, -5, -6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_13" replace="0, 0, 1, 0, -1, -2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_14" replace="1, 2, 3, 4, -5, -6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_15" replace="0, 0, 1, 0, -1, -2" byline="true" />
 
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_0" replace="1, 2, 3, 4, 5, 6" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_1" replace="0, 0, 1, 0, 1, 2" byline="true" />
@@ -254,6 +254,22 @@
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_14" replace="1, 2, 3, 4, 5, 6" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_15" replace="0, 0, 1, 0, 1, 2" byline="true" />
 
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_0" replace="1, 2, 3, 4, 5, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_1" replace="0, 0, 1, 0, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_2" replace="1, 2, 3, 4, 5, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_3" replace="0, 0, 1, 0, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_4" replace="1, 2, 3, 4, 5, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_5" replace="0, 0, 1, 0, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_6" replace="1, 2, 3, 4, 5, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_7" replace="0, 0, 1, 0, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_8" replace="1, 2, 3, 4, 5, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_9" replace="0, 0, 1, 0, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_10" replace="1, 2, 3, 4, 5, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_" replace="0, 0, 1, 0, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_12" replace="1, 2, 3, 4, 5, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_13" replace="0, 0, 1, 0, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_14" replace="1, 2, 3, 4, 5, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_15" replace="0, 0, 1, 0, 1, 2" byline="true" />
 
 	</target>
 
