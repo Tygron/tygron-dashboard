@@ -375,8 +375,8 @@ function addLink(links, timeframe, from, to, amount) {
 	if (link.value == undefined) {
 		link.value = [];
 	}
-	link.source.push(properties.indexOf(from));
-	link.target.push(properties.indexOf(to));
+	link.source.push(links.properties.indexOf(from));
+	link.target.push(links.properties.indexOf(to));
 	link.value.push(amount);
 }
 
@@ -844,6 +844,11 @@ flowTitles[PUMP_IN] = "Pomp in";
 flowTitles[PUMP_OUT] = "Pomp uit";
 flowTitles[WEIR_IN] = "Stuw in";
 flowTitles[WEIR_OUT] = "Stuw uit";
+flowTitles[MODEL_IN] = "Model in";
+flowTitles[MODEL_OUT] = "Model uit";
+flowTitles[M3GROUND] = "Ground";
+flowTitles[M3LAND] = "Land";
+flowTitles[M3WATER] = "Water";
 
 const flowColors = {};
 flowColors[RAINM3] = [10, 10, 218, 0.5];
@@ -863,8 +868,13 @@ flowColors[PUMP_IN] = [128, 128, 128, 0.5];
 flowColors[PUMP_OUT] = [128, 128, 128, 0.5];
 flowColors[WEIR_IN] = [128, 128, 128, 0.5];
 flowColors[WEIR_OUT] = [128, 128, 128, 0.5];
+flowColors[MODEL_IN] =  [128, 128, 128, 0.5];
+flowColors[MODEL_OUT] =  [128, 128, 128, 0.5];
+flowColors[M3GROUND] =  [128, 128, 128, 0.5];
+flowColors[M3LAND] =  [128, 128, 128, 0.5];
+flowColors[M3WATER] =  [128, 128, 128, 0.5];
 
-const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, WEIR_IN_WEIR_OUT];
+const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, WEIR_IN, WEIR_OUT];
 const flowData = createTimeframeData(timeframes, 2, flowproperties);
 
 const culvertAreaFrom = [2, 2, 1, 1, 2, 3];
@@ -873,8 +883,8 @@ const pumpAreaFrom = [2, 2, 1, 1, 2, 3];
 const pumpAreaTo = [2, 0, 2, 2, 1, 2];
 const inletAreaFrom = [2, 2, 1, 1, 2, 3];
 const inletAreaTo = [2, 0, 2, 2, 1, 2];
-const weirAreaFrom = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_0];
-const weirAreaTo = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_1];
+const weirAreaFrom = [2, 2, 1, 1, 2, 3];
+const weirAreaTo = [2, 0, 2, 2, 1, 2];
 const inletUnderground = [0, 0, 0, 0, 0, 1];
 const inletSurface = [];
 
@@ -906,37 +916,37 @@ addFlowValues(flowData, 12, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAre
 addFlowValues(flowData, 13, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 23]);
 addFlowValues(flowData, 14, CULVERT_IN, CULVERT_OUT, culvertAreaFrom, culvertAreaTo, [0, 0, 1, 0, 1, 24]);
 
-addFlowValues(flowData, 0, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
-addFlowValues(flowData, 1, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
-addFlowValues(flowData, 2, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
-addFlowValues(flowData, 3, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
-addFlowValues(flowData, 4, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
-addFlowValues(flowData, 5, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
-addFlowValues(flowData, 6, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
-addFlowValues(flowData, 7, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
-addFlowValues(flowData, 8, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletSurface);
-addFlowValues(flowData, 9, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletSurface);
-addFlowValues(flowData, 10, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 20], condition = inletSurface);
-addFlowValues(flowData, 11, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 21], condition = inletSurface);
-addFlowValues(flowData, 12, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 22], condition = inletSurface);
-addFlowValues(flowData, 13, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 23], condition = inletSurface);
-addFlowValues(flowData, 14, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 24], condition = inletSurface);
+addFlowValues(flowData, 0, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletSurface);
+addFlowValues(flowData, 1, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletSurface);
+addFlowValues(flowData, 2, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletSurface);
+addFlowValues(flowData, 3, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletSurface);
+addFlowValues(flowData, 4, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletSurface);
+addFlowValues(flowData, 5, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletSurface);
+addFlowValues(flowData, 6, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletSurface);
+addFlowValues(flowData, 7, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletSurface);
+addFlowValues(flowData, 8, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletSurface);
+addFlowValues(flowData, 9, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletSurface);
+addFlowValues(flowData, 10, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -20], condition = inletSurface);
+addFlowValues(flowData, 11, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -21], condition = inletSurface);
+addFlowValues(flowData, 12, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -22], condition = inletSurface);
+addFlowValues(flowData, 13, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -23], condition = inletSurface);
+addFlowValues(flowData, 14, INLET_SURFACE, OUTLET_SURFACE, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -24], condition = inletSurface);
 
-addFlowValues(flowData, 0, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
-addFlowValues(flowData, 1, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
-addFlowValues(flowData, 2, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
-addFlowValues(flowData, 3, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
-addFlowValues(flowData, 4, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
-addFlowValues(flowData, 5, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
-addFlowValues(flowData, 6, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
-addFlowValues(flowData, 7, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
-addFlowValues(flowData, 8, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, 5, 6], condition = inletUnderground);
-addFlowValues(flowData, 9, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 2], condition = inletUnderground);
-addFlowValues(flowData, 10, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 20], condition = inletUnderground);
-addFlowValues(flowData, 11, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 21], condition = inletUnderground);
-addFlowValues(flowData, 12, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 22], condition = inletUnderground);
-addFlowValues(flowData, 13, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 23], condition = inletUnderground);
-addFlowValues(flowData, 14, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, 1, 24], condition = inletUnderground);
+addFlowValues(flowData, 0, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletUnderground);
+addFlowValues(flowData, 1, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletUnderground);
+addFlowValues(flowData, 2, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletUnderground);
+addFlowValues(flowData, 3, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletUnderground);
+addFlowValues(flowData, 4, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletUnderground);
+addFlowValues(flowData, 5, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletUnderground);
+addFlowValues(flowData, 6, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletUnderground);
+addFlowValues(flowData, 7, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletUnderground);
+addFlowValues(flowData, 8, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [1, 2, 3, 4, -5, -6], condition = inletUnderground);
+addFlowValues(flowData, 9, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -2], condition = inletUnderground);
+addFlowValues(flowData, 10, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -20], condition = inletUnderground);
+addFlowValues(flowData, 11, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -21], condition = inletUnderground);
+addFlowValues(flowData, 12, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -22], condition = inletUnderground);
+addFlowValues(flowData, 13, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -23], condition = inletUnderground);
+addFlowValues(flowData, 14, INLET_GROUND, OUTLET_GROUND, inletAreaFrom, inletAreaTo, [0, 0, 1, 0, -1, -24], condition = inletUnderground);
 
 addFlowValues(flowData, 0, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [1, 2, 3, 4, 5, 6]);
 addFlowValues(flowData, 1, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 2]);
@@ -954,35 +964,56 @@ addFlowValues(flowData, 12, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 
 addFlowValues(flowData, 13, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 23]);
 addFlowValues(flowData, 14, PUMP_IN, PUMP_OUT, pumpAreaFrom, pumpAreaTo, [0, 0, 1, 0, 1, 24]);
 
-addFlowValues(flowData, 0, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_0]);
-addFlowValues(flowData, 1, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_1]);
-addFlowValues(flowData, 2, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_2]);
-addFlowValues(flowData, 3, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_3]);
-addFlowValues(flowData, 4, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_4]);
-addFlowValues(flowData, 5, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_5]);
-addFlowValues(flowData, 6, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_6]);
-addFlowValues(flowData, 7, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_7]);
-addFlowValues(flowData, 8, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_8]);
-addFlowValues(flowData, 9, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_9]);
-addFlowValues(flowData, 10, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_10]);
-addFlowValues(flowData, 11, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_11]);
-addFlowValues(flowData, 12, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_12]);
-addFlowValues(flowData, 13, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_13]);
-addFlowValues(flowData, 14, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_14]);
+addFlowValues(flowData, 0, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 1, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 2, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 3, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 4, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 5, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 6, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 7, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 8, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [1, 2, 3, 4, 5, 6]);
+addFlowValues(flowData, 9, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 2]);
+addFlowValues(flowData, 10, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 20]);
+addFlowValues(flowData, 11, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 21]);
+addFlowValues(flowData, 12, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 22]);
+addFlowValues(flowData, 13, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 23]);
+addFlowValues(flowData, 14, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [0, 0, 1, 0, 1, 24]);
 
-
-
-let links = createLinks(flowproperties);
 
 createTable("waterFlowTable", flowData, flowproperties, flowColors, flowTitles);
+
+const sankeyproperties = [MODEL_IN, MODEL_OUT, M3LAND, M3GROUND, M3WATER, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, WEIR_IN, WEIR_OUT];
+let links = createLinks(sankeyproperties);
+for(let i = 0 ; i < timeframes; i++){
+	addLink(links, i, MODEL_IN, RAINM3, flowData[RAINM3][i]);	
+	addLink(links, i, MODEL_IN, BOTTOM_FLOW_IN, flowData[BOTTOM_FLOW_IN][i]);
+	addLink(links, i, EVAPORATIONM3, MODEL_OUT, flowData[EVAPORATIONM3][i]);
+	addLink(links, i, BOTTOM_FLOW_OUT, MODEL_OUT, flowData[BOTTOM_FLOW_OUT][i]);
+	addLink(links, i, MODEL_IN, INLET_SURFACE, flowData[INLET_SURFACE][i]);
+	addLink(links, i, OUTLET_SURFACE, MODEL_OUT, flowData[OUTLET_SURFACE][i]);
+	addLink(links, i, MODEL_IN, INLET_GROUND, flowData[INLET_GROUND][i]);
+	addLink(links, i, OUTLET_GROUND, MODEL_OUT, flowData[OUTLET_GROUND][i]);
+	
+	addLink(links, i,  M3LAND, EVAPORATIONM3, flowData[EVAPORATIONM3][i]);
+	addLink(links, i,  M3LAND, OUTLET_SURFACE, flowData[OUTLET_SURFACE][i]);
+	addLink(links, i, RAINM3, M3LAND, flowData[RAINM3][i]);
+	addLink(links, i, INLET_SURFACE, M3LAND, flowData[INLET_SURFACE][i]);
+	
+	addLink(links, i, BOTTOM_FLOW_IN, M3GROUND, flowData[BOTTOM_FLOW_IN][i]);
+	addLink(links, i, INLET_GROUND, M3GROUND, flowData[INLET_GROUND][i]);
+	
+	addLink(links, i,  M3GROUND,BOTTOM_FLOW_OUT, flowData[BOTTOM_FLOW_OUT][i]);
+	addLink(links, i,  M3GROUND,OUTLET_GROUND, flowData[OUTLET_GROUND][i]);
+}
 
 const sankeyLayout = createSankeyPlotLayout();
 
 const sankeySlider = document.getElementById("sankeySlider");
-sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
+sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, flowColors, flowTitles, sankeyLayout);
 
 setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
-	sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
+	sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, colors, titles, sankeyLayout);
 });
 
 	</script>
