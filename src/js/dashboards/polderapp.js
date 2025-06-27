@@ -105,6 +105,11 @@ flowTitles[PUMP_IN] = "Pomp in";
 flowTitles[PUMP_OUT] = "Pomp uit";
 flowTitles[WEIR_IN] = "Stuw in";
 flowTitles[WEIR_OUT] = "Stuw uit";
+flowTitles[MODEL_IN] = "Model in";
+flowTitles[MODEL_OUT] = "Model uit";
+flowTitles[M3GROUND] = "Ground";
+flowTitles[M3LAND] = "Land";
+flowTitles[M3WATER] = "Water";
 
 const flowColors = {};
 flowColors[RAINM3] = [10, 10, 218, 0.5];
@@ -124,8 +129,13 @@ flowColors[PUMP_IN] = [128, 128, 128, 0.5];
 flowColors[PUMP_OUT] = [128, 128, 128, 0.5];
 flowColors[WEIR_IN] = [128, 128, 128, 0.5];
 flowColors[WEIR_OUT] = [128, 128, 128, 0.5];
+flowColors[MODEL_IN] =  [128, 128, 128, 0.5];
+flowColors[MODEL_OUT] =  [128, 128, 128, 0.5];
+flowColors[M3GROUND] =  [128, 128, 128, 0.5];
+flowColors[M3LAND] =  [128, 128, 128, 0.5];
+flowColors[M3WATER] =  [128, 128, 128, 0.5];
 
-const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, WEIR_IN_WEIR_OUT];
+const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, WEIR_IN, WEIR_OUT];
 const flowData = createTimeframeData(timeframes, $ID, flowproperties);
 
 const culvertAreaFrom = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0];
@@ -232,16 +242,37 @@ addFlowValues(flowData, 13, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELEC
 addFlowValues(flowData, 14, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_14]);
 
 
-
-let links = createLinks(flowproperties);
-
 createTable("waterFlowTable", flowData, flowproperties, flowColors, flowTitles);
+
+const sankeyproperties = [MODEL_IN, MODEL_OUT, M3LAND, M3GROUND, M3WATER, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, WEIR_IN, WEIR_OUT];
+let links = createLinks(sankeyproperties);
+for(let i = 0 ; i < timeframes; i++){
+	addLink(links, i, MODEL_IN, RAINM3, flowData[RAINM3][i]);	
+	addLink(links, i, MODEL_IN, BOTTOM_FLOW_IN, flowData[BOTTOM_FLOW_IN][i]);
+	addLink(links, i, EVAPORATIONM3, MODEL_OUT, flowData[EVAPORATIONM3][i]);
+	addLink(links, i, BOTTOM_FLOW_OUT, MODEL_OUT, flowData[BOTTOM_FLOW_OUT][i]);
+	addLink(links, i, MODEL_IN, INLET_SURFACE, flowData[INLET_SURFACE][i]);
+	addLink(links, i, OUTLET_SURFACE, MODEL_OUT, flowData[OUTLET_SURFACE][i]);
+	addLink(links, i, MODEL_IN, INLET_GROUND, flowData[INLET_GROUND][i]);
+	addLink(links, i, OUTLET_GROUND, MODEL_OUT, flowData[OUTLET_GROUND][i]);
+	
+	addLink(links, i,  M3LAND, EVAPORATIONM3, flowData[EVAPORATIONM3][i]);
+	addLink(links, i,  M3LAND, OUTLET_SURFACE, flowData[OUTLET_SURFACE][i]);
+	addLink(links, i, RAINM3, M3LAND, flowData[RAINM3][i]);
+	addLink(links, i, INLET_SURFACE, M3LAND, flowData[INLET_SURFACE][i]);
+	
+	addLink(links, i, BOTTOM_FLOW_IN, M3GROUND, flowData[BOTTOM_FLOW_IN][i]);
+	addLink(links, i, INLET_GROUND, M3GROUND, flowData[INLET_GROUND][i]);
+	
+	addLink(links, i,  M3GROUND,BOTTOM_FLOW_OUT, flowData[BOTTOM_FLOW_OUT][i]);
+	addLink(links, i,  M3GROUND,OUTLET_GROUND, flowData[OUTLET_GROUND][i]);
+}
 
 const sankeyLayout = createSankeyPlotLayout();
 
 const sankeySlider = document.getElementById("sankeySlider");
-sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
+sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, flowColors, flowTitles, sankeyLayout);
 
 setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
-	sankeyPlot("sankeyPlot", links, sankeySlider.value, properties, colors, titles, sankeyLayout);
+	sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, colors, titles, sankeyLayout);
 });
