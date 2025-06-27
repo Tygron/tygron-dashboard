@@ -3,10 +3,13 @@
 
 	<!-- Specify "-Dservertype=preview" in bat arguments to build preview -->
 	<property name="servertype" value="development" />
-	<property name="plotly" value="src='https://cdn.plot.ly/plotly-3.0.1.min.js'" />
-	<property name="combined" value="true" />
-	<property name="replaceQueries" value="false" />
 	<property name="destination" value="build/${servertype}" />
+		
+	<property name="plotly" value="src='https://cdn.plot.ly/plotly-3.0.1.min.js'" />
+	
+	<property name="combined" value="false" />
+	<property name="replaceQueries" value="true" />
+	
 	<!-- Adjust intros from * to a particular intro to only build that intro -->
 	<property name="dashboard" value="*" />
 	<basename property="filename" file="${file}" />
