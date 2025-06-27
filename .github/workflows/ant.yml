@@ -32,3 +32,12 @@ jobs:
       with:
         name: my-artifact
         path: ${{github.workspace}}build/
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+       commit_message: Automated Change
+       branch: main
+       commit_options: '--no-verify --signoff'
+       commit_author: Author <actions@github.com>
+       status_options: '--untracked-files=no'
+       skip_dirty_check: true
