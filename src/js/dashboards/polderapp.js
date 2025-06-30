@@ -2,6 +2,7 @@ import { createTable } from "../util/table.js";
 import { barPlot, createBarPlotLayout, } from "../util/plot.js";
 import { setupTimeframeSlider } from "../util/timeframeslider.js";
 import { createLinks } from "../util/data.js";
+import { toCSVContent,addDownloadHandler} from "../util/file.js";
 
 const M3TOTAL = 'm3Total';
 const M3LAND = 'm3Land';
@@ -135,8 +136,8 @@ flowColors[M3GROUND] =  [128, 128, 0, 0.5];
 flowColors[M3LAND] =  [0, 128, 0, 0.5];
 flowColors[M3WATER] =  [0, 0, 128, 0.5];
 
-const flowproperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, WEIR_IN, WEIR_OUT];
-const flowData = createTimeframeData(timeframes, $ID, flowproperties);
+const flowProperties = [TIMEFRAMES, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, WEIR_IN, WEIR_OUT];
+const flowData = createTimeframeData(timeframes, $ID, flowProperties);
 
 const culvertAreaFrom = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0];
 const culvertAreaTo = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_1];
@@ -242,7 +243,7 @@ addFlowValues(flowData, 13, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELEC
 addFlowValues(flowData, 14, WEIR_IN, WEIR_OUT, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_14]);
 
 
-createTable("waterFlowTable", flowData, flowproperties, flowColors, flowTitles);
+createTable("waterFlowTable", flowData, flowProperties, flowColors, flowTitles);
 
 const sankeyproperties = [MODEL_IN, MODEL_OUT, M3LAND, M3GROUND, M3WATER, RAINM3, INFILTRATIONM3, EVAPORATIONM3, SEWER_IN, SEWER_OVERFLOW, INLET_SURFACE, INLET_GROUND, OUTLET_SURFACE, OUTLET_GROUND, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, CULVERT_IN, CULVERT_OUT, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, WEIR_IN, WEIR_OUT];
 let links = createLinks(sankeyproperties);
@@ -276,3 +277,9 @@ sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, flowColors
 setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
 	sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, flowColors, flowTitles, sankeyLayout);
 });
+
+let balanceCSVButton = document.getElementById("balanceCSVButton");
+let flowCSVButton = document.getElementById("flowCSVButton");
+
+addDownloadHandler(balanceCSVButton, "waterbalance.csv", ()=> toCSVContent(data, properties, titles, timeframes));
+addDownloadHandler(flowCSVButton, "waterflow.csv", ()=> toCSVContent(flowData, flowProperties, flowTitles, timeframes));
