@@ -23,3 +23,12 @@ jobs:
         distribution: 'temurin'
     - name: Build with Ant
       run: ant -noinput -buildfile build.xml
+       
+    - name: push changes to remote
+      run: |
+        git config --global user.name Tygron
+        git config --global user.email ict@tygron.com
+
+        git add './build/*' 
+        git commit -m 'autobuildaction'
+        git push
