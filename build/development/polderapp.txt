@@ -9,6 +9,7 @@
 
 html, body {
 	padding: 0px;
+	background-color: white;
 }
 
 /* Style the button that is used to open and close the collapsible content */
