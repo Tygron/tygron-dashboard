@@ -49,26 +49,32 @@ export function createTimeframeData(timeframes, itemID, properties) {
 	return data;
 }
 
-export function setTimeframeValues(data, property, values, relative = false, negative = undefined) {
+/**
+ * @param {*} data Data object
+ * @param {*} property Property name to set into data
+ * @param {*} values Value array to set under property name into data
+ * @param {{}} [args={}] Additional args object, supports .relative and .negative with boolean value
+ */
+export function setTimeframeValues(data, property, values, args={}) {
 
 	for (let i = 0; i < data[property].length && i < values.length; i++) {
 		data[property][i] = values[i];
 	}
 
-	if (relative) {
+	if (args.relative) {
 
-		for (let i = 0; i < data[property].length && i < values.length; i++) {
+		for (let i = 0; i < data[property].length; i++) {
 			let previous = i == 0 ? 0 : data[property][i - 1];
 			data[property][i] -= previous;
 		}
 	}
-	if (negative != undefined) {
-		if (negative) {
-			for (let i = 0; i < data[property].length && i < values.length; i++) {
+	if (args.negative!== undefined) {
+		if (args.negative) {
+			for (let i = 0; i < data[property].length; i++) {
 				data[property][i] = Math.min(0, data[property][i]);
 			}
 		} else {
-			for (let i = 0; i < data[property].length && i < values.length; i++) {
+			for (let i = 0; i < data[property].length ; i++) {
 				data[property][i] = Math.max(0, data[property][i]);
 			}
 		}
