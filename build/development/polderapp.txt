@@ -711,8 +711,8 @@ function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
 function createTable(divName, data, properties, colors, titles) {
 
 	let table = document.getElementById(divName);
-	if(table== undefined){
-		console.log("Element with id: "+divName+ " does not exist.");
+	if (table == undefined) {
+		console.log("Element with id: " + divName + " does not exist.");
 		return
 	}
 
@@ -736,7 +736,13 @@ function createTable(divName, data, properties, colors, titles) {
 
 			let labelDiv = document.createElement('div');
 			let label = document.createElement('label');
-			label.innerHTML = value;
+
+			if (n == 0) {
+				label.innerHTML = value.toFixed();
+			} else {
+				label.innerHTML = value.toFixed(2);
+
+			}
 			labelDiv.appendChild(label);
 			cell.appendChild(labelDiv);
 
@@ -812,7 +818,7 @@ const titles = {};
 titles[TIMEFRAMES] = "Timeframes";
 titles[M3LAND] = "Maaiveld [m3]";
 titles[M3WATER] = "Oppervlaktewater [m3]";
-titles[M3GROUND] = "Groundwater [m3]";
+titles[M3GROUND] = "Grondwater [m3]";
 titles[M3STORAGE] = "Waterbergende voorzieningen [m3]";
 titles[M3SEWER] = "Riool [m3]";
 titles[M3EVAPORATED] = "Evaporated [m3]";
@@ -862,28 +868,28 @@ const BREACH_OUT = "BREACH_OUT";
 
 const flowTitles = {};
 flowTitles[TIMEFRAMES] = "Timeframes";
-flowTitles[RAINM3] = 'Neerslag';
-flowTitles[INFILTRATIONM3] = 'Infiltratie';
-flowTitles[EVAPORATIONM3] = 'Verdamping';
-flowTitles[SEWER_IN] = 'POCRiool';
-flowTitles[SEWER_OVERFLOW] = 'Riooloverstort';
-flowTitles[INLET_SURFACE] = 'Inlaat op maaiveld';
-flowTitles[INLET_GROUND] = 'Inlaat in de grond';
-flowTitles[OUTLET_SURFACE] = "Uitlaat op maaiveld";
-flowTitles[OUTLET_GROUND] = "Uitlaat uit de grond";
-flowTitles[BOTTOM_FLOW_IN] = "Kwel";
-flowTitles[BOTTOM_FLOW_OUT] = "Uitzijging";
-flowTitles[CULVERT_IN] = "Duiker in";
-flowTitles[CULVERT_OUT] = "Duiker uit";
-flowTitles[PUMP_IN] = "Pomp in";
-flowTitles[PUMP_OUT] = "Pomp uit";
-flowTitles[WEIR_IN] = "Stuw in";
-flowTitles[WEIR_OUT] = "Stuw uit";
-flowTitles[MODEL_IN] = "Model in";
-flowTitles[MODEL_OUT] = "Model uit";
-flowTitles[M3GROUND] = "Ground";
-flowTitles[M3LAND] = "Land";
-flowTitles[M3WATER] = "Water";
+flowTitles[RAINM3] = 'Neerslag [m³/tijdstap]';
+flowTitles[INFILTRATIONM3] = 'Infiltratie [m³/tijdstap]';
+flowTitles[EVAPORATIONM3] = 'Verdamping [m³/tijdstap]';
+flowTitles[SEWER_IN] = 'POCRiool [m³/tijdstap]';
+flowTitles[SEWER_OVERFLOW] = 'Riooloverstort [m³/tijdstap]';
+flowTitles[INLET_SURFACE] = 'Inlaat op maaiveld [m³/tijdstap]';
+flowTitles[INLET_GROUND] = 'Inlaat in de grond [m³/tijdstap]';
+flowTitles[OUTLET_SURFACE] = "Uitlaat op maaiveld [m³/tijdstap]";
+flowTitles[OUTLET_GROUND] = "Uitlaat uit de grond [m³/tijdstap]";
+flowTitles[BOTTOM_FLOW_IN] = "Kwel [m³/tijdstap]";
+flowTitles[BOTTOM_FLOW_OUT] = "Uitzijging [m³/tijdstap]";
+flowTitles[CULVERT_IN] = "Duiker in [m³/tijdstap]";
+flowTitles[CULVERT_OUT] = "Duiker uit [m³/tijdstap]";
+flowTitles[PUMP_IN] = "Pomp in [m³/tijdstap]";
+flowTitles[PUMP_OUT] = "Pomp uit [m³/tijdstap]";
+flowTitles[WEIR_IN] = "Stuw in [m³/tijdstap]";
+flowTitles[WEIR_OUT] = "Stuw uit [m³/tijdstap]";
+flowTitles[MODEL_IN] = "Model in [m³/tijdstap]";
+flowTitles[MODEL_OUT] = "Model uit [m³/tijdstap]";
+flowTitles[M3GROUND] = "Bodem [m³/tijdstap]";
+flowTitles[M3LAND] = "Maaiveld [m³/tijdstap]";
+flowTitles[M3WATER] = "Oppervlaktewater [m³/tijdstap]";
 
 const flowColors = {};
 flowColors[RAINM3] = [10, 10, 218, 0.5];
