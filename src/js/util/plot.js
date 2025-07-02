@@ -1,25 +1,36 @@
 
 export function barPlot(plotDivName, data, timeframe, properties, colors, titles, layout) {
 
-	var trace1 = {
-		x: [],
-		y: [],
-		marker: {
-			color: []
-		}
-		, type: 'bar'
-	}
+
+	
+	var bardata = [];
 
 	for (let i = 1; i < properties.length; i++) {
+		let trace = 		{
+				x: [],
+				y: [],
+				marker: {
+					color: []
+				},
+				name: [], 
+				type: 'bar'
+			}
+			
 		let property = properties[i];
-		trace1.x.push(titles[property]);
-		trace1.y.push(data[property][timeframe]);
-		trace1.marker.color.push("rgba(" + colors[property].join(",") + ")");
+		trace.x.push(titles[property]);
+		trace.y.push(data[property][timeframe]);
+		trace.marker.color.push("rgba(" + colors[property].join(",") + ")");
+		trace.name = titles[property];
+		bardata.push(trace);
 	}
 
-	var data = [trace1];
+	
+	
+	var layout = {
+			  showlegend: true,	 
+			  }; 
 
-	Plotly.newPlot(plotDivName, data, layout);
+	Plotly.newPlot(plotDivName, bardata, layout);
 }
 
 export function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout, percentual = false) {
