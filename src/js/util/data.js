@@ -65,11 +65,11 @@ export function setTimeframeValues(data, property, values, relative = false, neg
 	if (negative != undefined) {
 		if (negative) {
 			for (let i = 0; i < data[property].length && i < values.length; i++) {
-				data[property][i] = Math.min(0, values[i]);
+				data[property][i] = Math.min(0, data[property][i]);
 			}
 		} else {
 			for (let i = 0; i < data[property].length && i < values.length; i++) {
-				data[property][i] = Math.max(0, values[i]);
+				data[property][i] = Math.max(0, data[property][i]);
 			}
 		}
 	}
