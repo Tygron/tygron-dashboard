@@ -18,8 +18,8 @@ export function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
 export function createTable(divName, data, properties, colors, titles) {
 
 	let table = document.getElementById(divName);
-	if(table== undefined){
-		console.log("Element with id: "+divName+ " does not exist.");
+	if (table == undefined) {
+		console.log("Element with id: " + divName + " does not exist.");
 		return
 	}
 
@@ -43,7 +43,13 @@ export function createTable(divName, data, properties, colors, titles) {
 
 			let labelDiv = document.createElement('div');
 			let label = document.createElement('label');
-			label.innerHTML = value;
+
+			if (n == 0) {
+				label.innerHTML = value.toFixed();
+			} else {
+				label.innerHTML = value.toFixed(2);
+
+			}
 			labelDiv.appendChild(label);
 			cell.appendChild(labelDiv);
 
