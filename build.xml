@@ -181,6 +181,11 @@
 		<replaceregexp file="${destination}/${base.name}.html" match="\$ID" replace="2" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_GRIDTYPE_IS_RAINFALL_AND_NAME_IS_TIMEFRAMES" replace="15" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_GRIDTYPE_IS_RAINFALL_AND_INDEX_IS_0_AND_NAME_IS_TIMEFRAME_TIMES" replace="1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15" byline="true" />
+		
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_RAIN_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID" replace="172479, 178205, 184075, 189937, 195813, 201688, 207574, 213439, 213691, 213944, 214196, 214456, 214716, 214981, 215241" byline="true" />
+
+		
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_LAST_STORAGE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID" replace="172479, 178205, 184075, 189937, 195813, 201688, 207574, 213439, 213691, 213944, 214196, 214456, 214716, 214981, 215241" byline="true" />
 
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SURFACE_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID" replace="172479, 178205, 184075, 189937, 195813, 201688, 207574, 213439, 213691, 213944, 214196, 214456, 214716, 214981, 215241" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_M3WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID" replace="112746, 144310, 147322, 149971, 152520, 155013, 157511, 160028, 161397, 162461, 163426, 164269, 165078, 165827, 166532" byline="true" />
