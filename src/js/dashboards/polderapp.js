@@ -158,7 +158,10 @@ for (let i = 0; i < inletUnderground.length; i++) {
 for (var i = 0; i < timeframes; i++)
 	flowData[TIMEFRAMES][i]=i;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> branch 'main' of https://github.com/Tygron/tygron-dashboard.git
 setTimeframeValues(flowData, RAINM3, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_RAIN_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID], {relative:true});
 setTimeframeValues(flowData, EVAPORATIONM3, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_EVAPORATED_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID], {relative: true});
 setTimeframeValues(flowData, BOTTOM_FLOW_IN, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_BOTTOM_FLOW_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID], {negative: false});
