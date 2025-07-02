@@ -71,7 +71,7 @@ export function setTimeframeValues(data, property, values, args={}) {
 	if (args.negative!== undefined) {
 		if (args.negative) {
 			for (let i = 0; i < data[property].length; i++) {
-				data[property][i] = Math.min(0, data[property][i]);
+				data[property][i] = Math.abs(Math.min(0, data[property][i]));
 			}
 		} else {
 			for (let i = 0; i < data[property].length ; i++) {
