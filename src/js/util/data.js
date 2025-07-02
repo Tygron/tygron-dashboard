@@ -91,18 +91,18 @@ export function addFlowValues(data, timeframe, propertyFrom, propertyTo, areaIDF
 	}
 
 	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
-		if (areaIDFrom[i] == data.itemID && values[i] != 0 && (condition == undefined || condition[i])) {
+		if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
-				data[propertyFrom][timeframe] -= values[i];
-			} else {
 				data[propertyFrom][timeframe] += values[i];
+			} else {
+				data[propertyTo][timeframe] -= values[i];
 			}
 		}
-		if (areaIDTo[i] == data.itemID && values[i] != 0 && (condition == undefined || condition[i])) {
+		if (areaIDTo[i] == data.itemID  && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyTo][timeframe] += values[i];
 			} else {
-				data[propertyTo][timeframe] -= values[i];
+				data[propertyFrom][timeframe] -= values[i];
 			}
 		}
 	}
