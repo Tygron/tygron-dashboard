@@ -126,6 +126,21 @@ export function createRadarPlot(plotDivName, labels, values, range) {
 	let data = plotData;
 
 	layout = {
+	  legend: {
+		yanchor:'top',
+		xanchor:'left',
+		y:-20,
+		x:-1,
+	  },
+	  margin: {
+		t:150,
+		b:150,
+		l:150,
+		r:150,
+		pad:100,
+		autoexpand:true,
+	  },
+	  autosize: true,
 	  polar: {
 		radialaxis: {
 		  visible: true,
