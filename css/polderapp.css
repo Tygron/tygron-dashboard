@@ -9,6 +9,7 @@
 	box-shadow: 2px 2px 10px #c1c1c1;
 	font-family: Arial;
 	padding:30px;
+	margin:10px;
 }
 
 
@@ -20,6 +21,12 @@
 	height: 100%;
 	gap: 25px;
 	
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .slider-background{
