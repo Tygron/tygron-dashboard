@@ -345,6 +345,130 @@ function openCollapsibles() {
 		}, i * 100);
 	}
 }
+function connector(token, baseUrl, basePath,) {
+	
+	return {
+		token : token ?? null,
+		basePath : basePath ?? '/api/session/',
+		baseUrl : baseUrl ?? null,
+		protocol: 'https',
+		
+		start(funcToRun) {
+			return (typeof funcToRun === 'function') ? Promise.resolve(funcToRun()) : Promise.resolve(funcToRun ?? null);
+		},
+		
+		get(url, queryParams, preparationFunction) {
+			let self = this;
+			return function(data) {
+				return self._call( 'GET', url, queryParams, null, preparationFunction )();
+			}
+		},
+		post(url, queryParams, params, preparationFunction) {
+			let self = this;
+			return function(data) {
+				return self._call( 'POST', url, queryParams, params, preparationFunction )();
+			}
+		},
+		
+		recalculate( xqueries ) {
+			let self = this;
+			return function(data) {
+				return self.post('/api/session/event/editorindicator/reset_indicators/',null,[!!xqueries])(data);
+			}
+		},
+
+		consoleLog: function(message) {
+			let innerMessage = message;
+			return function(data) {
+				if (message) {
+					console.log(message);
+				}
+				console.log(data);
+				return data;
+			}
+		},
+		
+		_prepareQueryString: function(queryParams, url) {
+			queryParams = queryParams ?? {};
+			let queryString = new URLSearchParams(queryParams).toString();
+			if ( queryString.length > 0 ) {
+				if ( url.indexOf('?')===-1 ) {
+					queryString = '?'+ queryString;
+				} else {
+					queryString = '&'+ queryString;
+				}
+			}
+			return queryString;
+		},
+		
+		_prepareQueryParams: function(queryParams) {
+			queryParams = queryParams ?? {};
+			if ( !(typeof queryParams === 'object') ) {
+				queryParams = {};
+			}
+			return queryParams;
+		},
+		
+		_prepareParams: function(params) {
+			params = params ?? [];
+			if (!Array.isArray(params)) {
+				params = [params];
+			}
+			return params;
+		},
+		
+		_call: function (method, url, queryParams, params, preparationFunction) {
+			let self = this;
+			return function(data) {
+				params = method.toUpperCase() == 'GET' ? null : self._prepareParams(params);
+				queryParams = self._prepareQueryParams(queryParams);
+				queryParams['token'] = queryParams['token'] ?? self.token;
+				queryParams['f'] = queryParams['f'] ?? 'JSON';
+				
+				if (typeof preparationFunction == 'function') {
+					url = preparationFunction(data, url, queryParams, params) ?? url;
+				}
+				
+				let queryString = self._prepareQueryString(queryParams, url);
+				if ( self.basePath && !(url.indexOf('/')==0) ) {
+					url = self.basePath + url;
+				}
+				if (self.baseUrl) {
+					url = self.protocol + self.baseUrl + url;
+				}
+				url = url + queryString;
+				
+				let promise = Promise.resolve(
+					$.ajax({
+						url: url,
+						method: method.toUpperCase(),
+						contentType: 'application/json',
+						dataType: 'json',
+						data: JSON.stringify(params),
+					})
+				);
+				return promise;
+			};
+		},
+
+		//To use a single argument which is an array itself, wrap the arguments in an array.
+		_chain: function(func, args) {
+			if ( typeof args === 'undefined' ) {
+				return function() {
+					return func();
+				}
+			}
+			if ( Array.isArray(args) ) {
+				return function() {
+					return func.apply(this, args);
+				}
+			}
+			return function() {
+				return func.apply(this, [args]);
+			}
+		},
+	};
+}
 
 
 function createLinks(properties) {
@@ -470,6 +594,21 @@ function addValuesForTimeframeAndID(data, timeframe, property, idValues, values)
 		data[property][timeframe] += values[i];
 	}
 
+}
+function attachHandler(parentElement, eventType, selector, handler) {
+	let checkHandler = function(event) {
+		event = event || window.event;
+		event.target = event.target || event.srcElement;
+		
+		let foundElement = selector ? event.target.closest(selector) : parentElement;
+		if (foundElement) {
+			return handler(foundElement, event);
+		}
+	};
+
+	if (parentElement.addEventListener) {
+		parentElement.addEventListener(eventType, checkHandler, false);
+	}
 }
 
 function addDownloadHandler(element, fileName, contentFunction) {
@@ -609,6 +748,64 @@ function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, l
 	Plotly.newPlot(plotDivName, [data], layout);
 }
 
+function createRadarPlot(plotDivName, labels, values, range) {
+	if (Array.isArray(values)) {
+		values = { 'Values' : values };
+	}
+	let plotLabels = labels.slice(0, labels.length);
+	plotLabels.push(labels[0]);
+	
+	let plotData = [];
+	for ( let i in values ) {
+		let plotValues = [];
+		for (let l=0;l<labels.length;l++) {
+				plotValues[l] = values[i][l] ?? 0;
+		}
+		plotValues.push(plotValues[0]);
+		plotData.push({
+			type: 'scatterpolar',
+			r: plotValues,
+			theta: plotLabels,
+			fill: 'toself',
+			name: i,
+		});
+	}
+	
+	let data = plotData;
+
+	layout = {
+	  legend: {
+		yanchor:'top',
+		xanchor:'left',
+		y:-20,
+		x:-1,
+	  },
+	  margin: {
+		t:150,
+		b:150,
+		l:150,
+		r:150,
+		pad:100,
+		autoexpand:true,
+	  },
+	  autosize: true,
+	  polar: {
+		radialaxis: {
+		  visible: true,
+		  direction: 'clockwise',
+		  range: [Math.min.apply(null,range),Math.max.apply(null,range)]
+		},
+		angularaxis: {
+		  direction: 'clockwise'
+		},
+	  },
+	  showlegend: true
+	}
+
+	Plotly.newPlot(plotDivName, data, layout);
+	
+}
+
 function createLayout() {
 	/**
 	 * See https://plotly.com/javascript/reference/layout/
@@ -703,6 +900,14 @@ function createBarPlotLayout(title) {
 }
 
 function createSankeyPlotLayout() {
+	const layout = createLayout();
+	/**
+	 * Override specific settings
+	 */
+	return layout;
+}
+
+function createRadarPlotLayout() {
 	const layout = createLayout();
 	/**
 	 * Override specific settings
