@@ -100,6 +100,64 @@ export function sankeyPlot(plotDivName, links, timeframe, properties, colors, ti
 	Plotly.newPlot(plotDivName, [data], layout);
 }
 
+export function createRadarPlot(plotDivName, labels, values, range) {
+	if (Array.isArray(values)) {
+		values = { 'Values' : values };
+	}
+	let plotLabels = labels.slice(0, labels.length);
+	plotLabels.push(labels[0]);
+	
+	let plotData = [];
+	for ( let i in values ) {
+		let plotValues = [];
+		for (let l=0;l<labels.length;l++) {
+				plotValues[l] = values[i][l] ?? 0;
+		}
+		plotValues.push(plotValues[0]);
+		plotData.push({
+			type: 'scatterpolar',
+			r: plotValues,
+			theta: plotLabels,
+			fill: 'toself',
+			name: i,
+		});
+	}
+	
+	let data = plotData;
+
+	layout = {
+	  legend: {
+		yanchor:'top',
+		xanchor:'left',
+		y:-20,
+		x:-1,
+	  },
+	  margin: {
+		t:150,
+		b:150,
+		l:150,
+		r:150,
+		pad:100,
+		autoexpand:true,
+	  },
+	  autosize: true,
+	  polar: {
+		radialaxis: {
+		  visible: true,
+		  direction: 'clockwise',
+		  range: [Math.min.apply(null,range),Math.max.apply(null,range)]
+		},
+		angularaxis: {
+		  direction: 'clockwise'
+		},
+	  },
+	  showlegend: true
+	}
+
+	Plotly.newPlot(plotDivName, data, layout);
+	
+}
+
 export function createLayout() {
 	/**
 	 * See https://plotly.com/javascript/reference/layout/
@@ -194,6 +252,14 @@ export function createBarPlotLayout(title) {
 }
 
 export function createSankeyPlotLayout() {
+	const layout = createLayout();
+	/**
+	 * Override specific settings
+	 */
+	return layout;
+}
+
+export function createRadarPlotLayout() {
 	const layout = createLayout();
 	/**
 	 * Override specific settings
