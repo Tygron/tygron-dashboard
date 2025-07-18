@@ -263,6 +263,7 @@ html, body {
 	box-shadow: 2px 2px 10px #c1c1c1;
 	font-family: Arial;
 	padding:30px;
+	margin:10px;
 }
 
 
@@ -276,6 +277,12 @@ html, body {
 	
 }
 
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .slider-background{
 	margin:1em;
 	width:95%;
@@ -286,7 +293,7 @@ html, body {
 
 
 	</style>
-	<div class="grid">
+	<div class=".flex-container ">
 		<div class="column">
 			<div class="timeframe-slider range--ticks slider-background"
 				style='--step: 1; --min: 0; --max: 1; --value: 1; --text-value: "1"; --primaryColor: red; --fill-color: unset; --value-background: unset; --value-active-color: unset;'>
@@ -1543,7 +1550,7 @@ for(let i = 0 ; i < timeframes; i++){
 	//Uitlaat Surface
 	addLink(links, i, OUTLET_SURFACE, MODEL_OUT, flowData[OUTLET_SURFACE][i]); 
 	
-	//Uitlaat Surface
+	//Uitlaat Land
 	addLink(links, i, OUTLET_GROUND, MODEL_OUT, flowData[OUTLET_GROUND][i]); 
 	
 	//Kwel 
@@ -1573,8 +1580,9 @@ for(let i = 0 ; i < timeframes; i++){
 	//Verdamping
 	addLink(links, i, EVAPOTRANSPIRATION, MODEL_OUT, flowData[EVAPOTRANSPIRATION][i]);
 	
-	//Transpiration
+	//Transpiratie
 	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
+	
 	
 
 }
