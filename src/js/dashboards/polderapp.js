@@ -524,7 +524,7 @@ for(let i = 0 ; i < timeframes; i++){
 	//Uitlaat Surface
 	addLink(links, i, OUTLET_SURFACE, MODEL_OUT, flowData[OUTLET_SURFACE][i]); 
 	
-	//Uitlaat Surface
+	//Uitlaat Land
 	addLink(links, i, OUTLET_GROUND, MODEL_OUT, flowData[OUTLET_GROUND][i]); 
 	
 	//Kwel 
@@ -554,8 +554,9 @@ for(let i = 0 ; i < timeframes; i++){
 	//Verdamping
 	addLink(links, i, EVAPOTRANSPIRATION, MODEL_OUT, flowData[EVAPOTRANSPIRATION][i]);
 	
-	//Transpiration
+	//Transpiratie
 	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
+	
 	
 
 }
