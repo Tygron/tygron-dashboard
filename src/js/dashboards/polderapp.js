@@ -120,9 +120,9 @@ flowTitles[SEWER_IN] = 'POCRiool [m³/tijdstap]';
 flowTitles[SEWER_OVERFLOW_OUT] = 'Riooloverstort [m³/tijdstap]';
 
 flowTitles[INLET_SURFACE] = 'Inlaat op maaiveld [m³/tijdstap]';
-flowTitles[INLET_GROUND] = 'Inlaat in de grond [m³/tijdstap]';
-flowTitles[OUTLET_SURFACE] = "Uitlaat op maaiveld [m³/tijdstap]";
-flowTitles[OUTLET_GROUND] = "Uitlaat uit de grond [m³/tijdstap]";
+flowTitles[INLET_GROUND] = 'Inlaat in de bodem [m³/tijdstap]';
+flowTitles[OUTLET_SURFACE] = "Uitlaat op land [m³/tijdstap]";
+flowTitles[OUTLET_GROUND] = "Uitlaat uit de bodem [m³/tijdstap]";
 flowTitles[BOTTOM_FLOW_IN] = "Kwel [m³/tijdstap]";
 flowTitles[BOTTOM_FLOW_OUT] = "Uitzijging [m³/tijdstap]";
 flowTitles[CULVERT_IN] = "Duiker in [m³/tijdstap]";
@@ -134,9 +134,9 @@ flowTitles[WEIR_OUT] = "Stuw uit [m³/tijdstap]";
 flowTitles[MODEL_IN] = "Interessegebied in [m³/tijdstap]";
 flowTitles[MODEL_OUT] = "Interessegebied uit [m³/tijdstap]";
 flowTitles[M3GROUND] = "Bodem [m³]";
-flowTitles[M3LAND] = "Maaiveld [m³]";
+flowTitles[M3LAND] = "Land [m³]";
 flowTitles[M3WATER] = "Oppervlaktewater [m³]";
-flowTitles[M3STORAGE] = "Berging gebouwen [m³]";
+flowTitles[M3STORAGE] = "Berging voorzieningen [m³]";
 flowTitles[M3TOTAL] = "Surface [m³]";
 flowTitles[M3SEWER] = "Berging riolering[m³]";
 
@@ -486,6 +486,9 @@ for(let i = 0 ; i < timeframes; i++){
 	addLink(links, i, MODEL_IN, INLET_GROUND, flowData[INLET_GROUND][i]);
 	addLink(links, i, MODEL_IN, INLET_SURFACE, flowData[INLET_SURFACE][i]);
 	addLink(links, i, MODEL_IN, BOTTOM_FLOW_IN, flowData[BOTTOM_FLOW_IN][i]);
+	addLink(links, i, MODEL_IN, CULVERT_IN, flowData[CULVERT_IN][i]);
+	addLink(links, i, MODEL_IN, PUMP_IN, flowData[PUMP_IN][i]);
+	addLink(links, i, MODEL_IN, WEIR_IN, flowData[WEIR_IN][i]);
 	
 	
 	//Neerslag	
@@ -509,7 +512,7 @@ for(let i = 0 ; i < timeframes; i++){
 	//Berging Bodem
 	addLink(links, i, M3GROUND, BOTTOM_FLOW_OUT, flowData[BOTTOM_FLOW_OUT][i]);
 	addLink(links, i, M3GROUND, GROUND_TRANSPIRATION, flowData[GROUND_TRANSPIRATION][i]);
-	addLink(links, i, M3GROUND, OUTLET_SURFACE, flowData[OUTLET_SURFACE][i]);
+	addLink(links, i, M3GROUND, OUTLET_GROUND, flowData[OUTLET_GROUND][i]);
 	
 	//Berging Riool
 	addLink(links, i, M3SEWER, SEWER_OVERFLOW_OUT, flowData[SEWER_OVERFLOW_OUT][i]);
@@ -542,12 +545,15 @@ for(let i = 0 ; i < timeframes; i++){
 	//Platen transpiratie
 	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
 	
-	//Stuw
-	addLink(links, i, WEIR_OUT, WEIR_IN, flowData[WEIR_IN][i]);
+	//Stuw uit
+	addLink(links, i, WEIR_OUT, MODEL_OUT, flowData[WEIR_OUT][i]);
 	
-	//Duiker
+	//Duiker in
 	addLink(links, i, CULVERT_IN, M3WATER, flowData[CULVERT_IN][i]);
-		
+	
+	//Duiker uit
+	addLink(links, i, CULVERT_OUT, MODEL_OUT, flowData[CULVERT_OUT][i]);
+			
 	//Pomp
 	addLink(links, i, PUMP_IN, M3WATER, flowData[PUMP_IN][i]);
 			
@@ -561,13 +567,70 @@ for(let i = 0 ; i < timeframes; i++){
 
 }
 
+
+
+const nodeColors = {
+  MODEL_IN: "#2ca02c",
+  MODEL_OUT: "#d62728",
+  M3LAND: "#6699cc",
+  M3WATER: "#6699cc",
+  M3GROUND: "#6699cc",
+  M3STORAGE: "#6699cc",
+  M3SEWER: "#6699cc",
+  RAINM3: "#1f77b4",
+  RAINM3LAND: "#c5b0d5",
+  RAINM3WATER: "#8c564b",
+  RAINM3STORAGE: "#c49c94",
+  GROUND_TRANSPIRATION: "#1f77b4",
+  EVAPOTRANSPIRATION: "#1f77b4",
+  SURFACE_EVAPORATIONLAND: "#1f77b4",
+  SURFACE_EVAPORATIONWATER: "#1f77b4",
+  BOTTOM_FLOW_IN: "#1f77b4",
+  BOTTOM_FLOW_OUT: "#1f77b4",
+  LANDSEWER: "#17becf",
+  SEWER_IN: "#1f77b4",
+  SEWER_OVERFLOW_OUT: "#ff7f0e",
+  CULVERT_IN: "#ff7f0e",
+  CULVERT_OUT: "#ff7f0e",
+  INLET_SURFACE: "#ff7f0e",
+  OUTLET_SURFACE: "#ff7f0e",
+  INLET_GROUND: "#ff7f0e",
+  OUTLET_GROUND: "#ff7f0e",
+  PUMP_IN: "#ff7f0e",
+  PUMP_OUT: "#ff7f0e",
+  WEIR_IN: "#ff7f0e",
+  WEIR_OUT: "#ff7f0e"
+};
+
+
+
+
 const sankeyLayout = createSankeyPlotLayout();
 
 const sankeySlider = document.getElementById("sankeySlider");
-sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, flowColors, flowTitles, sankeyLayout);
+  
+sankeyPlot(
+	    "sankeyPlot",         // plotDivName
+	    links,                // links
+	    sankeySlider.value,   // timeframe
+	    sankeyproperties,     // properties
+	    flowTitles,           // titles
+	    sankeyLayout,         // layout
+	    nodeColors           // kleuren als object
+		
+	  );
 
 setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
-	sankeyPlot("sankeyPlot", links, sankeySlider.value, sankeyproperties, flowColors, flowTitles, sankeyLayout);
+	sankeyPlot(
+		    "sankeyPlot",         // plotDivName
+		    links,                // links
+		    sankeySlider.value,   // timeframe
+		    sankeyproperties,     // properties
+		    flowTitles,           // titles
+		    sankeyLayout,         // layout
+		    nodeColors            // kleuren als object
+
+		  );
 });
 
 let balanceCSVButton = document.getElementById("balanceCSVButton");
