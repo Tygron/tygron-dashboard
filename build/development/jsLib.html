@@ -416,26 +416,53 @@ function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout
 
 
 
-function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, layout) {
+function sankeyPlot(
+  plotDivName,
+  links,
+  timeframe,
+  properties,
+  titles,
+  layout,
+  colors = null,
+  positionsX = null,
+  positionsY = null
+) {
 
 	let link = getLink(links, timeframe);
+	
+	//labels bepalen
 	labels = [];
 	for (var i = 0; i < properties.length; i++) {
 		labels.push(titles[properties[i]]);
 	}
-	let data = {
-
-		type: "sankey",
-		orientation: "h",
-
-		node: {
+	
+	let node = {
+			pad: 15,
+			thickness: 20,
+			line: { color: "black", width: 0.5 },
 			label: labels,
-			align: "right",
-		},
-
-		link: link
-	};
-
+			align: "right"
+		};
+		
+	// Voeg optionele kleuren toe
+	if (colors !== null) {
+		node.color = properties.map(p => colors[p]);
+			}
+			
+			// Voeg optionele posities toe
+			  if (positionsX !== null && positionsY !== null) {
+			    node.x = properties.map(p => positionsX[p]);
+			    node.y = properties.map(p => positionsY[p]);
+			  }
+	
+			// Maak het Sankey data object
+				let data = {
+					type: "sankey",
+					orientation: "h",
+					node: node,
+					link: link
+				};
+				
 
 
 	Plotly.newPlot(plotDivName, [data], layout);
