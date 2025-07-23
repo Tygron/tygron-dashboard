@@ -127,7 +127,7 @@ export function sankeyPlot(
 	Plotly.newPlot(plotDivName, [data], layout);
 }
 
-export function createRadarPlot(plotDivName, labels, values, range) {
+export function createRadarPlot(plotDivName, labels, values, range, layout) {
 	if (Array.isArray(values)) {
 		console.error('Array provided for Radarplot rather than mapping. Placing values in mapping under key "Values".');
 		values = { 'Values' : values };
@@ -148,28 +148,12 @@ export function createRadarPlot(plotDivName, labels, values, range) {
 			theta: plotLabels,
 			fill: 'toself',
 			name: i,
+			showlegend: true,
 		});
 	}
-	
-	let data = plotData;
 
-	layout = {
-	  legend: {
-		yanchor:'top',
-		xanchor:'left',
-		y:-20,
-		x:-1,
-	  },
-	  margin: {
-		t:150,
-		b:150,
-		l:150,
-		r:150,
-		pad:100,
-		autoexpand:true,
-	  },
-	  autosize: true,
-	  polar: {
+	let plotLayout = JSON.parse(JSON.stringify(layout)); //deep copy
+	plotLayout['polar'] ??= {
 		radialaxis: {
 		  visible: true,
 		  direction: 'clockwise',
@@ -178,11 +162,9 @@ export function createRadarPlot(plotDivName, labels, values, range) {
 		angularaxis: {
 		  direction: 'clockwise'
 		},
-	  },
-	  showlegend: true
-	}
+	  };
 
-	Plotly.newPlot(plotDivName, data, layout);
+	Plotly.newPlot(plotDivName, plotData, plotLayout);
 	
 }
 
@@ -289,9 +271,20 @@ export function createSankeyPlotLayout() {
 
 export function createRadarPlotLayout() {
 	const layout = createLayout();
-	/**
-	 * Override specific settings
-	 */
+	layout['legend'] ??= {};
+	layout['margin'] ??= {};
+	
+	Object.assign(layout['margin'], {
+		t:32,
+		b:32,
+		l:48,
+		r:48,
+		pad:0,
+		autoexpand:true,
+	});
+	layout['showlegend'] ??= true;
+	layout['autosize'] ??= true;
+
 	return layout;
 }
 

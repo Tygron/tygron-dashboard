@@ -23,6 +23,6 @@
 				}
 			}
 		}
-		createRadarPlot('chart', labels, values, options);
-		
+		let layout = createRadarPlotLayout();
+		createRadarPlot('chart', labels, values, options, layout);
 	});
