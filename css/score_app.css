@@ -1,0 +1,51 @@
+	body {
+		padding: 0px;
+		margin:0px; 
+		height: 100vh;
+		
+		position: relative;
+		display: flex;
+		flex-direction: column;
+	}
+	#pageControls {
+		height: 2em;
+		line-height: 2em;
+		
+		position:relative;
+	}
+	.page {
+		display: flex;
+		flex-direction: row;
+		
+		flex-basis: 10em;
+		flex-grow: 1;
+		
+		position: relative;
+	}
+	.page > div {
+		flex-grow:1;
+		flex-basis:50%;
+	}
+	/*
+	.entry {
+		position: relative;
+		width: 100%;
+		height: 2em;
+	}
+	.entry > div:last-child {
+		position:absolute;
+		right:0px;
+	}
+	.entry > div:first-child {
+		position:absolute;
+		left:0px;
+	}
+	.entry .inputsPart input[type="button"] {
+		margin: 0px 0.5em;
+	}
+	input[type="button"] {
+		background-color: lightyellow;
+	}
+	input[type="button"].selected {
+		background-color: lightblue;
+	}*/
