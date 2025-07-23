@@ -1,4 +1,310 @@
 
+	<style>
+		@charset "UTF-8";
+
+:root {
+	--tygron-white: rgba(245, 245, 245, 1.0);
+	--tygron-blue: rgb(10, 173, 207);
+}
+
+html, body {
+	padding: 0px;
+	background-color: white;
+}
+
+/* Style the button that is used to open and close the collapsible content */
+.collapsible {
+	background-color: #eee;
+	color: #444;
+	cursor: pointer;
+	padding: 18px;
+	width: 100%;
+	border: none;
+	text-align: left;
+	outline: none;
+	font-size: 15px;
+}
+
+.active, .collapsible {
+	font-weight: bold;
+	font-size: 1.5em;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .collapsible:hover {
+	background-color: cornflowerblue;
+	color: white;
+}
+
+/* Style the collapsible content. Note: hidden by default */
+.content {
+	padding: 0 0.25em;
+	background-color: white;
+	overflow: hidden;
+}
+
+.content.direct {
+	padding: 0 0em;
+}
+
+.content .delayed {
+	max-height: 0;
+	transition: max-height 0.2s ease-out;
+}
+
+.collapsible:after {
+	content: '\02795';
+	/* Unicode character for "plus" sign (+) */
+	font-size: 13px;
+	color: white;
+	float: right;
+	margin-left: 5px;
+}
+
+.active:after {
+	content: "\2796";
+	/* Unicode character for "minus" sign (-) */
+}
+
+.datatable thead {
+	font-weight: bold;
+}
+
+.datatable {
+	height: 1px;
+	border-collapse: collapse;
+	width: 100%;
+	table-layout: auto;
+	font-family: Arial;
+	font-size: 0.9em;
+}
+
+.datatable tr {
+	/*border-bottom: 1px solid black;*/
+	height: 100%;
+}
+
+.datatable tr:nth-child(even) {
+	background-color: rgb(240, 240, 240)
+}
+
+.datatable td {
+	height: 100%;
+}
+
+.datatable td>div {
+	margin: 0.25em;
+	padding: 0.25em 0.25em 0.25em 0.25em;
+	position: relative;
+	border-radius: 0.5em;
+}
+
+.timeframe-slider {
+  --primaryColor: #0366D6;
+  --value-active-color: white;
+  --value-background: var(--primaryColor);
+  --value-font: 700 12px/1 Arial;
+  --progress-color: #EEE;
+  --progress-shadow: 2px 2px 4px rgba(0,0,0, .1) inset;
+  --fill-color: var(--primaryColor);
+  --thumb-size: 16px;
+  --track-height: calc(var(--thumb-size)/2);
+  --thumb-shadow: 0 0 3px rgba(0,0,0,.2);
+  --ticks-thickness: 1px;
+  --ticks-height: 5px;
+  --ticks-color: silver;
+  --step: 1;
+  --ticks-count: (var(--max) - var(--min)) / var(--step);
+  --maxTicksAllowed: 30;
+  --too-many-ticks: Min(1, Max(var(--ticks-count) - var(--maxTicksAllowed), 0));
+  --x-step: Max( var(--step), var(--too-many-ticks) * (var(--max) - var(--min)) ); /* manipulate the number of steps if too many ticks exist, so there would only be 2*/
+  --tickInterval: 100/((var(--max) - var(--min)) / var(--step)) * var(--tickEvery, 1);
+  --tickIntervalPerc: calc((100% - var(--thumb-size))/( (var(--max) - var(--min)) / var(--x-step) ) * var(--tickEvery, 1));
+  --completed: calc((var(--value) - var(--min) ) / (var(--max) - var(--min)) * 100);
+  
+  @mixin thumb{
+    appearance: none;
+    height: var(--thumb-size);
+    width: var(--thumb-size);
+    border-radius: 50%;
+    background: var(--thumb-color, white);
+    border: 1px solid silver;
+    box-shadow: var(--inner-shadow, 0 0), var(--thumb-shadow);
+  }
+  
+  display: inline-block;
+  height: var(--thumb-size);
+  margin: calc((var(--thumb-size) - var(--track-height)) * -.25) var(--thumb-size) 0;
+  background: linear-gradient(to right, var(--ticks-color) var(--ticks-thickness), transparent 1px) repeat-x;
+  background-size: var(--tickIntervalPerc) var(--ticks-height);
+  background-position: calc(var(--thumb-size)/2) bottom;
+  padding-bottom: var(--ticks-height);
+  position: relative;
+
+  &::before, 
+  &::after {
+    font: 12px Arial;
+    content: counter(x);
+    position: absolute;
+    bottom: -2.5ch;
+  }
+  
+  &::before {
+    counter-reset: x var(--min);
+    left: 0;
+  }
+  
+  &::after {
+    counter-reset: x var(--max);
+    right: 0;
+  }
+  
+  &__progress {
+    position: absolute;
+    left: 0;
+    top: calc(50% - var(--ticks-height)/2);
+    transform: translateY(-50%);
+    width: 100%;
+    height: calc(var(--track-height));
+    pointer-events: none;
+    z-index: -1;
+    box-shadow: var(--progress-shadow); 
+    border-radius: 20px;
+    background: var(--fill-color, white);
+
+    &::before {
+      content: '';
+      display: block;
+      margin-left: auto;
+      margin-right: -.5px;
+      width: calc(100% - var(--completed) * 1%);
+      height: 100%;
+      background: var(--progress-color, #EEE);
+      box-shadow: inherit;
+      border-radius: 0 20px 20px 0;
+    }
+  }
+  
+  & > input {
+    width: 100%;
+    height: var(--thumb-size);
+   /* margin: 0 calc(var(--thumb-size)/-2);*/
+    margin: 0;
+    cursor: -webkit-grab;
+    cursor: grab;
+    outline: none;
+    background: none;
+    
+    &::-webkit-slider-thumb { 
+      @include thumb;
+    }
+    
+    &::-moz-slider-thumb { 
+      @include thumb;
+    }
+    
+    &::-ms-thumb { 
+      @include thumb;
+    }
+    
+    &:active {
+      cursor: grabbing;
+      --thumb-color: var(--fill-color);
+      --inner-shadow: 0 0 0 calc(var(--thumb-size)/4) inset white;
+      + output { transition: 0s; }
+    }
+    
+    &:hover + output {
+      background: var(--value-background);
+      color: var(--value-active-color);
+      transform: translate(var(--x-offset), 0);
+      box-shadow: 0 0 0 3px var(--value-background);
+    }
+  }
+
+  & > output {
+    --x-offset: calc(var(--completed) * -1%);
+    pointer-events: none;
+    position: absolute;
+    background: transparent;
+    border-radius: 10px;
+    padding: 0 4px;
+    top: -3ch; /* calc(Max(var(--thumb-size), var(--track-height)) * -1);*/
+    left: calc(((var(--value) - var(--min))/(var(--max) - var(--min))) * 100%);
+    transform: translate(var(--x-offset), 6px);
+    transition: all .12s ease-out, left 0s, top 0s;
+  
+    &::after {
+      content: var(--text-value);
+      font: var(--value-font);
+    }
+  }
+}
+	body {
+		padding: 0px;
+		margin:0px; 
+		height: 100vh;
+		
+		position: relative;
+		display: flex;
+		flex-direction: column;
+	}
+	#pageControls {
+		height: 2em;
+		line-height: 2em;
+		
+		position:relative;
+	}
+	.page {
+		display: flex;
+		flex-direction: row;
+		
+		flex-basis: 10em;
+		flex-grow: 1;
+		
+		position: relative;
+	}
+	.page > div {
+		flex-grow:1;
+		flex-basis:50%;
+	}
+	/*
+	.entry {
+		position: relative;
+		width: 100%;
+		height: 2em;
+	}
+	.entry > div:last-child {
+		position:absolute;
+		right:0px;
+	}
+	.entry > div:first-child {
+		position:absolute;
+		left:0px;
+	}
+	.entry .inputsPart input[type="button"] {
+		margin: 0px 0.5em;
+	}
+	input[type="button"] {
+		background-color: lightyellow;
+	}
+	input[type="button"].selected {
+		background-color: lightblue;
+	}*/
+
+		body{}
+	</style>
+	
+	<div id="controls">
+	</div>
+	
+	<div class="page">
+		<div id="chart">
+		</div>
+	</div>
+	
+	<script>
+		
 function initCollapsibles() {
 
 	var coll = document.getElementsByClassName("collapsible");
@@ -750,4 +1056,33 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput){
 		timeframeSlider.parentElement.style.setProperty('--text-value', JSON.stringify(timeframeSlider.value))	
 	};
 }
+	$( window ).on( "load", function() {
+		
+		let indicatorNames = '$SELECT_NAME_WHERE_INDICATOR_IS_X'.replaceAll('"','').split(', ');
+		let indicatorActive = [$SELECT_ACTIVE_WHERE_INDICATOR_IS_X];
+		let indicatorScores = {};
+		indicatorScores['Current'] = [$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT];
+		indicatorScores['Maquette'] = [$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE];
+		if ( JSON.stringify(indicatorScores['Current']) == JSON.stringify(indicatorScores['Maquette']) ) {
+			indicatorScores = { 'Score' : indicatorScores['Maquette'] };	
+		}
+		
+		let options = [0,100];
+		
+		let labels = [];
+		let values = {};
+		for ( let i=0 ; i<indicatorActive.length ; i++ ) {
+			if (indicatorActive[i]>0) {
+				labels.push(indicatorNames[i]);
+				for (let key in indicatorScores) {
+					values[key] = values[key] ?? [];
+					let newValue = indicatorScores[key][i] * 100;
+					values[key].push(newValue);
+				}
+			}
+		}
+		let layout = createRadarPlotLayout();
+		createRadarPlot('chart', labels, values, options, layout);
+	});
 
+	</script>

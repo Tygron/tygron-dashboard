@@ -304,6 +304,37 @@ function attachHandler(parentElement, eventType, selector, handler) {
 	}
 }
 
+function popupPanel(element, id, webPath) {
+
+	let popupPanel = document.createElement('div');
+	popupPanel.classList.add('popup');
+	
+	let panelCloser = document.createElement('div');
+	panelCloser.classList.add('closer');
+	attachHandler(panelCloser, 'click', null, function(){clearPopupPanel(element);});
+	
+	let panelFrame = document.createElement('iframe');
+	panelFrame.classList.add('popupFrame');
+	
+	popupPanel.appendChild( panelCloser );
+	popupPanel.appendChild( panelFrame );
+	
+	webPath = webPath ?? '/web/panel.html'
+	let queryString = 'token=$TOKEN&id='+id;
+	let webTarget = webPath + ( webPath.indexOf('?')<0 ? '?' : '&' ) + queryString;
+	panelFrame.src = webTarget;
+	
+	clearPopupPanel(element);
+	element.appendChild(popupPanel);
+}
+function clearPopupPanel(element) {
+	let popups = element.getElementsByClassName('popup');
+	for ( let i = 0 ; i < popups.length ; i++ ) {
+		popups[i].remove();
+	}
+	return element;
+}
+
 function addDownloadHandler(element, fileName, contentFunction) {
 	element.addEventListener('click', () => {
 		let content = contentFunction();
@@ -468,8 +499,9 @@ function sankeyPlot(
 	Plotly.newPlot(plotDivName, [data], layout);
 }
 
-function createRadarPlot(plotDivName, labels, values, range) {
+function createRadarPlot(plotDivName, labels, values, range, layout) {
 	if (Array.isArray(values)) {
+		console.error('Array provided for Radarplot rather than mapping. Placing values in mapping under key "Values".');
 		values = { 'Values' : values };
 	}
 	let plotLabels = labels.slice(0, labels.length);
@@ -488,28 +520,12 @@ function createRadarPlot(plotDivName, labels, values, range) {
 			theta: plotLabels,
 			fill: 'toself',
 			name: i,
+			showlegend: true,
 		});
 	}
-	
-	let data = plotData;
 
-	layout = {
-	  legend: {
-		yanchor:'top',
-		xanchor:'left',
-		y:-20,
-		x:-1,
-	  },
-	  margin: {
-		t:150,
-		b:150,
-		l:150,
-		r:150,
-		pad:100,
-		autoexpand:true,
-	  },
-	  autosize: true,
-	  polar: {
+	let plotLayout = JSON.parse(JSON.stringify(layout)); //deep copy
+	plotLayout['polar'] ??= {
 		radialaxis: {
 		  visible: true,
 		  direction: 'clockwise',
@@ -518,11 +534,9 @@ function createRadarPlot(plotDivName, labels, values, range) {
 		angularaxis: {
 		  direction: 'clockwise'
 		},
-	  },
-	  showlegend: true
-	}
+	  };
 
-	Plotly.newPlot(plotDivName, data, layout);
+	Plotly.newPlot(plotDivName, plotData, plotLayout);
 	
 }
 
@@ -629,9 +643,20 @@ function createSankeyPlotLayout() {
 
 function createRadarPlotLayout() {
 	const layout = createLayout();
-	/**
-	 * Override specific settings
-	 */
+	layout['legend'] ??= {};
+	layout['margin'] ??= {};
+	
+	Object.assign(layout['margin'], {
+		t:32,
+		b:32,
+		l:48,
+		r:48,
+		pad:0,
+		autoexpand:true,
+	});
+	layout['showlegend'] ??= true;
+	layout['autosize'] ??= true;
+
 	return layout;
 }
 
