@@ -129,6 +129,7 @@ export function sankeyPlot(
 
 export function createRadarPlot(plotDivName, labels, values, range) {
 	if (Array.isArray(values)) {
+		console.error('Array provided for Radarplot rather than mapping. Placing values in mapping under key "Values".');
 		values = { 'Values' : values };
 	}
 	let plotLabels = labels.slice(0, labels.length);
