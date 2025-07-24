@@ -591,13 +591,13 @@ function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, prope
 					data[propertyInner][timeframe] -= values[i];
 				}
 			}
-		} else if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
+		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyFrom][timeframe] += values[i];
 			} else {
 				data[propertyTo][timeframe] -= values[i];
 			}
-		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
+		} else if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyTo][timeframe] += values[i];
 			} else {
@@ -1122,7 +1122,7 @@ const plotProperties = [TIMEFRAMES, M3LAND, M3WATER, M3GROUND, M3SEWER, M3STORAG
 const titles = {};
 titles[TIMEFRAMES] = "Timeframes";
 titles[TIMEFRAMETIMES] = "Tijdstap";
-titles[M3LAND] = "Water op Maaiveld [m3]";
+titles[M3LAND] = "Water op land [m3]";
 titles[M3WATER] = "Oppervlaktewater [m3]";
 titles[M3GROUND] = "Grondwater [m3]";
 titles[M3STORAGE] = "Waterbergende voorzieningen [m3]";
@@ -1206,7 +1206,7 @@ flowTitles[SEWER_POC] = 'POCRiool [m³/tijdstap]';
 
 flowTitles[SEWER_OVERFLOW_OUT] = 'Riooloverstort [m³/tijdstap]';
 
-flowTitles[INLET_SURFACE] = 'Inlaat op maaiveld [m³/tijdstap]';
+flowTitles[INLET_SURFACE] = 'Inlaat op land [m³/tijdstap]';
 flowTitles[INLET_GROUND] = 'Inlaat in grondwater [m³/tijdstap]';
 flowTitles[OUTLET_SURFACE] = "Uitlaat op land [m³/tijdstap]";
 flowTitles[OUTLET_GROUND] = "Uitlaat uit grondwater [m³/tijdstap]";
@@ -1231,7 +1231,7 @@ flowTitles[M3LAND] = "Land [m³]";
 flowTitles[M3WATER] = "Oppervlaktewater [m³]";
 flowTitles[M3STORAGE] = "Berging voorzieningen [m³]";
 flowTitles[M3TOTAL] = "Surface [m³]";
-flowTitles[M3SEWER] = "Berging riolering [m³]";
+flowTitles[M3SEWER] = "Riolering [m³]";
 
 
 const flowColors = {};
@@ -1259,7 +1259,7 @@ flowColors[BOTTOM_FLOW_IN] = [31, 119, 180, 0.5];
 flowColors[BOTTOM_FLOW_OUT] = [31, 119, 180, 0.5];
 
 // Berging - Lichtblauw
-flowColors[M3LAND] = [196, 196, 220, 0.5];         // Berging Maaiveld
+flowColors[M3LAND] = [196, 196, 220, 0.5];         // Berging land
 flowColors[M3WATER] = [196, 196, 220, 0.5];        // Oppervlaktewater
 flowColors[M3GROUND] = [196, 196, 220, 0.5];       // Bodem
 flowColors[M3STORAGE] = [196, 196, 220, 0.5];      // Gebouwen
@@ -1288,7 +1288,7 @@ flowColors[WEIR_INNER] = [255, 127, 14, 0.5];
 
 
 
-const flowProperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, M3LAND, M3WATER, M3GROUND, M3STORAGE, M3SEWER, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR, WEIR_IN, WEIR_OUT, WEIR_INNER];
+const flowProperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, M3LAND, M3WATER, M3GROUND, M3STORAGE, M3SEWER, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR_IN, WEIR_OUT, WEIR_INNER];
 const flowData = createTimeframeData(timeframes, $ID, flowProperties);
 
 const culvertAreaFrom = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0];
@@ -1489,8 +1489,8 @@ for (let timeframeKey = 0; timeframeKey < landInlet.length; timeframeKey++) {
 	addFlowValues(
 		flowData,
 		timeframeKey,
-		OUTLET_SURFACE,
 		INLET_SURFACE,
+		OUTLET_SURFACE,
 		inletAreaFrom,
 		inletAreaTo,
 		timeframeValues,
@@ -1516,8 +1516,7 @@ for (let timeframeKey = 0; timeframeKey < landInlet.length; timeframeKey++) {
 //addFlowValuesWithInner(flowData, 14, WEIR_IN, WEIR_OUT, WEIR_INNER, weirAreaFrom, weirAreaTo, [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_14]);
 
 //Berging Water - stuw
-const waterWeir = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGTH_AND_TIMEFRAME_IS_Y_AND_GRIDTYPE_IS_RAINFALL];
-
+const waterWeir = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_TIMEFRAME_IS_Y_AND_GRIDTYPE_IS_RAINFALL];
 
 for (let timeframeKey = 0; timeframeKey < waterWeir.length; timeframeKey++) {
 	let timeframeValues = waterWeir[timeframeKey];
@@ -1527,8 +1526,8 @@ for (let timeframeKey = 0; timeframeKey < waterWeir.length; timeframeKey++) {
 		WEIR_IN,
 		WEIR_OUT,
 		WEIR_INNER,
-		inletAreaFrom,
-		inletAreaTo,
+		weirAreaFrom,
+		weirAreaTo,
 		timeframeValues,
 		condition = undefined
 	);
@@ -1562,8 +1561,8 @@ for (let timeframeKey = 0; timeframeKey < waterCulvert.length; timeframeKey++) {
 		CULVERT_IN,
 		CULVERT_OUT,
 		CULVERT_INNER,
-		inletAreaFrom,
-		inletAreaTo,
+		culvertAreaFrom,
+		culvertAreaTo,
 		timeframeValues,
 		condition = undefined
 	);
@@ -1599,8 +1598,8 @@ for (let timeframeKey = 0; timeframeKey < waterPump.length; timeframeKey++) {
 		PUMP_IN,
 		PUMP_OUT,
 		PUMP_INNER,
-		inletAreaFrom,
-		inletAreaTo,
+		pumpAreaFrom,
+		pumpAreaTo,
 		timeframeValues,
 		condition = undefined
 	);
@@ -1615,8 +1614,8 @@ for (let timeframeKey = 0; timeframeKey < inletGround.length; timeframeKey++) {
 	addFlowValues(
 		flowData,
 		timeframeKey,
-		OUTLET_GROUND,
 		INLET_GROUND,
+		OUTLET_GROUND,
 		inletAreaFrom,
 		inletAreaTo,
 		timeframeValues,
