@@ -2,8 +2,8 @@
 .column {
 	
 	height: 100%;
-	max-height: 43vh;
-	overflow-y: scroll;
+	max-height: auto;
+	overflow-x: scroll;
 	border: 1px solid grey;
 	border-radius: 20px;
 	box-shadow: 2px 2px 10px #c1c1c1;
