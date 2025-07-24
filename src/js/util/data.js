@@ -113,13 +113,13 @@ export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo
 					data[propertyInner][timeframe] -= values[i];
 				}
 			}
-		} else if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
+		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyFrom][timeframe] += values[i];
 			} else {
 				data[propertyTo][timeframe] -= values[i];
 			}
-		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
+		} else if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyTo][timeframe] += values[i];
 			} else {
