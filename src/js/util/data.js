@@ -55,7 +55,7 @@ export function createTimeframeData(timeframes, itemID, properties) {
  * @param {*} values Value array to set under property name into data
  * @param {{}} [args={}] Additional args object, supports .relative and .negative with boolean value
  */
-export function setTimeframeValues(data, property, values, args={}) {
+export function setTimeframeValues(data, property, values, args = {}) {
 
 	for (let i = 0; i < data[property].length && i < values.length; i++) {
 		data[property][i] = values[i];
@@ -68,13 +68,13 @@ export function setTimeframeValues(data, property, values, args={}) {
 			data[property][i] -= previous;
 		}
 	}
-	if (args.negative!== undefined) {
+	if (args.negative !== undefined) {
 		if (args.negative) {
 			for (let i = 0; i < data[property].length; i++) {
 				data[property][i] = Math.abs(Math.min(0, data[property][i]));
 			}
 		} else {
-			for (let i = 0; i < data[property].length ; i++) {
+			for (let i = 0; i < data[property].length; i++) {
 				data[property][i] = Math.max(0, data[property][i]);
 			}
 		}
@@ -89,22 +89,37 @@ export function setTimeframeValue(data, property, value) {
 }
 
 export function addFlowValues(data, timeframe, propertyFrom, propertyTo, areaIDFrom, areaIDTo, values, condition = undefined) {
+	addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, undefined, areaIDFrom, areaIDTo, values, condition);
+}
+
+export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, propertyInner, areaIDFrom, areaIDTo, values, condition = undefined) {
 	if (data[propertyFrom][timeframe] == undefined) {
 		data[propertyFrom][timeframe] = 0;
 	}
 	if (data[propertyTo][timeframe] == undefined) {
 		data[propertyTo][timeframe] = 0;
 	}
-
+	if (propertyInner != undefined) {
+		if (data[propertyInner][timeframe] == undefined) {
+			data[propertyInner][timeframe] = 0;
+		}
+	}
 	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
-		if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
+		if ((areaIDTo[i] == data.itemID) && (areaIDFrom[i] == data.itemID) && (condition == undefined || condition[i])) {
+			if (propertyInner != undefined) {
+				if (values[i] > 0) {
+					data[propertyInner][timeframe] += values[i];
+				} else {
+					data[propertyInner][timeframe] -= values[i];
+				}
+			}
+		} else if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyFrom][timeframe] += values[i];
 			} else {
 				data[propertyTo][timeframe] -= values[i];
 			}
-		}
-		if (areaIDTo[i] == data.itemID  && (condition == undefined || condition[i])) {
+		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
 			if (values[i] > 0) {
 				data[propertyTo][timeframe] += values[i];
 			} else {
