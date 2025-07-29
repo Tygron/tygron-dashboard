@@ -141,22 +141,23 @@
 
 	<target name="combinedScript" if="${combined}">
 
+		<copy file="${destination}/${base.name}.html" tofile="${destination}/${base.name}.txt" />
+
+		<replaceregexp file="${destination}/${base.name}.txt" match="(.*\n)*\&lt;body\&gt;" replace="" byline="false" />
+		<replaceregexp file="${destination}/${base.name}.txt" match="\&lt;&#47;body\&gt;(.*(\n)*)*" replace="" byline="false" />
+		
 		<loadfile property="contents" srcFile="${filepath}" />
 		<loadfile property="csscontent" srcFile="${destination}/css/${base.name}.css" />
 
 		<replace file="${destination}/${base.name}.html" token="BODYSCRIPT" value="${contents}" />
 		<replace file="${destination}/${base.name}.html" token="BODYSTYLE" value="${csscontent}" />
-
-
 		<replace file="${destination}/${base.name}.html" token="DASHBOARD_LIBS" value="" />
 		<replace file="${destination}/${base.name}.html" token="DASHBOARD_CSS" value="" />
-
-		<copy file="${destination}/${base.name}.html" tofile="${destination}/${base.name}.txt" />
-
-		<replaceregexp file="${destination}/${base.name}.txt" match="(.*\n)*\&lt;body\&gt;" replace="" byline="false" />
-		<replaceregexp file="${destination}/${base.name}.txt" match="\&lt;&#47;body\&gt;(.*(\n)*)*" replace="" byline="false" />
-
-
+		
+		<replace file="${destination}/${base.name}.txt" token="BODYSCRIPT" value="${contents}" />
+		<replace file="${destination}/${base.name}.txt" token="BODYSTYLE" value="${csscontent}" />
+		<replace file="${destination}/${base.name}.txt" token="DASHBOARD_LIBS" value="" />
+		<replace file="${destination}/${base.name}.txt" token="DASHBOARD_CSS" value="" />
 
 	</target>
 
@@ -207,6 +208,26 @@
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_1" replace="2, 0, 2, 2, 1, 3" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_UNDERGROUND_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0" replace="0, 0, 0, 0, 0, 1" byline="true" />
 
+		
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_0" replace="1, 2, 3, 4, 5,6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_1" replace="0, 0, 1, 0, 1,6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_2" replace="1, 2, 3, 4, 5,6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_3" replace="0, 0, 1, 0, 1,6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_4" replace="1, 2, 3, 4, 5, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_5" replace="0, 0, 1, 0, 1, 6" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_6" replace="1, 2, 3, 4, 5, 5" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_7" replace="0, 0, 1, 0, 1, 8" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_8" replace="1, 2, 3, 4, 5, 9" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_9" replace="0, 0, 1, 0, 1, 0" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_10" replace="1, 2, 3, 4, 5, 1" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_11" replace="0, 0, 1, 0, 1, 2" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_12" replace="1, 2, 3, 4, 5, 3" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_13" replace="0, 0, 1, 0, 1, 5" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_14" replace="1, 2, 3, 4, 5, 7" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_INDEX_IS_15" replace="0, 0, 1, 0, 1, 4" byline="true" />
+
+		
+		
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0" replace="1, 2, 3, 4, 5, 6" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_1" replace="0, 0, 1, 0, 1, 2" byline="true" />
 		<replaceregexp file="${destination}/${base.name}.html" match="\$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_2" replace="1, 2, 3, 4, 5, 6" byline="true" />

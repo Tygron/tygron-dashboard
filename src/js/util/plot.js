@@ -75,29 +75,97 @@ export function volumeStackedPlot(plotDivName, data, properties, colors, titles,
 
 
 
-export function sankeyPlot(plotDivName, links, timeframe, properties, colors, titles, layout) {
+export function sankeyPlot(
+  plotDivName,
+  links,
+  timeframe,
+  properties,
+  titles,
+  layout,
+  colors = null,
+  positionsX = null,
+  positionsY = null
+) {
 
 	let link = getLink(links, timeframe);
+	
+	//labels bepalen
 	labels = [];
 	for (var i = 0; i < properties.length; i++) {
 		labels.push(titles[properties[i]]);
 	}
-	let data = {
-
-		type: "sankey",
-		orientation: "h",
-
-		node: {
+	
+	let node = {
+			pad: 15,
+			thickness: 20,
+			line: { color: "black", width: 0.5 },
 			label: labels,
-			align: "right",
-		},
-
-		link: link
-	};
-
+			align: "right"
+		};
+		
+	// Voeg optionele kleuren toe
+	if (colors !== null) {
+		node.color = properties.map(p => colors[p]);
+			}
+			
+			// Voeg optionele posities toe
+			  if (positionsX !== null && positionsY !== null) {
+			    node.x = properties.map(p => positionsX[p]);
+			    node.y = properties.map(p => positionsY[p]);
+			  }
+	
+			// Maak het Sankey data object
+				let data = {
+					type: "sankey",
+					orientation: "h",
+					node: node,
+					link: link
+				};
+				
 
 
 	Plotly.newPlot(plotDivName, [data], layout);
+}
+
+export function createRadarPlot(plotDivName, labels, values, range, layout) {
+	if (Array.isArray(values)) {
+		console.error('Array provided for Radarplot rather than mapping. Placing values in mapping under key "Values".');
+		values = { 'Values' : values };
+	}
+	let plotLabels = labels.slice(0, labels.length);
+	plotLabels.push(labels[0]);
+	
+	let plotData = [];
+	for ( let i in values ) {
+		let plotValues = [];
+		for (let l=0;l<labels.length;l++) {
+				plotValues[l] = values[i][l] ?? 0;
+		}
+		plotValues.push(plotValues[0]);
+		plotData.push({
+			type: 'scatterpolar',
+			r: plotValues,
+			theta: plotLabels,
+			fill: 'toself',
+			name: i,
+			showlegend: true,
+		});
+	}
+
+	let plotLayout = JSON.parse(JSON.stringify(layout)); //deep copy
+	plotLayout['polar'] ??= {
+		radialaxis: {
+		  visible: true,
+		  direction: 'clockwise',
+		  range: [Math.min.apply(null,range),Math.max.apply(null,range)]
+		},
+		angularaxis: {
+		  direction: 'clockwise'
+		},
+	  };
+
+	Plotly.newPlot(plotDivName, plotData, plotLayout);
+	
 }
 
 export function createLayout() {
@@ -198,6 +266,25 @@ export function createSankeyPlotLayout() {
 	/**
 	 * Override specific settings
 	 */
+	return layout;
+}
+
+export function createRadarPlotLayout() {
+	const layout = createLayout();
+	layout['legend'] ??= {};
+	layout['margin'] ??= {};
+	
+	Object.assign(layout['margin'], {
+		t:32,
+		b:32,
+		l:48,
+		r:48,
+		pad:0,
+		autoexpand:true,
+	});
+	layout['showlegend'] ??= true;
+	layout['autosize'] ??= true;
+
 	return layout;
 }
 

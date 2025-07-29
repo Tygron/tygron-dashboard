@@ -15,12 +15,12 @@ export function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
 }
 
 
-export function createTable(divName, data, properties, colors, titles) {
+export function createTable(divName, data, properties, colors, titles, timeLabels) {
 
 	let table = document.getElementById(divName);
 	if (table == undefined) {
 		console.log("Element with id: " + divName + " does not exist.");
-		return
+		return;
 	}
 
 	var header = table.createTHead();
@@ -36,31 +36,34 @@ export function createTable(divName, data, properties, colors, titles) {
 		for (let n = 0; n < properties.length; n++) {
 			let cell = row.insertCell(-1);
 
-			let value = data[properties[n]][r];
-			let min = Math.min.apply(Math, data[properties[n]]);
-			let max = Math.max.apply(Math, data[properties[n]]);
-			let color = colors[properties[n]];
-
 			let labelDiv = document.createElement('div');
 			let label = document.createElement('label');
 
-			if (n == 0) {
-				label.innerHTML = value.toFixed();
+			if (n === 1 && timeLabels) {
+				// Gebruik de tijdstring uit de array
+				label.innerHTML = timeLabels[r];
 			} else {
-				label.innerHTML = value.toFixed(2);
+				let value = data[properties[n]][r];
+				let min = Math.min.apply(Math, data[properties[n]]);
+				let max = Math.max.apply(Math, data[properties[n]]);
+				let color = colors[properties[n]];
 
+				// Afronding
+				if (n === 0) {
+					label.innerHTML = value.toFixed();
+				} else {
+					label.innerHTML = value.toFixed(2);
+				}
+
+				if (min === max || color === undefined) {
+					labelDiv.style.backgroundColor = 'transparent';
+				} else {
+					labelDiv.style.backgroundColor = getRGBAInterpolated(value, min, max, color);
+				}
 			}
+
 			labelDiv.appendChild(label);
 			cell.appendChild(labelDiv);
-
-
-			if (min == max || color == undefined) {
-				labelDiv.style.backgroundColor = 'transparent';
-
-			} else {
-
-				labelDiv.style.backgroundColor = getRGBAInterpolated(value, min, max, color);
-			}
 		}
 	}
 }
