@@ -31,7 +31,6 @@ export function connector(token, baseUrl, basePath,) {
 		},
 
 		consoleLog: function(message) {
-			let innerMessage = message;
 			return function(data) {
 				if (message) {
 					console.log(message);
