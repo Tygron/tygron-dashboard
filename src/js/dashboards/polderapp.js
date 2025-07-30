@@ -4,6 +4,18 @@ import { setupTimeframeSlider } from "../util/timeframeslider.js";
 import { addFlowValues, createLinks } from "../util/data.js";
 import { toCSVContent, addDownloadHandler } from "../util/file.js";
 
+$( window ).on( "load", function() {
+	if ('$SELECT_ID_WHERE_AREA_IS_ID'.indexOf('$')!=-1) {
+		let message = '<p>Error: Queries not loaded</p>';
+		message += '<p>Please ensure:</p><ul>';
+		message += '<li>This content is added to a Template Text Panel, applied to Areas.</li>';
+		message += '<li>The Session has fully recalculated.</li>';
+		message += '</ul>';
+		let messageEl = document.createElement('div');
+		messageEl.innerHTML = message;
+		document.body.prepend(messageEl);
+	}
+});
 
 const M3TOTAL = 'm3Total';
 const M3LAND = 'm3Land';
