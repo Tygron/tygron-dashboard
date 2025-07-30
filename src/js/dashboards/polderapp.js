@@ -14,6 +14,135 @@ $( window ).on( "load", function() {
 		let messageEl = document.createElement('div');
 		messageEl.innerHTML = message;
 		document.body.prepend(messageEl);
+	} else {
+		if( (+'$SELECT_ATTRIBUTE_WHERE_PANEL_IS_ID_AND_NAME_IS_INSTALLED') != 1 ) {
+			let message = '<p>Install app.</p>';
+			message += '<p>Note: run from web browser, or ensure REFRESH of the panel is off.</p>';
+			let messageEl = document.createElement('div');
+			messageEl.innerHTML = message;
+			
+			let optionsEl = document.createElement('div');
+			let buttonEl = document.createElement('input');
+			buttonEl.id = 'installType';
+			buttonEl.type = 'button';
+			buttonEl.value = 'Install';
+			buttonEl.disabled = true;
+			
+			let selectEl = document.createElement('select');
+			selectEl.id = 'installType';
+			selectEl.innerHTML += '<option selected value="">Select Water Overlay Type</option>';
+			selectEl.innerHTML += '<option value="RAINFALL">RAINFALL</option>';
+			selectEl.innerHTML += '<option value="GROUNDWATER">GROUNDWATER</option>';
+			selectEl.innerHTML += '<option value="FLOODING">FLOODING</option>'; 
+			selectEl.innerHTML += '<option value="NONE">Continue without install</option>';
+			
+			optionsEl.appendChild(selectEl); 
+			optionsEl.appendChild(buttonEl);
+			
+			attachHandler(optionsEl, 'change', 'select', function(){
+					console.log(document.getElementById('installType').value);
+					buttonEl.disabled = (selectEl.value == '');
+					buttonEl.value = (selectEl.value == 'NONE') ? 'Continue' : 'Install';
+				});
+			
+			attachHandler(optionsEl, 'click', 'input[type="button"]', function(){
+				
+				let waterOverlayType = document.getElementById('installType').value;
+				
+				let requiredResultChildren = [
+						'BUILDING_LAST_STORAGE',
+						'RAIN',
+						'GROUND_LAST_STORAGE',
+						'GROUND_BOTTOM_FLOW',
+						'GROUND_TRANSPIRATION',
+						'SEWER_LAST_VALUE',
+						'EVAPOTRANSPIRATION',
+						'BASE_TYPES',
+						'GROUND_LAST_UNSATURATED_STORAGE'
+					];
+					
+				let requiredCombos = [
+					['M3WATER', 'BASE_TYPES', 'SURFACE_LAST_VALUE', 
+						'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'],
+					['RAIN_WATER', 'BASE_TYPES', 'RAIN', 
+						'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'],
+					['RAIN_LAND', 'BASE_TYPES', 'RAIN', 
+						'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)'],
+					['EVAPOTRANSPIRATIONWATER', 'BASE_TYPES', 'EVAPOTRANSPIRATION', 
+						'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'],
+					['EVAPOTRANSPIRATIONLAND', 'BASE_TYPES', 'EVAPOTRANSPIRATION', 
+						'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)'],
+				]
+				
+				window.c = connector('$SELECT_TOKEN_WHERE_'.replaceAll('"',''));
+				c = window.c;
+				
+				let chain = c.start();
+				let scriptVars = {};
+				chain = chain
+					.then( c.post('event/editoroverlay/add', null, [waterOverlayType]) )
+					.then( c.chain(function(data){
+							scriptVars['mainOverlayId'] = data;
+							scriptVars['SURFACE_LAST_VALUE_ID'] = data;
+						}))
+					.then( c.post('event/editoroverlay/set_result_type', null, [-1, 'SURFACE_LAST_VALUE'], function(d, u, qp, params) {
+							params[0] = scriptVars['SURFACE_LAST_VALUE_ID'];
+						}))
+				;
+				for (let type of requiredResultChildren) {
+					chain = chain.then(
+							c.post('event/editoroverlay/add_result_child', null, [-1, type], function(d, u, qp, params) {
+							params[0] = scriptVars['mainOverlayId'];
+						}));
+					chain = chain.then(
+							c.chain(function(data, type){
+									scriptVars[type+'_ID'] = data;
+								}, type)
+						);
+				}
+				
+				for (let settings of requiredCombos) {
+					chain = chain
+						.then( c.post('event/editoroverlay/add', null, ['COMBO']) )
+						.then( c.chain(function(data){
+								scriptVars['comboId'] = data;
+							}))
+						.then( c.post('event/editoroverlay/set_name', null, [-1, 'Unnamed Combo'], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = settings[0];
+						}))
+						.then( c.post('event/editoroverlay/set_prequel', null, [-1, -1,'A'], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = scriptVars[settings[1]+'_ID'];
+							}))
+						.then( c.post('event/editoroverlay/set_prequel', null, [-1, -1,'B'], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = scriptVars[settings[2]+'_ID'];
+							}))
+						.then( c.post('event/editoroverlay/set_combo_formula', null, [-1, 'ADD(1,2)'], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = settings[3];
+							}))
+						.then( c.post('event/editoroverlay/set_attribute', null, [-1, 'M3WATER', 1], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = settings[0];
+						}))
+				}
+
+				chain = chain	
+					.then( c.recalculate(true) )
+					.then( c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID','INSTALLED',1]) )
+					.then( c.recalculate(false) )
+					.then( function(){
+							window.location.reload();
+						} )
+				;				
+			});
+			document.body.innerHTML = '';
+			document.body.appendChild(messageEl);
+			document.body.appendChild(optionsEl);
+		}
+		
 	}
 });
 
