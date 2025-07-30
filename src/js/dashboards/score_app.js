@@ -15,11 +15,15 @@ $(window).on("load", function() {
 
 	let labels = [];
 	let values = {};
+
+	for (let key in indicatorScores) {
+		values[key] = [];
+	}
+
 	for (let i = 0; i < indicatorActive.length; i++) {
 		if (indicatorActive[i] > 0) {
 			labels.push(indicatorNames[i]);
 			for (let key in indicatorScores) {
-				values[key] = values[key] ?? [];
 				let newValue = indicatorScores[key][i] * 100;
 				values[key].push(newValue);
 			}
