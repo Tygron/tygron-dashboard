@@ -49,7 +49,9 @@ export function createTable(divName, data, properties, colors, titles, timeLabel
 				let color = colors[properties[n]];
 
 				// Afronding
-				if (n === 0) {
+				if (typeof value == 'undefined') {
+					label.innerHTML = '-';
+				} else if (n === 0) {
 					label.innerHTML = value.toFixed();
 				} else {
 					label.innerHTML = value.toFixed(2);
