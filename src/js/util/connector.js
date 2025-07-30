@@ -104,19 +104,19 @@ export function connector(token, baseUrl, basePath,) {
 		},
 
 		//To use a single argument which is an array itself, wrap the arguments in an array.
-		_chain: function(func, args) {
+		chain: function(func, args) {
 			if ( typeof args === 'undefined' ) {
-				return function() {
-					return func();
+				return function(data) {
+					return func(data);
 				}
 			}
 			if ( Array.isArray(args) ) {
-				return function() {
-					return func.apply(this, args);
+				return function(data) {
+					return func.apply(this, args.slice().unshift(data));
 				}
 			}
-			return function() {
-				return func.apply(this, [args]);
+			return function(data) {
+				return func.apply(this, [data, args]);
 			}
 		},
 	};
