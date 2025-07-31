@@ -1395,9 +1395,6 @@ const M3GROUND = 'm3Ground';
 const TIMEFRAMES = 'timeframes';
 const TIMEFRAMETIMES = 'timeframetimes';
 
-const timeframes = $SELECT_ATTRIBUTE_WHERE_RESULTTYPE_IS_SURFACE_LAST_VALUE_AND_NAME_IS_TIMEFRAMES;
-var timeframe = timeframes - 1;
-
 const data = {};
 data[TIMEFRAMETIMES] = [$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE];
 data[M3TOTAL] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SURFACE_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
@@ -1407,6 +1404,9 @@ data[M3STORAGE] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_BUILDING_LAST_STORAGE_
 data[M3SEWER] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
 data[M3LAND] = [];
 data[TIMEFRAMES] = [];
+
+const timeframes = data[TIMEFRAMETIMES].length;
+var timeframe = timeframes - 1;
 
 for (var i = 0; i < data[M3TOTAL].length && i < data[M3WATER].length; i++)
 	data[M3LAND].push(data[M3TOTAL][i] - data[M3WATER][i]);
@@ -1746,7 +1746,7 @@ const stepwiseValuesEVAPORATIONWATER = cumulativeValuesEVAPORATIONWATER.map((val
 setTimeframeValues(flowData, SURFACE_EVAPORATIONWATER, stepwiseValuesEVAPORATIONWATER);
 
 //Berging Land - Uitlaat/Inlaat
-const landInlet = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_TIMEFRAME_IS_Y_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE];
+const landInlet = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_TIMEFRAME_IS_Y];
 
 for (let timeframeKey = 0; timeframeKey < landInlet.length; timeframeKey++) {
 	let timeframeValues = landInlet[timeframeKey];
@@ -1763,7 +1763,7 @@ for (let timeframeKey = 0; timeframeKey < landInlet.length; timeframeKey++) {
 }
 
 //Berging Water - stuw
-const waterWeir = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_TIMEFRAME_IS_Y_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE];
+const waterWeir = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_TIMEFRAME_IS_Y];
 
 for (let timeframeKey = 0; timeframeKey < waterWeir.length; timeframeKey++) {
 	let timeframeValues = waterWeir[timeframeKey];
@@ -1781,7 +1781,7 @@ for (let timeframeKey = 0; timeframeKey < waterWeir.length; timeframeKey++) {
 }
 
 //Berging Water - Duiker
-const waterCulvert = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_TIMEFRAME_IS_Y_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE];
+const waterCulvert = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_TIMEFRAME_IS_Y];
 
 for (let timeframeKey = 0; timeframeKey < waterCulvert.length; timeframeKey++) {
 	let timeframeValues = waterCulvert[timeframeKey];
@@ -1799,7 +1799,7 @@ for (let timeframeKey = 0; timeframeKey < waterCulvert.length; timeframeKey++) {
 }
 
 //Berging Water - Pomp
-const waterPump = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_TIMEFRAME_IS_Y_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE];
+const waterPump = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_TIMEFRAME_IS_Y];
 
 
 for (let timeframeKey = 0; timeframeKey < waterPump.length; timeframeKey++) {
@@ -1818,7 +1818,7 @@ for (let timeframeKey = 0; timeframeKey < waterPump.length; timeframeKey++) {
 }
 
 //Berging Bodem - Uitlaat/Inlaat
-const inletGround = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_TIMEFRAME_IS_Y_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE];
+const inletGround = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_TIMEFRAME_IS_Y];
 
 
 for (let timeframeKey = 0; timeframeKey < inletGround.length; timeframeKey++) {
@@ -1837,7 +1837,7 @@ for (let timeframeKey = 0; timeframeKey < inletGround.length; timeframeKey++) {
 
 
 //Berging Riool - POC
-const sewerPOC = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_AREA_IS_YA_SEWER_STORAGE_AND_TIMEFRAME_IS_X_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE];
+const sewerPOC = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_AREA_IS_YA_SEWER_STORAGE_AND_TIMEFRAME_IS_X];
 
 let sewerPOCSums = [];
 
@@ -1853,7 +1853,7 @@ flowData[SEWER_POC] = sewerPOCSums;
 
 
 //Berging Riool - Berging Land
-const sewerOverflow = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_YA_SEWER_OVERFLOW_AND_TIMEFRAME_IS_X_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE];
+const sewerOverflow = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_YA_SEWER_OVERFLOW_AND_TIMEFRAME_IS_X];
 
 let sewerOverflowSums = [];
 
