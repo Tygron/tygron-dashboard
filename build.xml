@@ -183,17 +183,23 @@
 			<then>
 				<loadfile property="textFile" srcfile="replacements/${base.name}.txt" />
 				<echo>Replacing TQL for ${destination}/${base.name}.html</echo>
-										
+
 				<for param="line" list="${textFile}" delimiter="${line.separator}">
 					<sequential>
-						<!--
-						<echo>Replacing @{line}</echo>
-						<replaceregexp file="${destination}/${base.name}.html" match="\$ID" replace="2" byline="true" /
-						-->
+						<local name="tql" />
+						<propertyregex property="tql" input="@{line}" regexp="([^=]+)=([^=]+)" replace="\1" global="false" />
+						
+						<local name="values" />
+						<propertyregex property="values" input="@{line}" regexp="([^=]+)=([^=]+)" replace="\2" global="false" />
+						
+						<echo message="tql: ${tql}" />
+						<echo message="values: ${values}" />						
+						<replaceregexp file="${destination}/${base.name}.html" match="\${tql}" replace="${values}" byline="true" />
+						
 					</sequential>
 				</for>
 				<echo>Done Replacing TQL for ${destination}/${base.name}.html</echo>
-								
+
 			</then>
 			<else>
 				<echo>Not replacements for ${destination}/${base.name}.html</echo>
