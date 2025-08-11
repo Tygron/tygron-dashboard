@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>score_app</title>
+	<title>score_list</title>
 	<link rel='stylesheet' >
 	<script  charset="utf-8"></script>
 	<script src='https://cdn.plot.ly/plotly-3.0.1.min.js' charset="utf-8"></script>
@@ -275,34 +275,31 @@ html, body {
 		flex-grow: 1;
 		
 		position: relative;
+		
+		padding: 1em;
 	}
 	.page > div {
 		flex-grow:1;
 		flex-basis:50%;
 	}
-	/*
 	.entry {
 		position: relative;
 		width: 100%;
 		height: 2em;
+		display: flex;
+		flex-direction: row;
 	}
-	.entry > div:last-child {
-		position:absolute;
-		right:0px;
+	.entry > div {
+		flex-basis: 10%;
+		flex-grow: 1;
+		
+		text-align: right;
 	}
 	.entry > div:first-child {
-		position:absolute;
-		left:0px;
+		flex-basis: 20%;
+		
+		text-align: left;
 	}
-	.entry .inputsPart input[type="button"] {
-		margin: 0px 0.5em;
-	}
-	input[type="button"] {
-		background-color: lightyellow;
-	}
-	input[type="button"].selected {
-		background-color: lightblue;
-	}*/
 
 		body{}
 	</style>
@@ -311,7 +308,7 @@ html, body {
 	</div>
 	
 	<div class="page">
-		<div id="chart">
+		<div id="listing">
 		</div>
 	</div>
 	
@@ -1232,39 +1229,29 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput){
 		timeframeSlider.parentElement.style.setProperty('--text-value', JSON.stringify(timeframeSlider.value))	
 	};
 }
-import { createRadarPlotLayout, createRadarPlot } from "../util/plot.js"
-
 $(window).on("load", function() {
 
 	let indicatorNames = '$SELECT_NAME_WHERE_INDICATOR_IS_X'.replaceAll('"', '').split(', ');
 	let indicatorActive = [$SELECT_ACTIVE_WHERE_INDICATOR_IS_X];
 	let indicatorScores = {};
-	indicatorScores['Current'] = [$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT];
-	indicatorScores['Maquette'] = [$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE];
-	if (JSON.stringify(indicatorScores['Current']) == JSON.stringify(indicatorScores['Maquette'])) {
-		indicatorScores = { 'Score': indicatorScores['Maquette'] };
-	}
+	let indicatorScoresCurrent = scaleValues([$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT], [0,1], [0,100], true);
+	let indicatorScoresMaquette = scaleValues([$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE], [0,1], [0,100], true);
 
-	let options = [0, 100];
-
-	let labels = [];
-	let values = {};
-
-	for (let key in indicatorScores) {
-		values[key] = [];
-	}
-
-	for (let i = 0; i < indicatorActive.length; i++) {
-		if (indicatorActive[i] > 0) {
-			labels.push(indicatorNames[i]);
-			for (let key in indicatorScores) {
-				let newValue = indicatorScores[key][i] * 100;
-				values[key].push(newValue);
-			}
+	let content = [];
+	content.push( [ '<strong>Indicator</strong>', '<strong>Current</strong>', '<strong>Maquette</strong>' ] );
+	
+	for (let i=0 ; i<indicatorNames.length ; i++) {
+		if (indicatorActive[i] == 0) {
+			continue;
 		}
+		content.push( [ indicatorNames[i], indicatorScoresCurrent[i]+'%', indicatorScoresMaquette[i]+'%' ] );
 	}
-	let layout = createRadarPlotLayout();
-	createRadarPlot('chart', labels, values, options, layout);
+	
+	generateListing('listing', content, [
+			getGeneratorEntryLabel(),
+			getGeneratorEntryLabel(),
+			getGeneratorEntryLabel()
+		]);
 });
 
 	</script>
