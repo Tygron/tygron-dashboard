@@ -1,4 +1,4 @@
-import { createRadarPlotLayout, createRadarPlot } from "../util/plot.js"
+import { createRadarPlotLayout, createRadarPlot } from "../util/plot.js";
 
 $(window).on("load", function() {
 
