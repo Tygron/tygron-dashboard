@@ -1,37 +1,48 @@
 
+export class TimeframeLinks {
 
-export function createLinks(properties) {
-	return { properties: properties };
-}
+	constructor(properties, timeframes) {
+		this.properties = properties;
+		this.timeframes = timeframes;
+		this.timeframeLinks = [];
+		for (let i = 0; i < timeframes; i++) {
+			timeframeLinks.push({
+				source: [],
+				target: [],
+				value: [],
+			});
+		}
+	}
 
-export function getLink(links, timeframe) {
-	if (links.timeframeLinks == undefined) {
-		links.timeframeLinks = [];
+	addLink(timeframe, from, to, amount) {
+		let link = getLink(timeframe);
+		if (link == null) {
+			return;
+		}
+		let indexFrom = properties.indexOf(from);
+		if (indexFrom < 0) {
+			Console.log("Property 'from' " + from + " is not in property array.");
+			return;
+		}
+		let indexTo = properties.indexOf(to);
+		if (indexTo < 0) {
+			Console.log("Property 'from' " + from + " is not in property array.");
+			return;
+		}
+		
+		link.source.push(indexFrom);
+		link.target.push(indexTo);
+		link.value.push(amount);
 	}
-	while (links.timeframeLinks.length - 1 < timeframe) {
-		links.timeframeLinks.push({
-			source: [],
-			target: [],
-			value: [],
-		});
-	}
-	return links.timeframeLinks[timeframe];
-}
 
-export function addLink(links, timeframe, from, to, amount) {
-	let link = getLink(links, timeframe)
-	if (link.source == undefined) {
-		link.source = [];
+	getLink(timeframe) {
+		if (timeframe < 0 || timeframe >= this.timeframes) {
+			Console.log("Timeframe " + timeframe + " is outside the timeframe range [0, " + this.timeframes + "]");
+			return null;
+		}
+
+		return timeframeLinks[timeframe];
 	}
-	if (link.target == undefined) {
-		link.target = [];
-	}
-	if (link.value == undefined) {
-		link.value = [];
-	}
-	link.source.push(links.properties.indexOf(from));
-	link.target.push(links.properties.indexOf(to));
-	link.value.push(amount);
 }
 
 

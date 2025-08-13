@@ -1,11 +1,11 @@
 import { createTable } from "../util/table.js";
-import { barPlot, createBarPlotLayout, } from "../util/plot.js";
+import { barPlot, createBarPlotLayout, sankeyPlot } from "../util/plot.js";
 import { setupTimeframeSlider } from "../util/timeframeslider.js";
-import { addFlowValues, createLinks } from "../util/data.js";
+import { addFlowValues,TimeframeLinks } from "../util/data.js";
 import { toCSVContent, addDownloadHandler } from "../util/file.js";
 
-$( window ).on( "load", function() {
-	if ('$SELECT_ID_WHERE_AREA_IS_ID'.indexOf('$')!=-1) {
+$(window).on("load", function() {
+	if ('$SELECT_ID_WHERE_AREA_IS_ID'.indexOf('$') != -1) {
 		let message = '<p>Error: Queries not loaded</p>';
 		message += '<p>Please ensure:</p><ul>';
 		message += '<li>This content is added to a Template Text Panel, applied to Areas.</li>';
@@ -15,147 +15,147 @@ $( window ).on( "load", function() {
 		messageEl.innerHTML = message;
 		document.body.prepend(messageEl);
 	} else {
-		if( (+'$SELECT_ATTRIBUTE_WHERE_PANEL_IS_ID_AND_NAME_IS_INSTALLED') != 1 ) {
+		if ((+'$SELECT_ATTRIBUTE_WHERE_PANEL_IS_ID_AND_NAME_IS_INSTALLED') != 1) {
 			let message = '<p>Install app.</p>';
 			message += '<p>Note: run from web browser, or ensure REFRESH of the panel is off.</p>';
 			let messageEl = document.createElement('div');
 			messageEl.innerHTML = message;
-			
+
 			let optionsEl = document.createElement('div');
 			let buttonEl = document.createElement('input');
 			buttonEl.id = 'installType';
 			buttonEl.type = 'button';
 			buttonEl.value = 'Install';
 			buttonEl.disabled = true;
-			
+
 			let selectEl = document.createElement('select');
 			selectEl.id = 'installType';
 			selectEl.innerHTML += '<option selected value="">Select Water Overlay Type</option>';
 			selectEl.innerHTML += '<option value="RAINFALL">RAINFALL</option>';
 			selectEl.innerHTML += '<option value="GROUNDWATER">GROUNDWATER</option>';
-			selectEl.innerHTML += '<option value="FLOODING">FLOODING</option>'; 
+			selectEl.innerHTML += '<option value="FLOODING">FLOODING</option>';
 			selectEl.innerHTML += '<option value="NONE">Continue without install</option>';
-			
-			optionsEl.appendChild(selectEl); 
+
+			optionsEl.appendChild(selectEl);
 			optionsEl.appendChild(buttonEl);
-			
-			attachHandler(optionsEl, 'change', 'select', function(){
-					console.log(document.getElementById('installType').value);
-					buttonEl.disabled = (selectEl.value == '');
-					buttonEl.value = (selectEl.value == 'NONE') ? 'Continue' : 'Install';
-				});
-			
-			attachHandler(optionsEl, 'click', 'input[type="button"]', function(){
-				
+
+			attachHandler(optionsEl, 'change', 'select', function() {
+				console.log(document.getElementById('installType').value);
+				buttonEl.disabled = (selectEl.value == '');
+				buttonEl.value = (selectEl.value == 'NONE') ? 'Continue' : 'Install';
+			});
+
+			attachHandler(optionsEl, 'click', 'input[type="button"]', function() {
+
 				let waterOverlayType = document.getElementById('installType').value;
-				
-				window.c = connector('$SELECT_TOKEN_WHERE_'.replaceAll('"',''));
-				
+
+				window.c = connector('$SELECT_TOKEN_WHERE_'.replaceAll('"', ''));
+
 				if (waterOverlayType == 'NONE') {
 					let chain = c.start();
 					chain = chain
-						.then( c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID','INSTALLED',1]) )
-						.then( c.recalculate(false) )
-						.then( function(){
-								window.location.reload();
-							} );
+						.then(c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID', 'INSTALLED', 1]))
+						.then(c.recalculate(false))
+						.then(function() {
+							window.location.reload();
+						});
 					return;
 				}
-				
+
 				let requiredResultChildren = [
-						'BUILDING_LAST_STORAGE',
-						'RAIN',
-						'GROUND_LAST_STORAGE',
-						'GROUND_BOTTOM_FLOW',
-						'GROUND_TRANSPIRATION',
-						'SEWER_LAST_VALUE',
-						'EVAPOTRANSPIRATION',
-						'BASE_TYPES',
-						'GROUND_LAST_UNSATURATED_STORAGE'
-					];
-					
+					'BUILDING_LAST_STORAGE',
+					'RAIN',
+					'GROUND_LAST_STORAGE',
+					'GROUND_BOTTOM_FLOW',
+					'GROUND_TRANSPIRATION',
+					'SEWER_LAST_VALUE',
+					'EVAPOTRANSPIRATION',
+					'BASE_TYPES',
+					'GROUND_LAST_UNSATURATED_STORAGE'
+				];
+
 				let requiredCombos = [
-					['M3WATER', 'BASE_TYPES', 'SURFACE_LAST_VALUE', 
+					['M3WATER', 'BASE_TYPES', 'SURFACE_LAST_VALUE',
 						'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'],
-					['RAIN_WATER', 'BASE_TYPES', 'RAIN', 
+					['RAIN_WATER', 'BASE_TYPES', 'RAIN',
 						'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'],
-					['RAIN_LAND', 'BASE_TYPES', 'RAIN', 
+					['RAIN_LAND', 'BASE_TYPES', 'RAIN',
 						'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)'],
-					['EVAPOTRANSPIRATIONWATER', 'BASE_TYPES', 'EVAPOTRANSPIRATION', 
+					['EVAPOTRANSPIRATIONWATER', 'BASE_TYPES', 'EVAPOTRANSPIRATION',
 						'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'],
-					['EVAPOTRANSPIRATIONLAND', 'BASE_TYPES', 'EVAPOTRANSPIRATION', 
+					['EVAPOTRANSPIRATIONLAND', 'BASE_TYPES', 'EVAPOTRANSPIRATION',
 						'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)'],
 				]
-				
-				
+
+
 				c = window.c;
-				
+
 				let chain = c.start();
 				let scriptVars = {};
 				chain = chain
-					.then( c.post('event/editoroverlay/add', null, [waterOverlayType]) )
-					.then( c.chain(function(data){
-							scriptVars['mainOverlayId'] = data;
-							scriptVars['SURFACE_LAST_VALUE_ID'] = data;
-						}))
-					.then( c.post('event/editoroverlay/set_result_type', null, [-1, 'SURFACE_LAST_VALUE'], function(d, u, qp, params) {
-							params[0] = scriptVars['SURFACE_LAST_VALUE_ID'];
-						}))
-				;
+					.then(c.post('event/editoroverlay/add', null, [waterOverlayType]))
+					.then(c.chain(function(data) {
+						scriptVars['mainOverlayId'] = data;
+						scriptVars['SURFACE_LAST_VALUE_ID'] = data;
+					}))
+					.then(c.post('event/editoroverlay/set_result_type', null, [-1, 'SURFACE_LAST_VALUE'], function(d, u, qp, params) {
+						params[0] = scriptVars['SURFACE_LAST_VALUE_ID'];
+					}))
+					;
 				for (let type of requiredResultChildren) {
 					chain = chain.then(
-							c.post('event/editoroverlay/add_result_child', null, [-1, type], function(d, u, qp, params) {
+						c.post('event/editoroverlay/add_result_child', null, [-1, type], function(d, u, qp, params) {
 							params[0] = scriptVars['mainOverlayId'];
 						}));
 					chain = chain.then(
-							c.chain(function(data, type){
-									scriptVars[type+'_ID'] = data;
-								}, type)
-						);
+						c.chain(function(data, type) {
+							scriptVars[type + '_ID'] = data;
+						}, type)
+					);
 				}
-				
+
 				for (let settings of requiredCombos) {
 					chain = chain
-						.then( c.post('event/editoroverlay/add', null, ['COMBO']) )
-						.then( c.chain(function(data){
-								scriptVars['comboId'] = data;
-							}))
-						.then( c.post('event/editoroverlay/set_name', null, [-1, 'Unnamed Combo'], function(d, u, qp, params) {
-								params[0] = scriptVars['comboId'];
-								params[1] = settings[0];
+						.then(c.post('event/editoroverlay/add', null, ['COMBO']))
+						.then(c.chain(function(data) {
+							scriptVars['comboId'] = data;
 						}))
-						.then( c.post('event/editoroverlay/set_prequel', null, [-1, -1,'A'], function(d, u, qp, params) {
-								params[0] = scriptVars['comboId'];
-								params[1] = scriptVars[settings[1]+'_ID'];
-							}))
-						.then( c.post('event/editoroverlay/set_prequel', null, [-1, -1,'B'], function(d, u, qp, params) {
-								params[0] = scriptVars['comboId'];
-								params[1] = scriptVars[settings[2]+'_ID'];
-							}))
-						.then( c.post('event/editoroverlay/set_combo_formula', null, [-1, 'ADD(1,2)'], function(d, u, qp, params) {
-								params[0] = scriptVars['comboId'];
-								params[1] = settings[3];
-							}))
-						.then( c.post('event/editoroverlay/set_attribute', null, [-1, 'M3WATER', 1], function(d, u, qp, params) {
-								params[0] = scriptVars['comboId'];
-								params[1] = settings[0];
+						.then(c.post('event/editoroverlay/set_name', null, [-1, 'Unnamed Combo'], function(d, u, qp, params) {
+							params[0] = scriptVars['comboId'];
+							params[1] = settings[0];
+						}))
+						.then(c.post('event/editoroverlay/set_prequel', null, [-1, -1, 'A'], function(d, u, qp, params) {
+							params[0] = scriptVars['comboId'];
+							params[1] = scriptVars[settings[1] + '_ID'];
+						}))
+						.then(c.post('event/editoroverlay/set_prequel', null, [-1, -1, 'B'], function(d, u, qp, params) {
+							params[0] = scriptVars['comboId'];
+							params[1] = scriptVars[settings[2] + '_ID'];
+						}))
+						.then(c.post('event/editoroverlay/set_combo_formula', null, [-1, 'ADD(1,2)'], function(d, u, qp, params) {
+							params[0] = scriptVars['comboId'];
+							params[1] = settings[3];
+						}))
+						.then(c.post('event/editoroverlay/set_attribute', null, [-1, 'M3WATER', 1], function(d, u, qp, params) {
+							params[0] = scriptVars['comboId'];
+							params[1] = settings[0];
 						}))
 				}
 
-				chain = chain	
-					.then( c.recalculate(true) )
-					.then( c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID','INSTALLED',1]) )
-					.then( c.recalculate(false) )
-					.then( function(){
-							window.location.reload();
-						} )
-				;				
+				chain = chain
+					.then(c.recalculate(true))
+					.then(c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID', 'INSTALLED', 1]))
+					.then(c.recalculate(false))
+					.then(function() {
+						window.location.reload();
+					})
+					;
 			});
 			document.body.innerHTML = '';
 			document.body.appendChild(messageEl);
 			document.body.appendChild(optionsEl);
 		}
-		
+
 	}
 });
 
@@ -672,101 +672,101 @@ createTable("waterFlowTable", flowData, flowProperties, flowColors, flowTitles);
 
 const sankeyproperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, M3LAND, M3WATER, M3GROUND, M3STORAGE, M3SEWER, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR, WEIR_IN, WEIR_OUT, WEIR_INNER, BREACH, BREACH_IN, BREACH_OUT];
 
-let links = createLinks(sankeyproperties);
+let links = new TimeframeLinks(sankeyproperties, timeframes);
 for (let i = 0; i < timeframes; i++) {
 	//Model in
-	addLink(links, i, MODEL_IN, RAINM3, flowData[RAINM3][i]);
-	addLink(links, i, MODEL_IN, INLET_GROUND, flowData[INLET_GROUND][i]);
-	addLink(links, i, MODEL_IN, INLET_SURFACE, flowData[INLET_SURFACE][i]);
-	addLink(links, i, MODEL_IN, BOTTOM_FLOW_IN, flowData[BOTTOM_FLOW_IN][i]);
-	addLink(links, i, MODEL_IN, CULVERT, flowData[CULVERT_IN][i]);
-	addLink(links, i, MODEL_IN, PUMP, flowData[PUMP_IN][i]);
-	addLink(links, i, MODEL_IN, WEIR, flowData[WEIR_IN][i]);
-	addLink(links, i, MODEL_IN, BREACH, flowData[BREACH_IN][i]);
+	links.addLink(i, MODEL_IN, RAINM3, flowData[RAINM3][i]);
+	links.addLink(i, MODEL_IN, INLET_GROUND, flowData[INLET_GROUND][i]);
+	links.addLink(i, MODEL_IN, INLET_SURFACE, flowData[INLET_SURFACE][i]);
+	links.addLink(i, MODEL_IN, BOTTOM_FLOW_IN, flowData[BOTTOM_FLOW_IN][i]);
+	links.addLink(i, MODEL_IN, CULVERT, flowData[CULVERT_IN][i]);
+	links.addLink(i, MODEL_IN, PUMP, flowData[PUMP_IN][i]);
+	links.addLink(i, MODEL_IN, WEIR, flowData[WEIR_IN][i]);
+	links.addLink(i, MODEL_IN, BREACH, flowData[BREACH_IN][i]);
 
 	//Neerslag	
-	addLink(links, i, RAINM3, M3LAND, flowData[RAINM3LAND][i]);
-	addLink(links, i, RAINM3, M3WATER, flowData[RAINM3WATER][i]);
-	addLink(links, i, RAINM3, M3STORAGE, flowData[RAINM3STORAGE][i]);
+	links.addLink(i, RAINM3, M3LAND, flowData[RAINM3LAND][i]);
+	links.addLink(i, RAINM3, M3WATER, flowData[RAINM3WATER][i]);
+	links.addLink(i, RAINM3, M3STORAGE, flowData[RAINM3STORAGE][i]);
 
 	//Berging Land
-	addLink(links, i, M3LAND, M3SEWER, flowData[LANDSEWER][i]);
-	addLink(links, i, M3LAND, EVAPOTRANSPIRATION, flowData[SURFACE_EVAPORATIONLAND][i]);
+	links.addLink(i, M3LAND, M3SEWER, flowData[LANDSEWER][i]);
+	links.addLink(i, M3LAND, EVAPOTRANSPIRATION, flowData[SURFACE_EVAPORATIONLAND][i]);
 	//addLink(links, i, M3LAND, M3GROUND, flowData[][i]);
 
 	//Berging oppervlaktewater
-	//addLink(links, i, M3WATER, M3GROUND, flowData[][i]);
-	addLink(links, i, M3WATER, WEIR, flowData[WEIR_OUT][i]);
-	addLink(links, i, M3WATER, EVAPOTRANSPIRATION, flowData[SURFACE_EVAPORATIONWATER][i]);
-	addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_OUT][i]);
-	addLink(links, i, M3WATER, OUTLET_SURFACE, flowData[OUTLET_SURFACE][i]);
-	addLink(links, i, M3WATER, PUMP, flowData[PUMP_OUT][i]);
-	addLink(links, i, M3WATER, PUMP, flowData[PUMP_INNER][i]);
-	addLink(links, i, M3WATER, WEIR, flowData[WEIR_INNER][i]);
-	addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_INNER][i]);
+	//links.addLink(links, i, M3WATER, M3GROUND, flowData[][i]);
+	links.addLink(i, M3WATER, WEIR, flowData[WEIR_OUT][i]);
+	links.addLink(i, M3WATER, EVAPOTRANSPIRATION, flowData[SURFACE_EVAPORATIONWATER][i]);
+	links.addLink(i, M3WATER, CULVERT, flowData[CULVERT_OUT][i]);
+	links.addLink(i, M3WATER, OUTLET_SURFACE, flowData[OUTLET_SURFACE][i]);
+	links.addLink(i, M3WATER, PUMP, flowData[PUMP_OUT][i]);
+	links.addLink(i, M3WATER, PUMP, flowData[PUMP_INNER][i]);
+	links.addLink(i, M3WATER, WEIR, flowData[WEIR_INNER][i]);
+	links.addLink(i, M3WATER, CULVERT, flowData[CULVERT_INNER][i]);
 
 
 	//Berging Bodem
-	addLink(links, i, M3GROUND, BOTTOM_FLOW_OUT, flowData[BOTTOM_FLOW_OUT][i]);
-	addLink(links, i, M3GROUND, GROUND_TRANSPIRATION, flowData[GROUND_TRANSPIRATION][i]);
-	addLink(links, i, M3GROUND, OUTLET_GROUND, flowData[OUTLET_GROUND][i]);
+	links.addLink(i, M3GROUND, BOTTOM_FLOW_OUT, flowData[BOTTOM_FLOW_OUT][i]);
+	links.addLink(i, M3GROUND, GROUND_TRANSPIRATION, flowData[GROUND_TRANSPIRATION][i]);
+	links.addLink(i, M3GROUND, OUTLET_GROUND, flowData[OUTLET_GROUND][i]);
 
 	//Berging Riool
-	addLink(links, i, M3SEWER, SEWER_OVERFLOW_OUT, flowData[SEWER_OVERFLOW_OUT][i]);
-	addLink(links, i, M3SEWER, SEWER_POC, flowData[SEWER_POC][i]);
+	links.addLink(i, M3SEWER, SEWER_OVERFLOW_OUT, flowData[SEWER_OVERFLOW_OUT][i]);
+	links.addLink(i, M3SEWER, SEWER_POC, flowData[SEWER_POC][i]);
 
 	//Inlaat Surface
-	addLink(links, i, INLET_SURFACE, M3LAND, flowData[INLET_SURFACE][i]); // Eigenlijk zou hier een uitsplitsing moeten zijn tussen een inlaat op land en een inlaat in het water
+	links.addLink(i, INLET_SURFACE, M3LAND, flowData[INLET_SURFACE][i]); // Eigenlijk zou hier een uitsplitsing moeten zijn tussen een inlaat op land en een inlaat in het water
 
 	//Inlaat Ground
-	addLink(links, i, INLET_GROUND, M3GROUND, flowData[INLET_GROUND][i]);
+	links.addLink(i, INLET_GROUND, M3GROUND, flowData[INLET_GROUND][i]);
 
 	//Uitlaat Surface
-	addLink(links, i, OUTLET_SURFACE, MODEL_OUT, flowData[OUTLET_SURFACE][i]);
+	links.addLink(i, OUTLET_SURFACE, MODEL_OUT, flowData[OUTLET_SURFACE][i]);
 
 	//Uitlaat Land
-	addLink(links, i, OUTLET_GROUND, MODEL_OUT, flowData[OUTLET_GROUND][i]);
+	links.addLink(i, OUTLET_GROUND, MODEL_OUT, flowData[OUTLET_GROUND][i]);
 
 	//Kwel 
-	addLink(links, i, BOTTOM_FLOW_IN, M3GROUND, flowData[BOTTOM_FLOW_IN][i]);
+	links.addLink(i, BOTTOM_FLOW_IN, M3GROUND, flowData[BOTTOM_FLOW_IN][i]);
 
 	//Riool overstort
-	addLink(links, i, SEWER_OVERFLOW_OUT, M3LAND, flowData[SEWER_OVERFLOW_OUT][i]);
+	links.addLink(i, SEWER_OVERFLOW_OUT, M3LAND, flowData[SEWER_OVERFLOW_OUT][i]);
 
 	//POC
-	addLink(links, i, SEWER_POC, MODEL_OUT, flowData[SEWER_POC][i]);
+	links.addLink(i, SEWER_POC, MODEL_OUT, flowData[SEWER_POC][i]);
 
 	//Wegzijging
-	addLink(links, i, BOTTOM_FLOW_OUT, MODEL_OUT, flowData[BOTTOM_FLOW_OUT][i]);
+	links.addLink(i, BOTTOM_FLOW_OUT, MODEL_OUT, flowData[BOTTOM_FLOW_OUT][i]);
 
 	//Platen transpiratie
-	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
+	links.addLink(i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
 
 	//Stuw
-	addLink(links, i, WEIR, MODEL_OUT, flowData[WEIR_OUT][i]);
-	addLink(links, i, WEIR, M3WATER, flowData[WEIR_INNER][i]);
+	links.addLink(i, WEIR, MODEL_OUT, flowData[WEIR_OUT][i]);
+	links.addLink(i, WEIR, M3WATER, flowData[WEIR_INNER][i]);
 
 	//Duiker in
-	addLink(links, i, CULVERT, M3WATER, flowData[CULVERT_IN][i]);
-	addLink(links, i, CULVERT, M3WATER, flowData[CULVERT_INNER][i]);
+	links.addLink(i, CULVERT, M3WATER, flowData[CULVERT_IN][i]);
+	links.addLink(i, CULVERT, M3WATER, flowData[CULVERT_INNER][i]);
 
 	//Duiker uit
-	addLink(links, i, CULVERT, MODEL_OUT, flowData[CULVERT_OUT][i]);
+	links.addLink(i, CULVERT, MODEL_OUT, flowData[CULVERT_OUT][i]);
 
 	//Pomp
-	addLink(links, i, PUMP, M3WATER, flowData[PUMP_IN][i]);
-	addLink(links, i, PUMP, M3WATER, flowData[PUMP_INNER][i]);
+	links.addLink(i, PUMP, M3WATER, flowData[PUMP_IN][i]);
+	links.addLink(i, PUMP, M3WATER, flowData[PUMP_INNER][i]);
 
 	//Bres
-	addLink(links, i, BREACH, M3LAND, flowData[BREACH_IN][i]);
-	addLink(links, i, M3LAND, BREACH, flowData[BREACH_OUT][i]);
-	addLink(links, i, BREACH, MODEL_OUT, flowData[BREACH_OUT][i]);
+	links.addLink(i, BREACH, M3LAND, flowData[BREACH_IN][i]);
+	links.addLink(i, M3LAND, BREACH, flowData[BREACH_OUT][i]);
+	links.addLink(i, BREACH, MODEL_OUT, flowData[BREACH_OUT][i]);
 
 	//Verdamping
-	addLink(links, i, EVAPOTRANSPIRATION, MODEL_OUT, flowData[EVAPOTRANSPIRATION][i]);
+	links.addLink(i, EVAPOTRANSPIRATION, MODEL_OUT, flowData[EVAPOTRANSPIRATION][i]);
 
 	//Transpiratie
-	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
+	links.addLink(i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
 
 }
 
@@ -817,33 +817,23 @@ const nodeColors = {
 
 
 
-const sankeyLayout = createSankeyPlotLayout();
+const flowLayout = createSankeyPlotLayout();
+const flowSlider = document.getElementById("sankeySlider");
 
-const sankeySlider = document.getElementById("sankeySlider");
-
-sankeyPlot(
-	"sankeyPlot",         // plotDivName
-	links,                // links
-	sankeySlider.value,   // timeframe
-	sankeyproperties,     // properties
-	flowTitles,           // titles
-	sankeyLayout,         // layout
-	nodeColors           // kleuren als object
-
-);
-
-setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
+function plotFlow() {
 	sankeyPlot(
 		"sankeyPlot",         // plotDivName
 		links,                // links
-		sankeySlider.value,   // timeframe
+		flowSlider.value,   // timeframe
 		sankeyproperties,     // properties
 		flowTitles,           // titles
-		sankeyLayout,         // layout
-		nodeColors            // kleuren als object
+		flowLayout,         // layout
+		nodeColors           // kleuren als object
 
 	);
-});
+}
+
+setupTimeframeSlider(flowSlider, timeframe, timeframes, () => plotFlow());
 
 let balanceCSVButton = document.getElementById("balanceCSVButton");
 let flowCSVButton = document.getElementById("flowCSVButton");
