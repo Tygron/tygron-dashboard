@@ -1,3 +1,6 @@
+import { ListingPanelController } from "../util/listingPanel.js";
+import { attachHandler } from "../util/dom.js";
+
 $(window).on("load", function() {
 
 	let indicatorNames = '$SELECT_NAME_WHERE_INDICATOR_IS_X'.replaceAll('"', '').split(', ');
