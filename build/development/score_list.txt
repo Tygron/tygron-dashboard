@@ -1504,6 +1504,9 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput){
 		timeframeSlider.parentElement.style.setProperty('--text-value', JSON.stringify(timeframeSlider.value))	
 	};
 }
+
+
+
 $(window).on("load", function() {
 
 	let indicatorNames = '$SELECT_NAME_WHERE_INDICATOR_IS_X'.replaceAll('"', '').split(', ');
