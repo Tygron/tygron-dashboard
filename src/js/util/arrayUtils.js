@@ -13,3 +13,31 @@ export function scaleValues(values, originalRange, targetRange, round = false) {
 	}
 	return value;
 }
+
+export function flipMatrix(matrix) {
+	let newMatrix = [];
+	let ySize = null;
+	for (let i = 0; i<matrix.length; i++) {
+		ySize = ySize ?? matrix[i].length;
+		if (matrix[i].length != ySize) {
+			throw 'Matrix lengths inconsistent, could not flip';
+		}
+		for (let j = 0; j<matrix[i].length; j++) {
+			newMatrix[j] = newMatrix[j] ?? [];
+			newMatrix[j][i] = matrix[i][j];
+		}
+	}
+	return newMatrix;
+}
+
+export function isMatrix(matrix) {
+	if (!Array.isArray(matrix)) {
+		return false;
+	}
+	for (let inner of matrix) {
+		if (!Array.isArray(inner)) {
+			return false;
+		}
+	}
+	return true;
+}
