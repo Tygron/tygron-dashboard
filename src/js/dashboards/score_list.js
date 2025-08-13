@@ -1,4 +1,4 @@
-import { ListingPanelController } from "../util/listingPanel.js";
+import { ListingPanelController } from "../util/ListingPanel.js";
 import { attachHandler } from "../util/dom.js";
 
 $(window).on("load", function() {
