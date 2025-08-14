@@ -1,12 +1,13 @@
 import { ListingPanelController } from "../util/ListingPanel.js";
 import { attachHandler } from "../util/dom.js";
+import { ArrayUtils } from "../util/ArrayUtils.js";
 
 $(window).on("load", function() {
 
 	let indicatorNames = '$SELECT_NAME_WHERE_INDICATOR_IS_X'.replaceAll('"', '').split(', ');
 	let indicatorActive = '$SELECT_ACTIVE_WHERE_INDICATOR_IS_X'.replaceAll('"', '').split(', ');
-	let indicatorScoresCurrent = scaleValues([$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT], [0, 1], [0, 100], true);
-	let indicatorScoresMaquette = scaleValues([$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE], [0, 1], [0, 100], true);
+	let indicatorScoresCurrent = ArrayUtils.scaleValues([$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT], [0, 1], [0, 100], true);
+	let indicatorScoresMaquette = ArrayUtils.scaleValues([$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE], [0, 1], [0, 100], true);
 
 
 	/* Listing of all indicators */
@@ -22,7 +23,7 @@ $(window).on("load", function() {
 
 
 	/* Current and Maquette averages, based on which indicators were active/inactive */
-	let resultContent = []
+	let resultContent = [];
 	let result = new ListingPanelController('result', { 'flipXY': true });
 	result.addHeader(['Current', 'Maquette']);
 	result.addContent(resultContent);

@@ -1,4 +1,4 @@
-import { ArrayUtils } from "../util/arrayUtils.js";
+import { ArrayUtils } from "../util/ArrayUtils.js";
 import { ensureDomElement, attachHandler } from "../util/dom.js";
 
 /**
