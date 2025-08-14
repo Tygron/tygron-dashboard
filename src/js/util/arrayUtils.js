@@ -1,28 +1,61 @@
+import { NumberUtils } from "../utils/NumberUtils.js";
+
+/** 
+ * 	Rescale a value to desired range. 
+ * 		E.g. Turn fraction into neat percentage: scaleValue(fraction, [0,1], [0,100], true)
+ * 		Non-numeric value input is ignored and returned as-is.
+ * 		originalRange and targetRange must be an array of exactly 2 different numbers
+*/
+export function scaleValue(value, originalRange, targetRange, round = false) {
+	if (Array.isArray(value)) {
+		return scaleValues(value);
+	}
+	if (!NumberUtils.isNumeric(value)) {
+		return value;
+	}
+	if ((!isRange(originalRange)) || (!isRange(originalRange))) {
+		throw 'Both the original and target range must be array of 2 different numeric values';
+	}
+	value = ((value - originalRange[0]) / (originalRange[1] - originalRange[0]));
+	value = (value * (targetRange[1] - targetRange[0])) + targetRange[0];
+
+	return round ? Math.round(value) : value;
+}
+
+/** 
+ *	Array-wrapper for scaleValue
+*/
 export function scaleValues(values, originalRange, targetRange, round = false) {
-	if ( Array.isArray(values) ) {
-		let arr = [];
-		for (let i in values) {
-			arr.push(scaleValues(values[i], originalRange, targetRange, round));
-		}
-		return arr;
+	if (!Array.isArray(values)) {
+		return scaleValue(values, originalRange, targetRange, round);
 	}
-	let value = ( (values - originalRange[0]) / (originalRange[1]- originalRange[0]) );
-	value = ( value * (targetRange[1]-targetRange[0]) ) + targetRange[0];
-	if (round) {
-		value = Math.round(value);
+	
+	let arr = [];
+	for (let i in values) {
+		arr.push(scaleValue(values[i], originalRange, targetRange, round));
 	}
-	return value;
+	return arr;
+}
+
+export function isRange(value, allowEqual = false) {
+	if (!Array.isArray(value) || value.length != 2) {
+		return false;
+	}
+	if ((!NumberUtils.isNumeric(value[0])) || (!NumberUtils.isNumeric(value[1]))) {
+		return false;
+	}
+	return ((value[0] != value[1]) || allowEqual);
 }
 
 export function flipMatrix(matrix) {
 	let newMatrix = [];
 	let ySize = null;
-	for (let i = 0; i<matrix.length; i++) {
+	for (let i = 0; i < matrix.length; i++) {
 		ySize = ySize ?? matrix[i].length;
 		if (matrix[i].length != ySize) {
 			throw 'Matrix lengths inconsistent, could not flip';
 		}
-		for (let j = 0; j<matrix[i].length; j++) {
+		for (let j = 0; j < matrix[i].length; j++) {
 			newMatrix[j] = newMatrix[j] ?? [];
 			newMatrix[j][i] = matrix[i][j];
 		}
