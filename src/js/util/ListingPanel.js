@@ -1,4 +1,4 @@
-import { isMatrix, flipMatrix } from "../util/arrayUtils.js";
+import { ArrayUtils } from "../util/arrayUtils.js";
 import { ensureDomElement, attachHandler } from "../util/dom.js";
 
 /**
@@ -86,7 +86,7 @@ export class ListingPanelController {
 		
 		let renderRules = this._createRenderRules(this.args)
 		if (this.args['flipXY']) {
-			renderRules = flipMatrix(renderRules);
+			renderRules = ArrayUtils.flipMatrix(renderRules);
 		}
 		let domElement = this._createDomElement(renderRules, this.args['tableMode']);
 		
@@ -133,6 +133,8 @@ export class ListingPanelController {
 	}
 	
 	
+	static DEFAULT_CLASS = 'listingPanel';
+	
 	
 	/* Turn the content and provided render types into prepared render rules for each individual cell of the listing */
 	_createRenderRules( args = {} ) {
@@ -168,7 +170,7 @@ export class ListingPanelController {
 			if ( matrix.length == 0 ) {
 				return defaultTypes;
 			}
-			if ( !isMatrix(matrix) ) {
+			if ( !ArrayUtils.isMatrix(matrix) ) {
 				return matrix;
 			}
 			return matrix[index] ?? defaultTypes;
@@ -285,84 +287,82 @@ export class ListingPanelController {
 			return selecteds[0].value;
 		}
 	}
-}
-
-ListingPanelController.DEFAULT_CLASS = 'listingPanel';
-
-//Cache to prevent recreating renderers when many values are displayed the same
-ListingPanelController.cachedRenderers = {};
-ListingPanelController.getRenderer = function(type, args) {
-	if ( typeof type === 'function') {
-		return type;
-	}
 	
-	let cacheKey = JSON.stringify([type,args]);
-	let renderer = this.cachedRenderers[cacheKey] ?? null;
-	if ( renderer ) {
+	//Cache to prevent recreating renderers when many values are displayed the same
+	static cachedRenderers = {};
+	static getRenderer(type, args) {
+		if ( typeof type === 'function') {
+			return type;
+		}
+		
+		let cacheKey = JSON.stringify([type,args]);
+		let renderer = this.cachedRenderers[cacheKey] ?? null;
+		if ( renderer ) {
+			return renderer;
+		}
+	
+		switch(type) {
+			case 'label':
+				renderer = this._getRendererLabel(args);
+				break;
+			case 'buttons':
+				renderer = this._getRendererButtons(args);
+				break;
+			default:
+				throw 'Could not find renderer type '+type;
+		}
+		
+		if (renderer === false) {
+			throw 'Rendering type '+type+' requires arguments. Use getRenderer(type, args) to prepare this renderer instance.';
+		}
+		
+		this.cachedRenderers[cacheKey] = renderer;
 		return renderer;
 	}
-
-	switch(type) {
-		case 'label':
-			renderer = this._getRendererLabel(args);
-			break;
-		case 'buttons':
-			renderer = this._getRendererButtons(args);
-			break;
-		default:
-			throw 'Could not find renderer type '+type;
-	}
 	
-	if (renderer === false) {
-		throw 'Rendering type '+type+' requires arguments. Use getRenderer(type, args) to prepare this renderer instance.';
-	}
-	
-	this.cachedRenderers[cacheKey] = renderer;
-	return renderer;
-}
-
-ListingPanelController._getRendererLabel = function() {
-	return function(content) {
-		let element = document.createElement('div');
-		element.classList.add('label');
-		let labelElement = document.createElement('span');
-		labelElement.innerHTML = content;
-		element.appendChild(labelElement);
-		return element;
-	}
-}
-
-ListingPanelController._getRendererButtons = function(options) {
-	if ( !Array.isArray(options)) {
-		throw 'Options required for buttons renderer';
-	}
-	return function(content) {
-		let element = document.createElement('div');
-		element.classList.add('input');
-		element.classList.add('buttons')
-		
-		for (let i = 0; i < options.length ; i++) {
-			let inputElement = document.createElement('input');
-			inputElement.type = 'button';
-			inputElement.value = options[i];
-			if (inputElement.value == content) {
-				inputElement.classList.add('selected');
-			}
-			element.appendChild(inputElement);
+	static _getRendererLabel() {
+		return function(content) {
+			let element = document.createElement('div');
+			element.classList.add('label');
+			let labelElement = document.createElement('span');
+			labelElement.innerHTML = content;
+			element.appendChild(labelElement);
+			return element;
 		}
-		attachHandler(element, 'click', 'input[type="button"]', function(event){
-			let oldElement = this.closest('.buttons').getElementsByClassName('selected');
-			if (oldElement.length>0) {
-				for( let el of oldElement) {
-					el.classList.remove('selected');
+	}
+	
+	static _getRendererButtons(options) {
+		if ( !Array.isArray(options)) {
+			throw 'Options required for buttons renderer';
+		}
+		return function(content) {
+			let element = document.createElement('div');
+			element.classList.add('input');
+			element.classList.add('buttons')
+			
+			for (let i = 0; i < options.length ; i++) {
+				let inputElement = document.createElement('input');
+				inputElement.type = 'button';
+				inputElement.value = options[i];
+				if (inputElement.value == content) {
+					inputElement.classList.add('selected');
 				}
-				oldElement = oldElement[0] ?? null;
+				element.appendChild(inputElement);
 			}
-			this.classList.add('selected');
-			if (this != oldElement) {
-				this.closest('.'+ListingPanelController.DEFAULT_CLASS).dispatchEvent(new Event('change'));
-			}
-		});
-		return element;
+			attachHandler(element, 'click', 'input[type="button"]', function(event){
+				let oldElement = this.closest('.buttons').getElementsByClassName('selected');
+				if (oldElement.length>0) {
+					for( let el of oldElement) {
+						el.classList.remove('selected');
+					}
+					oldElement = oldElement[0] ?? null;
+				}
+				this.classList.add('selected');
+				if (this != oldElement) {
+					this.closest('.'+ListingPanelController.DEFAULT_CLASS).dispatchEvent(new Event('change'));
+				}
+			});
+			return element;
+		}
 	}
 }
