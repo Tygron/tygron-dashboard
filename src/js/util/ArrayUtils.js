@@ -49,6 +49,10 @@ export class ArrayUtils {
 		return ((value[0] != value[1]) || allowEqual);
 	}
 	
+	static coerceToArray(value) {
+		return (!Array.isArray(value)) ? [value] : value;
+	}
+	
 	static flipMatrix(matrix) {
 		let newMatrix = [];
 		let ySize = null;
