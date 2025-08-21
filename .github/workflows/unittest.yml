@@ -1,17 +1,13 @@
 name: unittest
 
-on: push
+on:
+  push:
+    branches: [ "data-object" ]
 
-jobs: 
+jobs:
   test:
     runs-on: ubuntu-latest
-
-    steps: 
-      - name: checkout repo
-        uses: actions/checkout@v3
-      - name: use node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-      - run: npm install
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
       - run: npm test
