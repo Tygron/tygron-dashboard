@@ -31,7 +31,7 @@
 
 	<target name="main" description="Concatenate all js files">
 
-		<delete dir="build/" />
+		<delete dir="${destination}" />
 
 		<foreach target="combined_js" param="file">
 			<path>
@@ -186,10 +186,12 @@
 		<if>
 			<available file="${dashboardPathReplacements}/${base.name}.txt" />
 			<then>
+				
 				<loadfile property="textFile" srcfile="${dashboardPathReplacements}/${base.name}.txt" />
 				<echo>Replacing TQL for ${destination}/${base.name}.html</echo>
-
+				
 				<for param="line" list="${textFile}" delimiter="${line.separator}">
+					
 					<sequential>
 						<local name="tql" />
 						<propertyregex property="tql" input="@{line}" regexp="([^=]+)=([^=]+)" replace="\1" global="false" />
@@ -201,10 +203,14 @@
 						<echo message="values: ${values}" />						
 						<replaceregexp file="${destination}/${base.name}.html" match="\${tql}" replace="${values}" byline="true" />
 						
-					</sequential>
+					</sequential>					
 				</for>
+				
 				<echo>Done Replacing TQL for ${destination}/${base.name}.html</echo>
-
+				
+				<replace file="${destination}/${base.name}.html" token="if(windowValidation)" value="if(!windowValidation)" />
+				<echo>Done Replacing if(windowValidation) by if(!windowValidation)</echo>
+								
 			</then>
 			<else>
 				<echo>Not replacements for ${destination}/${base.name}.html</echo>
