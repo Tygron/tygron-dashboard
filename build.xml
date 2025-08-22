@@ -15,13 +15,13 @@
 	<basename property="filename" file="${file}" />
 	<property name="filepath" value="${destination}/lib/${filename}" />
 	<property name="bodypath" value="${destination}/body/${filename}" />
-	
+
 	<property name="dashboardPath" value="dashboards" />
 	<property name="dashboardPathJS" value="${dashboardPath}/js" />
 	<property name="dashboardPathHTML" value="${dashboardPath}/html" />
 	<property name="dashboardPathCSS" value="${dashboardPath}/css" />
 	<property name="dashboardPathReplacements" value="${dashboardPath}/replacements" />
-	
+
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -186,31 +186,31 @@
 		<if>
 			<available file="${dashboardPathReplacements}/${base.name}.txt" />
 			<then>
-				
+
 				<loadfile property="textFile" srcfile="${dashboardPathReplacements}/${base.name}.txt" />
 				<echo>Replacing TQL for ${destination}/${base.name}.html</echo>
-				
+
 				<for param="line" list="${textFile}" delimiter="${line.separator}">
-					
+
 					<sequential>
 						<local name="tql" />
 						<propertyregex property="tql" input="@{line}" regexp="([^=]+)=([^=]+)" replace="\1" global="false" />
-						
+
 						<local name="values" />
 						<propertyregex property="values" input="@{line}" regexp="([^=]+)=([^=]+)" replace="\2" global="false" />
-						
+
 						<echo message="tql: ${tql}" />
-						<echo message="values: ${values}" />						
+						<echo message="values: ${values}" />
 						<replaceregexp file="${destination}/${base.name}.html" match="\${tql}" replace="${values}" byline="true" />
-						
-					</sequential>					
+
+					</sequential>
 				</for>
-				
+
 				<echo>Done Replacing TQL for ${destination}/${base.name}.html</echo>
-				
+
 				<replace file="${destination}/${base.name}.html" token="if(windowValidation)" value="if(!windowValidation)" />
 				<echo>Done Replacing if(windowValidation) by if(!windowValidation)</echo>
-								
+
 			</then>
 			<else>
 				<echo>Not replacements for ${destination}/${base.name}.html</echo>
