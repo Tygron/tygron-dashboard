@@ -15,6 +15,13 @@
 	<basename property="filename" file="${file}" />
 	<property name="filepath" value="${destination}/lib/${filename}" />
 	<property name="bodypath" value="${destination}/body/${filename}" />
+	
+	<property name="dashboardPath" value="dashboards" />
+	<property name="dashboardPathJS" value="${dashboardPath}/js" />
+	<property name="dashboardPathHTML" value="${dashboardPath}/html" />
+	<property name="dashboardPathCSS" value="${dashboardPath}/css" />
+	<property name="dashboardPathReplacements" value="${dashboardPath}/replacements" />
+	
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -28,19 +35,19 @@
 
 		<foreach target="combined_js" param="file">
 			<path>
-				<fileset id="dashboardset" dir="src/js/dashboards/" includes="${dashboard}.js" />
+				<fileset id="dashboardset" dir="${dashboardPathJS}/" includes="${dashboard}.js" />
 			</path>
 		</foreach>
 
 		<foreach target="split_js" param="file">
 			<path>
-				<fileset id="dashboardset" dir="src/js/dashboards/" includes="${dashboard}.js" />
+				<fileset id="dashboardset" dir="${dashboardPathJS}/" includes="${dashboard}.js" />
 			</path>
 		</foreach>
 
 		<foreach target="create_html_css" param="file">
 			<path>
-				<fileset id="dashboardset" dir="src/js/dashboards/" includes="${dashboard}.js" />
+				<fileset id="dashboardset" dir="${dashboardPathJS}/" includes="${dashboard}.js" />
 			</path>
 		</foreach>
 
@@ -58,10 +65,9 @@
 			<fileset dir="src/js/">
 				<include name="**" />
 				<exclude name="**/**/NC.js" />
-				<exclude name="**/dashboards/*.js" />
 			</fileset>
 
-			<fileset dir="src/js/dashboards/" includes="${filename}" />
+			<fileset dir="${dashboardPathJS}/" includes="${filename}" />
 		</concat>
 
 
@@ -83,7 +89,6 @@
 			<fileset dir="src/js/">
 				<include name="**" />
 				<exclude name="**/**/NC.js" />
-				<exclude name="**/dashboards/*.js" />
 			</fileset>
 		</concat>
 
@@ -94,7 +99,7 @@
 		<replaceregexp file="${filepath}" match="^export const" replace="const" byline="true" />
 
 		<concat destfile="${bodypath}" fixlastline="true" eol="unix">
-			<fileset dir="src/js/dashboards/" includes="${filename}" />
+			<fileset dir="${dashboardPathJS}/" includes="${filename}" />
 		</concat>
 
 		<replaceregexp file="${bodypath}" match="^import \{.*\}.*;" replace="" byline="true" />
@@ -109,13 +114,13 @@
 		<basename property="filename" file="${file}" />
 		<propertyregex property="base.name" input="${filename}" regexp="(.*)\.(.*)" select="\1" />
 
-		<copy file="html/${base.name}.html" tofile="${destination}/${base.name}.html" />
+		<copy file="${dashboardPathHTML}/${base.name}.html" tofile="${destination}/${base.name}.html" />
 
 		<concat destfile="${destination}/css/${base.name}.css" fixlastline="true" eol="unix">
-			<fileset dir="css/">
+			<fileset dir="${dashboardPathCSS}/">
 				<include name="dashboard.css" />
 			</fileset>
-			<fileset dir="css/">
+			<fileset dir="${dashboardPathCSS}/">
 				<include name="${base.name}.css" />
 			</fileset>
 		</concat>
@@ -136,7 +141,7 @@
 		<replaceregexp file="${destination}/${base.name}.html" match="BODYSTYLE" replace="" byline="true" />
 
 		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_LIBS" replace='src="./lib/${filename}"' byline="true" />
-		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_CSS" replace="href='./css/${base.name}.css'" byline="true" />
+		<replaceregexp file="${destination}/${base.name}.html" match="DASHBOARD_CSS" replace="href='./${dashboardPathCSS}/${base.name}.css'" byline="true" />
 	</target>
 
 	<target name="combinedScript" if="${combined}">
@@ -179,9 +184,9 @@
 		<basename property="filename" file="${file}" />
 		<propertyregex property="base.name" input="${filename}" regexp="(.*)\.(.*)" select="\1" />
 		<if>
-			<available file="replacements/${base.name}.txt" />
+			<available file="${dashboardPathReplacements}/${base.name}.txt" />
 			<then>
-				<loadfile property="textFile" srcfile="replacements/${base.name}.txt" />
+				<loadfile property="textFile" srcfile="${dashboardPathReplacements}/${base.name}.txt" />
 				<echo>Replacing TQL for ${destination}/${base.name}.html</echo>
 
 				<for param="line" list="${textFile}" delimiter="${line.separator}">
