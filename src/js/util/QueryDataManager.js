@@ -44,14 +44,59 @@ export class QueryDataManager {
 
 	getDataMatrix(key, outerArrayKey = null, innerArrayKey = null) {
 		//x in query is inner , y in query is outer
-		let queryDataObject = this.getDataObject(key);
+		let queryDataObject = this.getQueryDataObject(key);
 
-		if (x && (x !== queryDataObject['x'] && x !== queryDataObject[y])) {
-			throw new RangeError('Dimension ' + x + ' not known for data registered by key ' + key);
+		//Dimensionless		
+		if (!outerArrayKey && !innerArrayKey) {
+			if (queryDataObject.hasNoDimensions()) {
+				return queryDataObject.getData(this.allowFallbackData);
+			}
+			throw new RangeError('No dimension(s) defined while requesting data by key ' + key);
 		}
-		if (y && (y !== queryDataObject['x'] && y !== queryDataObject[y])) {
-			throw new RangeError('Dimension ' + y + ' not known for data registered by key ' + key);
+
+		//Undefined dimensions
+		if (outerArrayKey == innerArrayKey) {
+			throw new RangeError('Cannot request duplicate dimension ' + outerArrayKey + ' for data registered by key ' + key)
 		}
+		if (outerArrayKey && (!queryDataObject.hasDimension(outerArrayKey))) {
+			throw new RangeError('Dimension ' + outerArrayKey + ' not known for data registered by key ' + key);
+		}
+		if (innerArrayKey && (!queryDataObject.hasDimension(innerArrayKey))) {
+			throw new RangeError('Dimension ' + innerArrayKey + ' not known for data registered by key ' + key);
+		}
+
+		// 2 Dimensions
+		if (queryDataObject.hasDimensionX() && queryDataObject.hasDimensionY()) {
+			if (innerArrayKey == queryDataObject.getDimensionX() || outerArrayKey == queryDataObject.getDimensionY()) {
+				return queryDataObject.getData(this.allowFallbackData);
+			} else {
+				return ArrayUtils.flipMatrix(queryDataObject.getData(this.allowFallbackData));
+			}
+		}
+
+		// X dimension
+		else if ( queryDataObject.hasDimensionX() ) {
+			if (innerArrayKey == queryDataObject.getDimensionX()) {
+				return [queryDataObject.getData(this.allowFallbackData)];
+			} else if (outerArrayKey == queryDataObject.getDimensionX()) {
+				return queryDataObject.getData(this.allowFallbackData);
+			}
+			
+		}
+		
+		//Y dimension
+		else if ( queryDataObject.hasDimensionY() ) {
+			if (innerArrayKey == queryDataObject.getDimensionY()) {
+				return ArrayUtils.flipMatrix(queryDataObject.getData(this.allowFallbackData));
+			} else if (outerArrayKey == queryDataObject.getDimensionY()) {
+				let data = ArrayUtils.coerceToArray(queryDataObject.getData(this.allowFallbackData))
+				return [].concat(...data);
+			}
+			
+		}
+		
+		//Undefined
+		throw new RangeError('Unknown state occured while requesting data of key ' + key + ' with dimension(s) ' + outerArrayKey + ', ' + innerArrayKey);
 	}
 
 	getQueryDataObject(key) {
@@ -148,6 +193,33 @@ export class QueryDataManager {
 				this.y = data ?? null;
 			}
 
+			getDimensionX() {
+				return this.x;
+			}
+			getDimensionY() {
+				return this.y;
+			}
+
+			hasDimensionX() {
+				return this.x !== null;	
+			}
+			
+			hasDimensionY() {
+				return this.y !== null;
+			}
+			hasDimension(dimension) {
+				if (this.hasDimensionX() && this.getDimensionX() == dimension) {
+					return true;
+				}
+				if (this.hasDimensionY() && this.getDimensionY() == dimension) {
+					return true;
+				}
+				return false
+			}
+			hasNoDimensions() {
+				return !(this.hasDimensionX() || this.hasDimensionY());
+			}
+
 			hasQueryData() {
 				return this.constructor.exists(this.queryData);
 			}
@@ -159,10 +231,6 @@ export class QueryDataManager {
 			}
 			hasResolvedFallbackData() {
 				return this.constructor.appearsResolved(this.fallbackData);
-			}
-
-			hasNoDimensions() {
-				return ((this.x === null) && (this.y === null));
 			}
 
 			isAllQueryDataResolved() {
@@ -213,5 +281,4 @@ export class QueryDataManager {
 		};
 
 	}
-
 }
