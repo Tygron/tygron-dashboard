@@ -8,7 +8,8 @@ import { attachHandler } from "../util/dom.js";
 let windowValidation = true;
 
 if(windowValidation){
-	document.defaultView.on( "load", function() {
+
+	$(window).on("load", function() {
 		
 		if ('$SELECT_ID_WHERE_AREA_IS_ID'.indexOf('$')!=-1) {
 			let message = '<p>Error: Queries not loaded</p>';
