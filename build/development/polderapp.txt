@@ -2053,11 +2053,11 @@ const plotProperties = [TIMEFRAMES, M3LAND, M3WATER, M3GROUND, M3SEWER, M3STORAG
 const titles = {};
 titles[TIMEFRAMES] = "Timeframes";
 titles[TIMEFRAMETIMES] = "Tijdstap";
-titles[M3LAND] = "Water op land [m3]";
-titles[M3WATER] = "Oppervlaktewater [m3]";
-titles[M3GROUND] = "Grondwater [m3]";
-titles[M3STORAGE] = "Waterbergende voorzieningen [m3]";
-titles[M3SEWER] = "Rioolwater [m3]";
+titles[M3LAND] = "Water op land [m³]";
+titles[M3WATER] = "Oppervlaktewater [m³]";
+titles[M3GROUND] = "Grondwater [m³]";
+titles[M3STORAGE] = "Waterbergende voorzieningen [m³]";
+titles[M3SEWER] = "Rioolwater [m³]";
 
 const colors = {};
 colors[M3WATER] = [10, 10, 218, 0.5];
@@ -2070,7 +2070,7 @@ createTable("waterBalanceTable", data, properties, colors, titles, timeLabels);
 
 const barPlotLayout = createBarPlotLayout();
 barPlotLayout.title.text = "Berging per component";
-barPlotLayout.yaxis.title.text = "Volume [m3]";
+barPlotLayout.yaxis.title.text = "Volume [m³]";
 barPlotLayout.xaxis.title.text = "Component";
 
 const barSlider = document.getElementById("barSlider");
