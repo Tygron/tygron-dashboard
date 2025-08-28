@@ -1,5 +1,5 @@
 
-export class TimeframeLinks {
+class TimeframeLinks {
 
 	constructor(properties, timeframes) {
 		this.properties = properties;
