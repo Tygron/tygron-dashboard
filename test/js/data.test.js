@@ -1,4 +1,5 @@
-import { TimeframeLinks } from './../../src/js/util/data.js';
+
+const TimeframeLinks = require( './../../src/js/util/data.js');
 
 describe(() => {
 
