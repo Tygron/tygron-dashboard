@@ -150,3 +150,5 @@ export function addValuesForTimeframeAndID(data, timeframe, property, idValues, 
 	}
 
 }
+
+module.exports = TimeframeLinks;
