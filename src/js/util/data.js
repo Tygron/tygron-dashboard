@@ -1,5 +1,5 @@
 
-class TimeframeLinks {
+export class TimeframeLinks {
 
 	constructor(properties, timeframes) {
 		this.properties = properties;
@@ -150,5 +150,3 @@ export function addValuesForTimeframeAndID(data, timeframe, property, idValues, 
 	}
 
 }
-
-module.exports = TimeframeLinks;
