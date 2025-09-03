@@ -101,8 +101,8 @@ if(windowValidation){
 					
 					//	WATERAREA AANMAKEN
 					chain = chain
-											.then( c.post('event/editorarea/generate_water_area', null, [10]) )
-											;				
+						.then( c.post('event/editorarea/generate_water_areas', null, [10]) )
+					;			
 					
 					chain = chain
 						.then( c.post('event/editoroverlay/add', null, [waterOverlayType]) )
