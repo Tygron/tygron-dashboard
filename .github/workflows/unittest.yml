@@ -1,8 +1,10 @@
-name: unittest
+name: Unit Test Automation on Unit Test Branch
 
 on:
   push:
-    branches: [ "data-object" ]
+    branches: [ "unit-test-branch" ]
+  pull_request:
+    branches: [ "unit-test-branch" ]
 
 jobs:
   test:
