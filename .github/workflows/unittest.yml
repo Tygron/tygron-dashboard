@@ -1,4 +1,4 @@
-name: Unit Test Automation on Unit Test Branch
+name: Unit Test Automation
 
 on:
   push:
