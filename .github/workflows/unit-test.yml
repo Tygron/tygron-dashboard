@@ -1,0 +1,13 @@
+name: Run Unit Test
+
+on:
+  push:
+    branches: [ "unit-test-banch" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm test
