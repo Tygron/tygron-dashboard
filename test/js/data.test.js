@@ -5,6 +5,6 @@ describe('data ', () => {
     const properties = ["PROP_A", "PROP_B"];
                         
     const data =createLinksadd(properties);
-    expect(data.properties).toBeNotNull();
+    expect(data.properties).not().toBeNull();
   });
 });
