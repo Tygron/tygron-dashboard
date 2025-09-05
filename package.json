@@ -1,20 +1,28 @@
 {
-  "name": "action_test",
+  "name": "tygron-dashboard",
   "version": "1.0.0",
-  "description": "Simple action test",
+  "type": "module",
+  "main": "",
+  "description": "Tygron Dashboard Test Package",
   "directories": {
     "test": "test"
   },
-  "scripts": {
-    "test": "jest ./test"
+  "scripts": {    
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/tygron/tygron-dashboard"
   },
   "keywords": [
     "test"
   ],
   "author": "tygronaut",
-  "license": "ISC",
-  "dependencies": {
-    "jest": "^27.3.1"
+  "license": "MIT",
+  "dependencies": {    
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "jest": "^30.0.5"
+  }
 }
