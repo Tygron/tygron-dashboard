@@ -10,10 +10,6 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "github.com/Tygron/tygron-dashboard/tree/unit-test-branch"
-  },
   "keywords": [
     "test"
   ],
