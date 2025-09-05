@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "github.com/tygron/tygron-dashboard"
+    "url": "github.com/Tygron/tygron-dashboard/tree/unit-test-branch"
   },
   "keywords": [
     "test"
