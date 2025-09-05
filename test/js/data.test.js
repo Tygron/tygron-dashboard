@@ -7,4 +7,11 @@ describe('data ', () => {
     const data =createLinksadd(properties);
     expect(data.properties).not().toBeNull();
   });
+
+   it('has empty array of properties', () => {
+    const properties = [];
+                        
+    const data =createLinksadd(properties);
+    expect(data.properties).not().toBeNull();
+  });
 });
