@@ -1,4 +1,4 @@
-import createLinks from "../src/js/util/data.js"
+import createLinks from "./../src/js/util/data.js"
 
 describe('data ', () => {
   it('has properties', () => {
