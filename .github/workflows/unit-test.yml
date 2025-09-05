@@ -1,13 +1,11 @@
-name: Unit Test Automation
+name: Build and Unit Test
 
 on:
   push:
     branches: [ "unit-test-branch" ]
-  pull_request:
-    branches: [ "unit-test-branch" ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

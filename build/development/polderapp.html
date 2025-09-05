@@ -1961,6 +1961,12 @@ if(windowValidation){
 					
 					let chain = c.start();
 					let scriptVars = {};
+					
+					//	WATERAREA AANMAKEN
+					chain = chain
+											.then( c.post('event/editorarea/generate_water_area', null, [10]) )
+											;				
+					
 					chain = chain
 						.then( c.post('event/editoroverlay/add', null, [waterOverlayType]) )
 						.then( c.chain(function(data){
