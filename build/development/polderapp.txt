@@ -1952,8 +1952,8 @@ if(windowValidation){
 					
 					//	WATERAREA AANMAKEN
 					chain = chain
-											.then( c.post('event/editorarea/generate_water_area', null, [10]) )
-											;				
+						.then( c.post('event/editorarea/generate_water_areas', null, [10]) )
+					;			
 					
 					chain = chain
 						.then( c.post('event/editoroverlay/add', null, [waterOverlayType]) )
@@ -2156,26 +2156,26 @@ flowTitles[SEWER_POC] = 'POCRiool [m³/tijdstap]';
 
 flowTitles[SEWER_OVERFLOW_OUT] = 'Riooloverstort [m³/tijdstap]';
 
-flowTitles[INLET_SURFACE] = 'Inlaat op land [m³/tijdstap]';
-flowTitles[INLET_GROUND] = 'Inlaat in grondwater [m³/tijdstap]';
-flowTitles[OUTLET_SURFACE] = "Uitlaat op land [m³/tijdstap]";
-flowTitles[OUTLET_GROUND] = "Uitlaat uit grondwater [m³/tijdstap]";
+flowTitles[INLET_SURFACE] = 'Inlaat bovengronds [m³/tijdstap]';
+flowTitles[INLET_GROUND] = 'Inlaat ondergronds [m³/tijdstap]';
+flowTitles[OUTLET_SURFACE] = "Uitlaat bovengronds [m³/tijdstap]";
+flowTitles[OUTLET_GROUND] = "Uitlaat ondergronds [m³/tijdstap]";
 flowTitles[BOTTOM_FLOW_IN] = "Kwel [m³/tijdstap]";
 flowTitles[BOTTOM_FLOW_OUT] = "Uitzijging [m³/tijdstap]";
 flowTitles[CULVERT] = "Duiker [m³/tijdstap]";
-flowTitles[CULVERT_IN] = "Duiker in interessegebied [m³/tijdstap]";
-flowTitles[CULVERT_OUT] = "Duiker uit interessegebied [m³/tijdstap]";
-flowTitles[CULVERT_INNER] = "Duiker binnen interessegebied [m³/tijdstap]";
+flowTitles[CULVERT_IN] = "Duiker in waterbeheergebied [m³/tijdstap]";
+flowTitles[CULVERT_OUT] = "Duiker uit waterbeheergebied [m³/tijdstap]";
+flowTitles[CULVERT_INNER] = "Duiker binnen waterbeheergebied [m³/tijdstap]";
 flowTitles[PUMP] = "Pomp";
-flowTitles[PUMP_IN] = "Pomp in interessegebied [m³/tijdstap]";
-flowTitles[PUMP_OUT] = "Pomp uit interessegebied [m³/tijdstap]";
-flowTitles[PUMP_INNER] = "Pomp binnen interessegebied [m³/tijdstap]";
+flowTitles[PUMP_IN] = "Pomp in waterbeheergebied [m³/tijdstap]";
+flowTitles[PUMP_OUT] = "Pomp uit waterbeheergebied [m³/tijdstap]";
+flowTitles[PUMP_INNER] = "Pomp binnen waterbeheergebied [m³/tijdstap]";
 flowTitles[WEIR] = "Stuw";
 flowTitles[WEIR_IN] = "Stuw in [m³/tijdstap]";
 flowTitles[WEIR_OUT] = "Stuw uit [m³/tijdstap]";
-flowTitles[WEIR_INNER] = "Stuw binnen interessegebied [m³/tijdstap]";
-flowTitles[MODEL_IN] = "Interessegebied in [m³/tijdstap]";
-flowTitles[MODEL_OUT] = "Interessegebied uit [m³/tijdstap]";
+flowTitles[WEIR_INNER] = "Stuw binnen waterbeheergebied [m³/tijdstap]";
+flowTitles[MODEL_IN] = "waterbeheergebied in [m³/tijdstap]";
+flowTitles[MODEL_OUT] = "waterbeheergebied uit [m³/tijdstap]";
 
 flowTitles[M3GROUND] = "Grondwater [m³]";
 flowTitles[M3UNSATURATED] = "Onverzadigde zone [m³]";
