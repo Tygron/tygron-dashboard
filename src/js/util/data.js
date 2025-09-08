@@ -1,5 +1,8 @@
 
-
+/**
+ * @param {Array.<string>} properties Array of Property names to set into data
+ * @returns {Object} Data Object containing the properties.
+ */
 export function createLinks(properties) {
 	return { properties: properties };
 }
