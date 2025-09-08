@@ -1858,11 +1858,11 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput){
 
 let windowValidation = true;
 
-if(windowValidation){
+if (windowValidation) {
 
 	$(window).on("load", function() {
-		
-		if ('$SELECT_ID_WHERE_AREA_IS_ID'.indexOf('$')!=-1) {
+
+		if ('$SELECT_ID_WHERE_AREA_IS_ID'.indexOf('$') != -1) {
 			let message = '<p>Error: Queries not loaded</p>';
 			message += '<p>Please ensure:</p><ul>';
 			message += '<li>This content is added to a Template Text Panel, applied to Areas.</li>';
@@ -1872,153 +1872,157 @@ if(windowValidation){
 			messageEl.innerHTML = message;
 			document.body.prepend(messageEl);
 		} else {
-			if( (+'$SELECT_ATTRIBUTE_WHERE_PANEL_IS_ID_AND_NAME_IS_INSTALLED') != 1 ) {
+			if ((+'$SELECT_ATTRIBUTE_WHERE_PANEL_IS_ID_AND_NAME_IS_INSTALLED') != 1) {
 				let message = '<p>Install app.</p>';
 				message += '<p>Note: run from web browser, or ensure REFRESH of the panel is off.</p>';
 				let messageEl = document.createElement('div');
 				messageEl.innerHTML = message;
-				
+
 				let optionsEl = document.createElement('div');
 				let buttonEl = document.createElement('input');
 				buttonEl.id = 'installType';
 				buttonEl.type = 'button';
 				buttonEl.value = 'Install';
 				buttonEl.disabled = true;
-				
+
 				let selectEl = document.createElement('select');
 				selectEl.id = 'installType';
 				selectEl.innerHTML += '<option selected value="">Select Water Overlay Type</option>';
 				selectEl.innerHTML += '<option value="RAINFALL">RAINFALL</option>';
 				selectEl.innerHTML += '<option value="GROUNDWATER">GROUNDWATER</option>';
-				selectEl.innerHTML += '<option value="FLOODING">FLOODING</option>'; 
+				selectEl.innerHTML += '<option value="FLOODING">FLOODING</option>';
 				selectEl.innerHTML += '<option value="NONE">Continue without install</option>';
-				
-				optionsEl.appendChild(selectEl); 
+
+				optionsEl.appendChild(selectEl);
 				optionsEl.appendChild(buttonEl);
-				
-				attachHandler(optionsEl, 'change', 'select', function(){
-						console.log(document.getElementById('installType').value);
-						buttonEl.disabled = (selectEl.value == '');
-						buttonEl.value = (selectEl.value == 'NONE') ? 'Continue' : 'Install';
-					});
-				
-				attachHandler(optionsEl, 'click', 'input[type="button"]', function(){
-					
+
+				attachHandler(optionsEl, 'change', 'select', function() {
+					console.log(document.getElementById('installType').value);
+					buttonEl.disabled = (selectEl.value == '');
+					buttonEl.value = (selectEl.value == 'NONE') ? 'Continue' : 'Install';
+				});
+
+				attachHandler(optionsEl, 'click', 'input[type="button"]', function() {
+
 					let waterOverlayType = document.getElementById('installType').value;
-					
-					window.c = connector('$SELECT_TOKEN_WHERE_'.replaceAll('"',''));
-					
+
+					window.c = connector('$SELECT_TOKEN_WHERE_'.replaceAll('"', ''));
+
 					if (waterOverlayType == 'NONE') {
 						let chain = c.start();
 						chain = chain
-							.then( c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID','INSTALLED',1]) )
-							.then( c.recalculate(false) )
-							.then( function(){
-									window.location.reload();
-								} );
+							.then(c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID', 'INSTALLED', 1]))
+							.then(c.recalculate(false))
+							.then(function() {
+								window.location.reload();
+							});
 						return;
 					}
-					
+
 					let requiredResultChildren = [
-							'BUILDING_LAST_STORAGE',
-							'RAIN',
-							'GROUND_LAST_STORAGE',
-							'GROUND_BOTTOM_FLOW',
-							'GROUND_TRANSPIRATION',
-							'SEWER_LAST_VALUE',
-							'EVAPOTRANSPIRATION',
-							'BASE_TYPES',
-							'GROUND_LAST_UNSATURATED_STORAGE'
-						];
-						
+						'BUILDING_LAST_STORAGE',
+						'RAIN',
+						'GROUND_LAST_STORAGE',
+						'GROUND_BOTTOM_FLOW',
+						'GROUND_TRANSPIRATION',
+						'SEWER_LAST_VALUE',
+						'EVAPOTRANSPIRATION',
+						'BASE_TYPES',
+						'GROUND_LAST_UNSATURATED_STORAGE'
+					];
+
 					let requiredCombos = [
-						['M3WATER', 'BASE_TYPES', 'SURFACE_LAST_VALUE', 
+						['M3WATER', 'BASE_TYPES', 'SURFACE_LAST_VALUE',
 							'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'],
-						['RAIN_WATER', 'BASE_TYPES', 'RAIN', 
+						['RAIN_WATER', 'BASE_TYPES', 'RAIN',
 							'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'],
-						['RAIN_LAND', 'BASE_TYPES', 'RAIN', 
+						['RAIN_LAND', 'BASE_TYPES', 'RAIN',
 							'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)'],
-						['EVAPOTRANSPIRATIONWATER', 'BASE_TYPES', 'EVAPOTRANSPIRATION', 
+						['EVAPOTRANSPIRATIONWATER', 'BASE_TYPES', 'EVAPOTRANSPIRATION',
 							'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'],
-						['EVAPOTRANSPIRATIONLAND', 'BASE_TYPES', 'EVAPOTRANSPIRATION', 
+						['EVAPOTRANSPIRATIONLAND', 'BASE_TYPES', 'EVAPOTRANSPIRATION',
 							'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)'],
 					]
-					
-					
+
+
 					c = window.c;
-					
+
 					let chain = c.start();
 					let scriptVars = {};
-					
+
 					//	WATERAREA AANMAKEN
 					chain = chain
-											.then( c.post('event/editorarea/generate_water_area', null, [10]) )
-											;				
-					
+						.then(c.post('event/editorarea/generate_water_areas', null, [10]))
+						;
+
 					chain = chain
-						.then( c.post('event/editoroverlay/add', null, [waterOverlayType]) )
-						.then( c.chain(function(data){
-								scriptVars['mainOverlayId'] = data;
-								scriptVars['SURFACE_LAST_VALUE_ID'] = data;
-							}))
-						.then( c.post('event/editoroverlay/set_result_type', null, [-1, 'SURFACE_LAST_VALUE'], function(d, u, qp, params) {
-								params[0] = scriptVars['SURFACE_LAST_VALUE_ID'];
-							}))
-					;
+						.then(c.post('event/editoroverlay/add', null, [waterOverlayType]))
+						.then(c.chain(function(data) {
+							scriptVars['mainOverlayId'] = data;
+							scriptVars['SURFACE_LAST_VALUE_ID'] = data;
+						}))
+						.then(c.post('event/editoroverlay/set_result_type', null, [-1, 'SURFACE_LAST_VALUE'], function(d, u, qp, params) {
+							params[0] = scriptVars['SURFACE_LAST_VALUE_ID'];
+						}))
+						.then(c.post('event/editoroverlay/set_attribute', null, [-1, 'GROUND_WATER', 1], function(d, u, qp, params) {
+							params[0] = scriptVars['SURFACE_LAST_VALUE_ID'];
+						}))
+
+						;
 					for (let type of requiredResultChildren) {
 						chain = chain.then(
-								c.post('event/editoroverlay/add_result_child', null, [-1, type], function(d, u, qp, params) {
+							c.post('event/editoroverlay/add_result_child', null, [-1, type], function(d, u, qp, params) {
 								params[0] = scriptVars['mainOverlayId'];
 							}));
 						chain = chain.then(
-								c.chain(function(data, type){
-										scriptVars[type+'_ID'] = data;
-									}, type)
-							);
+							c.chain(function(data, type) {
+								scriptVars[type + '_ID'] = data;
+							}, type)
+						);
 					}
-					
+
 					for (let settings of requiredCombos) {
 						chain = chain
-							.then( c.post('event/editoroverlay/add', null, ['COMBO']) )
-							.then( c.chain(function(data){
-									scriptVars['comboId'] = data;
-								}))
-							.then( c.post('event/editoroverlay/set_name', null, [-1, 'Unnamed Combo'], function(d, u, qp, params) {
-									params[0] = scriptVars['comboId'];
-									params[1] = settings[0];
+							.then(c.post('event/editoroverlay/add', null, ['COMBO']))
+							.then(c.chain(function(data) {
+								scriptVars['comboId'] = data;
 							}))
-							.then( c.post('event/editoroverlay/set_prequel', null, [-1, -1,'A'], function(d, u, qp, params) {
-									params[0] = scriptVars['comboId'];
-									params[1] = scriptVars[settings[1]+'_ID'];
-								}))
-							.then( c.post('event/editoroverlay/set_prequel', null, [-1, -1,'B'], function(d, u, qp, params) {
-									params[0] = scriptVars['comboId'];
-									params[1] = scriptVars[settings[2]+'_ID'];
-								}))
-							.then( c.post('event/editoroverlay/set_combo_formula', null, [-1, 'ADD(1,2)'], function(d, u, qp, params) {
-									params[0] = scriptVars['comboId'];
-									params[1] = settings[3];
-								}))
-							.then( c.post('event/editoroverlay/set_attribute', null, [-1, 'M3WATER', 1], function(d, u, qp, params) {
-									params[0] = scriptVars['comboId'];
-									params[1] = settings[0];
+							.then(c.post('event/editoroverlay/set_name', null, [-1, 'Unnamed Combo'], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = settings[0];
+							}))
+							.then(c.post('event/editoroverlay/set_prequel', null, [-1, -1, 'A'], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = scriptVars[settings[1] + '_ID'];
+							}))
+							.then(c.post('event/editoroverlay/set_prequel', null, [-1, -1, 'B'], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = scriptVars[settings[2] + '_ID'];
+							}))
+							.then(c.post('event/editoroverlay/set_combo_formula', null, [-1, 'ADD(1,2)'], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = settings[3];
+							}))
+							.then(c.post('event/editoroverlay/set_attribute', null, [-1, 'M3WATER', 1], function(d, u, qp, params) {
+								params[0] = scriptVars['comboId'];
+								params[1] = settings[0];
 							}))
 					}
-	
-					chain = chain	
-						.then( c.recalculate(true) )
-						.then( c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID','INSTALLED',1]) )
-						.then( c.recalculate(false) )
-						.then( function(){
-								window.location.reload();
-							} )
-					;				
+
+					chain = chain
+						.then(c.recalculate(true))
+						.then(c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID', 'INSTALLED', 1]))
+						.then(c.recalculate(false))
+						.then(function() {
+							window.location.reload();
+						})
+						;
 				});
 				document.body.innerHTML = '';
 				document.body.appendChild(messageEl);
 				document.body.appendChild(optionsEl);
 			}
-			
+
 		}
 	});
 }
@@ -2043,7 +2047,7 @@ data[M3STORAGE] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_BUILDING_LAST_STORAGE_
 data[M3SEWER] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
 data[M3UNSATURATED] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_LAST_UNSATURATED_STORAGE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
 data[M3SATURATED] = data[M3GROUND].map((value, index) => {
-  return value - data[M3UNSATURATED][index];
+	return value - data[M3UNSATURATED][index];
 });
 data[M3LAND] = [];
 data[TIMEFRAMES] = [];
@@ -2080,7 +2084,7 @@ colors[M3GROUND] = [165, 42, 42, 0.5];
 colors[M3STORAGE] = [218, 10, 10, 0.5];
 colors[M3SEWER] = [128, 128, 128, 0.5];
 colors[M3UNSATURATED] = [218, 165, 10, 0.5];
-colors[M3SATURATED] = [10, 165, 165, 0.5]; 
+colors[M3SATURATED] = [10, 165, 165, 0.5];
 
 
 
@@ -2156,26 +2160,26 @@ flowTitles[SEWER_POC] = 'POCRiool [m³/tijdstap]';
 
 flowTitles[SEWER_OVERFLOW_OUT] = 'Riooloverstort [m³/tijdstap]';
 
-flowTitles[INLET_SURFACE] = 'Inlaat op land [m³/tijdstap]';
-flowTitles[INLET_GROUND] = 'Inlaat in grondwater [m³/tijdstap]';
-flowTitles[OUTLET_SURFACE] = "Uitlaat op land [m³/tijdstap]";
-flowTitles[OUTLET_GROUND] = "Uitlaat uit grondwater [m³/tijdstap]";
+flowTitles[INLET_SURFACE] = 'Inlaat bovengronds [m³/tijdstap]';
+flowTitles[INLET_GROUND] = 'Inlaat ondergronds [m³/tijdstap]';
+flowTitles[OUTLET_SURFACE] = "Uitlaat bovengronds [m³/tijdstap]";
+flowTitles[OUTLET_GROUND] = "Uitlaat ondergronds [m³/tijdstap]";
 flowTitles[BOTTOM_FLOW_IN] = "Kwel [m³/tijdstap]";
 flowTitles[BOTTOM_FLOW_OUT] = "Uitzijging [m³/tijdstap]";
 flowTitles[CULVERT] = "Duiker [m³/tijdstap]";
-flowTitles[CULVERT_IN] = "Duiker in interessegebied [m³/tijdstap]";
-flowTitles[CULVERT_OUT] = "Duiker uit interessegebied [m³/tijdstap]";
-flowTitles[CULVERT_INNER] = "Duiker binnen interessegebied [m³/tijdstap]";
+flowTitles[CULVERT_IN] = "Duiker in waterbeheergebied [m³/tijdstap]";
+flowTitles[CULVERT_OUT] = "Duiker uit waterbeheergebied [m³/tijdstap]";
+flowTitles[CULVERT_INNER] = "Duiker binnen waterbeheergebied [m³/tijdstap]";
 flowTitles[PUMP] = "Pomp";
-flowTitles[PUMP_IN] = "Pomp in interessegebied [m³/tijdstap]";
-flowTitles[PUMP_OUT] = "Pomp uit interessegebied [m³/tijdstap]";
-flowTitles[PUMP_INNER] = "Pomp binnen interessegebied [m³/tijdstap]";
+flowTitles[PUMP_IN] = "Pomp in waterbeheergebied [m³/tijdstap]";
+flowTitles[PUMP_OUT] = "Pomp uit waterbeheergebied [m³/tijdstap]";
+flowTitles[PUMP_INNER] = "Pomp binnen waterbeheergebied [m³/tijdstap]";
 flowTitles[WEIR] = "Stuw";
 flowTitles[WEIR_IN] = "Stuw in [m³/tijdstap]";
 flowTitles[WEIR_OUT] = "Stuw uit [m³/tijdstap]";
-flowTitles[WEIR_INNER] = "Stuw binnen interessegebied [m³/tijdstap]";
-flowTitles[MODEL_IN] = "Interessegebied in [m³/tijdstap]";
-flowTitles[MODEL_OUT] = "Interessegebied uit [m³/tijdstap]";
+flowTitles[WEIR_INNER] = "Stuw binnen waterbeheergebied [m³/tijdstap]";
+flowTitles[MODEL_IN] = "Waterbeheergebied in [m³/tijdstap]";
+flowTitles[MODEL_OUT] = "Waterbeheergebied uit [m³/tijdstap]";
 
 flowTitles[M3GROUND] = "Grondwater [m³]";
 flowTitles[M3UNSATURATED] = "Onverzadigde zone [m³]";
