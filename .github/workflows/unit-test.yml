@@ -2,7 +2,7 @@ name: Build and Unit Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "unit-test-branch" ]
 
 jobs:
   build:
