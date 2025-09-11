@@ -42,5 +42,5 @@ jobs:
         git config --global user.email git@tygron.com
         
         git add 'build/*.*'
-        git diff --exit-code || git commit -m 'autobuildaction'
+        git commit -m 'autobuildaction'
         git push
