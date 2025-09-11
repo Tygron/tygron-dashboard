@@ -6,6 +6,9 @@ describe('data ', () => {
                         
     const data =createLinks(properties);
     expect(data.properties).not.toBeNull();
+    expect(data.properties).toEqual(
+      expect.arrayOf(expect.any(String)),
+    );
   });
 
    it('has empty array of properties', () => {
@@ -13,5 +16,6 @@ describe('data ', () => {
                         
     const data =createLinks(properties);
     expect(data.properties).not.toBeNull();
+    expect(data.properties.length).toEqual(0);
   });
 });
