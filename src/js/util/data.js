@@ -110,6 +110,7 @@ export function setTimeframeValues(data, property, values, args = {}) {
 export function setTimeframeValue(data, property, value) {
 
 	for (let i = 0; i < data.dataframes.length; i++) {
+		
 		data[property][i] = value;
 	}
 }
