@@ -10,6 +10,10 @@ describe('data ', () => {
 		expect(data.properties).toEqual(
 			expect.arrayOf(expect.any(String)),
 		);
+		
+		for(let i = 0; i < properties.length; i++){
+			expect(data.properties).toContain(properties[i]);
+		}
 	});
 
 	it('has empty array of properties', () => {
