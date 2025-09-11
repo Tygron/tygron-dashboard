@@ -105,7 +105,7 @@ export function setTimeframeValues(data, property, values, args = {}) {
 	}
 }
 /**
- * Unused function, soon te be removed!
+ * Unused function, soon te be removed!!!
  */
 export function setTimeframeValue(data, property, value) {
 
