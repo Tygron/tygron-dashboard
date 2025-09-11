@@ -4,51 +4,72 @@
  * @returns {Object} Data Object containing the properties.
  */
 export function createLinks(properties) {
+	
 	return { properties: properties };
 }
 
-export function getLink(links, timeframe) {
-	if (links.timeframeLinks == undefined) {
-		links.timeframeLinks = [];
+/**
+ * @param {Object} data object with String properties, initialized using createLinks method 
+ * @param {int} timeframe timeframe index at which the link should be 
+ * @return {Object} containing a source, target and value array properties.
+ */
+export function getLink(data, timeframe) {
+	
+	if (!Array.isArray(data.timeframeLinks)) {
+		data.timeframeLinks = [];
 	}
-	while (links.timeframeLinks.length - 1 < timeframe) {
-		links.timeframeLinks.push({
+	
+	while (data.timeframeLinks.length - 1 < timeframe) {
+		data.timeframeLinks.push({
 			source: [],
 			target: [],
 			value: [],
 		});
 	}
-	return links.timeframeLinks[timeframe];
+	
+	return data.timeframeLinks[timeframe];
 }
 
-export function addLink(links, timeframe, from, to, amount) {
-	let link = getLink(links, timeframe)
-	if (link.source == undefined) {
+/**
+ * @param {Object} data object with String properties, initialized using createLinks method 
+ * @param {int} timeframe timeframe index at which the link should be set
+ * @param {String} from the property from which an ammount is removed.
+ * @param {String} to the property to which an amount is added.
+ * @param {Number} amount that is moved between the two properties
+ */
+export function addLink(data, timeframe, from, to, amount) {
+	
+	let link = getLink(data, timeframe)
+	if (!Array.isArray(link.source)) {
 		link.source = [];
 	}
-	if (link.target == undefined) {
+	if (!Array.isArray(link.target)) {
 		link.target = [];
 	}
-	if (link.value == undefined) {
+	if (!Array.isArray(link.value)) {
 		link.value = [];
 	}
-	link.source.push(links.properties.indexOf(from));
-	link.target.push(links.properties.indexOf(to));
+	
+	link.source.push(data.properties.indexOf(from));
+	link.target.push(data.properties.indexOf(to));
 	link.value.push(amount);
 }
 
 
 export function createTimeframeData(timeframes, itemID, properties) {
+	
 	let data = {
 		itemID: itemID,
 		timeframes: timeframes
 	};
+	
 	for (let i = 0; i < properties.length; i++) {
 		data[properties[i]] = [];
 		for (let j = 0; j < timeframes; j++) {
 			data[properties[i]].push(0);
 		}
 	}
+	
 	return data;
 }
 
@@ -96,17 +117,21 @@ export function addFlowValues(data, timeframe, propertyFrom, propertyTo, areaIDF
 }
 
 export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, propertyInner, areaIDFrom, areaIDTo, values, condition = undefined) {
+	
 	if (data[propertyFrom][timeframe] == undefined) {
 		data[propertyFrom][timeframe] = 0;
 	}
+	
 	if (data[propertyTo][timeframe] == undefined) {
 		data[propertyTo][timeframe] = 0;
 	}
+	
 	if (propertyInner != undefined) {
 		if (data[propertyInner][timeframe] == undefined) {
 			data[propertyInner][timeframe] = 0;
 		}
 	}
+	
 	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
 		if ((areaIDTo[i] == data.itemID) && (areaIDFrom[i] == data.itemID) && (condition == undefined || condition[i])) {
 			if (propertyInner != undefined) {
@@ -117,14 +142,19 @@ export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo
 				}
 			}
 		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
+			
 			if (values[i] > 0) {
 				data[propertyFrom][timeframe] += values[i];
+			
 			} else {
 				data[propertyTo][timeframe] -= values[i];
 			}
+		
 		} else if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
+			
 			if (values[i] > 0) {
 				data[propertyTo][timeframe] += values[i];
+			
 			} else {
 				data[propertyFrom][timeframe] -= values[i];
 			}
