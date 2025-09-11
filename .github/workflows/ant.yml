@@ -36,7 +36,7 @@ jobs:
         fi
        
     - name: push changes to remote
-      if: $action_state == 'true'
+      if: "$has_changes"
       run: |
         git config --global user.name Tygron
         git config --global user.email git@tygron.com
