@@ -1340,10 +1340,13 @@ function setTimeframeValues(data, property, values, args = {}) {
 		}
 	}
 }
-
+/**
+ * Unused function, soon te be removed!!!
+ */
 function setTimeframeValue(data, property, value) {
 
 	for (let i = 0; i < data.dataframes.length; i++) {
+		
 		data[property][i] = value;
 	}
 }
