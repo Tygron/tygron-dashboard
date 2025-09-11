@@ -28,7 +28,7 @@ jobs:
       run: |
         git config --global user.name Tygron
         git config --global user.email git@tygron.com
-
-        git diff --exit-code || git add './build/*'
-        git commit -m 'autobuildaction'
+        
+        git add './build/*'
+        git diff --exit-code || git commit -m 'autobuildaction'
         git push
