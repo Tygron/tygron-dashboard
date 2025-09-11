@@ -1329,7 +1329,7 @@ function setTimeframeValues(data, property, values, args = {}) {
 	}
 }
 /**
- * Unused function, soon te be removed!
+ * Unused function, soon te be removed!!!
  */
 function setTimeframeValue(data, property, value) {
 
