@@ -29,14 +29,14 @@ jobs:
       run: |
         if [[ -n "$(git diff --exit-code)" ]]; then
           echo "Changes detected."
-          echo "::set-output name=has_changes::true"
+          echo "has_changes=true" >> "$GITHUB_ENV"
         else
           echo "No changes detected."
-          echo "::set-output name=has_changes::false"
+          echo "has_changes=false" >> "$GITHUB_ENV"
         fi
        
     - name: push changes to remote
-      if: steps.check_changes.outputs.has_changes == 'true'
+      if: $action_state == 'true'
       run: |
         git config --global user.name Tygron
         git config --global user.email git@tygron.com
