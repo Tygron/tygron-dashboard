@@ -23,8 +23,20 @@ jobs:
         distribution: 'temurin'
     - name: Build with Ant
       run: ant -noinput -buildfile build.xml
+
+    - name: Check for Changes
+      id: check_changes
+      run: |
+        if [[ -n "$(git diff --exit-code)" ]]; then
+          echo "Changes detected."
+          echo "::set-output name=has_changes::true"
+        else
+          echo "No changes detected."
+          echo "::set-output name=has_changes::false"
+        fi
        
     - name: push changes to remote
+      if: steps.check_changes.outputs.has_changes == 'true'
       run: |
         git config --global user.name Tygron
         git config --global user.email git@tygron.com
