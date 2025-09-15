@@ -1,4 +1,4 @@
-import { NumberUtils } from "../utils/NumberUtils.js";
+import { NumberUtils } from "./NumberUtils.js";
 
 export class ArrayUtils {
 	
