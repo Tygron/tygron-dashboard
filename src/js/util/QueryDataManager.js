@@ -1,4 +1,4 @@
-import { ArrayUtils } from "./../../js/util/ArrayUtils.js"
+import { ArrayUtils } from "./../../js/util/ArrayUtils.js";
 
 export class QueryDataManager {
 
