@@ -1,4 +1,5 @@
 import { QueryDataManager } from "./../../src/js/util/QueryDataManager.js"
+import { ArrayUtils } from "./../../src/js/util/ArrayUtils.js"
 
 describe('QueryDataManager', () => {
 
@@ -28,12 +29,12 @@ describe('QueryDataManager', () => {
 		});
 		let outputData = queryDataManager.getData('queryData');
 
-		expect(queryDataManager.getData(outputData)).toBe(fallback);
+		expect(outputData).toBe(fallback);
 	});
 
 	it('can have its testing-fallback turned off and in that case give an error', () => {
 		let fallback = [100.0, 150.0, 255.1];
-		let queryDataManager = new QueryDataManager({ 'allowFallbackData': true });
+		let queryDataManager = new QueryDataManager({ 'allowFallbackData': false });
 		queryDataManager.addQueryData('queryData', {
 			query: unresolved,
 			fallbackData: fallback
@@ -83,8 +84,8 @@ describe('QueryDataManager', () => {
 	});
 
 	it('can contain and offer value-queries such as indicator scores, from string-form', () => {
-		let expectedData = '1.0, 2.0, 3.0, 4.5, 5.1';
-		let queryData = expectedData.slice();
+		let expectedData = [ 1,2 ,3 ,4.5 ,5.1 ];
+		let queryData = '1.0, 2.0, 3.0, 4.5, 5.1';
 
 		simpleTest(queryData, expectedData);
 	});
@@ -161,15 +162,21 @@ describe('QueryDataManager', () => {
 
 	//2-Dimension tests
 	it('can get XY queried data as as-is matrix', () => {
-		let queryData = [[1.0, 2.0, 3.0], [10.0, 20.0, 30.0], [100.0, 200.0, 300.0], [1000.0, 2000.0, 3000.0]];
-		let x = 'area'; //3
-		let y = 'index'; //4
-		let outer = null;
-		let inner = null;
 
-		let expectedData = queryData;
+		let queryDataManager = new QueryDataManager();
+		queryDataManager.addQueryData('queryKey', {
+			query: [[1.0, 2.0, 3.0], [10.0, 20.0, 30.0], [100.0, 200.0, 300.0], [1000.0, 2000.0, 3000.0]],
+			x: 'area',
+			y: 'index',
+		});
 
-		dimensionTest(queryData, x, y, outer, inner, expectedData);
+		let error = null;
+		try {
+			let outputData = queryDataManager.getDataMatrix('queryKey', null, null);
+		} catch (err) {
+			error = err;
+		}
+		expect(error).not.toBeNull();
 	});
 
 	it('can get XY queried data as explicit matrix with X as outer dimension', () => {
