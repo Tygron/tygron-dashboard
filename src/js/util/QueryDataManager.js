@@ -4,14 +4,19 @@ export class QueryDataManager {
 
 	constructor(args = {}) {
 		args = Object.assign({
-			allowFallbackData: true
+			allowFallbackData: true,
+			sizedKeys: {}
 		}, args);
 
 		this.setAllowFallbackData(args['allowFallbackData']);
+		for( let key in args['sizedKeys'] ) {
+			this.setSizedKey(key, args['sizedKeys'][key]);
+		}
 	}
 
 	allowFallbackData = true;
 
+	sizedKeys = {};
 	queryDataObjects = {};
 
 	addQueryData(key, args = {}) {
@@ -45,6 +50,17 @@ export class QueryDataManager {
 	}
 
 	getDataMatrix(key, outerArrayKey = null, innerArrayKey = null) {
+		let data = this._getDataMatrixUnbounded(key, outerArrayKey, innerArrayKey);
+
+		let innerSize = this.sizedKeys[innerArrayKey];
+		let outerSize = this.sizedKeys[outerArrayKey];
+		
+		data = ArrayUtils.clampMatrixSize(data, 0, outerSize, outerSize, innerSize, innerSize);
+		
+		return data;
+	}
+	
+	_getDataMatrixUnbounded(key, outerArrayKey = null, innerArrayKey = null) {
 		//x in query is inner , y in query is outer
 		let queryDataObject = this.getQueryDataObject(key);
 
@@ -124,6 +140,14 @@ export class QueryDataManager {
 		this.allowFallbackData = (!!allow);
 	}
 
+	setSizedKey(key, size) {
+		if (size === null) {
+			delete this.sizedKeys[key];
+		} else {
+			this.sizedKeys[key] = size;			
+		}
+	}
+	
 	allQueriesResolved() {
 		return this.getUnresolvedDataKeys().length === 0;
 	}
