@@ -1,7 +1,7 @@
 import { NumberUtils } from "./NumberUtils.js";
 
 export class ArrayUtils {
-	
+
 	/** 
 	 * 	Rescale a value to desired range. 
 	 * 		E.g. Turn fraction into neat percentage: scaleValue(fraction, [0,1], [0,100], true)
@@ -20,10 +20,10 @@ export class ArrayUtils {
 		}
 		value = ((value - originalRange[0]) / (originalRange[1] - originalRange[0]));
 		value = (value * (targetRange[1] - targetRange[0])) + targetRange[0];
-	
+
 		return round ? Math.round(value) : value;
 	}
-	
+
 	/** 
 	 *	Array-wrapper for scaleValue
 	*/
@@ -31,14 +31,14 @@ export class ArrayUtils {
 		if (!Array.isArray(values)) {
 			return this.scaleValue(values, originalRange, targetRange, round);
 		}
-		
+
 		let arr = [];
 		for (let i in values) {
 			arr.push(this.scaleValue(values[i], originalRange, targetRange, round));
 		}
 		return arr;
 	}
-	
+
 	static isRange(value, allowEqual = false) {
 		if (!Array.isArray(value) || value.length != 2) {
 			return false;
@@ -48,7 +48,7 @@ export class ArrayUtils {
 		}
 		return ((value[0] != value[1]) || allowEqual);
 	}
-	
+
 	static coerceToArray(value) {
 		return (!Array.isArray(value)) ? [value] : value;
 	}
@@ -64,7 +64,7 @@ export class ArrayUtils {
 		}
 		return value
 	}
-	
+
 	static flipMatrix(matrix) {
 		let newMatrix = [];
 		let ySize = null;
@@ -80,7 +80,35 @@ export class ArrayUtils {
 		}
 		return newMatrix;
 	}
-	
+
+	static clampMatrixSize(matrix, defaultValue, minSizeOuter, maxSizeOuter, minSizeInner, maxSizeInner) {
+		let newMatrix = [];
+		if (!this.isMatrix(matrix)) {
+			throw new TypeError('Not a matrix');
+		}
+		for (let i = 0; i < Math.min(matrix.length, maxSizeOuter); i++) {
+			newMatrix[i] = matrix[i].slice(0, maxSizeInner ?? undefined)
+			if (minSizeInner) {
+				newMatrix[i] = newMatrix[i].concat(Array(minSizeInner - matrix[i]).fill(defaultValue));
+			}
+		}
+		if (minSizeOuter && minSizeInner) {
+			for (let i = newMatrix.length; i < minSizeOuter; i++) {
+				newMatrix[i] = new Array(minSizeInner).fill(defaultValue);
+			}
+		}
+		return newMatrix;
+	}
+
+	static clampMatrixSizeOuter(matrix, defaultValue, minSize, maxSize) {
+		return this.clampSizeMatrix(matrix, defaultValue, minSize, maxSize, null, null);
+	}
+
+	static clampMatrixSizeInner(matrix, defaultValue, minSize, maxSize) {
+		return this.clampSizeMatrix(matrix, defaultValue, null, null, minSize, maxSize);
+	}
+
+
 	static isMatrix(matrix) {
 		if (!Array.isArray(matrix)) {
 			return false;
@@ -92,5 +120,5 @@ export class ArrayUtils {
 		}
 		return true;
 	}
-	
+
 }
