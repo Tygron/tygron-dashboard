@@ -86,26 +86,31 @@ export class ArrayUtils {
 		if (!this.isMatrix(matrix)) {
 			throw new TypeError('Not a matrix');
 		}
-		for (let i = 0; i < Math.min(matrix.length, maxSizeOuter); i++) {
-			newMatrix[i] = matrix[i].slice(0, maxSizeInner ?? undefined)
+		for (let i = 0; i < Math.min(matrix.length, maxSizeOuter ?? matrix.length); i++) {
+			if ((maxSizeInner ?? -1) < 0) {
+				newMatrix[i] = matrix[i];
+			} else {
+				newMatrix[i] = matrix[i].slice(0, maxSizeInner);	
+			}
+			
 			if (minSizeInner) {
-				newMatrix[i] = newMatrix[i].concat(Array(minSizeInner - matrix[i]).fill(defaultValue));
+				newMatrix[i] = newMatrix[i].concat(Array(Math.max(0,minSizeInner - matrix[i].length)).fill(defaultValue));
 			}
 		}
-		if (minSizeOuter && minSizeInner) {
+		if (minSizeOuter) {
 			for (let i = newMatrix.length; i < minSizeOuter; i++) {
-				newMatrix[i] = new Array(minSizeInner).fill(defaultValue);
+				newMatrix[i] = new Array(minSizeInner ?? 0).fill(defaultValue);
 			}
 		}
 		return newMatrix;
 	}
 
 	static clampMatrixSizeOuter(matrix, defaultValue, minSize, maxSize) {
-		return this.clampSizeMatrix(matrix, defaultValue, minSize, maxSize, null, null);
+		return this.clampMatrixSize(matrix, defaultValue, minSize, maxSize, null, null);
 	}
 
 	static clampMatrixSizeInner(matrix, defaultValue, minSize, maxSize) {
-		return this.clampSizeMatrix(matrix, defaultValue, null, null, minSize, maxSize);
+		return this.clampMatrixSize(matrix, defaultValue, null, null, minSize, maxSize);
 	}
 
 
