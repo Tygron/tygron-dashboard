@@ -2,7 +2,7 @@
 <project default="main" name="Concatenate js files" xmlns:fx="javafx:com.sun.javafx.tools.ant">
 
 	<!-- Specify "-Dservertype=preview" in bat arguments to build preview -->
-	<property name="servertype" value="development" />
+	<property name="servertype" value="local" />
 	<property name="destination" value="build/${servertype}" />
 
 	<property name="plotly" value="src='https://cdn.plot.ly/plotly-3.0.1.min.js'" />
