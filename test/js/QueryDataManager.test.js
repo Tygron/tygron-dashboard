@@ -272,7 +272,7 @@ describe('QueryDataManager', () => {
 		
 		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
 
-		let result = queryDataManager.getDataMatrix('scenarioScores', null, indicatorKV);
+		let result = queryDataManager.getDataMatrix('scenarioScores', null, 'indicatorKV');
 		let expected = [[0.0, 0.4, 1.0, 0.45, 3, 0.8],[0.0, 0.9, 1.0, 0.25, 3, 0.6] ] ;  
 				
 		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
@@ -295,8 +295,8 @@ describe('QueryDataManager', () => {
 		
 		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
 
-		let result = queryDataManager.getDataMatrix('scenarioScores', indicatorKV);
-		let expected = [[0.0, 0.4, 1.0, 0.45, 3, 0.8],[0.0, 0.9, 1.0, 0.25, 3, 0.6] ] ;  
+		let result = queryDataManager.getDataMatrix('scenarioScores', 'indicatorKV');
+		let expected = [[0.0, 0.0], [0.4, 0.9], [1.0, 1.0], [0.45, 0.25], [3.0, 3.0], [0.8, 0.6]] ;  
 				
 		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
 	});
@@ -318,7 +318,7 @@ describe('QueryDataManager', () => {
 		
 		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
 
-		let result = queryDataManager.getDataKeyValues('scenarioScores', null, indicatorKV);
+		let result = queryDataManager.getDataKeyValues('scenarioScores', 'indicatorKV');
 		let expected = [{'0':0.4,'1':0.45,'3':0.8},{'0':0.9,'1':0.25,'3':0.6} ];  
 				
 		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));

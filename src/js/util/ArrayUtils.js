@@ -66,15 +66,19 @@ export class ArrayUtils {
 	}
 
 	static mapFromKeyValueArray(array) {
+		if (this.isMatrix(array)) {
+			return this.mapFromKeyValueMatrix(array);
+		}
+
 		let map = {};
 		for(let i = 0 ; i < array.length ; i+=2) {
-			map[i] = array[i+1];
+			map[array[i]] = array[i+1];
 		}
 		return map;
 	}
 	
 	static mapFromKeyValueMatrix(matrix) {
-		if (!isMatrix(matrix)) {
+		if (!this.isMatrix(matrix)) {
 			return this.mapFromKeyValueArray(matrix);
 		}
 		
