@@ -170,13 +170,10 @@ describe('QueryDataManager', () => {
 			y: 'index',
 		});
 
-		let error = null;
-		try {
-			let outputData = queryDataManager.getDataMatrix('queryKey', null, null);
-		} catch (err) {
-			error = err;
-		}
-		expect(error).not.toBeNull();
+		let result = queryDataManager.getDataMatrix('queryKey', null, null);
+		let expected = [[1.0, 2.0, 3.0], [10.0, 20.0, 30.0], [100.0, 200.0, 300.0], [1000.0, 2000.0, 3000.0]];
+
+		expect(JSON.stringify(result)).toBe(JSON.stringify(result));
 	});
 
 	it('can get XY queried data as explicit matrix with X as outer dimension', () => {
@@ -326,22 +323,22 @@ describe('QueryDataManager', () => {
 	it('can provide mappable data for merging', () => {
 		let queryDataManager = new QueryDataManager();
 
+		queryDataManager.addQueryData('indicatorIds', {
+			query: '0, 1, 3',
+			x: 'indicatorIds'
+		});
 		queryDataManager.addQueryData('indicatorNames', {
 			query: '"housing","green","parking"',
 			x: 'indicatorNames'
 		});
-		queryDataManager.addQueryData('indicatorIds', {
-			query: '0, 1, 3',
-			x: 'indicatorId'
-		});
 		queryDataManager.addQueryData('indicatorCurrentScores', {
 			query: '0.0, 0.6, 0.7',
-			x: 'indicatorScore'
+			x: 'indicatorScores'
 		});
 		queryDataManager.addQueryData('scenarioScores', {
 			query: [[0.0, 0.4, 1.0, 0.45, 3, 0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.9, 1.0, 0.25, 3, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
 			x: 'indicatorKV',
-			y: 'scenario',
+			y: 'scenarios',
 		});
 		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
 
@@ -350,7 +347,7 @@ describe('QueryDataManager', () => {
 		let indicatorScores = queryDataManager.getDataKeyIndexed('indicatorCurrentScores', null, indicatorIds);
 		let indicatorScenarioScores = queryDataManager.getDataKeyValues('scenarioScores', 'indicatorKV');
 
-		let result = ArrayUtils.mergeMaps(true, indicatorNames, indicatorScores, indicatorScenarioScores)
+		let result = ArrayUtils.mergeMaps(true, indicatorNames, indicatorScores, ...indicatorScenarioScores);
 
 		let expected = {
 			0: ['housing', 0.0, 0.4, 0.9],
