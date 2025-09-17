@@ -9,7 +9,7 @@ export class QueryDataManager {
 		}, args);
 
 		this.setAllowFallbackData(args['allowFallbackData']);
-		for( let key in args['sizedKeys'] ) {
+		for (let key in args['sizedKeys']) {
 			this.setSizedKey(key, args['sizedKeys'][key]);
 		}
 	}
@@ -54,29 +54,52 @@ export class QueryDataManager {
 
 		let innerSize = this.sizedKeys[innerArrayKey];
 		let outerSize = this.sizedKeys[outerArrayKey];
-		
-		if ( ((innerSize ?? null) != null) || ((outerSize ?? null) != null) ) {
+
+		if (((innerSize ?? null) != null) || ((outerSize ?? null) != null)) {
 			data = ArrayUtils.clampMatrixSize(data, 0, outerSize, outerSize, innerSize, innerSize);
 		}
-		
+
 		return data;
 	}
-	
+
 	getDataKeyValues(key, kvIndex) {
 		let queryDataObject = this.getQueryDataObject(key);
-		
+
 		if (queryDataObject.hasNoDimensions()) {
-			throw new RangeError('Cannot request key-value mapping from dimensionless data');
+			throw new RangeError('Cannot request key-value mapping from dimensionless data registered by key ' + key);
 		}
-		
+
 		let data = this.getDataMatrix(key, null, kvIndex);
 		data = ArrayUtils.mapFromKeyValueMatrix(data);
-		if (queryDataObject.getDimensionCount()==1) {
+		if (queryDataObject.getDimensionCount() == 1) {
 			return ArrayUtils.unArrayIfSingleElement(data);
 		}
 		return data;
 	}
-	
+
+	getDataKeyIndexed(key, kvIndex, indexKeys) {
+		let data = this.getDataMatrix(key, kvIndex);
+
+		if (ArrayUtils.isMatrix(indexKeys)) {
+			throw new TypeError('Cannot index data by matrix');
+		}
+
+		if (Array.isArray(indexKeys) && !Array.isArray(data)) {
+			throw new TypeError('Cannot index singular data by array');
+		}
+		if (!Array.isArray(indexKeys)) {
+			let result = {};
+			result[indexKeys] = data;
+			return result;
+		}
+
+		let map = {};
+		for (let i = 0; i < Math.min(data.length, indexKeys.length); i++) {
+			map[indexKeys[i]] = data[i];
+		}
+		return map;
+	}
+
 	_getDataMatrixUnbounded(key, outerArrayKey = null, innerArrayKey = null) {
 		//x in query is inner , y in query is outer
 		let queryDataObject = this.getQueryDataObject(key);
@@ -110,26 +133,26 @@ export class QueryDataManager {
 		}
 
 		// X dimension
-		else if ( queryDataObject.hasDimensionX() ) {
+		else if (queryDataObject.hasDimensionX()) {
 			if (innerArrayKey == queryDataObject.getDimensionX()) {
 				return [queryDataObject.getData(this.allowFallbackData)];
 			} else if (outerArrayKey == queryDataObject.getDimensionX()) {
 				return queryDataObject.getData(this.allowFallbackData);
 			}
-			
+
 		}
-		
+
 		//Y dimension
-		else if ( queryDataObject.hasDimensionY() ) {
+		else if (queryDataObject.hasDimensionY()) {
 			if (innerArrayKey == queryDataObject.getDimensionY()) {
 				return ArrayUtils.flipMatrix(queryDataObject.getData(this.allowFallbackData));
 			} else if (outerArrayKey == queryDataObject.getDimensionY()) {
 				let data = ArrayUtils.coerceToArray(queryDataObject.getData(this.allowFallbackData))
 				return [].concat(...data);
 			}
-			
+
 		}
-		
+
 		//Undefined
 		throw new RangeError('Unknown state occured while requesting data of key ' + key + ' with dimension(s) ' + outerArrayKey + ', ' + innerArrayKey);
 	}
@@ -161,10 +184,10 @@ export class QueryDataManager {
 		if (size === null) {
 			delete this.sizedKeys[key];
 		} else {
-			this.sizedKeys[key] = size;			
+			this.sizedKeys[key] = size;
 		}
 	}
-	
+
 	allQueriesResolved() {
 		return this.getUnresolvedDataKeys().length === 0;
 	}
@@ -247,9 +270,9 @@ export class QueryDataManager {
 			}
 
 			hasDimensionX() {
-				return this.x !== null;	
+				return this.x !== null;
 			}
-			
+
 			hasDimensionY() {
 				return this.y !== null;
 			}
@@ -263,7 +286,7 @@ export class QueryDataManager {
 				return false
 			}
 			hasNoDimensions() {
-				return this.getDimensionCount()==0;
+				return this.getDimensionCount() == 0;
 			}
 
 			hasQueryData() {

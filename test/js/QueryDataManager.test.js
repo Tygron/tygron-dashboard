@@ -269,12 +269,12 @@ describe('QueryDataManager', () => {
 			x: 'indicatorKV',
 			y: 'scenario',
 		});
-		
+
 		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
 
 		let result = queryDataManager.getDataMatrix('scenarioScores', null, 'indicatorKV');
-		let expected = [[0.0, 0.4, 1.0, 0.45, 3, 0.8],[0.0, 0.9, 1.0, 0.25, 3, 0.6] ] ;  
-				
+		let expected = [[0.0, 0.4, 1.0, 0.45, 3, 0.8], [0.0, 0.9, 1.0, 0.25, 3, 0.6]];
+
 		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
 	});
 	it('can auto-clamp matrix sizes in Y', () => {
@@ -288,16 +288,16 @@ describe('QueryDataManager', () => {
 			x: 'scenarioNames'
 		});
 		queryDataManager.addQueryData('scenarioScores', {
-			query: [[0.0, 0.0],[0.4, 0.9],[1.0, 1.0],[0.45, 0.25],[3.0, 3.0],[0.8, 0.6], [0.0, 0.0],[0.0, 0.0],[0.0, 0.0],[0.0, 0.0],[0.0, 0.0]],
+			query: [[0.0, 0.0], [0.4, 0.9], [1.0, 1.0], [0.45, 0.25], [3.0, 3.0], [0.8, 0.6], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]],
 			x: 'scenario',
 			y: 'indicatorKV',
 		});
-		
+
 		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
 
 		let result = queryDataManager.getDataMatrix('scenarioScores', 'indicatorKV');
-		let expected = [[0.0, 0.0], [0.4, 0.9], [1.0, 1.0], [0.45, 0.25], [3.0, 3.0], [0.8, 0.6]] ;  
-				
+		let expected = [[0.0, 0.0], [0.4, 0.9], [1.0, 1.0], [0.45, 0.25], [3.0, 3.0], [0.8, 0.6]];
+
 		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
 	});
 	it('can provide key-value mappings from data', () => {
@@ -315,12 +315,49 @@ describe('QueryDataManager', () => {
 			x: 'indicatorKV',
 			y: 'scenario',
 		});
-		
+
 		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
 
 		let result = queryDataManager.getDataKeyValues('scenarioScores', 'indicatorKV');
-		let expected = [{'0':0.4,'1':0.45,'3':0.8},{'0':0.9,'1':0.25,'3':0.6} ];  
-				
+		let expected = [{ '0': 0.4, '1': 0.45, '3': 0.8 }, { '0': 0.9, '1': 0.25, '3': 0.6 }];
+
+		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
+	});
+	it('can provide mappable data for merging', () => {
+		let queryDataManager = new QueryDataManager();
+
+		queryDataManager.addQueryData('indicatorNames', {
+			query: '"housing","green","parking"',
+			x: 'indicatorNames'
+		});
+		queryDataManager.addQueryData('indicatorIds', {
+			query: '0, 1, 3',
+			x: 'indicatorId'
+		});
+		queryDataManager.addQueryData('indicatorCurrentScores', {
+			query: '0.0, 0.6, 0.7',
+			x: 'indicatorScore'
+		});
+		queryDataManager.addQueryData('scenarioScores', {
+			query: [[0.0, 0.4, 1.0, 0.45, 3, 0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.9, 1.0, 0.25, 3, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+			x: 'indicatorKV',
+			y: 'scenario',
+		});
+		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
+
+		let indicatorIds = queryDataManager.getData('indicatorIds');
+		let indicatorNames = queryDataManager.getDataKeyIndexed('indicatorNames', null, indicatorIds);
+		let indicatorScores = queryDataManager.getDataKeyIndexed('indicatorCurrentScores', null, indicatorIds);
+		let indicatorScenarioScores = queryDataManager.getDataKeyValues('scenarioScores', 'indicatorKV');
+
+		let result = ArrayUtils.mergeMaps(true, indicatorNames, indicatorScores, indicatorScenarioScores)
+
+		let expected = {
+			0: ['housing', 0.0, 0.4, 0.9],
+			1: ['green', 0.6, 0.45, 0.25],
+			3: ['parking', 0.7, 0.8, 0.6],
+		};
+
 		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
 	});
 });

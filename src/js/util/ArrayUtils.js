@@ -90,6 +90,37 @@ export class ArrayUtils {
 		return list;
 	}
 	
+	static mergeMaps(concat, ...maps) {
+		let newMap = {};
+		
+		if (maps.length === 0 ) {
+			return newMap;
+		}
+		
+		for (let key in maps[0]) {
+			newMap[key] = [];
+		}
+		
+		for (let i=0;i<maps.length;i++) {
+			for (let key in newMap) {
+				if (concat) {
+					newMap[key] = newMap[key].concat(maps[i][key]);
+				} else {
+					newMap[key] = newMap[key].push(maps[i][key]);
+				}
+			}
+		}
+		return newMap;
+	}
+	
+	static changeMapKeys(map, remapping) {
+		let newMap = {};
+		for (let oldKey in map) {
+			newMap[remapping[oldKey]] = map[oldKey];
+		}
+		return newMap;
+	}
+	
 	static flipMatrix(matrix) {
 		let newMatrix = [];
 		let ySize = null;
