@@ -60,6 +60,21 @@ export class QueryDataManager {
 		return data;
 	}
 	
+	getDataKeyValues(key, kvIndex) {
+		let queryDataObject = this.getQueryDataObject(key);
+		
+		if (queryDataObject.hasNoDimension() ) {
+			throw new RangeError('Cannot request key-value mapping from dimensionless data');
+		}
+		
+		let data = this.getDataMatrix(key, null, kvIndex);
+		data = mapFromKeyValueMatrix(data);
+		if (queryDataObject.getDimensionCount()==1) {
+			return ArrayUtils.unArrayIfSingleElement(data);
+		}
+		return data;
+	}
+	
 	_getDataMatrixUnbounded(key, outerArrayKey = null, innerArrayKey = null) {
 		//x in query is inner , y in query is outer
 		let queryDataObject = this.getQueryDataObject(key);
@@ -225,6 +240,9 @@ export class QueryDataManager {
 			getDimensionY() {
 				return this.y;
 			}
+			getDimensionCount() {
+				return this.getDimensionX() + this.getDimensionY();
+			}
 
 			hasDimensionX() {
 				return this.x !== null;	
@@ -243,7 +261,7 @@ export class QueryDataManager {
 				return false
 			}
 			hasNoDimensions() {
-				return !(this.hasDimensionX() || this.hasDimensionY());
+				return this.getDimensionCount()==0;
 			}
 
 			hasQueryData() {

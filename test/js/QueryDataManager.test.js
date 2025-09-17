@@ -84,7 +84,7 @@ describe('QueryDataManager', () => {
 	});
 
 	it('can contain and offer value-queries such as indicator scores, from string-form', () => {
-		let expectedData = [ 1,2 ,3 ,4.5 ,5.1 ];
+		let expectedData = [1, 2, 3, 4.5, 5.1];
 		let queryData = '1.0, 2.0, 3.0, 4.5, 5.1';
 
 		simpleTest(queryData, expectedData);
@@ -245,9 +245,82 @@ describe('QueryDataManager', () => {
 		let y = 'index'; //4
 		let outer = 'index';
 		let inner = 'area';
-	
+
 		let expectedData = [[1.0, 2.0, 3.0], [10.0, 20.0, 30.0], [100.0, 200.0, 300.0], [1000.0, 2000.0, 3000.0]];
-	
+
 		dimensionTest(queryData, x, y, outer, inner, expectedData);
+	});
+
+
+
+	//Multi-dimensional data manipulation tests
+	it('can auto-clamp matrix sizes in X', () => {
+		let queryDataManager = new QueryDataManager();
+		queryDataManager.addQueryData('indicatorNames', {
+			query: '"housing","green","parking"',
+			x: 'indicatorNames'
+		});
+		queryDataManager.addQueryData('scenarioNames', {
+			query: '"small plan","big plan"',
+			x: 'scenarioNames'
+		});
+		queryDataManager.addQueryData('scenarioScores', {
+			query: [[0.0, 0.4, 1.0, 0.45, 3, 0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.9, 1.0, 0.25, 3, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+			x: 'indicatorKV',
+			y: 'scenario',
+		});
+		
+		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
+
+		let result = queryDataManager.getDataMatrix('scenarioScores', null, indicatorKV);
+		let expected = [[0.0, 0.4, 1.0, 0.45, 3, 0.8],[0.0, 0.9, 1.0, 0.25, 3, 0.6] ] ;  
+				
+		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
+	});
+	it('can auto-clamp matrix sizes in Y', () => {
+		let queryDataManager = new QueryDataManager();
+		queryDataManager.addQueryData('indicatorNames', {
+			query: '"housing","green","parking"',
+			x: 'indicatorNames'
+		});
+		queryDataManager.addQueryData('scenarioNames', {
+			query: '"small plan","big plan"',
+			x: 'scenarioNames'
+		});
+		queryDataManager.addQueryData('scenarioScores', {
+			query: [[0.0, 0.0],[0.4, 0.9],[1.0, 1.0],[0.45, 0.25],[3.0, 3.0],[0.8, 0.6], [0.0, 0.0],[0.0, 0.0],[0.0, 0.0],[0.0, 0.0],[0.0, 0.0]],
+			x: 'scenario',
+			y: 'indicatorKV',
+		});
+		
+		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
+
+		let result = queryDataManager.getDataMatrix('scenarioScores', indicatorKV);
+		let expected = [[0.0, 0.4, 1.0, 0.45, 3, 0.8],[0.0, 0.9, 1.0, 0.25, 3, 0.6] ] ;  
+				
+		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
+	});
+	it('can provide key-value mappings from data', () => {
+		let queryDataManager = new QueryDataManager();
+		queryDataManager.addQueryData('indicatorNames', {
+			query: '"housing","green","parking"',
+			x: 'indicatorNames'
+		});
+		queryDataManager.addQueryData('scenarioNames', {
+			query: '"small plan","big plan"',
+			x: 'scenarioNames'
+		});
+		queryDataManager.addQueryData('scenarioScores', {
+			query: [[0.0, 0.4, 1.0, 0.45, 3, 0.8, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.9, 1.0, 0.25, 3, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+			x: 'indicatorKV',
+			y: 'scenario',
+		});
+		
+		queryDataManager.setSizedKey('indicatorKV', queryDataManager.getData('indicatorNames').length * 2);
+
+		let result = queryDataManager.getDataKeyValues('scenarioScores', null, indicatorKV);
+		let expected = [{'0':0.4,'1':0.45,'3':0.8},{'0':0.9,'1':0.25,'3':0.6} ];  
+				
+		expect(JSON.stringify(result)).toBe(JSON.stringify(expected));
 	});
 });

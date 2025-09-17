@@ -65,6 +65,27 @@ export class ArrayUtils {
 		return value
 	}
 
+	static mapFromKeyValueArray(array) {
+		let map = {};
+		for(let i = 0 ; i < array.length ; i+=2) {
+			map[i] = array[i+1];
+		}
+		return map;
+	}
+	
+	static mapFromKeyValueMatrix(matrix) {
+		if (!isMatrix(matrix)) {
+			return this.mapFromKeyValueArray(matrix);
+		}
+		
+		let list = [];
+		for (let i=0;i<matrix.length;i++) {
+			list.push(this.mapFromKeyValueArray(matrix[i]));
+		}
+		
+		return list;
+	}
+	
 	static flipMatrix(matrix) {
 		let newMatrix = [];
 		let ySize = null;
