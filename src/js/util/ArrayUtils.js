@@ -39,6 +39,26 @@ export class ArrayUtils {
 		return arr;
 	}
 
+	/**
+	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'
+	 */
+	static forEach(array, func) {
+		if ( !Array.isArray(array) ) {
+			throw 'Not an array to iterate on';
+		}
+		if ( typeof func !== 'function' ) {
+			throw 'Not a function to apply';
+		}
+		for( let i in array ) {
+			let output = func(array[i],i,array);
+			if (typeof output !== 'undefined') {
+				array[i] = output;
+			}	
+		}
+		array.forEach(func);
+		return array;
+	}
+	
 	static isRange(value, allowEqual = false) {
 		if (!Array.isArray(value) || value.length != 2) {
 			return false;
