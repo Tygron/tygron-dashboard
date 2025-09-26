@@ -352,6 +352,26 @@ class ArrayUtils {
 		return arr;
 	}
 
+	/**
+	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'
+	 */
+	static forEach(array, func) {
+		if ( !Array.isArray(array) ) {
+			throw 'Not an array to iterate on';
+		}
+		if ( typeof func !== 'function' ) {
+			throw 'Not a function to apply';
+		}
+		for( let i in array ) {
+			let output = func(array[i],i,array);
+			if (typeof output !== 'undefined') {
+				array[i] = output;
+			}	
+		}
+		array.forEach(func);
+		return array;
+	}
+	
 	static isRange(value, allowEqual = false) {
 		if (!Array.isArray(value) || value.length != 2) {
 			return false;
@@ -378,6 +398,62 @@ class ArrayUtils {
 		return value
 	}
 
+	static mapFromKeyValueArray(array) {
+		if (this.isMatrix(array)) {
+			return this.mapFromKeyValueMatrix(array);
+		}
+
+		let map = {};
+		for(let i = 0 ; i < array.length ; i+=2) {
+			map[array[i]] = array[i+1];
+		}
+		return map;
+	}
+	
+	static mapFromKeyValueMatrix(matrix) {
+		if (!this.isMatrix(matrix)) {
+			return this.mapFromKeyValueArray(matrix);
+		}
+		
+		let list = [];
+		for (let i=0;i<matrix.length;i++) {
+			list.push(this.mapFromKeyValueArray(matrix[i]));
+		}
+		
+		return list;
+	}
+	
+	static mergeMaps(concat, ...maps) {
+		let newMap = {};
+		
+		if (maps.length === 0 ) {
+			return newMap;
+		}
+		
+		for (let key in maps[0]) {
+			newMap[key] = [];
+		}
+		
+		for (let i=0;i<maps.length;i++) {
+			for (let key in newMap) {
+				if (concat) {
+					newMap[key] = newMap[key].concat(maps[i][key]);
+				} else {
+					newMap[key] = newMap[key].push(maps[i][key]);
+				}
+			}
+		}
+		return newMap;
+	}
+	
+	static changeMapKeys(map, remapping) {
+		let newMap = {};
+		for (let oldKey in map) {
+			newMap[remapping[oldKey]] = map[oldKey];
+		}
+		return newMap;
+	}
+	
 	static flipMatrix(matrix) {
 		let newMatrix = [];
 		let ySize = null;
@@ -821,14 +897,19 @@ class QueryDataManager {
 
 	constructor(args = {}) {
 		args = Object.assign({
-			allowFallbackData: true
+			allowFallbackData: true,
+			sizedKeys: {}
 		}, args);
 
 		this.setAllowFallbackData(args['allowFallbackData']);
+		for (let key in args['sizedKeys']) {
+			this.setSizedKey(key, args['sizedKeys'][key]);
+		}
 	}
 
 	allowFallbackData = true;
 
+	sizedKeys = {};
 	queryDataObjects = {};
 
 	addQueryData(key, args = {}) {
@@ -862,6 +943,57 @@ class QueryDataManager {
 	}
 
 	getDataMatrix(key, outerArrayKey = null, innerArrayKey = null) {
+		let data = this._getDataMatrixUnbounded(key, outerArrayKey, innerArrayKey);
+
+		let innerSize = this.sizedKeys[innerArrayKey];
+		let outerSize = this.sizedKeys[outerArrayKey];
+
+		if (((innerSize ?? null) != null) || ((outerSize ?? null) != null)) {
+			data = ArrayUtils.clampMatrixSize(data, 0, outerSize, outerSize, innerSize, innerSize);
+		}
+
+		return data;
+	}
+
+	getDataKeyValues(key, kvIndex) {
+		let queryDataObject = this.getQueryDataObject(key);
+
+		if (queryDataObject.hasNoDimensions()) {
+			throw new RangeError('Cannot request key-value mapping from dimensionless data registered by key ' + key);
+		}
+
+		let data = this.getDataMatrix(key, null, kvIndex);
+		data = ArrayUtils.mapFromKeyValueMatrix(data);
+		if (queryDataObject.getDimensionCount() == 1) {
+			return ArrayUtils.unArrayIfSingleElement(data);
+		}
+		return data;
+	}
+
+	getDataKeyIndexed(key, kvIndex, indexKeys) {
+		let data = this.getDataMatrix(key, kvIndex);
+
+		if (ArrayUtils.isMatrix(indexKeys)) {
+			throw new TypeError('Cannot index data by matrix');
+		}
+
+		if (Array.isArray(indexKeys) && !Array.isArray(data)) {
+			throw new TypeError('Cannot index singular data by array');
+		}
+		if (!Array.isArray(indexKeys)) {
+			let result = {};
+			result[indexKeys] = data;
+			return result;
+		}
+
+		let map = {};
+		for (let i = 0; i < Math.min(data.length, indexKeys.length); i++) {
+			map[indexKeys[i]] = data[i];
+		}
+		return map;
+	}
+
+	_getDataMatrixUnbounded(key, outerArrayKey = null, innerArrayKey = null) {
 		//x in query is inner , y in query is outer
 		let queryDataObject = this.getQueryDataObject(key);
 
@@ -870,13 +1002,14 @@ class QueryDataManager {
 			if (queryDataObject.hasNoDimensions()) {
 				return queryDataObject.getData(this.allowFallbackData);
 			}
-			throw new RangeError('No dimension(s) defined while requesting data by key ' + key);
-		}
-
+			if (queryDataObject.getDimensionCount() > 1) {
+				throw new RangeError('No dimension(s) defined while requesting data by key ' + key);
+			}
 		//Undefined dimensions
-		if (outerArrayKey == innerArrayKey) {
+		} else if (outerArrayKey == innerArrayKey) {
 			throw new RangeError('Cannot request duplicate dimension ' + outerArrayKey + ' for data registered by key ' + key)
 		}
+
 		if (outerArrayKey && (!queryDataObject.hasDimension(outerArrayKey))) {
 			throw new RangeError('Dimension ' + outerArrayKey + ' not known for data registered by key ' + key);
 		}
@@ -894,26 +1027,26 @@ class QueryDataManager {
 		}
 
 		// X dimension
-		else if ( queryDataObject.hasDimensionX() ) {
+		else if (queryDataObject.hasDimensionX()) {
 			if (innerArrayKey == queryDataObject.getDimensionX()) {
 				return [queryDataObject.getData(this.allowFallbackData)];
-			} else if (outerArrayKey == queryDataObject.getDimensionX()) {
+			} else if (outerArrayKey === null || outerArrayKey == queryDataObject.getDimensionX()) {
 				return queryDataObject.getData(this.allowFallbackData);
 			}
-			
+
 		}
-		
+
 		//Y dimension
-		else if ( queryDataObject.hasDimensionY() ) {
+		else if (queryDataObject.hasDimensionY()) {
 			if (innerArrayKey == queryDataObject.getDimensionY()) {
 				return ArrayUtils.flipMatrix(queryDataObject.getData(this.allowFallbackData));
-			} else if (outerArrayKey == queryDataObject.getDimensionY()) {
+			} else if (outerArrayKey === null || outerArrayKey == queryDataObject.getDimensionY()) {
 				let data = ArrayUtils.coerceToArray(queryDataObject.getData(this.allowFallbackData))
 				return [].concat(...data);
 			}
-			
+
 		}
-		
+
 		//Undefined
 		throw new RangeError('Unknown state occured while requesting data of key ' + key + ' with dimension(s) ' + outerArrayKey + ', ' + innerArrayKey);
 	}
@@ -939,6 +1072,14 @@ class QueryDataManager {
 
 	setAllowFallbackData(allow) {
 		this.allowFallbackData = (!!allow);
+	}
+
+	setSizedKey(key, size) {
+		if (size === null) {
+			delete this.sizedKeys[key];
+		} else {
+			this.sizedKeys[key] = size;
+		}
 	}
 
 	allQueriesResolved() {
@@ -1018,11 +1159,14 @@ class QueryDataManager {
 			getDimensionY() {
 				return this.y;
 			}
+			getDimensionCount() {
+				return this.getDimensionX() + this.getDimensionY();
+			}
 
 			hasDimensionX() {
-				return this.x !== null;	
+				return this.x !== null;
 			}
-			
+
 			hasDimensionY() {
 				return this.y !== null;
 			}
@@ -1036,7 +1180,7 @@ class QueryDataManager {
 				return false
 			}
 			hasNoDimensions() {
-				return !(this.hasDimensionX() || this.hasDimensionY());
+				return this.getDimensionCount() == 0;
 			}
 
 			hasQueryData() {
@@ -1923,33 +2067,77 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput){
 
 
 
+
 $(window).on("load", function() {
 
-	let indicatorNames = '$SELECT_NAME_WHERE_INDICATOR_IS_X'.replaceAll('"', '').split(', ');
-	let indicatorActive = '$SELECT_ACTIVE_WHERE_INDICATOR_IS_X'.replaceAll('"', '').split(', ');
-	let indicatorScoresCurrent = ArrayUtils.scaleValues([$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT], [0, 1], [0, 100], true);
-	let indicatorScoresMaquette = ArrayUtils.scaleValues([$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE], [0, 1], [0, 100], true);
+	let scoreScale = [[0,1],[0,100]];
+	
+	/* Get all the data from indicators */
+	let queryDataManager = new QueryDataManager();
+	queryDataManager.addQuery('indicatorIds', '$SELECT_ID_WHERE_INDICATOR_IS_X');
+	queryDataManager.addQuery('indicatorNames', '$SELECT_NAME_WHERE_INDICATOR_IS_X');
+	queryDataManager.addQuery('indicatorActive', '$SELECT_ACTIVE_WHERE_INDICATOR_IS_X');
+	queryDataManager.addQuery('indicatorCurrent', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('indicatorMaquette', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE');
+	
+	/* If the data has not loaded yet, warn the user */
+	if (!queryDataManager.allQueriesResolved) {
+		document.body.innerHTML = '<p>Recalculation required before data can be shown.</p>';
+		return;
+	}
 
-
-	/* Listing of all indicators */
+	/* Create a listing which will show the data of the indicators. A listing is effectively a table. */
 	let listing = new ListingPanelController('listing');
+	/* Headers will automatically show at the top */
 	listing.addHeader(['Indicator', 'Current', 'Maquette', 'Active']);
+	/* Content Render Types determe how values are rendered. Labels are 'as is'. Buttons show a fixed list of options, with a selected one based on the value in that cell*/
 	listing.setDefaultContentRenderTypes(['label', 'label', 'label', { 'type': 'buttons', 'options': ['Include', 'Ignore'] }]);
+	
+	
+	
+	/* Retrieve the data from the query manager, preprocess, and add to a single data matrix. */
+	let data = [];
+	data.push(queryDataManager.getData('indicatorNames'));
+	
+	/* The scores are unbounded fractions (0-1). Remap them to 0-100, round them, and add a percentage sign. This makes them human-readable. */
+	data.push(ArrayUtils.forEach(
+			queryDataManager.getData('indicatorCurrent'),
+			(value) => {return ArrayUtils.scaleValue(value, ...scoreScale, true)+'%';}
+		));
+	data.push(ArrayUtils.forEach(
+			queryDataManager.getData('indicatorMaquette'),
+			(value) => {return ArrayUtils.scaleValue(value, ...scoreScale, true)+'%';}
+		));
+		
+	/* The active state is transformed into the valid values of the buttons in the listing, so the correct button defaults to being selected. */
+	data.push(ArrayUtils.forEach(
+			queryDataManager.getData('indicatorActive'),
+			(value) => {return (value > 0) ? 'Include':'Ignore' }
+		));
+		
+		
+			
+	/* As is, each indicator would become its own column. Flip it, so each indicator is a row */
+	data = ArrayUtils.flipMatrix(data);
 
-	for (let i = 0; i < indicatorNames.length; i++) {
-		let activeLabel = (indicatorActive[i] > 0) ? 'Include' : 'Ignore';
-		listing.addContent([indicatorNames[i], indicatorScoresCurrent[i] + '%', indicatorScoresMaquette[i] + '%', activeLabel]);
+	/* Add the indicator data to the listing, and render it */
+	for ( let row of data ) {
+		listing.addContent(row);
 	}
 	listing.render();
 
 
-	/* Current and Maquette averages, based on which indicators were active/inactive */
-	let resultContent = [];
+	/* Create a smaller listing for Current and Maquette averages, based on which indicators were active/inactive */
+	let resultContent = []; /* Separate variable, so can be accessed/filled in by a recalculation function */
 	let result = new ListingPanelController('result', { 'flipXY': true });
 	result.addHeader(['Current', 'Maquette']);
 	result.addContent(resultContent);
 
+	/* Based on a list of which indexes to consider "active", recalculate the averages and place those results in the resultContent array */
 	let recalculateResult = function(actives) {
+		let indicatorScoresCurrent = queryDataManager.getData('indicatorCurrent');
+		let indicatorScoresMaquette = queryDataManager.getData('indicatorMaquette');
+		
 		let count = 0;
 		let current = 0;
 		let maquette = 0;
@@ -1960,20 +2148,28 @@ $(window).on("load", function() {
 				count++;
 			}
 		}
-		resultContent[0] = count > 0 ? Math.round(current / count) + '%' : '';
-		resultContent[1] = count > 0 ? Math.round(maquette / count) + '%' : '';
+		
+		resultContent[0] = count === 0 ? '' : ArrayUtils.scaleValue(current  / count, ...scoreScale, true)+'%';
+		resultContent[1] = count === 0 ? '' : ArrayUtils.scaleValue(maquette / count, ...scoreScale, true)+'%';
 	}
-	recalculateResult(indicatorActive);
+	
+	/* Initial calculation of the averaged results based on which indicators are Active in the session now */
+	recalculateResult( queryDataManager.getData('indicatorActive') );
 	result.render();
 	
 
 	/* Use the toggles in the listing to change how the totals are calculated */
 	attachHandler(listing.domElement, 'change', null, function(event) {
+		/* Because the listing features input elements for one column, values from the listing can be retrieved automatically */
 		let values = listing.getValues();
+		/* Iterate through the matrix of retrieved values. Each row is the values from input elements on one listing row */
 		for (let i=0;i<values.length;i++) {
+			/* If the row has any values, het the first (and only) value */
 			values[i] = (Array.isArray(values[i]) && values[i].length>0) ? values[i][0] : null;
+			/* Transform from the human-readable value to a 0 or 1, which is how the Platform and code denotes the Active state. (normalizing the value) */
 			values[i] = (values[i] == 'Include') ? 1 : 0;
 		}
+		/* Recalculation of the averaged results based on which Indicators were Includes or Ignored through buttons in the listing */
 		recalculateResult(values);
 		result.render();
 	});
