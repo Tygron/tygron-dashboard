@@ -39,6 +39,26 @@ export class ArrayUtils {
 		return arr;
 	}
 
+	/**
+	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'
+	 */
+	static forEach(array, func) {
+		if ( !Array.isArray(array) ) {
+			throw 'Not an array to iterate on';
+		}
+		if ( typeof func !== 'function' ) {
+			throw 'Not a function to apply';
+		}
+		for( let i in array ) {
+			let output = func(array[i],i,array);
+			if (typeof output !== 'undefined') {
+				array[i] = output;
+			}	
+		}
+		array.forEach(func);
+		return array;
+	}
+	
 	static isRange(value, allowEqual = false) {
 		if (!Array.isArray(value) || value.length != 2) {
 			return false;
@@ -65,6 +85,62 @@ export class ArrayUtils {
 		return value
 	}
 
+	static mapFromKeyValueArray(array) {
+		if (this.isMatrix(array)) {
+			return this.mapFromKeyValueMatrix(array);
+		}
+
+		let map = {};
+		for(let i = 0 ; i < array.length ; i+=2) {
+			map[array[i]] = array[i+1];
+		}
+		return map;
+	}
+	
+	static mapFromKeyValueMatrix(matrix) {
+		if (!this.isMatrix(matrix)) {
+			return this.mapFromKeyValueArray(matrix);
+		}
+		
+		let list = [];
+		for (let i=0;i<matrix.length;i++) {
+			list.push(this.mapFromKeyValueArray(matrix[i]));
+		}
+		
+		return list;
+	}
+	
+	static mergeMaps(concat, ...maps) {
+		let newMap = {};
+		
+		if (maps.length === 0 ) {
+			return newMap;
+		}
+		
+		for (let key in maps[0]) {
+			newMap[key] = [];
+		}
+		
+		for (let i=0;i<maps.length;i++) {
+			for (let key in newMap) {
+				if (concat) {
+					newMap[key] = newMap[key].concat(maps[i][key]);
+				} else {
+					newMap[key] = newMap[key].push(maps[i][key]);
+				}
+			}
+		}
+		return newMap;
+	}
+	
+	static changeMapKeys(map, remapping) {
+		let newMap = {};
+		for (let oldKey in map) {
+			newMap[remapping[oldKey]] = map[oldKey];
+		}
+		return newMap;
+	}
+	
 	static flipMatrix(matrix) {
 		let newMatrix = [];
 		let ySize = null;
