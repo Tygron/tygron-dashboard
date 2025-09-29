@@ -10,12 +10,12 @@ export class ArrayUtils {
 	*/
 	static scaleValue(value, originalRange, targetRange, round = false) {
 		if (Array.isArray(value)) {
-			return this.scaleValues(value);
+			return this.scaleValues(value, originalRange, targetRange, round);
 		}
 		if (!NumberUtils.isNumeric(value)) {
 			return value;
 		}
-		if ((!this.isRange(originalRange)) || (!this.isRange(originalRange))) {
+		if ((!this.isRange(originalRange)) || (!this.isRange(targetRange))) {
 			throw 'Both the original and target range must be array of 2 different numeric values';
 		}
 		value = ((value - originalRange[0]) / (originalRange[1] - originalRange[0]));
@@ -83,6 +83,29 @@ export class ArrayUtils {
 			return nullIfEmpty ? null : value;
 		}
 		return value
+	}
+	
+	static filterByArray(data, filter, func = null) {
+		if ( !Array.isArray(data) ) { 
+			throw new TypeError('Data must be an array');
+		}
+		if ( !Array.isArray(filter) ) {
+			throw new TypeError('Filter must be an array');
+		}
+		
+		if (typeof func !== 'function') {
+			func = (d,f) => {return !!f};
+		}
+		
+		let values = [];
+		for ( let i=0 ; i < Math.min(data.length, filter.length) ; i++ ) {
+			if (typeof func === 'function') {
+				if ( func( data[i], filter[i] ) ) {
+					values.push( data[i] );
+				}
+			}
+		}
+		return values;
 	}
 
 	static mapFromKeyValueArray(array) {
