@@ -29,7 +29,6 @@ $(window).on("load", function() {
 	listing.setDefaultContentRenderTypes(['label', 'label', 'label', { 'type': 'buttons', 'options': ['Include', 'Ignore'] }]);
 	
 	
-	
 	/* Retrieve the data from the query manager, preprocess, and add to a single data matrix. */
 	let data = [];
 	data.push(queryDataManager.getData('indicatorNames'));
@@ -51,7 +50,6 @@ $(window).on("load", function() {
 		));
 		
 		
-			
 	/* As is, each indicator would become its own column. Flip it, so each indicator is a row */
 	data = ArrayUtils.flipMatrix(data);
 
@@ -62,6 +60,7 @@ $(window).on("load", function() {
 	listing.render();
 
 
+	
 	/* Create a smaller listing for Current and Maquette averages, based on which indicators were active/inactive */
 	let resultContent = []; /* Separate variable, so can be accessed/filled in by a recalculation function */
 	let result = new ListingPanelController('result', { 'flipXY': true });
@@ -93,6 +92,7 @@ $(window).on("load", function() {
 	result.render();
 	
 
+	
 	/* Use the toggles in the listing to change how the totals are calculated */
 	attachHandler(listing.domElement, 'change', null, function(event) {
 		/* Because the listing features input elements for one column, values from the listing can be retrieved automatically */
