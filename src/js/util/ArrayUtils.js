@@ -40,7 +40,8 @@ export class ArrayUtils {
 	}
 
 	/**
-	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'
+	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'.
+	 *	Operates in-place
 	 */
 	static forEach(array, func) {
 		if ( !Array.isArray(array) ) {
@@ -55,7 +56,6 @@ export class ArrayUtils {
 				array[i] = output;
 			}	
 		}
-		array.forEach(func);
 		return array;
 	}
 	
