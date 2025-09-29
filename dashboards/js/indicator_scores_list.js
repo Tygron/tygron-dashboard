@@ -26,7 +26,7 @@ $(window).on("load", function() {
 	/* Headers will automatically show at the top */
 	listing.addHeader(['Indicator', 'Current', 'Maquette', 'Active']);
 	/* Content Render Types determe how values are rendered. Labels are 'as is'. Buttons show a fixed list of options, with a selected one based on the value in that cell*/
-	listing.setDefaultContentRenderTypes(['label', 'label', 'label', { 'type': 'buttons', 'options': ['Include', 'Ignore'] }]);
+	listing.setDefaultContentRenderTypes(['label', 'label', 'label', { 'type': 'buttons', 'options': {}, 'inputs': ['Include', 'Ignore'] }]);
 	
 	
 	/* Retrieve the data from the query manager, preprocess, and add to a single data matrix. */

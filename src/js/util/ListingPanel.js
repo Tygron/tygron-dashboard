@@ -45,27 +45,40 @@ export class ListingPanelController {
 		} catch( err ) {
 		}
 	}
-	
+
 	addContent(content, renderTypes = null) {
 		this.args['content'].push(content);
 		if (renderTypes) {
-			let index = this.args[content].length -1;
+			let index = this.args['content'].length -1;
 			this.args['contentTypes'][index] = renderTypes;
 		}
 	}
 	addHeader(content, renderTypes = null) {
 		this.args['headers'].push(content);
 		if (renderTypes) {
-			let index = this.args[content].length -1;
+			let index = this.args['content'].length -1;
 			this.args['footersTypes'][index] = renderTypes;
 		}
 	}
 	addFooter(content, renderTypes = null) {
 		this.args['footers'].push(content);
 		if (renderTypes) {
-			let index = this.args[content].length -1;
+			let index = this.args['content'].length -1;
 			this.args['headersTypes'][index] = renderTypes;
 		}
+	}
+
+	clearContent() {
+		this.args['content'] = [];
+		this.args['contentTypes'] = [];
+	}
+	clearHeader() {
+		this.args['headers'] = [];
+		this.args['footersTypes'] = [];
+	}
+	clearFooter() {
+		this.args['footers'] = [];
+		this.args['headersTypes'] = [];
 	}
 	
 	setDefaultContentRenderTypes(renderTypes) {
@@ -198,8 +211,8 @@ export class ListingPanelController {
 		for (let i=0;i<contents.length;i++) {
 			let renderType = renderers[i];
 			let renderOptions = null;
-			if (renderType['type']) {
-				renderOptions = renderType['options'] ?? null;
+			if (renderType && renderType['type']) {
+				renderOptions = renderType ?? null;
 				renderType = renderType['type'];
 			}
 			cellRenderRules.push( Object.assign( {}, defaultRules, {
@@ -319,31 +332,55 @@ export class ListingPanelController {
 		this.cachedRenderers[cacheKey] = renderer;
 		return renderer;
 	}
+
+	static _applyGenericRendererOptions(element, options) {
+		
+		for (let key in options) {
+			let value = options[key];
+			if (key === 'style') {
+				for (let subKey in value ) element.style[subKey] = value[subKey];
+			}
+			if (key === 'class') {
+				for (let subKey in value ) element.classList.add( value[subKey] );
+			}
+		}
+		return element;
+	}
 	
-	static _getRendererLabel() {
+	static _getRendererLabel(options) {
+		let opt = options;
 		return function(content) {
 			let element = document.createElement('div');
 			element.classList.add('label');
 			let labelElement = document.createElement('span');
 			labelElement.innerHTML = content;
 			element.appendChild(labelElement);
+			
+			ListingPanelController._applyGenericRendererOptions(element, opt);
+			
 			return element;
 		}
 	}
 	
 	static _getRendererButtons(options) {
-		if ( !Array.isArray(options)) {
-			throw 'Options required for buttons renderer';
+		let opt = options;
+		if ( !opt || !opt['inputs'] ) {
+		throw 'Options required for buttons renderer';
 		}
+		
+		if ( !Array.isArray(opt['inputs'])) {
+			throw 'Option "inputs" required for buttons renderer';
+		}
+		let inputs = opt['inputs'];
 		return function(content) {
 			let element = document.createElement('div');
 			element.classList.add('input');
 			element.classList.add('buttons')
 			
-			for (let i = 0; i < options.length ; i++) {
+			for (let i = 0; i < inputs.length ; i++) {
 				let inputElement = document.createElement('input');
 				inputElement.type = 'button';
-				inputElement.value = options[i];
+				inputElement.value = inputs[i];
 				if (inputElement.value == content) {
 					inputElement.classList.add('selected');
 				}
@@ -362,6 +399,9 @@ export class ListingPanelController {
 					this.closest('.'+ListingPanelController.DEFAULT_CLASS).dispatchEvent(new Event('change'));
 				}
 			});
+			
+			ListingPanelController._applyGenericRendererOptions(element, opt);
+			
 			return element;
 		}
 	}
