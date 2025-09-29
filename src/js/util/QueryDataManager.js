@@ -234,16 +234,20 @@ export class QueryDataManager {
 			}
 
 			getQueryData() {
+				let data = this.queryData;
+				data = this.constructor.copyData(data);
 				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(this.queryData);
+					return ArrayUtils.unArrayIfSingleElement(data);
 				}
-				return this.queryData;
+				return data;
 			}
 			getFallbackData() {
+				let data = this.fallbackData;
+				data = this.constructor.copyData(data);
 				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(this.fallbackData);
+					return ArrayUtils.unArrayIfSingleElement(data);
 				}
-				return this.fallbackData;
+				return data;
 			}
 
 			setQueryData(data) {
@@ -326,6 +330,11 @@ export class QueryDataManager {
 					parsedValue = value;
 				}
 				return parsedValue;
+			}
+			static copyData(data) {
+				//Copy data on retrieval to prevent unintended modifications to source data
+				//Deep-copies required for matrix-type data, but query data is never too complex for simple JSON-method
+				return JSON.parse(JSON.stringify(data));
 			}
 
 			static exists(value) {
