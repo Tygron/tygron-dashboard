@@ -161,9 +161,9 @@ export class ArrayUtils {
 		for (let i=0;i<maps.length;i++) {
 			for (let key in newMap) {
 				if (concat) {
-					newMap[key] = newMap[key].concat(maps[i][key]);
+					newMap[key] = newMap[key].concat(maps[i][key] ?? []);
 				} else {
-					newMap[key] = newMap[key].push(maps[i][key]);
+					newMap[key] = newMap[key].push(maps[i][key] ?? null);
 				}
 			}
 		}
