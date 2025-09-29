@@ -43,6 +43,10 @@ export class QueryDataManager {
 		}
 	}
 
+	hasData(key) {
+		return (!!this.queryDataObjects[key]);
+	}
+
 	getData(key, forceToArray = true) {
 		let queryDataObject = this.getQueryDataObject(key);
 		let data = queryDataObject.getData(this.allowFallbackData);
@@ -88,6 +92,10 @@ export class QueryDataManager {
 			throw new TypeError('Cannot index singular data by array');
 		}
 		if (!Array.isArray(indexKeys)) {
+			if (this.hasData(indexKeys)) {
+				return this.getDataKeyIndexed(key, kvIndex, this.getData(indexKeys));
+				
+			}
 			let result = {};
 			result[indexKeys] = data;
 			return result;
@@ -165,7 +173,7 @@ export class QueryDataManager {
 		}
 		return queryDataObject;
 	}
-
+	
 	getUnresolvedDataKeys() {
 		let unresolved = [];
 		for (let key of Object.keys(this.queryDataObjects)) {
