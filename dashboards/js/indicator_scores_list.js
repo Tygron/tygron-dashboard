@@ -16,7 +16,7 @@ $(window).on("load", function() {
 	queryDataManager.addQuery('indicatorMaquette', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE');
 	
 	/* If the data has not loaded yet, warn the user */
-	if (!queryDataManager.allQueriesResolved) {
+	if (!queryDataManager.allQueriesResolved()) {
 		document.body.innerHTML = '<p>Recalculation required before data can be shown.</p>';
 		return;
 	}
