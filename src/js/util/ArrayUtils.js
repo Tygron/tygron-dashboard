@@ -9,9 +9,6 @@ export class ArrayUtils {
 	 * 		originalRange and targetRange must be an array of exactly 2 different numbers
 	*/
 	static scaleValue(value, originalRange, targetRange, round = false) {
-		if (Array.isArray(value)) {
-			return this.scaleValues(value, originalRange, targetRange, round);
-		}
 		if (!NumberUtils.isNumeric(value)) {
 			return value;
 		}
@@ -28,13 +25,13 @@ export class ArrayUtils {
 	 *	Array-wrapper for scaleValue
 	*/
 	static scaleValues(values, originalRange, targetRange, round = false) {
-		if (!Array.isArray(values)) {
+		if (!(Array.isArray(values)|| this.isMap(values)) ) {
 			return this.scaleValue(values, originalRange, targetRange, round);
 		}
 
-		let arr = [];
+		let arr = this.isMap(values) ? {} : [];
 		for (let i in values) {
-			arr.push(this.scaleValue(values[i], originalRange, targetRange, round));
+			arr[i] = (this.scaleValues(values[i], originalRange, targetRange, round));
 		}
 		return arr;
 	}
@@ -106,6 +103,23 @@ export class ArrayUtils {
 			}
 		}
 		return values;
+	}
+	
+	/* Simple check to see if value is mapping, rather than array or primitive. For simplicity, objects are maps */
+	static isMap(obj) 	{
+		if (!obj) {
+			// Not null or undefined
+			return false;
+		}
+		if ( Array.isArray(obj) ) {
+			// Not an array
+			return false;
+		}
+		if ( ({}).constructor == Object(obj).constructor ) {
+			// Has a generic object constructor
+			return true;
+		}
+		return false;
 	}
 
 	static mapFromKeyValueArray(array) {
