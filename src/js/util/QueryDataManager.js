@@ -43,6 +43,10 @@ export class QueryDataManager {
 		}
 	}
 
+	hasData(key) {
+		return (!!this.queryDataObjects[key]);
+	}
+
 	getData(key, forceToArray = true) {
 		let queryDataObject = this.getQueryDataObject(key);
 		let data = queryDataObject.getData(this.allowFallbackData);
@@ -88,6 +92,10 @@ export class QueryDataManager {
 			throw new TypeError('Cannot index singular data by array');
 		}
 		if (!Array.isArray(indexKeys)) {
+			if (this.hasData(indexKeys)) {
+				return this.getDataKeyIndexed(key, kvIndex, this.getData(indexKeys));
+				
+			}
 			let result = {};
 			result[indexKeys] = data;
 			return result;
@@ -165,7 +173,7 @@ export class QueryDataManager {
 		}
 		return queryDataObject;
 	}
-
+	
 	getUnresolvedDataKeys() {
 		let unresolved = [];
 		for (let key of Object.keys(this.queryDataObjects)) {
@@ -234,16 +242,20 @@ export class QueryDataManager {
 			}
 
 			getQueryData() {
+				let data = this.queryData;
+				data = this.constructor.copyData(data);
 				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(this.queryData);
+					return ArrayUtils.unArrayIfSingleElement(data);
 				}
-				return this.queryData;
+				return data;
 			}
 			getFallbackData() {
+				let data = this.fallbackData;
+				data = this.constructor.copyData(data);
 				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(this.fallbackData);
+					return ArrayUtils.unArrayIfSingleElement(data);
 				}
-				return this.fallbackData;
+				return data;
 			}
 
 			setQueryData(data) {
@@ -326,6 +338,11 @@ export class QueryDataManager {
 					parsedValue = value;
 				}
 				return parsedValue;
+			}
+			static copyData(data) {
+				//Copy data on retrieval to prevent unintended modifications to source data
+				//Deep-copies required for matrix-type data, but query data is never too complex for simple JSON-method
+				return JSON.parse(JSON.stringify(data));
 			}
 
 			static exists(value) {

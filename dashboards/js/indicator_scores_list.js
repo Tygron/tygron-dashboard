@@ -16,7 +16,7 @@ $(window).on("load", function() {
 	queryDataManager.addQuery('indicatorMaquette', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE');
 	
 	/* If the data has not loaded yet, warn the user */
-	if (!queryDataManager.allQueriesResolved) {
+	if (!queryDataManager.allQueriesResolved()) {
 		document.body.innerHTML = '<p>Recalculation required before data can be shown.</p>';
 		return;
 	}
@@ -26,8 +26,7 @@ $(window).on("load", function() {
 	/* Headers will automatically show at the top */
 	listing.addHeader(['Indicator', 'Current', 'Maquette', 'Active']);
 	/* Content Render Types determe how values are rendered. Labels are 'as is'. Buttons show a fixed list of options, with a selected one based on the value in that cell*/
-	listing.setDefaultContentRenderTypes(['label', 'label', 'label', { 'type': 'buttons', 'options': ['Include', 'Ignore'] }]);
-	
+	listing.setDefaultContentRenderTypes(['label', 'label', 'label', { 'type': 'buttons', 'options': {}, 'inputs': ['Include', 'Ignore'] }]);
 	
 	
 	/* Retrieve the data from the query manager, preprocess, and add to a single data matrix. */
@@ -51,7 +50,6 @@ $(window).on("load", function() {
 		));
 		
 		
-			
 	/* As is, each indicator would become its own column. Flip it, so each indicator is a row */
 	data = ArrayUtils.flipMatrix(data);
 
@@ -62,6 +60,7 @@ $(window).on("load", function() {
 	listing.render();
 
 
+	
 	/* Create a smaller listing for Current and Maquette averages, based on which indicators were active/inactive */
 	let resultContent = []; /* Separate variable, so can be accessed/filled in by a recalculation function */
 	let result = new ListingPanelController('result', { 'flipXY': true });
@@ -93,6 +92,7 @@ $(window).on("load", function() {
 	result.render();
 	
 
+	
 	/* Use the toggles in the listing to change how the totals are calculated */
 	attachHandler(listing.domElement, 'change', null, function(event) {
 		/* Because the listing features input elements for one column, values from the listing can be retrieved automatically */

@@ -9,13 +9,10 @@ export class ArrayUtils {
 	 * 		originalRange and targetRange must be an array of exactly 2 different numbers
 	*/
 	static scaleValue(value, originalRange, targetRange, round = false) {
-		if (Array.isArray(value)) {
-			return this.scaleValues(value);
-		}
 		if (!NumberUtils.isNumeric(value)) {
 			return value;
 		}
-		if ((!this.isRange(originalRange)) || (!this.isRange(originalRange))) {
+		if ((!this.isRange(originalRange)) || (!this.isRange(targetRange))) {
 			throw 'Both the original and target range must be array of 2 different numeric values';
 		}
 		value = ((value - originalRange[0]) / (originalRange[1] - originalRange[0]));
@@ -28,19 +25,20 @@ export class ArrayUtils {
 	 *	Array-wrapper for scaleValue
 	*/
 	static scaleValues(values, originalRange, targetRange, round = false) {
-		if (!Array.isArray(values)) {
+		if (!(Array.isArray(values)|| this.isMap(values)) ) {
 			return this.scaleValue(values, originalRange, targetRange, round);
 		}
 
-		let arr = [];
+		let arr = this.isMap(values) ? {} : [];
 		for (let i in values) {
-			arr.push(this.scaleValue(values[i], originalRange, targetRange, round));
+			arr[i] = (this.scaleValues(values[i], originalRange, targetRange, round));
 		}
 		return arr;
 	}
 
 	/**
-	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'
+	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'.
+	 *	Operates in-place
 	 */
 	static forEach(array, func) {
 		if ( !Array.isArray(array) ) {
@@ -55,7 +53,6 @@ export class ArrayUtils {
 				array[i] = output;
 			}	
 		}
-		array.forEach(func);
 		return array;
 	}
 	
@@ -83,6 +80,46 @@ export class ArrayUtils {
 			return nullIfEmpty ? null : value;
 		}
 		return value
+	}
+	
+	static filterByArray(data, filter, func = null) {
+		if ( !Array.isArray(data) ) { 
+			throw new TypeError('Data must be an array');
+		}
+		if ( !Array.isArray(filter) ) {
+			throw new TypeError('Filter must be an array');
+		}
+		
+		if (typeof func !== 'function') {
+			func = (d,f) => {return !!f};
+		}
+		
+		let values = [];
+		for ( let i=0 ; i < Math.min(data.length, filter.length) ; i++ ) {
+			if (typeof func === 'function') {
+				if ( func( data[i], filter[i] ) ) {
+					values.push( data[i] );
+				}
+			}
+		}
+		return values;
+	}
+	
+	/* Simple check to see if value is mapping, rather than array or primitive. For simplicity, objects are maps */
+	static isMap(obj) 	{
+		if (!obj) {
+			// Not null or undefined
+			return false;
+		}
+		if ( Array.isArray(obj) ) {
+			// Not an array
+			return false;
+		}
+		if ( ({}).constructor == Object(obj).constructor ) {
+			// Has a generic object constructor
+			return true;
+		}
+		return false;
 	}
 
 	static mapFromKeyValueArray(array) {
@@ -124,9 +161,9 @@ export class ArrayUtils {
 		for (let i=0;i<maps.length;i++) {
 			for (let key in newMap) {
 				if (concat) {
-					newMap[key] = newMap[key].concat(maps[i][key]);
+					newMap[key] = newMap[key].concat(maps[i][key] ?? []);
 				} else {
-					newMap[key] = newMap[key].push(maps[i][key]);
+					newMap[key] = newMap[key].push(maps[i][key] ?? null);
 				}
 			}
 		}
