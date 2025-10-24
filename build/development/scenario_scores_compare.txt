@@ -1889,6 +1889,27 @@ function createRadarPlot(plotDivName, labels, values, range, layout) {
 	
 }
 
+function createPiePlot(plotDivName, labels, values, layout) {
+	if (!Array.isArray(values)) {
+		throw new Error('PiePlot requires an array of values. Provided was: ' + (typeof values));
+	}
+	
+	let plotLabels = labels;
+	let plotValues = values;
+
+	let plotData = [{
+		'labels': plotLabels,
+		'values': plotValues,
+		'type': 'pie',
+		'sort': false
+	}];
+	
+	let plotLayout = layout;
+
+	Plotly.newPlot(plotDivName, plotData, plotLayout);
+	
+}
+
 function createLayout() {
 	/**
 	 * See https://plotly.com/javascript/reference/layout/
@@ -2006,6 +2027,14 @@ function createRadarPlotLayout() {
 	layout['showlegend'] ??= true;
 	layout['autosize'] ??= true;
 
+	return layout;
+}
+
+function createPiePlotLayout() {
+	const layout = createLayout();
+	/**
+	 * Override specific settings
+	 */
 	return layout;
 }
 
