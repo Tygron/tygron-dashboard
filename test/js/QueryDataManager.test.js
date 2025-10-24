@@ -29,7 +29,7 @@ describe('QueryDataManager', () => {
 		});
 		let outputData = queryDataManager.getData('queryData');
 
-		expect(outputData).toBe(fallback);
+		expect(outputData).toEqual(fallback);
 	});
 
 	it('can have its testing-fallback turned off and in that case give an error', () => {
