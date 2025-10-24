@@ -1,16 +1,4 @@
-<!DOCTYPE html>
-<html lang="en-US">
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>score_app</title>
-	<link rel='stylesheet' >
-	<script  charset="utf-8"></script>
-	<script src='https://cdn.plot.ly/plotly-3.0.1.min.js' charset="utf-8"></script>
-</head>
-
-<body>
 	<style>
 		@charset "UTF-8";
 
@@ -327,13 +315,10 @@ class ArrayUtils {
 	 * 		originalRange and targetRange must be an array of exactly 2 different numbers
 	*/
 	static scaleValue(value, originalRange, targetRange, round = false) {
-		if (Array.isArray(value)) {
-			return this.scaleValues(value);
-		}
 		if (!NumberUtils.isNumeric(value)) {
 			return value;
 		}
-		if ((!this.isRange(originalRange)) || (!this.isRange(originalRange))) {
+		if ((!this.isRange(originalRange)) || (!this.isRange(targetRange))) {
 			throw 'Both the original and target range must be array of 2 different numeric values';
 		}
 		value = ((value - originalRange[0]) / (originalRange[1] - originalRange[0]));
@@ -346,19 +331,20 @@ class ArrayUtils {
 	 *	Array-wrapper for scaleValue
 	*/
 	static scaleValues(values, originalRange, targetRange, round = false) {
-		if (!Array.isArray(values)) {
+		if (!(Array.isArray(values)|| this.isMap(values)) ) {
 			return this.scaleValue(values, originalRange, targetRange, round);
 		}
 
-		let arr = [];
+		let arr = this.isMap(values) ? {} : [];
 		for (let i in values) {
-			arr.push(this.scaleValue(values[i], originalRange, targetRange, round));
+			arr[i] = (this.scaleValues(values[i], originalRange, targetRange, round));
 		}
 		return arr;
 	}
 
 	/**
-	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'
+	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'.
+	 *	Operates in-place
 	 */
 	static forEach(array, func) {
 		if ( !Array.isArray(array) ) {
@@ -373,7 +359,6 @@ class ArrayUtils {
 				array[i] = output;
 			}	
 		}
-		array.forEach(func);
 		return array;
 	}
 	
@@ -401,6 +386,46 @@ class ArrayUtils {
 			return nullIfEmpty ? null : value;
 		}
 		return value
+	}
+	
+	static filterByArray(data, filter, func = null) {
+		if ( !Array.isArray(data) ) { 
+			throw new TypeError('Data must be an array');
+		}
+		if ( !Array.isArray(filter) ) {
+			throw new TypeError('Filter must be an array');
+		}
+		
+		if (typeof func !== 'function') {
+			func = (d,f) => {return !!f};
+		}
+		
+		let values = [];
+		for ( let i=0 ; i < Math.min(data.length, filter.length) ; i++ ) {
+			if (typeof func === 'function') {
+				if ( func( data[i], filter[i] ) ) {
+					values.push( data[i] );
+				}
+			}
+		}
+		return values;
+	}
+	
+	/* Simple check to see if value is mapping, rather than array or primitive. For simplicity, objects are maps */
+	static isMap(obj) 	{
+		if (!obj) {
+			// Not null or undefined
+			return false;
+		}
+		if ( Array.isArray(obj) ) {
+			// Not an array
+			return false;
+		}
+		if ( ({}).constructor == Object(obj).constructor ) {
+			// Has a generic object constructor
+			return true;
+		}
+		return false;
 	}
 
 	static mapFromKeyValueArray(array) {
@@ -442,9 +467,9 @@ class ArrayUtils {
 		for (let i=0;i<maps.length;i++) {
 			for (let key in newMap) {
 				if (concat) {
-					newMap[key] = newMap[key].concat(maps[i][key]);
+					newMap[key] = newMap[key].concat(maps[i][key] ?? []);
 				} else {
-					newMap[key] = newMap[key].push(maps[i][key]);
+					newMap[key] = newMap[key].push(maps[i][key] ?? null);
 				}
 			}
 		}
@@ -568,27 +593,40 @@ class ListingPanelController {
 		} catch( err ) {
 		}
 	}
-	
+
 	addContent(content, renderTypes = null) {
 		this.args['content'].push(content);
 		if (renderTypes) {
-			let index = this.args[content].length -1;
+			let index = this.args['content'].length -1;
 			this.args['contentTypes'][index] = renderTypes;
 		}
 	}
 	addHeader(content, renderTypes = null) {
 		this.args['headers'].push(content);
 		if (renderTypes) {
-			let index = this.args[content].length -1;
+			let index = this.args['content'].length -1;
 			this.args['footersTypes'][index] = renderTypes;
 		}
 	}
 	addFooter(content, renderTypes = null) {
 		this.args['footers'].push(content);
 		if (renderTypes) {
-			let index = this.args[content].length -1;
+			let index = this.args['content'].length -1;
 			this.args['headersTypes'][index] = renderTypes;
 		}
+	}
+
+	clearContent() {
+		this.args['content'] = [];
+		this.args['contentTypes'] = [];
+	}
+	clearHeader() {
+		this.args['headers'] = [];
+		this.args['footersTypes'] = [];
+	}
+	clearFooter() {
+		this.args['footers'] = [];
+		this.args['headersTypes'] = [];
 	}
 	
 	setDefaultContentRenderTypes(renderTypes) {
@@ -721,8 +759,8 @@ class ListingPanelController {
 		for (let i=0;i<contents.length;i++) {
 			let renderType = renderers[i];
 			let renderOptions = null;
-			if (renderType['type']) {
-				renderOptions = renderType['options'] ?? null;
+			if (renderType && renderType['type']) {
+				renderOptions = renderType ?? null;
 				renderType = renderType['type'];
 			}
 			cellRenderRules.push( Object.assign( {}, defaultRules, {
@@ -842,31 +880,55 @@ class ListingPanelController {
 		this.cachedRenderers[cacheKey] = renderer;
 		return renderer;
 	}
+
+	static _applyGenericRendererOptions(element, options) {
+		
+		for (let key in options) {
+			let value = options[key];
+			if (key === 'style') {
+				for (let subKey in value ) element.style[subKey] = value[subKey];
+			}
+			if (key === 'class') {
+				for (let subKey in value ) element.classList.add( value[subKey] );
+			}
+		}
+		return element;
+	}
 	
-	static _getRendererLabel() {
+	static _getRendererLabel(options) {
+		let opt = options;
 		return function(content) {
 			let element = document.createElement('div');
 			element.classList.add('label');
 			let labelElement = document.createElement('span');
 			labelElement.innerHTML = content;
 			element.appendChild(labelElement);
+			
+			ListingPanelController._applyGenericRendererOptions(element, opt);
+			
 			return element;
 		}
 	}
 	
 	static _getRendererButtons(options) {
-		if ( !Array.isArray(options)) {
-			throw 'Options required for buttons renderer';
+		let opt = options;
+		if ( !opt || !opt['inputs'] ) {
+		throw 'Options required for buttons renderer';
 		}
+		
+		if ( !Array.isArray(opt['inputs'])) {
+			throw 'Option "inputs" required for buttons renderer';
+		}
+		let inputs = opt['inputs'];
 		return function(content) {
 			let element = document.createElement('div');
 			element.classList.add('input');
 			element.classList.add('buttons')
 			
-			for (let i = 0; i < options.length ; i++) {
+			for (let i = 0; i < inputs.length ; i++) {
 				let inputElement = document.createElement('input');
 				inputElement.type = 'button';
-				inputElement.value = options[i];
+				inputElement.value = inputs[i];
 				if (inputElement.value == content) {
 					inputElement.classList.add('selected');
 				}
@@ -885,6 +947,9 @@ class ListingPanelController {
 					this.closest('.'+ListingPanelController.DEFAULT_CLASS).dispatchEvent(new Event('change'));
 				}
 			});
+			
+			ListingPanelController._applyGenericRendererOptions(element, opt);
+			
 			return element;
 		}
 	}
@@ -941,6 +1006,10 @@ class QueryDataManager {
 		}
 	}
 
+	hasData(key) {
+		return (!!this.queryDataObjects[key]);
+	}
+
 	getData(key, forceToArray = true) {
 		let queryDataObject = this.getQueryDataObject(key);
 		let data = queryDataObject.getData(this.allowFallbackData);
@@ -986,6 +1055,10 @@ class QueryDataManager {
 			throw new TypeError('Cannot index singular data by array');
 		}
 		if (!Array.isArray(indexKeys)) {
+			if (this.hasData(indexKeys)) {
+				return this.getDataKeyIndexed(key, kvIndex, this.getData(indexKeys));
+				
+			}
 			let result = {};
 			result[indexKeys] = data;
 			return result;
@@ -1063,7 +1136,7 @@ class QueryDataManager {
 		}
 		return queryDataObject;
 	}
-
+	
 	getUnresolvedDataKeys() {
 		let unresolved = [];
 		for (let key of Object.keys(this.queryDataObjects)) {
@@ -1132,16 +1205,20 @@ class QueryDataManager {
 			}
 
 			getQueryData() {
+				let data = this.queryData;
+				data = this.constructor.copyData(data);
 				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(this.queryData);
+					return ArrayUtils.unArrayIfSingleElement(data);
 				}
-				return this.queryData;
+				return data;
 			}
 			getFallbackData() {
+				let data = this.fallbackData;
+				data = this.constructor.copyData(data);
 				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(this.fallbackData);
+					return ArrayUtils.unArrayIfSingleElement(data);
 				}
-				return this.fallbackData;
+				return data;
 			}
 
 			setQueryData(data) {
@@ -1224,6 +1301,11 @@ class QueryDataManager {
 					parsedValue = value;
 				}
 				return parsedValue;
+			}
+			static copyData(data) {
+				//Copy data on retrieval to prevent unintended modifications to source data
+				//Deep-copies required for matrix-type data, but query data is never too complex for simple JSON-method
+				return JSON.parse(JSON.stringify(data));
 			}
 
 			static exists(value) {
@@ -2070,40 +2152,55 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput){
 }
 
 
+
+
 $(window).on("load", function() {
+	let scoreScale = [[0,1],[0,100]];
 
-	let indicatorNames = '$SELECT_NAME_WHERE_INDICATOR_IS_X'.replaceAll('"', '').split(', ');
-	let indicatorActive = [$SELECT_ACTIVE_WHERE_INDICATOR_IS_X];
-	let indicatorScores = {};
-	indicatorScores['Current'] = [$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT];
-	indicatorScores['Maquette'] = [$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE];
-	if (JSON.stringify(indicatorScores['Current']) == JSON.stringify(indicatorScores['Maquette'])) {
-		indicatorScores = { 'Score': indicatorScores['Maquette'] };
+	/* Get all the data from indicators */
+	let queryDataManager = new QueryDataManager();
+	queryDataManager.addQuery('indicatorIds', '$SELECT_ID_WHERE_INDICATOR_IS_X');
+	queryDataManager.addQuery('indicatorNames', '$SELECT_NAME_WHERE_INDICATOR_IS_X');
+	queryDataManager.addQuery('indicatorActive', '$SELECT_ACTIVE_WHERE_INDICATOR_IS_X');
+	queryDataManager.addQuery('indicatorCurrent', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('indicatorMaquette', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE');
+	
+	/* If the data has not loaded yet, warn the user */
+	if (!queryDataManager.allQueriesResolved()) {
+		document.body.innerHTML = '<p>Recalculation required before data can be shown.</p>';
+		return;
 	}
-
-	let options = [0, 100];
-
-	let labels = [];
-	let values = {};
-
-	for (let key in indicatorScores) {
-		values[key] = [];
+	
+	
+	
+	/* Get all indicator names , filtered to only obtain the names of indicators which are active */
+	let indicatorNames = ArrayUtils.filterByArray( queryDataManager.getData('indicatorNames'), queryDataManager.getData('indicatorActive') );
+	
+	/* Get all indicator scores, filtered to only obtain the scores of indicators which are active */
+	let indicatorScores = {
+	 	'Current': 	ArrayUtils.filterByArray( queryDataManager.getData('indicatorCurrent'), queryDataManager.getData('indicatorActive') ),
+		'Maquette':	ArrayUtils.filterByArray( queryDataManager.getData('indicatorMaquette'), queryDataManager.getData('indicatorActive') ),
+	};
+		
+	/* Scale all the scores to human-readable percentage values */
+	indicatorScores = ArrayUtils.scaleValues(indicatorScores, ...scoreScale, true);
+		
+	/* If Current and Maquette are the same, show only a single set of values */
+	if ( JSON.stringify(indicatorScores['Current']) == JSON.stringify(indicatorScores['Maquette']) ) {
+		indicatorScores = { 'Values' : indicatorScores['Current'] };
 	}
-
-	for (let i = 0; i < indicatorActive.length; i++) {
-		if (indicatorActive[i] > 0) {
-			labels.push(indicatorNames[i]);
-			for (let key in indicatorScores) {
-				let newValue = indicatorScores[key][i] * 100;
-				values[key].push(newValue);
-			}
-		}
-	}
+	
+	
+	/* Establish the values for the radar plot */
+	let radarIndicatorLabels = indicatorNames;
+	let radarIndicatorScoresPerMapType = indicatorScores;
+	let radarRange = scoreScale[1];
+	
+	/* Render the radar plot */
 	let layout = createRadarPlotLayout();
-	createRadarPlot('chart', labels, values, options, layout);
+	createRadarPlot('chart', radarIndicatorLabels, radarIndicatorScoresPerMapType, radarRange, layout);
+	
+
 });
 
 	</script>
-</body>
-
-</html>
