@@ -2,7 +2,7 @@ import { QueryDataManager } from "../util/QueryDataManager.js";
 import { createPiePlotLayout, createPiePlot } from "../util/plot.js";
 
 $(window).on("load", function() {
-	/* Get all the data from indicators */
+	/* Get all the data */
 	let queryDataManager = new QueryDataManager();
 	queryDataManager.addQuery('name'  , '$SELECT_NAME_WHERE_NEIGHBORHOOD_IS_ID');
 	queryDataManager.addQuery('0-15' , '$SELECT_ATTRIBUTE_WHERE_NEIGHBORHOOD_IS_ID_AND_NAME_IS_PERCENTAGE_PERSONEN_0_TOT_15_JAAR');
