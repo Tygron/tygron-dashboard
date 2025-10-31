@@ -1,6 +1,6 @@
-import { QueryDataManager } from "../util/QueryDataManager.js";
-import { createRadarPlotLayout, createRadarPlot } from "../util/plot.js";
-import { ArrayUtils } from "../util/ArrayUtils.js";
+import { QueryDataManager } from "../src/js/tygron/QueryDataManager.js";
+import { RadarPlot } from "../src/js/dom/plots/RadarPlot.js";
+import { ArrayUtils } from "../src/js/util/ArrayUtils.js";
 
 $(window).on("load", function() {
 	let scoreScale = [[0,1],[0,100]];
@@ -19,8 +19,6 @@ $(window).on("load", function() {
 		return;
 	}
 	
-	
-	
 	/* Get all indicator names , filtered to only obtain the names of indicators which are active */
 	let indicatorNames = ArrayUtils.filterByArray( queryDataManager.getData('indicatorNames'), queryDataManager.getData('indicatorActive') );
 	
@@ -37,16 +35,18 @@ $(window).on("load", function() {
 	if ( JSON.stringify(indicatorScores['Current']) == JSON.stringify(indicatorScores['Maquette']) ) {
 		indicatorScores = { 'Values' : indicatorScores['Current'] };
 	}
+	for ( let i in indicatorScores ) {
+		indicatorScores[i] = {'labels': indicatorNames, 'values' : indicatorScores[i] };
+	}
 	
-	
-	/* Establish the values for the radar plot */
-	let radarIndicatorLabels = indicatorNames;
-	let radarIndicatorScoresPerMapType = indicatorScores;
-	let radarRange = scoreScale[1];
+	let radarPlot = new RadarPlot();
+	radarPlot.setNamedData( indicatorScores );
+	radarPlot.setRange( scoreScale[1] );
+	radarPlot.create('chart');
 	
 	/* Render the radar plot */
-	let layout = createRadarPlotLayout();
-	createRadarPlot('chart', radarIndicatorLabels, radarIndicatorScoresPerMapType, radarRange, layout);
+	//let layout = createRadarPlotLayout();
+	//createRadarPlot('chart', radarIndicatorLabels, radarIndicatorScoresPerMapType, radarRange, layout);
 	
 
 });

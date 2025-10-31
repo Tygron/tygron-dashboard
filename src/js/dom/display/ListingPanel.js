@@ -1,5 +1,5 @@
-import { ArrayUtils } from "../util/ArrayUtils.js";
-import { ensureDomElement, attachHandler } from "../util/dom.js";
+import { ArrayUtils } from "../../util/ArrayUtils.js";
+import { Dom } from "../../util/dom.js";
 
 /**
  * Listing Panel
@@ -41,7 +41,7 @@ export class ListingPanelController {
 		this.domElement = null;
 		
 		try {
-			this.parent = ensureDomElement(domTarget);
+			this.parent = Dom.ensureDomElement(domTarget);
 		} catch( err ) {
 		}
 	}
@@ -386,7 +386,7 @@ export class ListingPanelController {
 				}
 				element.appendChild(inputElement);
 			}
-			attachHandler(element, 'click', 'input[type="button"]', function(event){
+			Dom.attachHandler(element, 'click', 'input[type="button"]', function(event){
 				let oldElement = this.closest('.buttons').getElementsByClassName('selected');
 				if (oldElement.length>0) {
 					for( let el of oldElement) {

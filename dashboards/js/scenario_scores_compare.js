@@ -1,7 +1,7 @@
-import { QueryDataManager } from "../util/QueryDataManager.js";
-import { ListingPanelController } from "../util/ListingPanel.js";
-import { attachHandler } from "../util/dom.js";
-import { ArrayUtils } from "../util/ArrayUtils.js";
+import { QueryDataManager } from "../src/js/tygron/QueryDataManager.js";
+import { ListingPanelController } from "../src/js/dom/display/ListingPanel.js";
+import { Dom } from "../src/js/util/Dom.js";
+import { ArrayUtils } from "../src/js/util/ArrayUtils.js";
 
 $(window).on("load", function() {
 
@@ -80,11 +80,11 @@ $(window).on("load", function() {
 	let renderPercentageAbsolute = function() {
 		renderListing( (val, compare) => { return NumberUtils.isNumeric(val) ? ArrayUtils.scaleValue(val, ...scoreScale, true)+'%' : val;});
 	}
-	attachHandler(actionsDom, 'click', '.actionButton.percentageAbsolute', renderPercentageAbsolute);
+	Dom.attachHandler(actionsDom, 'click', '.actionButton.percentageAbsolute', renderPercentageAbsolute);
 	
 	let renderPercentageRelative = function() {
 		renderListing( (val, compare) => { return NumberUtils.isNumeric(val) ? ArrayUtils.scaleValue(val-compare, ...scoreScale, true)+'%' : val;});
 	}
-	attachHandler(actionsDom, 'click', '.actionButton.percentageRelative', renderPercentageRelative);
+	Dom.attachHandler(actionsDom, 'click', '.actionButton.percentageRelative', renderPercentageRelative);
 
 });

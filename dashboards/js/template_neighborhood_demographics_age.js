@@ -1,5 +1,5 @@
 import { QueryDataManager } from "../util/QueryDataManager.js";
-import { createPiePlotLayout, createPiePlot } from "../util/plot.js";
+import { PiePlot } from "../src/js/dom/plots/PiePlot.js";
 
 $(window).on("load", function() {
 	/* Get all the data */
@@ -28,8 +28,10 @@ $(window).on("load", function() {
 	}
 	
 	/* Render the pie plot */
-	let layout = createPiePlotLayout();
-	layout['title'] = {'text': queryDataManager.getData('name', false) };
-	createPiePlot('chart', labels, values, layout);
+	
+	let piePlot = new PiePlot();
+	piePlot.getLayout()['title'] = {'text': queryDataManager.getData('name', false) };
+	piePlot.setData(labels, values);
+	piePlot.create('chart');
 	
 });
