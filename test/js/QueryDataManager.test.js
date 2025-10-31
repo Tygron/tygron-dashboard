@@ -1,4 +1,4 @@
-import { QueryDataManager } from "./../../src/js/util/QueryDataManager.js";
+import { QueryDataManager } from "./../../src/js/tygron/QueryDataManager.js";
 import { ArrayUtils } from "./../../src/js/util/ArrayUtils.js";
 
 describe('QueryDataManager', () => {
