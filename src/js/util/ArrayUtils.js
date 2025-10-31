@@ -129,7 +129,7 @@ export class ArrayUtils {
 
 		let map = {};
 		for(let i = 0 ; i < array.length ; i+=2) {
-			map[array[i]] = array[i+1];
+			map[array[i]] ??= array[i+1];
 		}
 		return map;
 	}
