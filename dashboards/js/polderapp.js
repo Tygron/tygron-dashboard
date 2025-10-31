@@ -1,9 +1,10 @@
-import { createTable } from "../util/table.js";
-import { barPlot, createBarPlotLayout, } from "../util/plot.js";
-import { setupTimeframeSlider } from "../util/timeframeslider.js";
-import { addFlowValues, createLinks } from "../util/data.js";
-import { toCSVContent, addDownloadHandler } from "../util/file.js";
-import { attachHandler } from "../util/dom.js";
+import { createTable } from "../../src/js/legacy/table.js";
+import { barPlot, createBarPlotLayout, } from "../../src/js/legacy/plot.js";
+import { setupTimeframeSlider } from "../../src/js/legacy/timeframeslider.js";
+import { addFlowValues, createLinks } from "../../src/js/legacy/data.js";
+import { toCSVContent, addDownloadHandler } from "../../src/js/legacy/file.js";
+import { Dom } from "../../src/js/util/Dom.js";
+import { APIConnector } from "../../src/js/tygron/APIConnector.js";
 
 let windowValidation = true;
 
@@ -24,6 +25,7 @@ if (windowValidation) {
 			if ((+'$SELECT_ATTRIBUTE_WHERE_PANEL_IS_ID_AND_NAME_IS_INSTALLED') != 1) {
 				let message = '<p>Install app.</p>';
 				message += '<p>Note: run from web browser, or ensure REFRESH of the panel is off.</p>';
+				message += '<p style="color:crimson;">Note: also ensure project auto-calculation is off before proceesing.</p>';
 				let messageEl = document.createElement('div');
 				messageEl.innerHTML = message;
 
@@ -45,17 +47,17 @@ if (windowValidation) {
 				optionsEl.appendChild(selectEl);
 				optionsEl.appendChild(buttonEl);
 
-				attachHandler(optionsEl, 'change', 'select', function() {
+				Dom.attachHandler(optionsEl, 'change', 'select', function() {
 					console.log(document.getElementById('installType').value);
 					buttonEl.disabled = (selectEl.value == '');
 					buttonEl.value = (selectEl.value == 'NONE') ? 'Continue' : 'Install';
 				});
 
-				attachHandler(optionsEl, 'click', 'input[type="button"]', function() {
+				Dom.attachHandler(optionsEl, 'click', 'input[type="button"]', function() {
 
 					let waterOverlayType = document.getElementById('installType').value;
 
-					window.c = connector('$SELECT_TOKEN_WHERE_'.replaceAll('"', ''));
+					window.c = new APIConnector('$SELECT_TOKEN_WHERE_'.replaceAll('"', ''));
 
 					if (waterOverlayType == 'NONE') {
 						let chain = c.start();

@@ -1,7 +1,7 @@
-import { QueryDataManager } from "../util/QueryDataManager.js";
-import { ListingPanelController } from "../util/ListingPanel.js";
-import { attachHandler } from "../util/dom.js";
-import { ArrayUtils } from "../util/ArrayUtils.js";
+import { QueryDataManager } from "../src/js/tygron/QueryDataManager.js";
+import { ListingPanelController } from "../src/js/dom/display/ListingPanel.js";
+import { Dom } from "../src/js/util/Dom.js";
+import { ArrayUtils } from "..src/js/util/ArrayUtils.js";
 
 $(window).on("load", function() {
 
@@ -94,7 +94,7 @@ $(window).on("load", function() {
 
 	
 	/* Use the toggles in the listing to change how the totals are calculated */
-	attachHandler(listing.domElement, 'change', null, function(event) {
+	Dom.attachHandler(listing.domElement, 'change', null, function(event) {
 		/* Because the listing features input elements for one column, values from the listing can be retrieved automatically */
 		let values = listing.getValues();
 		/* Iterate through the matrix of retrieved values. Each row is the values from input elements on one listing row */

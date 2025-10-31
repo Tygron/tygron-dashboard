@@ -1,5 +1,4 @@
-import { QueryDataManager } from "../util/QueryDataManager.js";
-import { createPiePlotLayout, createPiePlot } from "../util/plot.js";
+import { QueryDataManager } from "../src/js/tygron/QueryDataManager.js";
 
 $(window).on("load", function() {
 	/* Get all the data */
