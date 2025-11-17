@@ -1,27 +1,26 @@
 
 export function initCollapsibles() {
 
-	var coll = document.getElementsByClassName("collapsible");
-	var i;
-
-	for (i = 0; i < coll.length; i++) {
+	let coll = document.getElementsByClassName("collapsible");
+	
+	for (let i = 0; i < coll.length; i++) {
+		
 		coll[i].addEventListener("click", function() {
 
 			this.classList.toggle("active");
-			var content = this.nextElementSibling;
-							
+			let content = this.nextElementSibling;
+			let style = content.style;
+
 			if (content.classList.contains("delayed")) {
-				if (content.style.maxHeight) {
-					content.style.maxHeight = null;
+				
+				if (style.maxHeight) {
+					style.maxHeight = null;
 				} else {
-					content.style.maxHeight = content.scrollHeight + "px";
+					style.maxHeight = content.scrollHeight + "px";
 				}
+			
 			} else {
-				if (content.style.display === "block") {
-					content.style.display = "none";
-				} else {
-					content.style.display = "block";
-				}
+				style.display = style.display === "block" ? "none" : "block";
 			}
 
 
@@ -30,8 +29,10 @@ export function initCollapsibles() {
 }
 
 export function openCollapsibles() {
-	var coll = document.getElementsByClassName("collapsible");
+	
+	let  coll = document.getElementsByClassName("collapsible");
 	for (i = 0; i < coll.length; i++) {
+		
 		const collapsible = coll[i];
 		setTimeout(function() {
 			collapsible.click();
