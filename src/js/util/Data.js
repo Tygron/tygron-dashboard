@@ -92,11 +92,14 @@ export function setTimeframeValues(data, property, values, args = {}) {
 			data[property][i] -= previous;
 		}
 	}
+	
 	if (args.negative !== undefined) {
+		
 		if (args.negative) {
 			for (let i = 0; i < data[property].length; i++) {
 				data[property][i] = Math.abs(Math.min(0, data[property][i]));
 			}
+		
 		} else {
 			for (let i = 0; i < data[property].length; i++) {
 				data[property][i] = Math.max(0, data[property][i]);
@@ -136,14 +139,19 @@ export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo
 	}
 	
 	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
+		
 		if ((areaIDTo[i] == data.itemID) && (areaIDFrom[i] == data.itemID) && (condition == undefined || condition[i])) {
+			
 			if (propertyInner != undefined) {
+				
 				if (values[i] > 0) {
 					data[propertyInner][timeframe] += values[i];
+				
 				} else {
 					data[propertyInner][timeframe] -= values[i];
 				}
 			}
+		
 		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
 			
 			if (values[i] > 0) {
