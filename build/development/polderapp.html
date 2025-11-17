@@ -2123,6 +2123,16 @@ function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
 	return "rgba(" + [red, green, blue, alpha].join(",") + ")";
 }
 
+function initHeaderRow(table, properties, titles) {
+	var header = table.createTHead();
+	let headerRow = header.insertRow(-1);
+
+	for (let i = 0; i < properties.length; i++) {
+
+		let cell = headerRow.insertCell(-1);
+		cell.innerHTML = titles[properties[i]];
+	}
+}
 
 function createTable(divName, data, properties, colors, titles, timeLabels) {
 
@@ -2132,32 +2142,31 @@ function createTable(divName, data, properties, colors, titles, timeLabels) {
 		return;
 	}
 
-	var header = table.createTHead();
-	let trow = header.insertRow(-1);
-	for (let n = 0; n < properties.length; n++) {
-		let cell = trow.insertCell(-1);
-		cell.innerHTML = titles[properties[n]];
-	}
+	initHeaderRow(table, properties, titles);
 
 	var tableBody = table.createTBody();
+
 	for (let r = 0; r < timeframes; r++) {
+
 		var row = tableBody.insertRow(-1);
+
 		for (let n = 0; n < properties.length; n++) {
+
 			let cell = row.insertCell(-1);
 
 			let labelDiv = document.createElement('div');
 			let label = document.createElement('label');
 
 			if (n === 1 && timeLabels) {
-				// Gebruik de tijdstring uit de array
 				label.innerHTML = timeLabels[r];
+
 			} else {
+
 				let value = data[properties[n]][r];
 				let min = Math.min.apply(Math, data[properties[n]]);
 				let max = Math.max.apply(Math, data[properties[n]]);
 				let color = colors[properties[n]];
 
-				// Afronding
 				if (typeof value == 'undefined') {
 					label.innerHTML = '-';
 				} else if (n === 0) {
