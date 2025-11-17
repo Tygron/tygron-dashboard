@@ -510,792 +510,6 @@ class ArrayUtils {
 
 }
 
-
-
-/**
- * Listing Panel
- * 
- * To display a matrix of information with flexible rendering rules.
- * headers/content/footers : 
- * 		A matrix of values ( 0...n rows/arrays with 0...n values ) to display
- * headersTypes/contentTypes/footerTypes : 
- * 		A matching matrix of rendering types. Either predefined of functions. Either one array for all rows, or a matrix. Missing rows in a matrix use defaultTypes instead
- * defaultHeadersTypes/defaultContentTypes/defaultFootersTypes : 
- * 		A single renderer definition (or array of multiple matching one row) to render with if no list of renderers is provided
- * tableMode : 
- * 		Whether to render as an HTML table. If not, will use divs instead, per cell, per row, and one for the full container 
- * flipXY : 
- * 		If true, the rows in the data will be layed out as columns, and vice versa.
- */
-
-class ListingPanelController {
-	
-	constructor(domTarget, args = {}) {
-		this.args = Object.assign( {
-				'content' : [],
-				'contentTypes' : [],
-				'defaultContentTypes' : 'label',
-				
-				'headers': [],
-				'headersTypes' : [],
-				'defaultHeaderTypes' : 'label',
-				
-				'footers':[],
-				'footersTypes': [],
-				'defaultFootersTypes': 'label',
-				
-				'tableMode': true,
-				'flipXY' : false,
-			}, args );
-		
-		this.parent = null;
-		this.domElement = null;
-		
-		try {
-			this.parent = ensureDomElement(domTarget);
-		} catch( err ) {
-		}
-	}
-
-	addContent(content, renderTypes = null) {
-		this.args['content'].push(content);
-		if (renderTypes) {
-			let index = this.args['content'].length -1;
-			this.args['contentTypes'][index] = renderTypes;
-		}
-	}
-	addHeader(content, renderTypes = null) {
-		this.args['headers'].push(content);
-		if (renderTypes) {
-			let index = this.args['content'].length -1;
-			this.args['footersTypes'][index] = renderTypes;
-		}
-	}
-	addFooter(content, renderTypes = null) {
-		this.args['footers'].push(content);
-		if (renderTypes) {
-			let index = this.args['content'].length -1;
-			this.args['headersTypes'][index] = renderTypes;
-		}
-	}
-
-	clearContent() {
-		this.args['content'] = [];
-		this.args['contentTypes'] = [];
-	}
-	clearHeader() {
-		this.args['headers'] = [];
-		this.args['footersTypes'] = [];
-	}
-	clearFooter() {
-		this.args['footers'] = [];
-		this.args['headersTypes'] = [];
-	}
-	
-	setDefaultContentRenderTypes(renderTypes) {
-			this.args['defaultContentTypes'] = renderTypes;
-	}
-	setDefaultHeaderRenderTypes(renderTypes) {
-			this.args['defaultHeadersTypes'] = renderTypes;
-	}
-	setDefaultFootersRenderTypes(renderTypes) {
-			this.args['defaultFootersTypes'] = renderTypes;
-	}
-	
-	/* Based on the configuration and content, create the actual dom elements. */
-	render( rerender = true ) {
-		if (this.domElement && ! rerender) {
-			return this.domElement;
-		}
-		
-		let renderRules = this._createRenderRules(this.args)
-		if (this.args['flipXY']) {
-			renderRules = ArrayUtils.flipMatrix(renderRules);
-		}
-		let domElement = this._createDomElement(renderRules, this.args['tableMode']);
-		
-		if (this.parent) {
-			if (this.domElement) {
-				this.parent.removeChild(this.domElement);
-			}
-			this.parent.appendChild(domElement);
-		}
-		
-		this.domElement = domElement;
-	}
-	
-	getValues(section='content') {
-		let selector = 'entry'+  (section ? ' '+section : '');
-		let entries = this.domElement.getElementsByClassName(selector);
-		
-		let values = [];
-		for (let entry of entries) {
-			let entryValues = [];
-			let inputs = entry.getElementsByClassName('input');
-			for (let input of inputs) {
-				entryValues.push(this._getValueFromInput(input));
-			}
-			values.push(entryValues);
-		}
-		return values;
-	}
-	
-	getRenderer(type, args) {
-		type = type ?? 'label';
-		if (typeof type === 'function') {
-			return type;
-		}
-		
-		let renderer = null;
-		try {
-			renderer = ListingPanelController.getRenderer(type, args);
-		} catch (err) {
-			console.error('Failed to get renderer type '+type+', reason: '+err);
-			renderer = ListingPanelController.getRenderer('label');
-		}
-		return renderer;
-	}
-	
-	
-	static DEFAULT_CLASS = 'listingPanel';
-	
-	
-	/* Turn the content and provided render types into prepared render rules for each individual cell of the listing */
-	_createRenderRules( args = {} ) {
-		
-		let renderRules = [];
-		for ( let i=0 ; i<args['headers'].length ; i++ ) {
-			let types = this._getRenderTypesFromMatrix( args['headersTypes'], i, args['defaultHeaderTypes']);
-			let prepared = this._createCellRenderRules(args['headers'][i], types, {'special':'header'});
-			if (prepared) {
-				renderRules.push(prepared);
-			}
-		}
-		for ( let i=0 ; i<args['content'].length ; i++ ) {
-			let types = this._getRenderTypesFromMatrix( args['contentTypes'], i, args['defaultContentTypes']);
-			let prepared = this._createCellRenderRules(args['content'][i], types, {'special':'content'});
-			if (prepared) {
-				renderRules.push(prepared);
-			}
-		}
-		for ( let i=0 ; i<args['footers'].length ; i++ ) {
-			let types = this._getRenderTypesFromMatrix( args['footersTypes'], i, args['defaultFootersTypes']);
-			let prepared = this._createCellRenderRules(args['footers'][i], types, {'special':'footer'});
-			if (prepared) {
-				renderRules.push(prepared);
-			}
-		}
-		return renderRules;
-	}
-	
-	/* From a matrix of renderttpes, get the appropriate row if possible. Otherwise, use the default Types. */
-	_getRenderTypesFromMatrix(matrix, index, defaultTypes = []) {
-		if ( Array.isArray(matrix) ) {
-			if ( matrix.length == 0 ) {
-				return defaultTypes;
-			}
-			if ( !ArrayUtils.isMatrix(matrix) ) {
-				return matrix;
-			}
-			return matrix[index] ?? defaultTypes;
-		}
-		return matrix ?? defaultTypes;
-	}
-	
-	/* Create the render rule for an array of individual cells. */
-	_createCellRenderRules(contents = null, renderers = [], defaultRules = {}) {
-		defaultRules = Object.assign( {
-				'content' 	: null, // Default data, overwritten by the actual data
-				'rendering' : null, // Default type to use if "types" does not extend as far as datas
-				'special' 	: null, // Whether the rules are for headers, footers, or other special contents
-			}, defaultRules );
-		if ( contents===null ) {
-			return [];
-		}
-		if ( !Array.isArray(contents) ) {
-			contents = [contents];
-		}
-		if ( !Array.isArray(renderers) ) {
-			renderers = Array(contents.length).fill(renderers);
-		}
-		let cellRenderRules = [];
-		for (let i=0;i<contents.length;i++) {
-			let renderType = renderers[i];
-			let renderOptions = null;
-			if (renderType && renderType['type']) {
-				renderOptions = renderType ?? null;
-				renderType = renderType['type'];
-			}
-			cellRenderRules.push( Object.assign( {}, defaultRules, {
-				'content'	: contents[i],
-				'rendering'	: renderType ?? defaultRules['rendering'],
-				'options'	: renderOptions,
-			} ) );
-		}
-		return cellRenderRules;
-	}
-	
-	_createDomElement(renderRules, tableMode) {
-		
-		let domElement;
-		let domInnerElement;
-		
-		if (tableMode) {
-			domElement = document.createElement('table');
-			domInnerElement = document.createElement('tbody');
-			domElement.appendChild(domInnerElement);
-		} else {
-			domElement = document.createElement('div');
-			domInnerElement = domElement;
-		}
-		
-		for ( let i = 0 ; i < renderRules.length ; i++ ) {
-			let rowElement = this._createDomElementsRow(renderRules[i], tableMode);
-			domInnerElement.appendChild(rowElement);
-		}
-		domElement.classList.add(ListingPanelController.DEFAULT_CLASS);
-		
-		return domElement;	
-	}
-	
-	/* Generate */
-	_createDomElementsRow(rowRenderRules, tablemode) {
-		
-		let rowElementType = tablemode ? 'tr' : 'div';
-		let rowElement = document.createElement(rowElementType);
-		rowElement.classList.add('entry');
-		
-		let specialRow = null;
-		
-		for ( let i = 0 ; i < rowRenderRules.length ; i++ ) {
-			let cellRule = rowRenderRules[i];
-			let contentRenderer = this.getRenderer(cellRule['rendering'], cellRule['options']);
-			
-			let cellElement = contentRenderer(cellRule['content']);
-			if (cellRule['special']) {
-				cellElement.classList.add(cellRule['special']);
-			}
-			
-			if (tablemode) {
-				let wrappingCell = null;
-				if (cellRule['special'] === 'header') {
-					wrappingCell = document.createElement('th');
-				} else {
-					wrappingCell = document.createElement('td');
-				}
-				wrappingCell.appendChild(cellElement);
-				cellElement = wrappingCell;
-			}
-			
-			rowElement.appendChild(cellElement);
-			
-			specialRow = specialRow ?? cellRule['special'];
-			if (specialRow !== cellRule['special']) {
-				specialRow = false;	
-			}
-		}
-		
-		if (specialRow) {
-			rowElement.classList.add(specialRow);
-		}
-		
-		return rowElement;
-	}
-	
-	_getValueFromInput(input) {
-		if (typeof input.getValue === 'function') {
-			return input.getValue();
-		}
-		let selecteds = input.getElementsByClassName('selected');
-		if (selecteds.length>0) {
-			return selecteds[0].value;
-		}
-	}
-	
-	//Cache to prevent recreating renderers when many values are displayed the same
-	static cachedRenderers = {};
-	static getRenderer(type, args) {
-		if ( typeof type === 'function') {
-			return type;
-		}
-		
-		let cacheKey = JSON.stringify([type,args]);
-		let renderer = this.cachedRenderers[cacheKey] ?? null;
-		if ( renderer ) {
-			return renderer;
-		}
-	
-		switch(type) {
-			case 'label':
-				renderer = this._getRendererLabel(args);
-				break;
-			case 'buttons':
-				renderer = this._getRendererButtons(args);
-				break;
-			default:
-				throw 'Could not find renderer type '+type;
-		}
-		
-		if (renderer === false) {
-			throw 'Rendering type '+type+' requires arguments. Use getRenderer(type, args) to prepare this renderer instance.';
-		}
-		
-		this.cachedRenderers[cacheKey] = renderer;
-		return renderer;
-	}
-
-	static _applyGenericRendererOptions(element, options) {
-		
-		for (let key in options) {
-			let value = options[key];
-			if (key === 'style') {
-				for (let subKey in value ) element.style[subKey] = value[subKey];
-			}
-			if (key === 'class') {
-				for (let subKey in value ) element.classList.add( value[subKey] );
-			}
-		}
-		return element;
-	}
-	
-	static _getRendererLabel(options) {
-		let opt = options;
-		return function(content) {
-			let element = document.createElement('div');
-			element.classList.add('label');
-			let labelElement = document.createElement('span');
-			labelElement.innerHTML = content;
-			element.appendChild(labelElement);
-			
-			ListingPanelController._applyGenericRendererOptions(element, opt);
-			
-			return element;
-		}
-	}
-	
-	static _getRendererButtons(options) {
-		let opt = options;
-		if ( !opt || !opt['inputs'] ) {
-		throw 'Options required for buttons renderer';
-		}
-		
-		if ( !Array.isArray(opt['inputs'])) {
-			throw 'Option "inputs" required for buttons renderer';
-		}
-		let inputs = opt['inputs'];
-		return function(content) {
-			let element = document.createElement('div');
-			element.classList.add('input');
-			element.classList.add('buttons')
-			
-			for (let i = 0; i < inputs.length ; i++) {
-				let inputElement = document.createElement('input');
-				inputElement.type = 'button';
-				inputElement.value = inputs[i];
-				if (inputElement.value == content) {
-					inputElement.classList.add('selected');
-				}
-				element.appendChild(inputElement);
-			}
-			attachHandler(element, 'click', 'input[type="button"]', function(event){
-				let oldElement = this.closest('.buttons').getElementsByClassName('selected');
-				if (oldElement.length>0) {
-					for( let el of oldElement) {
-						el.classList.remove('selected');
-					}
-					oldElement = oldElement[0] ?? null;
-				}
-				this.classList.add('selected');
-				if (this != oldElement) {
-					this.closest('.'+ListingPanelController.DEFAULT_CLASS).dispatchEvent(new Event('change'));
-				}
-			});
-			
-			ListingPanelController._applyGenericRendererOptions(element, opt);
-			
-			return element;
-		}
-	}
-}
-class NumberUtils {
-
-	static isNumeric(value) {
-		return !isNaN(value*1);
-	}
-
-}
-
-
-class QueryDataManager {
-
-	constructor(args = {}) {
-		args = Object.assign({
-			allowFallbackData: true,
-			sizedKeys: {}
-		}, args);
-
-		this.setAllowFallbackData(args['allowFallbackData']);
-		for (let key in args['sizedKeys']) {
-			this.setSizedKey(key, args['sizedKeys'][key]);
-		}
-	}
-
-	allowFallbackData = true;
-
-	sizedKeys = {};
-	queryDataObjects = {};
-
-	addQueryData(key, args = {}) {
-		args = Object.assign({
-			query: null,
-			fallbackData: null,
-			x: null,
-			y: null,
-		}, args);
-
-		let queryData = new this.constructor.QueryDataObject(args);
-		this.queryDataObjects[key] = queryData;
-
-		return queryData;
-	}
-
-	addQuery(key, query) {
-		return this.addQueryData(key, { query: query });
-	}
-
-	addQueryDatas(queries = {}) {
-		for (let queryKey in queries) {
-			this.addQueryData(queryKey, queries[queryKey]);
-		}
-	}
-
-	hasData(key) {
-		return (!!this.queryDataObjects[key]);
-	}
-
-	getData(key, forceToArray = true) {
-		let queryDataObject = this.getQueryDataObject(key);
-		let data = queryDataObject.getData(this.allowFallbackData);
-		return forceToArray ? ArrayUtils.coerceToArray(data) : data;
-	}
-
-	getDataMatrix(key, outerArrayKey = null, innerArrayKey = null) {
-		let data = this._getDataMatrixUnbounded(key, outerArrayKey, innerArrayKey);
-
-		let innerSize = this.sizedKeys[innerArrayKey];
-		let outerSize = this.sizedKeys[outerArrayKey];
-
-		if (((innerSize ?? null) != null) || ((outerSize ?? null) != null)) {
-			data = ArrayUtils.clampMatrixSize(data, 0, outerSize, outerSize, innerSize, innerSize);
-		}
-
-		return data;
-	}
-
-	getDataKeyValues(key, kvIndex) {
-		let queryDataObject = this.getQueryDataObject(key);
-
-		if (queryDataObject.hasNoDimensions()) {
-			throw new RangeError('Cannot request key-value mapping from dimensionless data registered by key ' + key);
-		}
-
-		let data = this.getDataMatrix(key, null, kvIndex);
-		data = ArrayUtils.mapFromKeyValueMatrix(data);
-		if (queryDataObject.getDimensionCount() == 1) {
-			return ArrayUtils.unArrayIfSingleElement(data);
-		}
-		return data;
-	}
-
-	getDataKeyIndexed(key, kvIndex, indexKeys) {
-		let data = this.getDataMatrix(key, kvIndex);
-
-		if (ArrayUtils.isMatrix(indexKeys)) {
-			throw new TypeError('Cannot index data by matrix');
-		}
-
-		if (Array.isArray(indexKeys) && !Array.isArray(data)) {
-			throw new TypeError('Cannot index singular data by array');
-		}
-		if (!Array.isArray(indexKeys)) {
-			if (this.hasData(indexKeys)) {
-				return this.getDataKeyIndexed(key, kvIndex, this.getData(indexKeys));
-				
-			}
-			let result = {};
-			result[indexKeys] = data;
-			return result;
-		}
-
-		let map = {};
-		for (let i = 0; i < Math.min(data.length, indexKeys.length); i++) {
-			map[indexKeys[i]] = data[i];
-		}
-		return map;
-	}
-
-	_getDataMatrixUnbounded(key, outerArrayKey = null, innerArrayKey = null) {
-		//x in query is inner , y in query is outer
-		let queryDataObject = this.getQueryDataObject(key);
-
-		//Dimensionless		
-		if (!outerArrayKey && !innerArrayKey) {
-			if (queryDataObject.hasNoDimensions()) {
-				return queryDataObject.getData(this.allowFallbackData);
-			}
-			if (queryDataObject.getDimensionCount() > 1) {
-				throw new RangeError('No dimension(s) defined while requesting data by key ' + key);
-			}
-		//Undefined dimensions
-		} else if (outerArrayKey == innerArrayKey) {
-			throw new RangeError('Cannot request duplicate dimension ' + outerArrayKey + ' for data registered by key ' + key)
-		}
-
-		if (outerArrayKey && (!queryDataObject.hasDimension(outerArrayKey))) {
-			throw new RangeError('Dimension ' + outerArrayKey + ' not known for data registered by key ' + key);
-		}
-		if (innerArrayKey && (!queryDataObject.hasDimension(innerArrayKey))) {
-			throw new RangeError('Dimension ' + innerArrayKey + ' not known for data registered by key ' + key);
-		}
-
-		// 2 Dimensions
-		if (queryDataObject.hasDimensionX() && queryDataObject.hasDimensionY()) {
-			if (innerArrayKey == queryDataObject.getDimensionX() || outerArrayKey == queryDataObject.getDimensionY()) {
-				return queryDataObject.getData(this.allowFallbackData);
-			} else {
-				return ArrayUtils.flipMatrix(queryDataObject.getData(this.allowFallbackData));
-			}
-		}
-
-		// X dimension
-		else if (queryDataObject.hasDimensionX()) {
-			if (innerArrayKey == queryDataObject.getDimensionX()) {
-				return [queryDataObject.getData(this.allowFallbackData)];
-			} else if (outerArrayKey === null || outerArrayKey == queryDataObject.getDimensionX()) {
-				return queryDataObject.getData(this.allowFallbackData);
-			}
-
-		}
-
-		//Y dimension
-		else if (queryDataObject.hasDimensionY()) {
-			if (innerArrayKey == queryDataObject.getDimensionY()) {
-				return ArrayUtils.flipMatrix(queryDataObject.getData(this.allowFallbackData));
-			} else if (outerArrayKey === null || outerArrayKey == queryDataObject.getDimensionY()) {
-				let data = ArrayUtils.coerceToArray(queryDataObject.getData(this.allowFallbackData))
-				return [].concat(...data);
-			}
-
-		}
-
-		//Undefined
-		throw new RangeError('Unknown state occured while requesting data of key ' + key + ' with dimension(s) ' + outerArrayKey + ', ' + innerArrayKey);
-	}
-
-	getQueryDataObject(key) {
-		let queryDataObject = this.queryDataObjects[key];
-		if (!queryDataObject) {
-			throw new RangeError('No QueryData registered with key ' + key);
-		}
-		return queryDataObject;
-	}
-	
-	getUnresolvedDataKeys() {
-		let unresolved = [];
-		for (let key of Object.keys(this.queryDataObjects)) {
-			if (!this.getQueryDataObject(key).isAllQueryDataResolved()) {
-				unresolved.push(key);
-			}
-
-		}
-		return unresolved;
-	}
-
-	setAllowFallbackData(allow) {
-		this.allowFallbackData = (!!allow);
-	}
-
-	setSizedKey(key, size) {
-		if (size === null) {
-			delete this.sizedKeys[key];
-		} else {
-			this.sizedKeys[key] = size;
-		}
-	}
-
-	allQueriesResolved() {
-		return this.getUnresolvedDataKeys().length === 0;
-	}
-
-	static isResolvedQueryData(query) {
-		this.QueryDataObject.appearsResolved(query);
-	}
-
-	static {
-		this.QueryDataObject = class {
-			constructor(args) {
-				args = Object.assign({
-					query: null,
-					fallbackData: null,
-					x: null,
-					y: null,
-				}, args);
-
-				this.setQueryData(args['query']);
-				this.setFallbackData(args['fallbackData']);
-
-				this.setDimensionX(args['x']);
-				this.setDimensionY(args['y']);
-			}
-
-			queryData = null;
-			fallbackData = null;
-			x = null;
-			y = null;
-
-			getData(allowFallbackData = true) {
-				if (this.hasResolvedQueryData()) {
-					return this.getQueryData();
-				}
-				if (!allowFallbackData) {
-					throw 'Query not resolved and no fallback data allowed';
-				}
-
-				if (this.hasResolvedFallbackData()) {
-					return this.getFallbackData();
-				}
-				throw 'Query not resolved and no fallback data available';
-			}
-
-			getQueryData() {
-				let data = this.queryData;
-				data = this.constructor.copyData(data);
-				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(data);
-				}
-				return data;
-			}
-			getFallbackData() {
-				let data = this.fallbackData;
-				data = this.constructor.copyData(data);
-				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(data);
-				}
-				return data;
-			}
-
-			setQueryData(data) {
-				this.queryData = data === null ? null : this.constructor.parseToData(data);
-			}
-
-			setFallbackData(data) {
-				this.fallbackData = data === null ? null : this.constructor.parseToData(data);
-			}
-			setDimensionX(data) {
-				this.x = data ?? null;
-			}
-			setDimensionY(data) {
-				this.y = data ?? null;
-			}
-
-			getDimensionX() {
-				return this.x;
-			}
-			getDimensionY() {
-				return this.y;
-			}
-			getDimensionCount() {
-				return this.getDimensionX() + this.getDimensionY();
-			}
-
-			hasDimensionX() {
-				return this.x !== null;
-			}
-
-			hasDimensionY() {
-				return this.y !== null;
-			}
-			hasDimension(dimension) {
-				if (this.hasDimensionX() && this.getDimensionX() == dimension) {
-					return true;
-				}
-				if (this.hasDimensionY() && this.getDimensionY() == dimension) {
-					return true;
-				}
-				return false
-			}
-			hasNoDimensions() {
-				return this.getDimensionCount() == 0;
-			}
-
-			hasQueryData() {
-				return this.constructor.exists(this.queryData);
-			}
-			hasResolvedQueryData() {
-				return this.constructor.appearsResolved(this.queryData);
-			}
-			hasFallbackData() {
-				return this.constructor.exists(this.fallbackData);
-			}
-			hasResolvedFallbackData() {
-				return this.constructor.appearsResolved(this.fallbackData);
-			}
-
-			isAllQueryDataResolved() {
-				if (this.hasFallbackData() && !this.hasResolvedFallbackData()) {
-					return false;
-				}
-				if (this.hasQueryData() && !this.hasResolvedQueryData()) {
-					return false;
-				}
-				return true;
-			}
-
-			static parseToData(value) {
-				if (Array.isArray(value)) {
-					//Arrays can always be considered already-processed and thus fine as-is.
-					return value;
-				}
-				//Simple quick parse
-				let parsedValue = null;
-				try {
-					parsedValue = JSON.parse('[' + value + ']');
-				} catch (err) {
-					parsedValue = value;
-				}
-				return parsedValue;
-			}
-			static copyData(data) {
-				//Copy data on retrieval to prevent unintended modifications to source data
-				//Deep-copies required for matrix-type data, but query data is never too complex for simple JSON-method
-				return JSON.parse(JSON.stringify(data));
-			}
-
-			static exists(value) {
-				if (typeof value === 'undefined') {
-					return false;
-				}
-				if (value === null) {
-					return false;
-				}
-				return true;
-			}
-			static appearsResolved(value) {
-				if (!this.exists(value)) {
-					return false;
-				}
-				if (!value.indexOf) {
-					//could be a number
-					return true;
-				}
-				//split the query string, otherwise it "resolves" when used in the Tygron Platform
-				return !(value.indexOf('$') === 0) && (value.indexOf('SELECT_') !== 1);
-			}
-		};
-
-	}
-}
-
 function initCollapsibles() {
 
 	var coll = document.getElementsByClassName("collapsible");
@@ -1732,6 +946,421 @@ function toCSVContent(data, properties, titles, timeframes) {
 
 }
 
+
+
+/**
+ * Listing Panel
+ * 
+ * To display a matrix of information with flexible rendering rules.
+ * headers/content/footers : 
+ * 		A matrix of values ( 0...n rows/arrays with 0...n values ) to display
+ * headersTypes/contentTypes/footerTypes : 
+ * 		A matching matrix of rendering types. Either predefined of functions. Either one array for all rows, or a matrix. Missing rows in a matrix use defaultTypes instead
+ * defaultHeadersTypes/defaultContentTypes/defaultFootersTypes : 
+ * 		A single renderer definition (or array of multiple matching one row) to render with if no list of renderers is provided
+ * tableMode : 
+ * 		Whether to render as an HTML table. If not, will use divs instead, per cell, per row, and one for the full container 
+ * flipXY : 
+ * 		If true, the rows in the data will be layed out as columns, and vice versa.
+ */
+
+class ListingPanelController {
+	
+	constructor(domTarget, args = {}) {
+		this.args = Object.assign( {
+				'content' : [],
+				'contentTypes' : [],
+				'defaultContentTypes' : 'label',
+				
+				'headers': [],
+				'headersTypes' : [],
+				'defaultHeaderTypes' : 'label',
+				
+				'footers':[],
+				'footersTypes': [],
+				'defaultFootersTypes': 'label',
+				
+				'tableMode': true,
+				'flipXY' : false,
+			}, args );
+		
+		this.parent = null;
+		this.domElement = null;
+		
+		try {
+			this.parent = ensureDomElement(domTarget);
+		} catch( err ) {
+		}
+	}
+
+	addContent(content, renderTypes = null) {
+		this.args['content'].push(content);
+		if (renderTypes) {
+			let index = this.args['content'].length -1;
+			this.args['contentTypes'][index] = renderTypes;
+		}
+	}
+	addHeader(content, renderTypes = null) {
+		this.args['headers'].push(content);
+		if (renderTypes) {
+			let index = this.args['content'].length -1;
+			this.args['footersTypes'][index] = renderTypes;
+		}
+	}
+	addFooter(content, renderTypes = null) {
+		this.args['footers'].push(content);
+		if (renderTypes) {
+			let index = this.args['content'].length -1;
+			this.args['headersTypes'][index] = renderTypes;
+		}
+	}
+
+	clearContent() {
+		this.args['content'] = [];
+		this.args['contentTypes'] = [];
+	}
+	clearHeader() {
+		this.args['headers'] = [];
+		this.args['footersTypes'] = [];
+	}
+	clearFooter() {
+		this.args['footers'] = [];
+		this.args['headersTypes'] = [];
+	}
+	
+	setDefaultContentRenderTypes(renderTypes) {
+			this.args['defaultContentTypes'] = renderTypes;
+	}
+	setDefaultHeaderRenderTypes(renderTypes) {
+			this.args['defaultHeadersTypes'] = renderTypes;
+	}
+	setDefaultFootersRenderTypes(renderTypes) {
+			this.args['defaultFootersTypes'] = renderTypes;
+	}
+	
+	/* Based on the configuration and content, create the actual dom elements. */
+	render( rerender = true ) {
+		if (this.domElement && ! rerender) {
+			return this.domElement;
+		}
+		
+		let renderRules = this._createRenderRules(this.args)
+		if (this.args['flipXY']) {
+			renderRules = ArrayUtils.flipMatrix(renderRules);
+		}
+		let domElement = this._createDomElement(renderRules, this.args['tableMode']);
+		
+		if (this.parent) {
+			if (this.domElement) {
+				this.parent.removeChild(this.domElement);
+			}
+			this.parent.appendChild(domElement);
+		}
+		
+		this.domElement = domElement;
+	}
+	
+	getValues(section='content') {
+		let selector = 'entry'+  (section ? ' '+section : '');
+		let entries = this.domElement.getElementsByClassName(selector);
+		
+		let values = [];
+		for (let entry of entries) {
+			let entryValues = [];
+			let inputs = entry.getElementsByClassName('input');
+			for (let input of inputs) {
+				entryValues.push(this._getValueFromInput(input));
+			}
+			values.push(entryValues);
+		}
+		return values;
+	}
+	
+	getRenderer(type, args) {
+		type = type ?? 'label';
+		if (typeof type === 'function') {
+			return type;
+		}
+		
+		let renderer = null;
+		try {
+			renderer = ListingPanelController.getRenderer(type, args);
+		} catch (err) {
+			console.error('Failed to get renderer type '+type+', reason: '+err);
+			renderer = ListingPanelController.getRenderer('label');
+		}
+		return renderer;
+	}
+	
+	
+	static DEFAULT_CLASS = 'listingPanel';
+	
+	
+	/* Turn the content and provided render types into prepared render rules for each individual cell of the listing */
+	_createRenderRules( args = {} ) {
+		
+		let renderRules = [];
+		for ( let i=0 ; i<args['headers'].length ; i++ ) {
+			let types = this._getRenderTypesFromMatrix( args['headersTypes'], i, args['defaultHeaderTypes']);
+			let prepared = this._createCellRenderRules(args['headers'][i], types, {'special':'header'});
+			if (prepared) {
+				renderRules.push(prepared);
+			}
+		}
+		for ( let i=0 ; i<args['content'].length ; i++ ) {
+			let types = this._getRenderTypesFromMatrix( args['contentTypes'], i, args['defaultContentTypes']);
+			let prepared = this._createCellRenderRules(args['content'][i], types, {'special':'content'});
+			if (prepared) {
+				renderRules.push(prepared);
+			}
+		}
+		for ( let i=0 ; i<args['footers'].length ; i++ ) {
+			let types = this._getRenderTypesFromMatrix( args['footersTypes'], i, args['defaultFootersTypes']);
+			let prepared = this._createCellRenderRules(args['footers'][i], types, {'special':'footer'});
+			if (prepared) {
+				renderRules.push(prepared);
+			}
+		}
+		return renderRules;
+	}
+	
+	/* From a matrix of renderttpes, get the appropriate row if possible. Otherwise, use the default Types. */
+	_getRenderTypesFromMatrix(matrix, index, defaultTypes = []) {
+		if ( Array.isArray(matrix) ) {
+			if ( matrix.length == 0 ) {
+				return defaultTypes;
+			}
+			if ( !ArrayUtils.isMatrix(matrix) ) {
+				return matrix;
+			}
+			return matrix[index] ?? defaultTypes;
+		}
+		return matrix ?? defaultTypes;
+	}
+	
+	/* Create the render rule for an array of individual cells. */
+	_createCellRenderRules(contents = null, renderers = [], defaultRules = {}) {
+		defaultRules = Object.assign( {
+				'content' 	: null, // Default data, overwritten by the actual data
+				'rendering' : null, // Default type to use if "types" does not extend as far as datas
+				'special' 	: null, // Whether the rules are for headers, footers, or other special contents
+			}, defaultRules );
+		if ( contents===null ) {
+			return [];
+		}
+		if ( !Array.isArray(contents) ) {
+			contents = [contents];
+		}
+		if ( !Array.isArray(renderers) ) {
+			renderers = Array(contents.length).fill(renderers);
+		}
+		let cellRenderRules = [];
+		for (let i=0;i<contents.length;i++) {
+			let renderType = renderers[i];
+			let renderOptions = null;
+			if (renderType && renderType['type']) {
+				renderOptions = renderType ?? null;
+				renderType = renderType['type'];
+			}
+			cellRenderRules.push( Object.assign( {}, defaultRules, {
+				'content'	: contents[i],
+				'rendering'	: renderType ?? defaultRules['rendering'],
+				'options'	: renderOptions,
+			} ) );
+		}
+		return cellRenderRules;
+	}
+	
+	_createDomElement(renderRules, tableMode) {
+		
+		let domElement;
+		let domInnerElement;
+		
+		if (tableMode) {
+			domElement = document.createElement('table');
+			domInnerElement = document.createElement('tbody');
+			domElement.appendChild(domInnerElement);
+		} else {
+			domElement = document.createElement('div');
+			domInnerElement = domElement;
+		}
+		
+		for ( let i = 0 ; i < renderRules.length ; i++ ) {
+			let rowElement = this._createDomElementsRow(renderRules[i], tableMode);
+			domInnerElement.appendChild(rowElement);
+		}
+		domElement.classList.add(ListingPanelController.DEFAULT_CLASS);
+		
+		return domElement;	
+	}
+	
+	/* Generate */
+	_createDomElementsRow(rowRenderRules, tablemode) {
+		
+		let rowElementType = tablemode ? 'tr' : 'div';
+		let rowElement = document.createElement(rowElementType);
+		rowElement.classList.add('entry');
+		
+		let specialRow = null;
+		
+		for ( let i = 0 ; i < rowRenderRules.length ; i++ ) {
+			let cellRule = rowRenderRules[i];
+			let contentRenderer = this.getRenderer(cellRule['rendering'], cellRule['options']);
+			
+			let cellElement = contentRenderer(cellRule['content']);
+			if (cellRule['special']) {
+				cellElement.classList.add(cellRule['special']);
+			}
+			
+			if (tablemode) {
+				let wrappingCell = null;
+				if (cellRule['special'] === 'header') {
+					wrappingCell = document.createElement('th');
+				} else {
+					wrappingCell = document.createElement('td');
+				}
+				wrappingCell.appendChild(cellElement);
+				cellElement = wrappingCell;
+			}
+			
+			rowElement.appendChild(cellElement);
+			
+			specialRow = specialRow ?? cellRule['special'];
+			if (specialRow !== cellRule['special']) {
+				specialRow = false;	
+			}
+		}
+		
+		if (specialRow) {
+			rowElement.classList.add(specialRow);
+		}
+		
+		return rowElement;
+	}
+	
+	_getValueFromInput(input) {
+		if (typeof input.getValue === 'function') {
+			return input.getValue();
+		}
+		let selecteds = input.getElementsByClassName('selected');
+		if (selecteds.length>0) {
+			return selecteds[0].value;
+		}
+	}
+	
+	//Cache to prevent recreating renderers when many values are displayed the same
+	static cachedRenderers = {};
+	static getRenderer(type, args) {
+		if ( typeof type === 'function') {
+			return type;
+		}
+		
+		let cacheKey = JSON.stringify([type,args]);
+		let renderer = this.cachedRenderers[cacheKey] ?? null;
+		if ( renderer ) {
+			return renderer;
+		}
+	
+		switch(type) {
+			case 'label':
+				renderer = this._getRendererLabel(args);
+				break;
+			case 'buttons':
+				renderer = this._getRendererButtons(args);
+				break;
+			default:
+				throw 'Could not find renderer type '+type;
+		}
+		
+		if (renderer === false) {
+			throw 'Rendering type '+type+' requires arguments. Use getRenderer(type, args) to prepare this renderer instance.';
+		}
+		
+		this.cachedRenderers[cacheKey] = renderer;
+		return renderer;
+	}
+
+	static _applyGenericRendererOptions(element, options) {
+		
+		for (let key in options) {
+			let value = options[key];
+			if (key === 'style') {
+				for (let subKey in value ) element.style[subKey] = value[subKey];
+			}
+			if (key === 'class') {
+				for (let subKey in value ) element.classList.add( value[subKey] );
+			}
+		}
+		return element;
+	}
+	
+	static _getRendererLabel(options) {
+		let opt = options;
+		return function(content) {
+			let element = document.createElement('div');
+			element.classList.add('label');
+			let labelElement = document.createElement('span');
+			labelElement.innerHTML = content;
+			element.appendChild(labelElement);
+			
+			ListingPanelController._applyGenericRendererOptions(element, opt);
+			
+			return element;
+		}
+	}
+	
+	static _getRendererButtons(options) {
+		let opt = options;
+		if ( !opt || !opt['inputs'] ) {
+		throw 'Options required for buttons renderer';
+		}
+		
+		if ( !Array.isArray(opt['inputs'])) {
+			throw 'Option "inputs" required for buttons renderer';
+		}
+		let inputs = opt['inputs'];
+		return function(content) {
+			let element = document.createElement('div');
+			element.classList.add('input');
+			element.classList.add('buttons')
+			
+			for (let i = 0; i < inputs.length ; i++) {
+				let inputElement = document.createElement('input');
+				inputElement.type = 'button';
+				inputElement.value = inputs[i];
+				if (inputElement.value == content) {
+					inputElement.classList.add('selected');
+				}
+				element.appendChild(inputElement);
+			}
+			attachHandler(element, 'click', 'input[type="button"]', function(event){
+				let oldElement = this.closest('.buttons').getElementsByClassName('selected');
+				if (oldElement.length>0) {
+					for( let el of oldElement) {
+						el.classList.remove('selected');
+					}
+					oldElement = oldElement[0] ?? null;
+				}
+				this.classList.add('selected');
+				if (this != oldElement) {
+					this.closest('.'+ListingPanelController.DEFAULT_CLASS).dispatchEvent(new Event('change'));
+				}
+			});
+			
+			ListingPanelController._applyGenericRendererOptions(element, opt);
+			
+			return element;
+		}
+	}
+}
+class NumberUtils {
+
+	static isNumeric(value) {
+		return !isNaN(value*1);
+	}
+
+}
+
 function barPlot(plotDivName, data, timeframe, properties, colors, titles, layout) {
 
 
@@ -2050,6 +1679,377 @@ function createPiePlotLayout() {
 	return layout;
 }
 
+
+
+class QueryDataManager {
+
+	constructor(args = {}) {
+		args = Object.assign({
+			allowFallbackData: true,
+			sizedKeys: {}
+		}, args);
+
+		this.setAllowFallbackData(args['allowFallbackData']);
+		for (let key in args['sizedKeys']) {
+			this.setSizedKey(key, args['sizedKeys'][key]);
+		}
+	}
+
+	allowFallbackData = true;
+
+	sizedKeys = {};
+	queryDataObjects = {};
+
+	addQueryData(key, args = {}) {
+		args = Object.assign({
+			query: null,
+			fallbackData: null,
+			x: null,
+			y: null,
+		}, args);
+
+		let queryData = new this.constructor.QueryDataObject(args);
+		this.queryDataObjects[key] = queryData;
+
+		return queryData;
+	}
+
+	addQuery(key, query) {
+		return this.addQueryData(key, { query: query });
+	}
+
+	addQueryDatas(queries = {}) {
+		for (let queryKey in queries) {
+			this.addQueryData(queryKey, queries[queryKey]);
+		}
+	}
+
+	hasData(key) {
+		return (!!this.queryDataObjects[key]);
+	}
+
+	getData(key, forceToArray = true) {
+		let queryDataObject = this.getQueryDataObject(key);
+		let data = queryDataObject.getData(this.allowFallbackData);
+		return forceToArray ? ArrayUtils.coerceToArray(data) : data;
+	}
+
+	getDataMatrix(key, outerArrayKey = null, innerArrayKey = null) {
+		let data = this._getDataMatrixUnbounded(key, outerArrayKey, innerArrayKey);
+
+		let innerSize = this.sizedKeys[innerArrayKey];
+		let outerSize = this.sizedKeys[outerArrayKey];
+
+		if (((innerSize ?? null) != null) || ((outerSize ?? null) != null)) {
+			data = ArrayUtils.clampMatrixSize(data, 0, outerSize, outerSize, innerSize, innerSize);
+		}
+
+		return data;
+	}
+
+	getDataKeyValues(key, kvIndex) {
+		let queryDataObject = this.getQueryDataObject(key);
+
+		if (queryDataObject.hasNoDimensions()) {
+			throw new RangeError('Cannot request key-value mapping from dimensionless data registered by key ' + key);
+		}
+
+		let data = this.getDataMatrix(key, null, kvIndex);
+		data = ArrayUtils.mapFromKeyValueMatrix(data);
+		if (queryDataObject.getDimensionCount() == 1) {
+			return ArrayUtils.unArrayIfSingleElement(data);
+		}
+		return data;
+	}
+
+	getDataKeyIndexed(key, kvIndex, indexKeys) {
+		let data = this.getDataMatrix(key, kvIndex);
+
+		if (ArrayUtils.isMatrix(indexKeys)) {
+			throw new TypeError('Cannot index data by matrix');
+		}
+
+		if (Array.isArray(indexKeys) && !Array.isArray(data)) {
+			throw new TypeError('Cannot index singular data by array');
+		}
+		if (!Array.isArray(indexKeys)) {
+			if (this.hasData(indexKeys)) {
+				return this.getDataKeyIndexed(key, kvIndex, this.getData(indexKeys));
+				
+			}
+			let result = {};
+			result[indexKeys] = data;
+			return result;
+		}
+
+		let map = {};
+		for (let i = 0; i < Math.min(data.length, indexKeys.length); i++) {
+			map[indexKeys[i]] = data[i];
+		}
+		return map;
+	}
+
+	_getDataMatrixUnbounded(key, outerArrayKey = null, innerArrayKey = null) {
+		//x in query is inner , y in query is outer
+		let queryDataObject = this.getQueryDataObject(key);
+
+		//Dimensionless		
+		if (!outerArrayKey && !innerArrayKey) {
+			if (queryDataObject.hasNoDimensions()) {
+				return queryDataObject.getData(this.allowFallbackData);
+			}
+			if (queryDataObject.getDimensionCount() > 1) {
+				throw new RangeError('No dimension(s) defined while requesting data by key ' + key);
+			}
+		//Undefined dimensions
+		} else if (outerArrayKey == innerArrayKey) {
+			throw new RangeError('Cannot request duplicate dimension ' + outerArrayKey + ' for data registered by key ' + key)
+		}
+
+		if (outerArrayKey && (!queryDataObject.hasDimension(outerArrayKey))) {
+			throw new RangeError('Dimension ' + outerArrayKey + ' not known for data registered by key ' + key);
+		}
+		if (innerArrayKey && (!queryDataObject.hasDimension(innerArrayKey))) {
+			throw new RangeError('Dimension ' + innerArrayKey + ' not known for data registered by key ' + key);
+		}
+
+		// 2 Dimensions
+		if (queryDataObject.hasDimensionX() && queryDataObject.hasDimensionY()) {
+			if (innerArrayKey == queryDataObject.getDimensionX() || outerArrayKey == queryDataObject.getDimensionY()) {
+				return queryDataObject.getData(this.allowFallbackData);
+			} else {
+				return ArrayUtils.flipMatrix(queryDataObject.getData(this.allowFallbackData));
+			}
+		}
+
+		// X dimension
+		else if (queryDataObject.hasDimensionX()) {
+			if (innerArrayKey == queryDataObject.getDimensionX()) {
+				return [queryDataObject.getData(this.allowFallbackData)];
+			} else if (outerArrayKey === null || outerArrayKey == queryDataObject.getDimensionX()) {
+				return queryDataObject.getData(this.allowFallbackData);
+			}
+
+		}
+
+		//Y dimension
+		else if (queryDataObject.hasDimensionY()) {
+			if (innerArrayKey == queryDataObject.getDimensionY()) {
+				return ArrayUtils.flipMatrix(queryDataObject.getData(this.allowFallbackData));
+			} else if (outerArrayKey === null || outerArrayKey == queryDataObject.getDimensionY()) {
+				let data = ArrayUtils.coerceToArray(queryDataObject.getData(this.allowFallbackData))
+				return [].concat(...data);
+			}
+
+		}
+
+		//Undefined
+		throw new RangeError('Unknown state occured while requesting data of key ' + key + ' with dimension(s) ' + outerArrayKey + ', ' + innerArrayKey);
+	}
+
+	getQueryDataObject(key) {
+		let queryDataObject = this.queryDataObjects[key];
+		if (!queryDataObject) {
+			throw new RangeError('No QueryData registered with key ' + key);
+		}
+		return queryDataObject;
+	}
+	
+	getUnresolvedDataKeys() {
+		let unresolved = [];
+		for (let key of Object.keys(this.queryDataObjects)) {
+			if (!this.getQueryDataObject(key).isAllQueryDataResolved()) {
+				unresolved.push(key);
+			}
+
+		}
+		return unresolved;
+	}
+
+	setAllowFallbackData(allow) {
+		this.allowFallbackData = (!!allow);
+	}
+
+	setSizedKey(key, size) {
+		if (size === null) {
+			delete this.sizedKeys[key];
+		} else {
+			this.sizedKeys[key] = size;
+		}
+	}
+
+	allQueriesResolved() {
+		return this.getUnresolvedDataKeys().length === 0;
+	}
+
+	static isResolvedQueryData(query) {
+		this.QueryDataObject.appearsResolved(query);
+	}
+
+	static {
+		this.QueryDataObject = class {
+			constructor(args) {
+				args = Object.assign({
+					query: null,
+					fallbackData: null,
+					x: null,
+					y: null,
+				}, args);
+
+				this.setQueryData(args['query']);
+				this.setFallbackData(args['fallbackData']);
+
+				this.setDimensionX(args['x']);
+				this.setDimensionY(args['y']);
+			}
+
+			queryData = null;
+			fallbackData = null;
+			x = null;
+			y = null;
+
+			getData(allowFallbackData = true) {
+				if (this.hasResolvedQueryData()) {
+					return this.getQueryData();
+				}
+				if (!allowFallbackData) {
+					throw 'Query not resolved and no fallback data allowed';
+				}
+
+				if (this.hasResolvedFallbackData()) {
+					return this.getFallbackData();
+				}
+				throw 'Query not resolved and no fallback data available';
+			}
+
+			getQueryData() {
+				let data = this.queryData;
+				data = this.constructor.copyData(data);
+				if (this.hasNoDimensions()) {
+					return ArrayUtils.unArrayIfSingleElement(data);
+				}
+				return data;
+			}
+			getFallbackData() {
+				let data = this.fallbackData;
+				data = this.constructor.copyData(data);
+				if (this.hasNoDimensions()) {
+					return ArrayUtils.unArrayIfSingleElement(data);
+				}
+				return data;
+			}
+
+			setQueryData(data) {
+				this.queryData = data === null ? null : this.constructor.parseToData(data);
+			}
+
+			setFallbackData(data) {
+				this.fallbackData = data === null ? null : this.constructor.parseToData(data);
+			}
+			setDimensionX(data) {
+				this.x = data ?? null;
+			}
+			setDimensionY(data) {
+				this.y = data ?? null;
+			}
+
+			getDimensionX() {
+				return this.x;
+			}
+			getDimensionY() {
+				return this.y;
+			}
+			getDimensionCount() {
+				return this.getDimensionX() + this.getDimensionY();
+			}
+
+			hasDimensionX() {
+				return this.x !== null;
+			}
+
+			hasDimensionY() {
+				return this.y !== null;
+			}
+			hasDimension(dimension) {
+				if (this.hasDimensionX() && this.getDimensionX() == dimension) {
+					return true;
+				}
+				if (this.hasDimensionY() && this.getDimensionY() == dimension) {
+					return true;
+				}
+				return false
+			}
+			hasNoDimensions() {
+				return this.getDimensionCount() == 0;
+			}
+
+			hasQueryData() {
+				return this.constructor.exists(this.queryData);
+			}
+			hasResolvedQueryData() {
+				return this.constructor.appearsResolved(this.queryData);
+			}
+			hasFallbackData() {
+				return this.constructor.exists(this.fallbackData);
+			}
+			hasResolvedFallbackData() {
+				return this.constructor.appearsResolved(this.fallbackData);
+			}
+
+			isAllQueryDataResolved() {
+				if (this.hasFallbackData() && !this.hasResolvedFallbackData()) {
+					return false;
+				}
+				if (this.hasQueryData() && !this.hasResolvedQueryData()) {
+					return false;
+				}
+				return true;
+			}
+
+			static parseToData(value) {
+				if (Array.isArray(value)) {
+					//Arrays can always be considered already-processed and thus fine as-is.
+					return value;
+				}
+				//Simple quick parse
+				let parsedValue = null;
+				try {
+					parsedValue = JSON.parse('[' + value + ']');
+				} catch (err) {
+					parsedValue = value;
+				}
+				return parsedValue;
+			}
+			static copyData(data) {
+				//Copy data on retrieval to prevent unintended modifications to source data
+				//Deep-copies required for matrix-type data, but query data is never too complex for simple JSON-method
+				return JSON.parse(JSON.stringify(data));
+			}
+
+			static exists(value) {
+				if (typeof value === 'undefined') {
+					return false;
+				}
+				if (value === null) {
+					return false;
+				}
+				return true;
+			}
+			static appearsResolved(value) {
+				if (!this.exists(value)) {
+					return false;
+				}
+				if (!value.indexOf) {
+					//could be a number
+					return true;
+				}
+				//split the query string, otherwise it "resolves" when used in the Tygron Platform
+				return !(value.indexOf('$') === 0) && (value.indexOf('SELECT_') !== 1);
+			}
+		};
+
+	}
+}
 
 function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
 
