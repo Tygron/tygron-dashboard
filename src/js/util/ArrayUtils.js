@@ -181,37 +181,50 @@ export class ArrayUtils {
 	static flipMatrix(matrix) {
 		let newMatrix = [];
 		let ySize = null;
+		
 		for (let i = 0; i < matrix.length; i++) {
+			
 			ySize = ySize ?? matrix[i].length;
+			
 			if (matrix[i].length != ySize) {
 				throw 'Matrix lengths inconsistent, could not flip';
 			}
+			
 			for (let j = 0; j < matrix[i].length; j++) {
+				
 				newMatrix[j] = newMatrix[j] ?? [];
 				newMatrix[j][i] = matrix[i][j];
 			}
 		}
+		
 		return newMatrix;
 	}
 
 	static clampMatrixSize(matrix, defaultValue, minSizeOuter, maxSizeOuter, minSizeInner, maxSizeInner) {
+		
 		let newMatrix = [];
 		if (!this.isMatrix(matrix)) {
 			throw new TypeError('Not a matrix');
 		}
+		
 		for (let i = 0; i < Math.min(matrix.length, maxSizeOuter ?? matrix.length); i++) {
-			if ((maxSizeInner ?? -1) < 0) {
+			
+			if ((maxSizeInner ?? -1) < 0) {				
 				newMatrix[i] = matrix[i];
-			} else {
+			
+			} else {				
 				newMatrix[i] = matrix[i].slice(0, maxSizeInner);	
 			}
 			
-			if (minSizeInner) {
+			if (minSizeInner) {				
 				newMatrix[i] = newMatrix[i].concat(Array(Math.max(0,minSizeInner - matrix[i].length)).fill(defaultValue));
 			}
 		}
+		
 		if (minSizeOuter) {
+			
 			for (let i = newMatrix.length; i < minSizeOuter; i++) {
+				
 				newMatrix[i] = new Array(minSizeInner ?? 0).fill(defaultValue);
 			}
 		}
@@ -219,23 +232,27 @@ export class ArrayUtils {
 	}
 
 	static clampMatrixSizeOuter(matrix, defaultValue, minSize, maxSize) {
+		
 		return this.clampMatrixSize(matrix, defaultValue, minSize, maxSize, null, null);
-	}
+	}	
 
 	static clampMatrixSizeInner(matrix, defaultValue, minSize, maxSize) {
+		
 		return this.clampMatrixSize(matrix, defaultValue, null, null, minSize, maxSize);
 	}
 
-
 	static isMatrix(matrix) {
+		
 		if (!Array.isArray(matrix)) {
 			return false;
 		}
+		
 		for (let inner of matrix) {
 			if (!Array.isArray(inner)) {
 				return false;
 			}
 		}
+		
 		return true;
 	}
 
