@@ -1,6 +1,8 @@
 
 export function addDownloadHandler(element, fileName, contentFunction) {
+	
 	element.addEventListener('click', () => {
+		
 		let content = contentFunction();
 		let blob = new Blob([content], { type: 'text/plain' });
 
