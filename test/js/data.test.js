@@ -1,4 +1,4 @@
-import { createLinks } from "./../../src/js/util/data.js"
+import { createLinks } from "./../../src/js/util/Data.js"
 
 describe('data ', () => {
 	

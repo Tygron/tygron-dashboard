@@ -1,9 +1,10 @@
-import { createTable } from "../util/table.js";
-import { barPlot, createBarPlotLayout, } from "../util/plot.js";
-import { setupTimeframeSlider } from "../util/timeframeslider.js";
-import { addFlowValues, createLinks } from "../util/data.js";
-import { toCSVContent, addDownloadHandler } from "../util/file.js";
-import { attachHandler } from "../util/dom.js";
+import { createTable } from "../../src/js/util/Table.js";
+import { barPlot, createBarPlotLayout, } from "../../src/js/util/Plot.js";
+import { setupTimeframeSlider } from "../../src/js/util/Timeframeslider.js";
+import { addFlowValues, createLinks } from "../../src/js/util/Data.js";
+import { toCSVContent, addDownloadHandler } from "../../src/js/util/File.js";
+import { attachHandler } from "../../src/js/util/Dom.js";
+import { connector } from "../../src/js/util/Connector.js";
 
 let windowValidation = true;
 

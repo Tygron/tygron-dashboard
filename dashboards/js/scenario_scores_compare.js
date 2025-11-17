@@ -1,7 +1,7 @@
-import { QueryDataManager } from "../util/QueryDataManager.js";
-import { ListingPanelController } from "../util/ListingPanel.js";
-import { attachHandler } from "../util/dom.js";
-import { ArrayUtils } from "../util/ArrayUtils.js";
+import { QueryDataManager } from "../../src/js/util/QueryDataManager.js";
+import { ListingPanelController } from "../../src/js/util/ListingPanel.js";
+import { attachHandler } from "../../src/js/util/Dom.js";
+import { ArrayUtils } from "../../src/js/util/ArrayUtils.js";
 
 $(window).on("load", function() {
 

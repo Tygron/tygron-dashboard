@@ -1,5 +1,5 @@
 import { ArrayUtils } from "../util/ArrayUtils.js";
-import { ensureDomElement, attachHandler } from "../util/dom.js";
+import { ensureDomElement, attachHandler } from "../util/Dom.js";
 
 /**
  * Listing Panel

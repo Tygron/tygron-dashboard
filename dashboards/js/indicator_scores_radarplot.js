@@ -1,6 +1,6 @@
-import { QueryDataManager } from "../util/QueryDataManager.js";
-import { createRadarPlotLayout, createRadarPlot } from "../util/plot.js";
-import { ArrayUtils } from "../util/ArrayUtils.js";
+import { QueryDataManager } from "../../src/js/util/QueryDataManager.js";
+import { createRadarPlotLayout, createRadarPlot } from "../../src/js/util/Plot.js";
+import { ArrayUtils } from "../../src/js/util/ArrayUtils.js";
 
 $(window).on("load", function() {
 	let scoreScale = [[0,1],[0,100]];
