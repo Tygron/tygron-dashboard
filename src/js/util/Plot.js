@@ -1,34 +1,36 @@
 
 export function barPlot(plotDivName, data, timeframe, properties, colors, titles, layout) {
 
-
-	
 	var bardata = [];
 
 	for (let i = 1; i < properties.length; i++) {
-		let trace = 		{
-				x: [],
-				y: [],
-				marker: {
-					color: []
-				},
-				name: [], 
-				type: 'bar'
-			}
-			
+
+		let trace = {
+			x: [],
+			y: [],
+			marker: {
+				color: []
+			},
+			name: [],
+			type: 'bar'
+		}
+
 		let property = properties[i];
+
 		trace.x.push(titles[property]);
 		trace.y.push(data[property][timeframe]);
+
 		trace.marker.color.push("rgba(" + colors[property].join(",") + ")");
 		trace.name = titles[property];
+
 		bardata.push(trace);
 	}
 
-	
-	
+
+
 	var layout = {
-			  showlegend: true,	 
-			  }; 
+		showlegend: true,
+	};
 
 	Plotly.newPlot(plotDivName, bardata, layout);
 }
@@ -76,72 +78,77 @@ export function volumeStackedPlot(plotDivName, data, properties, colors, titles,
 
 
 export function sankeyPlot(
-  plotDivName,
-  links,
-  timeframe,
-  properties,
-  titles,
-  layout,
-  colors = null,
-  positionsX = null,
-  positionsY = null
+	plotDivName,
+	links,
+	timeframe,
+	properties,
+	titles,
+	layout,
+	colors = null,
+	positionsX = null,
+	positionsY = null
 ) {
 
 	let link = getLink(links, timeframe);
-	
+
 	//labels bepalen
 	labels = [];
 	for (var i = 0; i < properties.length; i++) {
 		labels.push(titles[properties[i]]);
 	}
-	
+
 	let node = {
-			pad: 15,
-			thickness: 20,
-			line: { color: "black", width: 0.5 },
-			label: labels,
-			align: "right"
-		};
-		
+		pad: 15,
+		thickness: 20,
+		line: { color: "black", width: 0.5 },
+		label: labels,
+		align: "right"
+	};
+
 	// Voeg optionele kleuren toe
 	if (colors !== null) {
 		node.color = properties.map(p => colors[p]);
-			}
-			
-			// Voeg optionele posities toe
-			  if (positionsX !== null && positionsY !== null) {
-			    node.x = properties.map(p => positionsX[p]);
-			    node.y = properties.map(p => positionsY[p]);
-			  }
-	
-			// Maak het Sankey data object
-				let data = {
-					type: "sankey",
-					orientation: "h",
-					node: node,
-					link: link
-				};
-				
+	}
+
+	// Voeg optionele posities toe
+	if (positionsX !== null && positionsY !== null) {
+		node.x = properties.map(p => positionsX[p]);
+		node.y = properties.map(p => positionsY[p]);
+	}
+
+	// Maak het Sankey data object
+	let data = {
+		type: "sankey",
+		orientation: "h",
+		node: node,
+		link: link
+	};
+
 
 
 	Plotly.newPlot(plotDivName, [data], layout);
 }
 
 export function createRadarPlot(plotDivName, labels, values, range, layout) {
+
 	if (Array.isArray(values)) {
 		console.error('Array provided for Radarplot rather than mapping. Placing values in mapping under key "Values".');
-		values = { 'Values' : values };
+		values = { 'Values': values };
 	}
+
 	let plotLabels = labels.slice(0, labels.length);
 	plotLabels.push(labels[0]);
-	
+
 	let plotData = [];
-	for ( let i in values ) {
+	for (let i in values) {
+
 		let plotValues = [];
-		for (let l=0;l<labels.length;l++) {
-				plotValues[l] = values[i][l] ?? 0;
+		for (let l = 0; l < labels.length; l++) {
+			plotValues[l] = values[i][l] ?? 0;
 		}
+
 		plotValues.push(plotValues[0]);
+
 		plotData.push({
 			type: 'scatterpolar',
 			r: plotValues,
@@ -153,26 +160,27 @@ export function createRadarPlot(plotDivName, labels, values, range, layout) {
 	}
 
 	let plotLayout = JSON.parse(JSON.stringify(layout)); //deep copy
+	
 	plotLayout['polar'] ??= {
 		radialaxis: {
-		  visible: true,
-		  direction: 'clockwise',
-		  range: [Math.min.apply(null,range),Math.max.apply(null,range)]
+			visible: true,
+			direction: 'clockwise',
+			range: [Math.min.apply(null, range), Math.max.apply(null, range)]
 		},
 		angularaxis: {
-		  direction: 'clockwise'
+			direction: 'clockwise'
 		},
-	  };
+	};
 
 	Plotly.newPlot(plotDivName, plotData, plotLayout);
-	
+
 }
 
 export function createPiePlot(plotDivName, labels, values, layout) {
 	if (!Array.isArray(values)) {
 		throw new Error('PiePlot requires an array of values. Provided was: ' + (typeof values));
 	}
-	
+
 	let plotLabels = labels;
 	let plotValues = values;
 
@@ -182,11 +190,11 @@ export function createPiePlot(plotDivName, labels, values, layout) {
 		'type': 'pie',
 		'sort': false
 	}];
-	
+
 	let plotLayout = layout;
 
 	Plotly.newPlot(plotDivName, plotData, plotLayout);
-	
+
 }
 
 export function createLayout() {
@@ -294,14 +302,14 @@ export function createRadarPlotLayout() {
 	const layout = createLayout();
 	layout['legend'] ??= {};
 	layout['margin'] ??= {};
-	
+
 	Object.assign(layout['margin'], {
-		t:32,
-		b:32,
-		l:48,
-		r:48,
-		pad:0,
-		autoexpand:true,
+		t: 32,
+		b: 32,
+		l: 48,
+		r: 48,
+		pad: 0,
+		autoexpand: true,
 	});
 	layout['showlegend'] ??= true;
 	layout['autosize'] ??= true;
