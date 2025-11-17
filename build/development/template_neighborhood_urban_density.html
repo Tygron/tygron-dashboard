@@ -506,37 +506,50 @@ class ArrayUtils {
 	static flipMatrix(matrix) {
 		let newMatrix = [];
 		let ySize = null;
+		
 		for (let i = 0; i < matrix.length; i++) {
+			
 			ySize = ySize ?? matrix[i].length;
+			
 			if (matrix[i].length != ySize) {
 				throw 'Matrix lengths inconsistent, could not flip';
 			}
+			
 			for (let j = 0; j < matrix[i].length; j++) {
+				
 				newMatrix[j] = newMatrix[j] ?? [];
 				newMatrix[j][i] = matrix[i][j];
 			}
 		}
+		
 		return newMatrix;
 	}
 
 	static clampMatrixSize(matrix, defaultValue, minSizeOuter, maxSizeOuter, minSizeInner, maxSizeInner) {
+		
 		let newMatrix = [];
 		if (!this.isMatrix(matrix)) {
 			throw new TypeError('Not a matrix');
 		}
+		
 		for (let i = 0; i < Math.min(matrix.length, maxSizeOuter ?? matrix.length); i++) {
-			if ((maxSizeInner ?? -1) < 0) {
+			
+			if ((maxSizeInner ?? -1) < 0) {				
 				newMatrix[i] = matrix[i];
-			} else {
+			
+			} else {				
 				newMatrix[i] = matrix[i].slice(0, maxSizeInner);	
 			}
 			
-			if (minSizeInner) {
+			if (minSizeInner) {				
 				newMatrix[i] = newMatrix[i].concat(Array(Math.max(0,minSizeInner - matrix[i].length)).fill(defaultValue));
 			}
 		}
+		
 		if (minSizeOuter) {
+			
 			for (let i = newMatrix.length; i < minSizeOuter; i++) {
+				
 				newMatrix[i] = new Array(minSizeInner ?? 0).fill(defaultValue);
 			}
 		}
@@ -544,23 +557,27 @@ class ArrayUtils {
 	}
 
 	static clampMatrixSizeOuter(matrix, defaultValue, minSize, maxSize) {
+		
 		return this.clampMatrixSize(matrix, defaultValue, minSize, maxSize, null, null);
-	}
+	}	
 
 	static clampMatrixSizeInner(matrix, defaultValue, minSize, maxSize) {
+		
 		return this.clampMatrixSize(matrix, defaultValue, null, null, minSize, maxSize);
 	}
 
-
 	static isMatrix(matrix) {
+		
 		if (!Array.isArray(matrix)) {
 			return false;
 		}
+		
 		for (let inner of matrix) {
 			if (!Array.isArray(inner)) {
 				return false;
 			}
 		}
+		
 		return true;
 	}
 
@@ -568,27 +585,26 @@ class ArrayUtils {
 
 function initCollapsibles() {
 
-	var coll = document.getElementsByClassName("collapsible");
-	var i;
-
-	for (i = 0; i < coll.length; i++) {
+	let coll = document.getElementsByClassName("collapsible");
+	
+	for (let i = 0; i < coll.length; i++) {
+		
 		coll[i].addEventListener("click", function() {
 
 			this.classList.toggle("active");
-			var content = this.nextElementSibling;
-							
+			let content = this.nextElementSibling;
+			let style = content.style;
+
 			if (content.classList.contains("delayed")) {
-				if (content.style.maxHeight) {
-					content.style.maxHeight = null;
+				
+				if (style.maxHeight) {
+					style.maxHeight = null;
 				} else {
-					content.style.maxHeight = content.scrollHeight + "px";
+					style.maxHeight = content.scrollHeight + "px";
 				}
+			
 			} else {
-				if (content.style.display === "block") {
-					content.style.display = "none";
-				} else {
-					content.style.display = "block";
-				}
+				style.display = style.display === "block" ? "none" : "block";
 			}
 
 
@@ -597,8 +613,10 @@ function initCollapsibles() {
 }
 
 function openCollapsibles() {
-	var coll = document.getElementsByClassName("collapsible");
+	
+	let  coll = document.getElementsByClassName("collapsible");
 	for (i = 0; i < coll.length; i++) {
+		
 		const collapsible = coll[i];
 		setTimeout(function() {
 			collapsible.click();
@@ -822,11 +840,14 @@ function setTimeframeValues(data, property, values, args = {}) {
 			data[property][i] -= previous;
 		}
 	}
+	
 	if (args.negative !== undefined) {
+		
 		if (args.negative) {
 			for (let i = 0; i < data[property].length; i++) {
 				data[property][i] = Math.abs(Math.min(0, data[property][i]));
 			}
+		
 		} else {
 			for (let i = 0; i < data[property].length; i++) {
 				data[property][i] = Math.max(0, data[property][i]);
@@ -866,14 +887,19 @@ function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, prope
 	}
 	
 	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
+		
 		if ((areaIDTo[i] == data.itemID) && (areaIDFrom[i] == data.itemID) && (condition == undefined || condition[i])) {
+			
 			if (propertyInner != undefined) {
+				
 				if (values[i] > 0) {
 					data[propertyInner][timeframe] += values[i];
+				
 				} else {
 					data[propertyInner][timeframe] -= values[i];
 				}
 			}
+		
 		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
 			
 			if (values[i] > 0) {
@@ -906,17 +932,21 @@ function addValuesForTimeframeAndID(data, timeframe, property, idValues, values)
 
 }
 function ensureDomElement(domElementId) {
+	
 	let domElement = domElementId;
 	if (!(domElement instanceof HTMLElement)) {
 		domElement = document.getElementById(domElementId);
 	}
+	
 	if (!(domElement instanceof HTMLElement)) {
 		throw 'No element found matching ' + domElementId;
 	}
+	
 	return domElement;
 }
 
 function attachHandler(parentElement, eventType, selector, handler, referenceClass) {
+	
 	let checkHandler = function(event) {
 		event = event || window.event;
 		event.target = event.target || event.srcElement;
@@ -930,19 +960,20 @@ function attachHandler(parentElement, eventType, selector, handler, referenceCla
 	if (parentElement.addEventListener) {
 		parentElement.addEventListener(eventType, checkHandler, false);
 	}
+	
 	if (referenceClass) {
 		parentElement.classList.add(referenceClass);
 	}
 }
 
-function popupPanel(element, id, webPath) {
+function popupPanel(parent, panelID, webPath) {
 
 	let popupPanel = document.createElement('div');
 	popupPanel.classList.add('popup');
 
 	let panelCloser = document.createElement('div');
 	panelCloser.classList.add('closer');
-	attachHandler(panelCloser, 'click', null, function() { clearPopupPanel(element); });
+	attachHandler(panelCloser, 'click', null, function() { clearPopupPanel(parent); });
 
 	let panelFrame = document.createElement('iframe');
 	panelFrame.classList.add('popupFrame');
@@ -951,13 +982,14 @@ function popupPanel(element, id, webPath) {
 	popupPanel.appendChild(panelFrame);
 
 	webPath = webPath ?? '/web/panel.html';
-	let queryString = 'token=$TOKEN&id=' + id;
+	let queryString = 'token=$TOKEN&id=' + panelID;
 	let webTarget = webPath + (webPath.indexOf('?') < 0 ? '?' : '&') + queryString;
 	panelFrame.src = webTarget;
 
-	clearPopupPanel(element);
-	element.appendChild(popupPanel);
+	clearPopupPanel(parent);
+	parent.appendChild(popupPanel);
 }
+
 function clearPopupPanel(element) {
 	let popups = element.getElementsByClassName('popup');
 	for (let i = 0; i < popups.length; i++) {
@@ -967,7 +999,9 @@ function clearPopupPanel(element) {
 }
 
 function addDownloadHandler(element, fileName, contentFunction) {
+	
 	element.addEventListener('click', () => {
+		
 		let content = contentFunction();
 		let blob = new Blob([content], { type: 'text/plain' });
 
@@ -1419,34 +1453,36 @@ class NumberUtils {
 
 function barPlot(plotDivName, data, timeframe, properties, colors, titles, layout) {
 
-
-	
 	var bardata = [];
 
 	for (let i = 1; i < properties.length; i++) {
-		let trace = 		{
-				x: [],
-				y: [],
-				marker: {
-					color: []
-				},
-				name: [], 
-				type: 'bar'
-			}
-			
+
+		let trace = {
+			x: [],
+			y: [],
+			marker: {
+				color: []
+			},
+			name: [],
+			type: 'bar'
+		}
+
 		let property = properties[i];
+
 		trace.x.push(titles[property]);
 		trace.y.push(data[property][timeframe]);
+
 		trace.marker.color.push("rgba(" + colors[property].join(",") + ")");
 		trace.name = titles[property];
+
 		bardata.push(trace);
 	}
 
-	
-	
+
+
 	var layout = {
-			  showlegend: true,	 
-			  }; 
+		showlegend: true,
+	};
 
 	Plotly.newPlot(plotDivName, bardata, layout);
 }
@@ -1494,72 +1530,77 @@ function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout
 
 
 function sankeyPlot(
-  plotDivName,
-  links,
-  timeframe,
-  properties,
-  titles,
-  layout,
-  colors = null,
-  positionsX = null,
-  positionsY = null
+	plotDivName,
+	links,
+	timeframe,
+	properties,
+	titles,
+	layout,
+	colors = null,
+	positionsX = null,
+	positionsY = null
 ) {
 
 	let link = getLink(links, timeframe);
-	
+
 	//labels bepalen
 	labels = [];
 	for (var i = 0; i < properties.length; i++) {
 		labels.push(titles[properties[i]]);
 	}
-	
+
 	let node = {
-			pad: 15,
-			thickness: 20,
-			line: { color: "black", width: 0.5 },
-			label: labels,
-			align: "right"
-		};
-		
+		pad: 15,
+		thickness: 20,
+		line: { color: "black", width: 0.5 },
+		label: labels,
+		align: "right"
+	};
+
 	// Voeg optionele kleuren toe
 	if (colors !== null) {
 		node.color = properties.map(p => colors[p]);
-			}
-			
-			// Voeg optionele posities toe
-			  if (positionsX !== null && positionsY !== null) {
-			    node.x = properties.map(p => positionsX[p]);
-			    node.y = properties.map(p => positionsY[p]);
-			  }
-	
-			// Maak het Sankey data object
-				let data = {
-					type: "sankey",
-					orientation: "h",
-					node: node,
-					link: link
-				};
-				
+	}
+
+	// Voeg optionele posities toe
+	if (positionsX !== null && positionsY !== null) {
+		node.x = properties.map(p => positionsX[p]);
+		node.y = properties.map(p => positionsY[p]);
+	}
+
+	// Maak het Sankey data object
+	let data = {
+		type: "sankey",
+		orientation: "h",
+		node: node,
+		link: link
+	};
+
 
 
 	Plotly.newPlot(plotDivName, [data], layout);
 }
 
 function createRadarPlot(plotDivName, labels, values, range, layout) {
+
 	if (Array.isArray(values)) {
 		console.error('Array provided for Radarplot rather than mapping. Placing values in mapping under key "Values".');
-		values = { 'Values' : values };
+		values = { 'Values': values };
 	}
+
 	let plotLabels = labels.slice(0, labels.length);
 	plotLabels.push(labels[0]);
-	
+
 	let plotData = [];
-	for ( let i in values ) {
+	for (let i in values) {
+
 		let plotValues = [];
-		for (let l=0;l<labels.length;l++) {
-				plotValues[l] = values[i][l] ?? 0;
+		for (let l = 0; l < labels.length; l++) {
+			plotValues[l] = values[i][l] ?? 0;
 		}
+
 		plotValues.push(plotValues[0]);
+
 		plotData.push({
 			type: 'scatterpolar',
 			r: plotValues,
@@ -1571,26 +1612,27 @@ function createRadarPlot(plotDivName, labels, values, range, layout) {
 	}
 
 	let plotLayout = JSON.parse(JSON.stringify(layout)); //deep copy
+	
 	plotLayout['polar'] ??= {
 		radialaxis: {
-		  visible: true,
-		  direction: 'clockwise',
-		  range: [Math.min.apply(null,range),Math.max.apply(null,range)]
+			visible: true,
+			direction: 'clockwise',
+			range: [Math.min.apply(null, range), Math.max.apply(null, range)]
 		},
 		angularaxis: {
-		  direction: 'clockwise'
+			direction: 'clockwise'
 		},
-	  };
+	};
 
 	Plotly.newPlot(plotDivName, plotData, plotLayout);
-	
+
 }
 
 function createPiePlot(plotDivName, labels, values, layout) {
 	if (!Array.isArray(values)) {
 		throw new Error('PiePlot requires an array of values. Provided was: ' + (typeof values));
 	}
-	
+
 	let plotLabels = labels;
 	let plotValues = values;
 
@@ -1600,11 +1642,11 @@ function createPiePlot(plotDivName, labels, values, layout) {
 		'type': 'pie',
 		'sort': false
 	}];
-	
+
 	let plotLayout = layout;
 
 	Plotly.newPlot(plotDivName, plotData, plotLayout);
-	
+
 }
 
 function createLayout() {
@@ -1712,14 +1754,14 @@ function createRadarPlotLayout() {
 	const layout = createLayout();
 	layout['legend'] ??= {};
 	layout['margin'] ??= {};
-	
+
 	Object.assign(layout['margin'], {
-		t:32,
-		b:32,
-		l:48,
-		r:48,
-		pad:0,
-		autoexpand:true,
+		t: 32,
+		b: 32,
+		l: 48,
+		r: 48,
+		pad: 0,
+		autoexpand: true,
 	});
 	layout['showlegend'] ??= true;
 	layout['autosize'] ??= true;
