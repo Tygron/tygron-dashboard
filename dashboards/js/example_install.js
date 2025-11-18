@@ -1,0 +1,13 @@
+	
+$(window).on("load", function() {
+
+	let para = document.getElementById("myParagraph");	
+	para.innerHTML = "Testing..";		
+	if(typeof app === "undefined"){
+		para.innerHTML = "JSBridge App not found";		
+				
+	}else{
+		para.innerHTML = app.token();
+	}
+
+});
