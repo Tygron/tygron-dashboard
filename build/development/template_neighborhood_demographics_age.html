@@ -1763,6 +1763,167 @@ function createPiePlotLayout() {
 
 
 
+class QueryDataObject {
+	constructor(args) {
+		args = Object.assign({
+			query: null,
+			fallbackData: null,
+			x: null,
+			y: null,
+		}, args);
+
+		this.setQueryData(args['query']);
+		this.setFallbackData(args['fallbackData']);
+
+		this.setDimensionX(args['x']);
+		this.setDimensionY(args['y']);
+	}
+
+	queryData = null;
+	fallbackData = null;
+	x = null;
+	y = null;
+
+	getData(allowFallbackData = true) {
+		if (this.hasResolvedQueryData()) {
+			return this.getQueryData();
+		}
+		if (!allowFallbackData) {
+			throw 'Query not resolved and no fallback data allowed';
+		}
+
+		if (this.hasResolvedFallbackData()) {
+			return this.getFallbackData();
+		}
+		throw 'Query not resolved and no fallback data available';
+	}
+
+	getQueryData() {
+		let data = this.queryData;
+		data = this.constructor.copyData(data);
+		if (this.hasNoDimensions()) {
+			return ArrayUtils.unArrayIfSingleElement(data);
+		}
+		return data;
+	}
+	getFallbackData() {
+		let data = this.fallbackData;
+		data = this.constructor.copyData(data);
+		if (this.hasNoDimensions()) {
+			return ArrayUtils.unArrayIfSingleElement(data);
+		}
+		return data;
+	}
+
+	setQueryData(data) {
+		this.queryData = data === null ? null : this.parseToData(data);
+	}
+
+	setFallbackData(data) {
+		this.fallbackData = data === null ? null : this.parseToData(data);
+	}
+	setDimensionX(data) {
+		this.x = data ?? null;
+	}
+	setDimensionY(data) {
+		this.y = data ?? null;
+	}
+
+	getDimensionX() {
+		return this.x;
+	}
+	getDimensionY() {
+		return this.y;
+	}
+	getDimensionCount() {
+		return this.getDimensionX() + this.getDimensionY();
+	}
+
+	hasDimensionX() {
+		return this.x !== null;
+	}
+
+	hasDimensionY() {
+		return this.y !== null;
+	}
+	hasDimension(dimension) {
+		if (this.hasDimensionX() && this.getDimensionX() == dimension) {
+			return true;
+		}
+		if (this.hasDimensionY() && this.getDimensionY() == dimension) {
+			return true;
+		}
+		return false
+	}
+	hasNoDimensions() {
+		return this.getDimensionCount() == 0;
+	}
+
+	hasQueryData() {
+		return QueryDataObject.exists(this.queryData);
+	}
+	hasResolvedQueryData() {
+		return QueryDataObject.appearsResolved(this.queryData);
+	}
+	hasFallbackData() {
+		return QueryDataObject.exists(this.fallbackData);
+	}
+	hasResolvedFallbackData() {
+		return QueryDataObject.appearsResolved(this.fallbackData);
+	}
+
+	isAllQueryDataResolved() {
+		if (this.hasFallbackData() && !this.hasResolvedFallbackData()) {
+			return false;
+		}
+		if (this.hasQueryData() && !this.hasResolvedQueryData()) {
+			return false;
+		}
+		return true;
+	}
+
+	static parseToData(value) {
+		if (Array.isArray(value)) {
+			//Arrays can always be considered already-processed and thus fine as-is.
+			return value;
+		}
+		//Simple quick parse
+		let parsedValue = null;
+		try {
+			parsedValue = JSON.parse('[' + value + ']');
+		} catch (err) {
+			parsedValue = value;
+		}
+		return parsedValue;
+	}
+	static copyData(data) {
+		//Copy data on retrieval to prevent unintended modifications to source data
+		//Deep-copies required for matrix-type data, but query data is never too complex for simple JSON-method
+		return JSON.parse(JSON.stringify(data));
+	}
+
+	static exists(value) {
+		if (typeof value === 'undefined') {
+			return false;
+		}
+		if (value === null) {
+			return false;
+		}
+		return true;
+	}
+	static appearsResolved(value) {
+		if (!QueryDataObject.exists(value)) {
+			return false;
+		}
+		if (!value.indexOf) {
+			//could be a number
+			return true;
+		}
+		//split the query string, otherwise it "resolves" when used in the Tygron Platform
+		return !(value.indexOf('$') === 0) && (value.indexOf('SELECT_') !== 1);
+	}
+}
+
 class QueryDataManager {
 
 	constructor(args = {}) {
@@ -1790,7 +1951,7 @@ class QueryDataManager {
 			y: null,
 		}, args);
 
-		let queryData = new this.constructor.QueryDataObject(args);
+		let queryData = new QueryDataObject(args);
 		this.queryDataObjects[key] = queryData;
 
 		return queryData;
@@ -1857,7 +2018,7 @@ class QueryDataManager {
 		if (!Array.isArray(indexKeys)) {
 			if (this.hasData(indexKeys)) {
 				return this.getDataKeyIndexed(key, kvIndex, this.getData(indexKeys));
-				
+
 			}
 			let result = {};
 			result[indexKeys] = data;
@@ -1883,7 +2044,7 @@ class QueryDataManager {
 			if (queryDataObject.getDimensionCount() > 1) {
 				throw new RangeError('No dimension(s) defined while requesting data by key ' + key);
 			}
-		//Undefined dimensions
+			//Undefined dimensions
 		} else if (outerArrayKey == innerArrayKey) {
 			throw new RangeError('Cannot request duplicate dimension ' + outerArrayKey + ' for data registered by key ' + key)
 		}
@@ -1936,7 +2097,7 @@ class QueryDataManager {
 		}
 		return queryDataObject;
 	}
-	
+
 	getUnresolvedDataKeys() {
 		let unresolved = [];
 		for (let key of Object.keys(this.queryDataObjects)) {
@@ -1964,173 +2125,6 @@ class QueryDataManager {
 		return this.getUnresolvedDataKeys().length === 0;
 	}
 
-	static isResolvedQueryData(query) {
-		this.QueryDataObject.appearsResolved(query);
-	}
-
-	static {
-		this.QueryDataObject = class {
-			constructor(args) {
-				args = Object.assign({
-					query: null,
-					fallbackData: null,
-					x: null,
-					y: null,
-				}, args);
-
-				this.setQueryData(args['query']);
-				this.setFallbackData(args['fallbackData']);
-
-				this.setDimensionX(args['x']);
-				this.setDimensionY(args['y']);
-			}
-
-			queryData = null;
-			fallbackData = null;
-			x = null;
-			y = null;
-
-			getData(allowFallbackData = true) {
-				if (this.hasResolvedQueryData()) {
-					return this.getQueryData();
-				}
-				if (!allowFallbackData) {
-					throw 'Query not resolved and no fallback data allowed';
-				}
-
-				if (this.hasResolvedFallbackData()) {
-					return this.getFallbackData();
-				}
-				throw 'Query not resolved and no fallback data available';
-			}
-
-			getQueryData() {
-				let data = this.queryData;
-				data = this.constructor.copyData(data);
-				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(data);
-				}
-				return data;
-			}
-			getFallbackData() {
-				let data = this.fallbackData;
-				data = this.constructor.copyData(data);
-				if (this.hasNoDimensions()) {
-					return ArrayUtils.unArrayIfSingleElement(data);
-				}
-				return data;
-			}
-
-			setQueryData(data) {
-				this.queryData = data === null ? null : this.constructor.parseToData(data);
-			}
-
-			setFallbackData(data) {
-				this.fallbackData = data === null ? null : this.constructor.parseToData(data);
-			}
-			setDimensionX(data) {
-				this.x = data ?? null;
-			}
-			setDimensionY(data) {
-				this.y = data ?? null;
-			}
-
-			getDimensionX() {
-				return this.x;
-			}
-			getDimensionY() {
-				return this.y;
-			}
-			getDimensionCount() {
-				return this.getDimensionX() + this.getDimensionY();
-			}
-
-			hasDimensionX() {
-				return this.x !== null;
-			}
-
-			hasDimensionY() {
-				return this.y !== null;
-			}
-			hasDimension(dimension) {
-				if (this.hasDimensionX() && this.getDimensionX() == dimension) {
-					return true;
-				}
-				if (this.hasDimensionY() && this.getDimensionY() == dimension) {
-					return true;
-				}
-				return false
-			}
-			hasNoDimensions() {
-				return this.getDimensionCount() == 0;
-			}
-
-			hasQueryData() {
-				return this.constructor.exists(this.queryData);
-			}
-			hasResolvedQueryData() {
-				return this.constructor.appearsResolved(this.queryData);
-			}
-			hasFallbackData() {
-				return this.constructor.exists(this.fallbackData);
-			}
-			hasResolvedFallbackData() {
-				return this.constructor.appearsResolved(this.fallbackData);
-			}
-
-			isAllQueryDataResolved() {
-				if (this.hasFallbackData() && !this.hasResolvedFallbackData()) {
-					return false;
-				}
-				if (this.hasQueryData() && !this.hasResolvedQueryData()) {
-					return false;
-				}
-				return true;
-			}
-
-			static parseToData(value) {
-				if (Array.isArray(value)) {
-					//Arrays can always be considered already-processed and thus fine as-is.
-					return value;
-				}
-				//Simple quick parse
-				let parsedValue = null;
-				try {
-					parsedValue = JSON.parse('[' + value + ']');
-				} catch (err) {
-					parsedValue = value;
-				}
-				return parsedValue;
-			}
-			static copyData(data) {
-				//Copy data on retrieval to prevent unintended modifications to source data
-				//Deep-copies required for matrix-type data, but query data is never too complex for simple JSON-method
-				return JSON.parse(JSON.stringify(data));
-			}
-
-			static exists(value) {
-				if (typeof value === 'undefined') {
-					return false;
-				}
-				if (value === null) {
-					return false;
-				}
-				return true;
-			}
-			static appearsResolved(value) {
-				if (!this.exists(value)) {
-					return false;
-				}
-				if (!value.indexOf) {
-					//could be a number
-					return true;
-				}
-				//split the query string, otherwise it "resolves" when used in the Tygron Platform
-				return !(value.indexOf('$') === 0) && (value.indexOf('SELECT_') !== 1);
-			}
-		};
-
-	}
 }
 
 function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
