@@ -59,7 +59,7 @@ if (windowValidation) {
 					window.c = connector('$SELECT_TOKEN_WHERE_'.replaceAll('"', ''));
 
 					if (waterOverlayType == 'NONE') {
-						let chain = c.start();
+						let chain = window.c.start();
 						chain = chain
 							.then(c.post('event/editorpanel/set_attribute', null, ['$SELECT_ID_WHERE_PANEL_IS_ID', 'INSTALLED', 1]))
 							.then(c.recalculate(false))
