@@ -2121,6 +2121,7 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput) {
 let RAINFALL_OVERLAY_ATTRIBUTE = "HSO_RAINFALL_OVERLAY";
 let RAINFALL_OVERLAY_TYPE = "RAINFALL";
 
+let installStatus = {};
 
 
 async function addOverlay(type, resultType, attributes) {
@@ -2211,7 +2212,7 @@ function addRainfallChildren(overlays, rainfallOverlay) {
 		if (resultOverlay == null) {
 			addResultChildOverlay(rainfallOverlay, resultType);
 			appendStatus("Added result child: " + resultType);
-		}else{
+		} else {
 			appendFeedback("Result child found: " + resultType);
 		}
 	}
@@ -2226,17 +2227,22 @@ async function validateOverlays(overlays) {
 	let gridOverlays = getGridOverlays(overlays);
 	let rainfallOverlay = getRainfallOverlay(gridOverlays);
 
-	if (rainfallOverlay == null) {
+	if (installStatus["RainOverlayAdd"] == undefined) {
+		if (rainfallOverlay == null) {
 
-		addRainfallOverlay();
-		gridOverlays = getGridOverlays(await getOverlays());
-		rainfallOverlay = getRainfallOverlay(gridOverlays);
-		appendStatus("RainOverlay added with attribute " + RAINFALL_OVERLAY_ATTRIBUTE);
-	}else{
-		appendFeedback("RainOverlay found with attribute " + RAINFALL_OVERLAY_ATTRIBUTE);
+			addRainfallOverlay();
+			//appendStatus("RainOverlay added with attribute " + RAINFALL_OVERLAY_ATTRIBUTE);
+		    installStatus["RainOverlayAdd"] = true;
+			validateInstall();
+			return;
+
+		} else {
+			appendFeedback("RainOverlay found with attribute " + RAINFALL_OVERLAY_ATTRIBUTE);
+		}
 	}
 
 	addRainfallChildren(gridOverlays, rainfallOverlay);
+
 
 }
 
