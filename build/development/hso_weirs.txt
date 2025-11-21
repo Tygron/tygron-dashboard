@@ -1,18 +1,6 @@
-<!DOCTYPE html>
-<html lang="en-US">
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>template_neighborhood_urban_density</title>
-	<link rel='stylesheet' >
-	<script  charset="utf-8"></script>
-	<script src='https://cdn.plot.ly/plotly-3.0.1.min.js' charset="utf-8"></script>
-</head>
-
-<body>
 	<style>
-		@charset "UTF-8";
+@charset "UTF-8";
 
 :root {
 	--tygron-white: rgba(245, 245, 245, 1.0);
@@ -252,76 +240,66 @@ html, body {
     }
   }
 }
-	body {
-		padding: 0px;
-		margin:0px; 
-		height: 100vh;
-		
-		position: relative;
-		display: flex;
-		flex-direction: column;
-	}
-	.page {
-		display: flex;
-		flex-direction: column;
-		
-		flex-basis: 10em;
-		flex-grow: 1;
-		
-		position: relative;
-		
-		padding: 1em;
-	}
-	#result table {
-		width:50%;
-	}
-	input[type='button'] {
-	    background-color: lightgrey;
-	}
-	input[type='button'].selected {
-	    background-color: lightblue;
-	}
-	
-	table {
-		width:100%;
-	}
-	th, td {
-		text-align: right;
-	}
-	th:first-child, td:first-child {
-		text-align: left;
-	}
-	
-	div.entry {
-		position: relative;
-		width: 100%;
-		height: 2em;
-		display: flex;
-		flex-direction: row;
-	}
-	div.entry > div {
-		flex-basis: 10%;
-		flex-grow: 1;
-		
-		text-align: right;
-	}
-	div.entry > div:first-child {
-		flex-basis: 20%;
-		
-		text-align: left;
-	}
+.container {
+    display: flex;
+    flex-direction: column;
+}
 
-		body{}
-	</style>
+.wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.main {
+    flex: 3;
+    margin-right: 60px;
+}
+.sidebar {
+   flex: 1;
+}
+
+.vertical-menu {
+  width: 200px;
+  height: 90vh;
+  overflow-y: auto;
+}
+
+.vertical-menu a {
+  background-color: #eee;
+  color: black;
+  display: block;
+  padding: 12px;
+  text-decoration: none;
+  cursor: default;
+}
+
+.vertical-menu a:hover {
+  background-color: #ccc;
+}
+
+.vertical-menu a.selected {
+  background-color: rgba(79, 185, 207, 1.0);
+  color: white;
+}
+
+		body {
 	
-	<div class="page">
-		<div id="result">
-		</div>
-		<hr>
-		<div id="listing">
-		</div>
+}
+</style>
+	<div class="container">
+	<div class="wrapper">
+		<aside class="sidebar">
+			<h3>Weirs list:</h3>
+			<div id="weirList" class="vertical-menu">
+			</div>
+		</aside>
+		<section class="main">
+			<h2 id="mainTitle">Weir name</h2>
+			<p id="weirInfo">Weir info here</p>
+			<p id="weirImage">Weir image here</p>
+		</section>
 	</div>
-	
+	</div>
 	<script>
 		
 
@@ -2496,103 +2474,74 @@ function visualizeWeir(canvas, weirHeight, datumLeft, datumRight, flow) {
 
 
 }
+let numWeirs = 0;
+let weirs = [];
 
+function loadWeir(index) {
+	let main = document.getElementById("mainTitle");
+	let info = document.getElementById("weirInfo");
+	let image = document.getElementById("weirImage");
 
-$(window).on("load", function() {
-	/* Get all the data */
-	let queryDataManager = new QueryDataManager();
+	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
 
-	queryDataManager.addQuery('name'  , '$SELECT_NAME_WHERE_NEIGHBORHOOD_IS_ID');
-
-	queryDataManager.addQuery('landsize_current'  , '$SELECT_LANDSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_MAP_IS_CURRENT');
-	queryDataManager.addQuery('landsize_maquette'  , '$SELECT_LANDSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_MAP_IS_MAQUETTE');
-
-	queryDataManager.addQuery('lotsize_current'  , '$SELECT_LOTSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
-	queryDataManager.addQuery('lotsize_maquette'  , '$SELECT_LOTSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
-	
-	queryDataManager.addQuery('floorsize_current'  , '$SELECT_FLOORSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
-	queryDataManager.addQuery('floorsize_maquette'  , '$SELECT_FLOORSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
-
-	queryDataManager.addQuery('units_current'  , '$SELECT_UNITS_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
-	queryDataManager.addQuery('units_maquette'  , '$SELECT_UNITS_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
-	
-	
-	/* If the data has not loaded yet, warn the user */
-	if (!queryDataManager.allQueriesResolved()) {
-		document.body.innerHTML = '<p>Recalculation required before data can be shown.</p>';
+	if (weir == null) {
+		main.innerHTML = "-";
+		info.innerHTML = "-";
+		image.innerHTML = "";
 		return;
 	}
-	
-	/* Urban density values of interest */
-	let size = [];
-	let floorspaceIndex = [];
-	let groundspaceIndex = [];
-	let openSpaceRatio = [];
-	let avgFloors = ['-','-'];
-	
-	let denominator = 0;
 
-	/* Calculate all of them. 0 is for current, 1 is for maquette */
-	size[0] = Math.round(queryDataManager.getData('landsize_current', false)/10000)+'&nbsp;ha';
-	size[1] = Math.round(queryDataManager.getData('landsize_maquette', false)/10000)+'&nbsp;ha';
-	
-	denominator = queryDataManager.getData('landsize_current', false);
-	floorspaceIndex[0] = (denominator != 0) ? queryDataManager.getData('floorsize_current', false) / denominator : '-';
 
-	denominator = queryDataManager.getData('landsize_maquette', false);
-	floorspaceIndex[1] = (denominator != 0) ? queryDataManager.getData('floorsize_maquette', false) / denominator : '-';
+	main.innerHTML = weir.weirName;
+	info.innerHTML = "Weir width: " + weir.weirWidth + "<br>Weir height: " + weir.weirHeight;
+	image.innerHTML = "";
 
-	denominator = queryDataManager.getData('landsize_current', false);
-	groundspaceIndex[0] = (denominator != 0) ? queryDataManager.getData('lotsize_current', false) / denominator : '-';
-
-	denominator = queryDataManager.getData('landsize_maquette', false);
-	groundspaceIndex[1] = (denominator != 0) ? queryDataManager.getData('lotsize_maquette', false) / denominator : '-';
-
-	if ( (floorspaceIndex[0] != '-') && (groundspaceIndex[0] != 0) )  {
-		openSpaceRatio[0] = (1-groundspaceIndex[0]) / floorspaceIndex[0];
+	let weirList = document.getElementById("weirList");
+	for (item of weirList.children) {
+		if (item.myIndex == index) {
+			item.classList.add('selected');
+		} else {
+			item.classList.remove('selected');
+		}
 	}
-	if ( (floorspaceIndex[1] != '-') && (groundspaceIndex[1] != 0) )  {
-		openSpaceRatio[1] = (1-groundspaceIndex[1]) / floorspaceIndex[1];
-	}
-	
-	denominator = queryDataManager.getData('lotsize_current', false);
-	avgFloors[0] = (denominator != 0) ? queryDataManager.getData('floorsize_current', false) / denominator : '-';
+}
 
-	denominator = queryDataManager.getData('lotsize_maquette', false);
-	avgFloors[1] = (denominator != 0) ? queryDataManager.getData('floorsize_maquette', false) / denominator : '-';
-	
-	let data = [];
+function addWeir(index) {
+	let weirList = document.getElementById("weirList");
 
-	data.push( ['Size'].concat(size) );
-	data.push(['FSI'].concat(floorspaceIndex) );
-	data.push( ['GSI'].concat(groundspaceIndex) );
-	data.push( ['OSR'].concat(openSpaceRatio) );
-	data.push( ['Average floors'].concat(avgFloors) );
-	
-	/* All data values which are still just numbers are ratios or fractions. Round them a bit */
-	ArrayUtils.forEach(data, (v,i,a) => {
-			v[1] = NumberUtils.isNumeric(v[1]) ? Math.round( v[1]*100 ) / 100 : v[1];
-			v[2] = NumberUtils.isNumeric(v[2]) ? Math.round( v[2]*100 ) / 100 : v[2];
-			return v;
-		});
-	
-		
-	/* Create a listing which will show the data. A listing is effectively a table. */
-	let listing = new ListingPanelController('listing');
-	/* Headers will automatically show at the top */
-	listing.addHeader(['Property', 'Current','Maquette']);
-	/* Content Render Types determe how values are rendered. Labels are 'as is'.*/
-	listing.setDefaultContentRenderTypes(['label', 'label', 'label']);
 
-	
-	/* Add the data to the listing, and render it */
-	for ( let row of data ) {
-		listing.addContent(row);
-	}
-	listing.render();
-});
+	let listItem = document.createElement("a");
+	listItem.onclick = () => loadWeir(index);
+	listItem.innerHTML = weirs[index].weirName;
+	listItem.myIndex = index;
+
+	weirList.appendChild(listItem);
+
+};
+
+for (let i = 0; i < numWeirs; i++) {
+	let weir = {
+		weirName: "Weir " + (i + 1),
+		weirHeight: 1 + Math.random() * 2,
+		weirWidth: 1 + Math.random() * 2,
+		datumHeightLeft: 0.5 + Math.random * 2,
+		datumHeightRight: 0.5 + Math.random * 2,
+	};
+	weirs.push(weir);
+
+	addWeir(i);
+
+}
+
+let queryDataManager = new QueryDataManager();
+
+queryDataManager.addQuery('weir_name'  , '$SELECT_NAME_WHERE_BUILDING_IS_X_A_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY');
+queryDataManager.addQuery('weir_height'  , '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_X_A_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_HEIGHT');
+queryDataManager.addQuery('weir_width'  , '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_X_A_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
+queryDataManager.addQuery('flow_output'  , '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_X_A_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_FLOW_OUTPUT');
+queryDataManager.addQuery('datum_output_b'  , '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_X_A_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B');
+queryDataManager.addQuery('datum_output_a'  , '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_X_A_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_A');
+queryDataManager.addQuery('weir_dam_output'  , '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_X_A_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT');
+queryDataManager.addQuery('water_area_output'  , '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_X_A_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT');
 
 	</script>
-</body>
-
-</html>
