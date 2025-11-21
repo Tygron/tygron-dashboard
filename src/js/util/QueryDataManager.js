@@ -53,11 +53,11 @@ export class QueryDataObject {
 	}
 
 	setQueryData(data) {
-		this.queryData = data === null ? null : this.parseToData(data);
+		this.queryData = data === null ? null : QueryDataObject.parseToData(data);
 	}
 
 	setFallbackData(data) {
-		this.fallbackData = data === null ? null : this.parseToData(data);
+		this.fallbackData = data === null ? null : QueryDataObject.parseToData(data);
 	}
 	setDimensionX(data) {
 		this.x = data ?? null;
