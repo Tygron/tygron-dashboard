@@ -1,41 +1,48 @@
 .container {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .wrapper {
-    display: flex;
-    flex-direction: row;
+	display: flex;
+	flex-direction: row;
 }
 
 .main {
-    flex: 3;
-    margin-right: 60px;
+	flex: 3;
+	margin-right: 60px;
 }
+
 .sidebar {
-   flex: 1;
+	flex: 1;
 }
 
 .vertical-menu {
-  width: 200px;
-  height: 90vh;
-  overflow-y: auto;
+	width: 200px;
+	height: 90vh;
+	overflow-y: auto;
 }
 
 .vertical-menu a {
-  background-color: #eee;
-  color: black;
-  display: block;
-  padding: 12px;
-  text-decoration: none;
-  cursor: default;
+	background-color: #eee;
+	color: black;
+	display: block;
+	padding: 12px;
+	text-decoration: none;
+	cursor: default;
 }
 
 .vertical-menu a:hover {
-  background-color: #ccc;
+	background-color: #ccc;
 }
 
 .vertical-menu a.selected {
-  background-color: rgba(79, 185, 207, 1.0);
-  color: white;
+	background-color: rgba(79, 185, 207, 1.0);
+	color: white;
+}
+
+#weirInfo {
+	display: grid;
+	grid-template-columns: minmax(80px, auto) 1fr;
+	column-gap: 1em;
 }
