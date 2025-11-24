@@ -1,4 +1,5 @@
 import { QueryDataManager } from "../../src/js/util/QueryDataManager.js";
+import { visualizeWeir } from "../../src/js/water/structures/weir.js";
 
 let numWeirs = 0;
 let weirs = [];
@@ -15,6 +16,8 @@ function getDummyWeir() {
 		damHeight: -1,
 		areaOutputA: -1,
 		areaOutputB: -1,
+		angle: -10000,
+		coefficient: 1.1,
 	};
 }
 
@@ -25,15 +28,22 @@ function fillWeirInfo(weir) {
 	}
 
 	document.getElementById("weirInfoName").innerHTML = weir.name;
-	document.getElementById("weirInfoHeight").innerHTML = weir.height +" m";
-	document.getElementById("weirInfoWidth").innerHTML = weir.width+" m";
-	document.getElementById("weirInfoFlow").innerHTML = weir.flow+" m³/s";
-	document.getElementById("weirInfoDatumA").innerHTML = weir.datumA+" m";
-	document.getElementById("weirInfoDatumB").innerHTML = weir.datumB+" m";
-	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight+" m";
-	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth+" m";
+	document.getElementById("weirInfoHeight").innerHTML = weir.height + " m";
+	document.getElementById("weirInfoWidth").innerHTML = weir.width + " m";
+	document.getElementById("weirInfoFlow").innerHTML = weir.flow + " m³/s";
+	document.getElementById("weirInfoDatumA").innerHTML = weir.datumA + " m";
+	document.getElementById("weirInfoDatumB").innerHTML = weir.datumB + " m";
+	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight + " m";
+	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth + " m";
 	document.getElementById("weirInfoAreaA").innerHTML = weir.areaOutputA;
 	document.getElementById("weirInfoAreaB").innerHTML = weir.areaOutputB;
+	document.getElementById("weirInfoAngle").innerHTML = weir.angle > -10000 ? weir.angle + " &deg;" : "-";
+	document.getElementById("weirInfoCoefficient").innerHTML = weir.coefficient;
+
+
+	let canvas = document.getElementById("weirCanvas");
+	visualizeWeir(canvas, weir.height, weir.datumA, weir.datumB, weir.flow);
+
 }
 
 function loadWeir(index) {
@@ -87,6 +97,8 @@ const WEIR_DAM_WIDTH = 'weir_dam_width';
 const WEIR_DAM_HEIGHT = 'weir_dam_height';
 const WEIR_AREA_OUTPUT_A = 'water_area_output_a';
 const WEIR_AREA_OUTPUT_B = 'water_area_output_b';
+const WEIR_ANGLE = 'weir_angle';
+const WEIR_COEFFICIENT = 'weir_coefficient';
 
 let queryDataManager = new QueryDataManager();
 
@@ -100,7 +112,8 @@ queryDataManager.addQuery(WEIR_DAM_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_X
 queryDataManager.addQuery(WEIR_DAM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_1');
 queryDataManager.addQuery(WEIR_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queryDataManager.addQuery(WEIR_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
-
+queryDataManager.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_ANGLE');
+queryDataManager.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
 
 function fillWeirs() {
 
@@ -114,6 +127,8 @@ function fillWeirs() {
 	let damHeight = queryDataManager.getData(WEIR_DAM_HEIGHT, true);
 	let areaOutputA = queryDataManager.getData(WEIR_AREA_OUTPUT_A, true);
 	let areaOutputB = queryDataManager.getData(WEIR_AREA_OUTPUT_B, true);
+	let angle = queryDataManager.getData(WEIR_ANGLE, true);
+	let coefficient = queryDataManager.getData(WEIR_COEFFICIENT, true);
 
 	numWeirs = names.length;
 
@@ -130,6 +145,8 @@ function fillWeirs() {
 			damHeight: i < damHeight.length ? damHeight[i] : -1,
 			areaOutputA: i < areaOutputA.length ? areaOutputA[i] : -1,
 			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
+			angle: i < angle.length ? angle[i] : -10000,
+			coefficient: i < coefficient.length && coefficient[i] > 0 ? coefficient[i] : 1.1,
 		};
 		weirs.push(weir);
 
