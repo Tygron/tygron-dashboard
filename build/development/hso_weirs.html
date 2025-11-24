@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en-US">
-
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +8,6 @@
 <script  charset="utf-8"></script>
 <script src='https://cdn.plot.ly/plotly-3.0.1.min.js' charset="utf-8"></script>
 </head>
-
 <body>
 	<style>
 @charset "UTF-8";
@@ -314,26 +312,35 @@ html, body {
 			<section class="main">
 				<h2 id="mainTitle">Weir name</h2>
 				<div id="weirInfo">
-					<label class="weir-info-label">Name:</label><label
-						id="weirInfoName" class="weir-info-value"></label><label
-						class="weir-info-label">Height:</label><label id="weirInfoHeight"
-						class="weir-info-value"></label><label class="weir-info-label">Width:</label>
-					<label id="weirInfoWidth" class="weir-info-value"></label><label
-						class="weir-info-label">Flow:</label><label id="weirInfoFlow"
-						class="weir-info-value"></label><label class="weir-info-label">Datum
-						A:</label><label id="weirInfoDatumA" class="weir-info-value"></label><label
-						class="weir-info-label">Datum B:</label><label id="weirInfoDatumB"
-						class="weir-info-value"></label><label class="weir-info-label">Dam
-						Height:</label><label id="weirInfoDamHeight" class="weir-info-value"></label><label
-						class="weir-info-label">Dam Width:</label><label
-						id="weirInfoDamWidth" class="weir-info-value"></label><label
-						class="weir-info-label">Area id A:</label><label
-						id="weirInfoAreaA" class="weir-info-value"></label><label
-						class="weir-info-label">Area id B:</label><label
-						id="weirInfoAreaB" class="weir-info-value"></label>
-
+					<div class="weir-info-label">Name:</div>
+					<div id="weirInfoName" class="weir-info-value"></div>
+					<div class="weir-info-label">Height:</div>
+					<div id="weirInfoHeight" class="weir-info-value"></div>
+					<div class="weir-info-label">Width:</div>
+					<div id="weirInfoWidth" class="weir-info-value"></div>
+					<div class="weir-info-label">Angle:</div>
+					<div id="weirInfoAngle" class="weir-info-value"></div>
+					<div class="weir-info-label">Coefficient:</div>
+					<div id="weirInfoCoefficient" class="weir-info-value"></div>
+					<div class="weir-info-label">Flow:</div>
+					<div id="weirInfoFlow" class="weir-info-value"></div>
+					<div class="weir-info-label">Datum A:</div>
+					<div id="weirInfoDatumA" class="weir-info-value"></div>
+					<div class="weir-info-label">Datum B:</div>
+					<div id="weirInfoDatumB" class="weir-info-value"></div>
+					<div class="weir-info-label">Dam Height:</div>
+					<div id="weirInfoDamHeight" class="weir-info-value"></div>
+					<div class="weir-info-label">Dam Width:</div>
+					<div id="weirInfoDamWidth" class="weir-info-value"></div>
+					<div class="weir-info-label">Area id A:</div>
+					<div id="weirInfoAreaA" class="weir-info-value"></div>
+					<div class="weir-info-label">Area id B:</div>
+					<div id="weirInfoAreaB" class="weir-info-value"></div>
 				</div>
-				<p id="weirImage">Weir image here</p>
+				<div id="weirImageDiv">
+					<p>Drawing:</p>
+					<canvas id="weirCanvas" width="300" height="150"></canvas>
+				</div>
 			</section>
 		</div>
 	</div>
@@ -2467,11 +2474,11 @@ function visualizeWeir(canvas, weirHeight, datumLeft, datumRight, flow) {
 	let range = maxDatum - minDatum;
 	let width = ctx.canvas.width;
 	let height = ctx.canvas.height;
-	
-	
+
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, width, height);
+
 	if (range <= 0) {
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, width, height);
 		return;
 	}
 
@@ -2513,6 +2520,7 @@ function visualizeWeir(canvas, weirHeight, datumLeft, datumRight, flow) {
 }
 
 
+
 let numWeirs = 0;
 let weirs = [];
 
@@ -2528,6 +2536,8 @@ function getDummyWeir() {
 		damHeight: -1,
 		areaOutputA: -1,
 		areaOutputB: -1,
+		angle: -10000,
+		coefficient: 1.1,
 	};
 }
 
@@ -2538,15 +2548,22 @@ function fillWeirInfo(weir) {
 	}
 
 	document.getElementById("weirInfoName").innerHTML = weir.name;
-	document.getElementById("weirInfoHeight").innerHTML = weir.height +" m";
-	document.getElementById("weirInfoWidth").innerHTML = weir.width+" m";
-	document.getElementById("weirInfoFlow").innerHTML = weir.flow+" m³/s";
-	document.getElementById("weirInfoDatumA").innerHTML = weir.datumA+" m";
-	document.getElementById("weirInfoDatumB").innerHTML = weir.datumB+" m";
-	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight+" m";
-	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth+" m";
+	document.getElementById("weirInfoHeight").innerHTML = weir.height + " m";
+	document.getElementById("weirInfoWidth").innerHTML = weir.width + " m";
+	document.getElementById("weirInfoFlow").innerHTML = weir.flow + " m³/s";
+	document.getElementById("weirInfoDatumA").innerHTML = weir.datumA + " m";
+	document.getElementById("weirInfoDatumB").innerHTML = weir.datumB + " m";
+	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight + " m";
+	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth + " m";
 	document.getElementById("weirInfoAreaA").innerHTML = weir.areaOutputA;
 	document.getElementById("weirInfoAreaB").innerHTML = weir.areaOutputB;
+	document.getElementById("weirInfoAngle").innerHTML = weir.angle > -10000 ? weir.angle + " &deg;" : "-";
+	document.getElementById("weirInfoCoefficient").innerHTML = weir.coefficient;
+
+
+	let canvas = document.getElementById("weirCanvas");
+	visualizeWeir(canvas, weir.height, weir.datumA, weir.datumB, weir.flow);
+
 }
 
 function loadWeir(index) {
@@ -2600,6 +2617,8 @@ const WEIR_DAM_WIDTH = 'weir_dam_width';
 const WEIR_DAM_HEIGHT = 'weir_dam_height';
 const WEIR_AREA_OUTPUT_A = 'water_area_output_a';
 const WEIR_AREA_OUTPUT_B = 'water_area_output_b';
+const WEIR_ANGLE = 'weir_angle';
+const WEIR_COEFFICIENT = 'weir_coefficient';
 
 let queryDataManager = new QueryDataManager();
 
@@ -2613,7 +2632,8 @@ queryDataManager.addQuery(WEIR_DAM_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_X
 queryDataManager.addQuery(WEIR_DAM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_1');
 queryDataManager.addQuery(WEIR_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queryDataManager.addQuery(WEIR_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
-
+queryDataManager.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_ANGLE');
+queryDataManager.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XA_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
 
 function fillWeirs() {
 
@@ -2627,6 +2647,8 @@ function fillWeirs() {
 	let damHeight = queryDataManager.getData(WEIR_DAM_HEIGHT, true);
 	let areaOutputA = queryDataManager.getData(WEIR_AREA_OUTPUT_A, true);
 	let areaOutputB = queryDataManager.getData(WEIR_AREA_OUTPUT_B, true);
+	let angle = queryDataManager.getData(WEIR_ANGLE, true);
+	let coefficient = queryDataManager.getData(WEIR_COEFFICIENT, true);
 
 	numWeirs = names.length;
 
@@ -2643,6 +2665,8 @@ function fillWeirs() {
 			damHeight: i < damHeight.length ? damHeight[i] : -1,
 			areaOutputA: i < areaOutputA.length ? areaOutputA[i] : -1,
 			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
+			angle: i < angle.length ? angle[i] : -10000,
+			coefficient: i < coefficient.length && coefficient[i] > 0 ? coefficient[i] : 1.1,
 		};
 		weirs.push(weir);
 
@@ -2661,5 +2685,4 @@ updateWeirList();
 
 	</script>
 </body>
-
 </html>
