@@ -13,11 +13,11 @@ export function visualizeWeir(canvas, weirHeight, datumLeft, datumRight, flow) {
 	let range = maxDatum - minDatum;
 	let width = ctx.canvas.width;
 	let height = ctx.canvas.height;
-	
-	
+
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, width, height);
+
 	if (range <= 0) {
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, width, height);
 		return;
 	}
 
