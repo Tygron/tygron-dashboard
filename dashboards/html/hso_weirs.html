@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en-US">
-
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +8,6 @@
 <script DASHBOARD_LIBS charset="utf-8"></script>
 <script DASHBOARD_PLOTLY charset="utf-8"></script>
 </head>
-
 <body>
 	<style>
 BODYSTYLE
@@ -26,26 +24,35 @@ BODYSTYLE
 			<section class="main">
 				<h2 id="mainTitle">Weir name</h2>
 				<div id="weirInfo">
-					<label class="weir-info-label">Name:</label><label
-						id="weirInfoName" class="weir-info-value"></label><label
-						class="weir-info-label">Height:</label><label id="weirInfoHeight"
-						class="weir-info-value"></label><label class="weir-info-label">Width:</label>
-					<label id="weirInfoWidth" class="weir-info-value"></label><label
-						class="weir-info-label">Flow:</label><label id="weirInfoFlow"
-						class="weir-info-value"></label><label class="weir-info-label">Datum
-						A:</label><label id="weirInfoDatumA" class="weir-info-value"></label><label
-						class="weir-info-label">Datum B:</label><label id="weirInfoDatumB"
-						class="weir-info-value"></label><label class="weir-info-label">Dam
-						Height:</label><label id="weirInfoDamHeight" class="weir-info-value"></label><label
-						class="weir-info-label">Dam Width:</label><label
-						id="weirInfoDamWidth" class="weir-info-value"></label><label
-						class="weir-info-label">Area id A:</label><label
-						id="weirInfoAreaA" class="weir-info-value"></label><label
-						class="weir-info-label">Area id B:</label><label
-						id="weirInfoAreaB" class="weir-info-value"></label>
-
+					<div class="weir-info-label">Name:</div>
+					<div id="weirInfoName" class="weir-info-value"></div>
+					<div class="weir-info-label">Height:</div>
+					<div id="weirInfoHeight" class="weir-info-value"></div>
+					<div class="weir-info-label">Width:</div>
+					<div id="weirInfoWidth" class="weir-info-value"></div>
+					<div class="weir-info-label">Angle:</div>
+					<div id="weirInfoAngle" class="weir-info-value"></div>
+					<div class="weir-info-label">Coefficient:</div>
+					<div id="weirInfoCoefficient" class="weir-info-value"></div>
+					<div class="weir-info-label">Flow:</div>
+					<div id="weirInfoFlow" class="weir-info-value"></div>
+					<div class="weir-info-label">Datum A:</div>
+					<div id="weirInfoDatumA" class="weir-info-value"></div>
+					<div class="weir-info-label">Datum B:</div>
+					<div id="weirInfoDatumB" class="weir-info-value"></div>
+					<div class="weir-info-label">Dam Height:</div>
+					<div id="weirInfoDamHeight" class="weir-info-value"></div>
+					<div class="weir-info-label">Dam Width:</div>
+					<div id="weirInfoDamWidth" class="weir-info-value"></div>
+					<div class="weir-info-label">Area id A:</div>
+					<div id="weirInfoAreaA" class="weir-info-value"></div>
+					<div class="weir-info-label">Area id B:</div>
+					<div id="weirInfoAreaB" class="weir-info-value"></div>
 				</div>
-				<p id="weirImage">Weir image here</p>
+				<div id="weirImageDiv">
+					<p>Drawing:</p>
+					<canvas id="weirCanvas" width="300" height="150"></canvas>
+				</div>
 			</section>
 		</div>
 	</div>
@@ -53,5 +60,4 @@ BODYSTYLE
 		BODYSCRIPT
 	</script>
 </body>
-
 </html>
