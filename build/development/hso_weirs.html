@@ -2538,13 +2538,13 @@ function fillWeirInfo(weir) {
 	}
 
 	document.getElementById("weirInfoName").innerHTML = weir.name;
-	document.getElementById("weirInfoHeight").innerHTML = weir.height;
-	document.getElementById("weirInfoWidth").innerHTML = weir.width;
-	document.getElementById("weirInfoFlow").innerHTML = weir.flow;
-	document.getElementById("weirInfoDatumA").innerHTML = weir.datumA;
-	document.getElementById("weirInfoDatumB").innerHTML = weir.datumB;
-	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight;
-	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth;
+	document.getElementById("weirInfoHeight").innerHTML = weir.height +" m";
+	document.getElementById("weirInfoWidth").innerHTML = weir.width+" m";
+	document.getElementById("weirInfoFlow").innerHTML = weir.flow+" m³/s";
+	document.getElementById("weirInfoDatumA").innerHTML = weir.datumA+" m";
+	document.getElementById("weirInfoDatumB").innerHTML = weir.datumB+" m";
+	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight+" m";
+	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth+" m";
 	document.getElementById("weirInfoAreaA").innerHTML = weir.areaOutputA;
 	document.getElementById("weirInfoAreaB").innerHTML = weir.areaOutputB;
 }
