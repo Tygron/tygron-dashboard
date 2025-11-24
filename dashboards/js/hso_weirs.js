@@ -42,7 +42,7 @@ function fillWeirInfo(weir) {
 
 
 	let canvas = document.getElementById("weirCanvas");
-	visualizeWeir(canvas, weir.height, weir.datumA, weir.datumB, weir.flow);
+	visualizeWeir(canvas, weir.height, weir.datumA, weir.datumB, weir.flow, weir.coefficient);
 
 }
 
@@ -157,6 +157,10 @@ function fillWeirs() {
 function updateWeirList() {
 	for (let i = 0; i < weirs.length; i++) {
 		addWeirListItem(i);
+	}
+	
+	if(weirs.length>0){
+		loadWeir(0);
 	}
 }
 
