@@ -21,4 +21,4 @@ for (let i = 0; i < coefficients.length; i++) {
 }
 
 let canvas = document.getElementById("weirCanvas");
-visualizeWeir(canvas, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficient[0]);
+visualizeWeir(canvas, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficients[0]);
