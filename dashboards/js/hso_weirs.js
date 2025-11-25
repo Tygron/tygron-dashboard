@@ -1,5 +1,6 @@
 import { QueryDataManager } from "../../src/js/util/QueryDataManager.js";
 import { visualizeWeir } from "../../src/js/water/structures/weir.js";
+import { setupTimeframeSlider } from "../../src/js/util/Timeframeslider.js";
 
 let numWeirs = 0;
 let weirs = [];
@@ -28,41 +29,45 @@ function fillWeirInfo(weir) {
 	}
 
 	document.getElementById("weirInfoName").innerHTML = weir.name;
-	document.getElementById("weirInfoHeight").innerHTML = weir.height + " m";
+
+	document.getElementById("weirInfoHeight").innerHTML = weir.heights[weirTimeframe] + " m";
+
 	document.getElementById("weirInfoWidth").innerHTML = weir.width + " m";
-	document.getElementById("weirInfoFlow").innerHTML = weir.flow + " m³/s";
-	document.getElementById("weirInfoDatumA").innerHTML = weir.datumA + " m";
-	document.getElementById("weirInfoDatumB").innerHTML = weir.datumB + " m";
+
+	document.getElementById("weirInfoFlow").innerHTML = weir.flows[weirTimeframe] + " m³/s";
+
+	document.getElementById("weirInfoDatumA").innerHTML = weir.datumsA[weirTimeframe] + " m";
+
+	document.getElementById("weirInfoDatumB").innerHTML = weir.datumsB[weirTimeframe] + " m";
+
 	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight + " m";
 	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth + " m";
 	document.getElementById("weirInfoAreaA").innerHTML = weir.areaOutputA;
 	document.getElementById("weirInfoAreaB").innerHTML = weir.areaOutputB;
 	document.getElementById("weirInfoAngle").innerHTML = weir.angle > -10000 ? weir.angle + " &deg;" : "-";
+
 	document.getElementById("weirInfoCoefficient").innerHTML = weir.coefficient;
 
 
 	let canvas = document.getElementById("weirCanvas");
-	visualizeWeir(canvas, weir.height, weir.datumA, weir.datumB, weir.flow, weir.coefficient);
+	visualizeWeir(canvas, weirTimeframe,weir.heights, weir.datumsA, weir.datumsB, weir.flows, weir.coefficient);
 
 }
 
 function loadWeir(index) {
 	let main = document.getElementById("mainTitle");
-	let image = document.getElementById("weirImage");
 
 	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
 
 	if (weir == null) {
 		main.innerHTML = "-";
 		fillWeirInfo(weir);
-		image.innerHTML = "";
 		return;
 	}
 
 
 	main.innerHTML = weir.name;
 	fillWeirInfo(weir);
-	image.innerHTML = "";
 
 	let weirList = document.getElementById("weirList");
 	for (item of weirList.children) {
@@ -72,6 +77,15 @@ function loadWeir(index) {
 			item.classList.remove('selected');
 		}
 	}
+}
+
+function getSelectedWeirIndex() {
+	for (item of document.getElementById("weirList").children) {
+		if (item.classList.contains('selected')) {
+			return item.myIndex;
+		}
+	}
+	return 0;
 }
 
 function addWeirListItem(index) {
@@ -87,10 +101,12 @@ function addWeirListItem(index) {
 
 };
 
+const HSO_OVERLAY_TIMEFRAMES = "hso_overlay_timeframes";
 const WEIR_NAMES = 'weir_name';
 const WEIR_HEIGHTS = 'weir_height';
 const WEIR_WIDTH = 'weir_width';
 const WEIR_FLOW_OUTPUT = 'flow_output';
+const WEIR_HEIGHT_OUTPUT = 'height_output';
 const WEIR_DATUM_OUTPUT_A = 'datum_output_a';
 const WEIR_DATUM_OUTPUT_B = 'datum_output_b';
 const WEIR_DAM_WIDTH = 'weir_dam_width';
@@ -102,24 +118,31 @@ const WEIR_COEFFICIENT = 'weir_coefficient';
 
 let queryDataManager = new QueryDataManager();
 
-queryDataManager.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY');
-queryDataManager.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_HEIGHT');
-queryDataManager.addQuery(WEIR_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
-queryDataManager.addQuery(WEIR_FLOW_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_FLOW_OUTPUT');
-queryDataManager.addQuery(WEIR_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B');
-queryDataManager.addQuery(WEIR_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_A');
-queryDataManager.addQuery(WEIR_DAM_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_0');
-queryDataManager.addQuery(WEIR_DAM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_1');
-queryDataManager.addQuery(WEIR_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
-queryDataManager.addQuery(WEIR_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
-queryDataManager.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_ANGLE');
-queryDataManager.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
+queryDataManager.addQuery(HSO_OVERLAY_TIMEFRAMES, '$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_NAME_IS_TIMEFRAMES');
+
+
+queryDataManager.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY');
+queryDataManager.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
+queryDataManager.addQuery(WEIR_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
+queryDataManager.addQuery(WEIR_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
+queryDataManager.addQuery(WEIR_FLOW_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_FLOW_OUTPUT_AND_TIMEFRAME_IS_X');
+queryDataManager.addQuery(WEIR_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B_AND_TIMEFRAME_IS_X');
+queryDataManager.addQuery(WEIR_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_A_AND_TIMEFRAME_IS_X');
+queryDataManager.addQuery(WEIR_DAM_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_0');
+queryDataManager.addQuery(WEIR_DAM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_1');
+queryDataManager.addQuery(WEIR_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
+queryDataManager.addQuery(WEIR_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
+queryDataManager.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_ANGLE');
+queryDataManager.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
+
+let timeframes = Math.round(queryDataManager.getData(HSO_OVERLAY_TIMEFRAMES));
+let weirTimeframe = 0;
 
 function fillWeirs() {
 
 	let names = queryDataManager.getData(WEIR_NAMES, true);
-	let heights = queryDataManager.getData(WEIR_HEIGHTS, true);
-	let widths = queryDataManager.getData(WEIR_WIDTH, true);
+	let width = queryDataManager.getData(WEIR_WIDTH, true);
+	let heights = queryDataManager.getData(WEIR_HEIGHT_OUTPUT, true);
 	let flow = queryDataManager.getData(WEIR_FLOW_OUTPUT, true);
 	let datumA = queryDataManager.getData(WEIR_DATUM_OUTPUT_A, true);
 	let datumB = queryDataManager.getData(WEIR_DATUM_OUTPUT_B, true);
@@ -136,11 +159,15 @@ function fillWeirs() {
 
 		let weir = {
 			name: i < names.length ? names[i] : "Weir " + i,
-			height: i < heights.length ? heights[i] : -10000,
-			width: i < widths.length ? widths[i] : 0,
-			flow: i < flow.length ? flow[i] : 0,
-			datumA: i < datumA.length ? datumA[i] : -10000,
-			datumB: i < datumB.length ? datumB[i] : -10000,
+
+			// array values
+			heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
+			flows: i < flow.length ? flow[i] : Array(timeframes).fill(0),
+			datumsA: i < datumA.length ? datumA[i] : Array(timeframes).fill(-10000),
+			datumsB: i < datumB.length ? datumB[i] : Array(timeframes).fill(-10000),
+
+			// single value
+			width: i < width.length ? width[i] : Array(timeframes).fill(0),
 			damWidth: i < damWidth.length ? damWidth[i] : 0,
 			damHeight: i < damHeight.length ? damHeight[i] : -1,
 			areaOutputA: i < areaOutputA.length ? areaOutputA[i] : -1,
@@ -158,11 +185,17 @@ function updateWeirList() {
 	for (let i = 0; i < weirs.length; i++) {
 		addWeirListItem(i);
 	}
-	
-	if(weirs.length>0){
-		loadWeir(0);
+
+	if (weirs.length > 0) {
+		loadWeir(0, weirTimeframe);
 	}
 }
+
+setupTimeframeSlider(weirSlider, weirTimeframe, timeframes, function() {
+	weirTimeframe = weirSlider.value;
+	loadWeir(getSelectedWeirIndex());
+});
+
 
 fillWeirs();
 updateWeirList();
