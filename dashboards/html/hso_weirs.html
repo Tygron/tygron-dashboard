@@ -49,6 +49,12 @@ BODYSTYLE
 					<div class="weir-info-label">Area id B:</div>
 					<div id="weirInfoAreaB" class="weir-info-value"></div>
 				</div>
+				<div class="timeframe-slider range--ticks slider-background"
+				style='--step: 1; --min: 0; --max: 1; --value: 1; --text-value: "1"; --primaryColor: red; --fill-color: unset; --value-background: unset; --value-active-color: unset;'>
+				<input id="weirSlider" class="timeframe-slider" type="range" min="0" max="1" step="1" value="1"
+					oninput="this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))">
+				<output></output>
+			</div>
 				<div id="weirImageDiv">
 					<p>Drawing:</p>
 					<canvas id="weirCanvas" width="300" height="150"></canvas>
