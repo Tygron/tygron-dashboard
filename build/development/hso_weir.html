@@ -2485,9 +2485,9 @@ function drawWeirRoundedRoof(canvas, x, width, height) {
 }
 
 function drawWeirCustom(canvas, x, width, height) {
-	
+
 	const ctx = canvas.getContext("2d");
-	
+
 	let radius = width / 4;
 	const halfWidth = width / 2;
 
@@ -2509,7 +2509,7 @@ function drawWeirCustom(canvas, x, width, height) {
 
 	ctx.font = "48px serif";
 	ctx.fillStyle = "black";
-	ctx.fillText("?", x - halfWidth / 2, canvas.height - height + halfWidth );
+	ctx.fillText("?", x - halfWidth / 2, canvas.height - height + halfWidth);
 }
 
 function drawWeir(canvas, x, weirThickness, height, coefficient) {
@@ -2538,54 +2538,66 @@ function drawWeir(canvas, x, weirThickness, height, coefficient) {
 	}
 }
 
-function visualizeWeir(canvas, weirHeight, datumLeft, datumRight, flow, coefficient) {
+function visualizeWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flows, coefficient) {
 
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
 	}
 
 	const ctx = canvas.getContext("2d");
+	
+	let minDatumLeft = Array.isArray(datumsLeft)? Math.min.apply(Math, datumsLeft) : datumsLeft;
+	let minDatumRight = Array.isArray(datumsRight)? Math.min.apply(Math, datumsRight) : datumsRight;
+	let minWeirHeights = Array.isArray(weirHeights)? Math.min.apply(Math, weirHeights) : weirHeights;
+	
+	let maxDatumLeft = Array.isArray(datumsLeft)? Math.max.apply(Math, datumsLeft) : datumsLeft;
+	let maxDatumRight = Array.isArray(datumsRight)? Math.max.apply(Math, datumsRight) : datumsRight;
+	let maxWeirHeights = Array.isArray(weirHeights)? Math.max.apply(Math, weirHeights) : weirHeights;
+		
 
-	let minDatum = Math.min(datumLeft, Math.min(datumRight, weirHeight));
-	let maxDatum = Math.max(datumLeft, Math.max(datumRight, weirHeight));
+	let minDatum = Math.min(minDatumLeft, minDatumRight, minWeirHeights);
+	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxWeirHeights);
 
 	let range = maxDatum - minDatum;
-	let width = ctx.canvas.width;
-	let height = ctx.canvas.height;
+	let canvasWidth = ctx.canvas.width;
+	let canvasHeight = ctx.canvas.height;
+	
+	let datumLeft = Array.isArray(datumsLeft) ?datumsLeft[index]: datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ?datumsRight[index]: datumsRight;
+	let weirHeight = Array.isArray(weirHeights) ?weirHeights[index]: weirHeights;
 
 	ctx.fillStyle = "white";
-	ctx.fillRect(0, 0, width, height);
+	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 	if (range <= 0) {
 		return;
 	}
 
-	console.log(width + "x" + height);
-	let baseHeight = 50;
-	let weirThickness = 50;
-	let multiplier = (height - baseHeight) / range;
+	console.log(canvasWidth + "x" + canvasHeight);
+	let baseHeight = canvasHeight/8;
+	let weirThickness = canvasWidth/8;
+	let multiplier = (canvasHeight - baseHeight) / range;
 
 
 	ctx.fillStyle = 'cyan';
 	ctx.beginPath();
-	ctx.moveTo(0 * width / 2, height);
-	ctx.lineTo(1 * width / 2 - weirThickness / 2, height);
-	ctx.lineTo(1 * width / 2 - weirThickness / 2, height - (baseHeight + multiplier * (datumLeft - minDatum)));
-	ctx.lineTo(0 * width / 2, height - (baseHeight + multiplier * (datumLeft - minDatum)));
+	ctx.moveTo(0 * canvasWidth / 2, canvasHeight);
+	ctx.lineTo(1 * canvasWidth / 2 - weirThickness / 2, canvasHeight);
+	ctx.lineTo(1 * canvasWidth / 2 - weirThickness / 2, canvasHeight - (baseHeight + multiplier * (datumLeft - minDatum)));
+	ctx.lineTo(0 * canvasWidth / 2, canvasHeight - (baseHeight + multiplier * (datumLeft - minDatum)));
 	ctx.closePath();
 	ctx.fill();
 
-	ctx.fillStyle = 'cyan';
 	ctx.beginPath();
-	ctx.moveTo(1 * width / 2 + weirThickness / 2, height);
-	ctx.lineTo(2 * width / 2, height);
-	ctx.lineTo(2 * width / 2, height - (baseHeight + multiplier * (datumRight - minDatum)));
-	ctx.lineTo(1 * width / 2 + weirThickness / 2, height - (baseHeight + multiplier * (datumRight - minDatum)));
+	ctx.moveTo(1 * canvasWidth / 2 + weirThickness / 2, canvasHeight);
+	ctx.lineTo(2 * canvasWidth / 2, canvasHeight);
+	ctx.lineTo(2 * canvasWidth / 2, canvasHeight - (baseHeight + multiplier * (datumRight - minDatum)));
+	ctx.lineTo(1 * canvasWidth / 2 + weirThickness / 2, canvasHeight - (baseHeight + multiplier * (datumRight - minDatum)));
 	ctx.closePath();
 	ctx.fill();
 
 	let heightInCanvas = (baseHeight + multiplier * (weirHeight - minDatum));
-	drawWeir(canvas, width / 2, weirThickness, heightInCanvas, coefficient);
+	drawWeir(canvas, canvasWidth / 2, weirThickness, heightInCanvas, coefficient);
 
 }
 
@@ -2598,6 +2610,7 @@ let coefficientIndex = 0;
 let coefficients = [1.1, 0.865, 0.91, 1.3, 1.37, 1.23];
 let names = ["sharp", "broad perpendicular", "broad rounded", "rounded", "rounded roof", "custom"];
 let canvas = document.getElementById("weirCanvas");
+let timeframe = 0;
 
 for (let i = 0; i < coefficients.length; i++) {
 
@@ -2605,12 +2618,16 @@ for (let i = 0; i < coefficients.length; i++) {
 	const index = i;
 	button.onclick = () => {
 		coefficientIndex = index;
-		visualizeWeir(canvas, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficients[coefficientIndex]);
-		};
+		updateWeir();
+	};
 
 	button.innerHTML = names[i];
 
 	document.body.appendChild(button);
+}
+
+function updateWeir() {
+	visualizeWeir(canvas, timeframe, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficients[coefficientIndex]);
 }
 
 let leftField = document.createElement("input");
@@ -2618,7 +2635,7 @@ leftField.value = weirDatumLeft;
 
 leftField.onchange = () => {
 	weirDatumLeft = Number(leftField.value);
-	visualizeWeir(canvas, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficients[coefficientIndex]);
+	updateWeir();
 
 }
 document.body.appendChild(leftField);
@@ -2627,11 +2644,11 @@ let rightField = document.createElement("input");
 rightField.value = weirDatumRight;
 rightField.onchange = () => {
 	weirDatumRight = Number(rightField.value);
-	visualizeWeir(canvas, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficients[coefficientIndex]);
+	updateWeir();
 
 }
 document.body.appendChild(rightField);
-visualizeWeir(canvas, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficients[0]);
+updateWeir();
 
 	</script>
 </body>
