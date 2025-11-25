@@ -22,42 +22,54 @@ BODYSTYLE
 				<div id="weirList" class="vertical-menu"></div>
 			</aside>
 			<section class="main">
-				<h2 id="mainTitle">Weir name</h2>
-				<div id="weirInfo">
-					<div class="weir-info-label">Name:</div>
-					<div id="weirInfoName" class="weir-info-value"></div>
-					<div class="weir-info-label">Height:</div>
-					<div id="weirInfoHeight" class="weir-info-value"></div>
-					<div class="weir-info-label">Width:</div>
-					<div id="weirInfoWidth" class="weir-info-value"></div>
-					<div class="weir-info-label">Angle:</div>
-					<div id="weirInfoAngle" class="weir-info-value"></div>
-					<div class="weir-info-label">Coefficient:</div>
-					<div id="weirInfoCoefficient" class="weir-info-value"></div>
-					<div class="weir-info-label">Flow:</div>
-					<div id="weirInfoFlow" class="weir-info-value"></div>
-					<div class="weir-info-label">Datum A:</div>
-					<div id="weirInfoDatumA" class="weir-info-value"></div>
-					<div class="weir-info-label">Datum B:</div>
-					<div id="weirInfoDatumB" class="weir-info-value"></div>
-					<div class="weir-info-label">Dam Height:</div>
-					<div id="weirInfoDamHeight" class="weir-info-value"></div>
-					<div class="weir-info-label">Dam Width:</div>
-					<div id="weirInfoDamWidth" class="weir-info-value"></div>
-					<div class="weir-info-label">Area id A:</div>
-					<div id="weirInfoAreaA" class="weir-info-value"></div>
-					<div class="weir-info-label">Area id B:</div>
-					<div id="weirInfoAreaB" class="weir-info-value"></div>
+				<div>
+					<div class="weir-info-row">
+						<div>
+							<h2 id="mainTitle">Weir name</h2>
+							<div id="weirInfo">
+								<div class="weir-info-label">Name:</div>
+								<div id="weirInfoName" class="weir-info-value"></div>
+								<div class="weir-info-label">Height:</div>
+								<div id="weirInfoHeight" class="weir-info-value"></div>
+								<div class="weir-info-label">Width:</div>
+								<div id="weirInfoWidth" class="weir-info-value"></div>
+								<div class="weir-info-label">Angle:</div>
+								<div id="weirInfoAngle" class="weir-info-value"></div>
+								<div class="weir-info-label">Coefficient:</div>
+								<div id="weirInfoCoefficient" class="weir-info-value"></div>
+								<div class="weir-info-label">Flow:</div>
+								<div id="weirInfoFlow" class="weir-info-value"></div>
+								<div class="weir-info-label">Datum A:</div>
+								<div id="weirInfoDatumA" class="weir-info-value"></div>
+								<div class="weir-info-label">Datum B:</div>
+								<div id="weirInfoDatumB" class="weir-info-value"></div>
+								<div class="weir-info-label">Dam Height:</div>
+								<div id="weirInfoDamHeight" class="weir-info-value"></div>
+								<div class="weir-info-label">Dam Width:</div>
+								<div id="weirInfoDamWidth" class="weir-info-value"></div>
+								<div class="weir-info-label">Area id A:</div>
+								<div id="weirInfoAreaA" class="weir-info-value"></div>
+								<div class="weir-info-label">Area id B:</div>
+								<div id="weirInfoAreaB" class="weir-info-value"></div>
+							</div>
+						</div>
+
+						<div id="weirImageDiv">
+							<h2 id="drawingTitle">Side view:</h2>
+							<canvas id="weirCanvas" width="300" height="150"></canvas>
+						</div>
+					</div>
+
 				</div>
-				<div class="timeframe-slider range--ticks slider-background"
-				style='--step: 1; --min: 0; --max: 1; --value: 1; --text-value: "1"; --primaryColor: red; --fill-color: unset; --value-background: unset; --value-active-color: unset;'>
-				<input id="weirSlider" class="timeframe-slider" type="range" min="0" max="1" step="1" value="1"
-					oninput="this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))">
-				<output></output>
-			</div>
-				<div id="weirImageDiv">
-					<p>Drawing:</p>
-					<canvas id="weirCanvas" width="300" height="150"></canvas>
+				<div >
+					<div class="timeframe-slider range--ticks slider-background"
+						style='--step: 1; --min: 0; --max: 1; --value: 1; --text-value: "1"; --primaryColor: red; --fill-color: unset; --value-background: unset; --value-active-color: unset;'>
+						<input id="weirSlider" class="timeframe-slider" type="range"
+							min="0" max="1" step="1" value="1"
+							oninput="this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))">
+						<output></output>
+					</div>
+					<div id="weirPlot" /></div>
 				</div>
 			</section>
 		</div>
