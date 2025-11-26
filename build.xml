@@ -131,6 +131,7 @@
 		<propertyregex property="base.name" input="${filename}" regexp="(.*)\.(.*)" select="\1" />
 
 		<copy file="${dashboardPathHTML}/${base.name}.html" tofile="${destination}/${base.name}.html" />
+		<copy file="dashboards/dashboard.css" tofile="${destination}/${base.name}.css" />
 
 		<concat destfile="${destination}/css/${base.name}.css" fixlastline="true" eol="unix">
 			<fileset dir="dashboards/">
