@@ -1,6 +1,7 @@
-import { QueryDataManager } from "../../src/js/util/QueryDataManager.js";
-import { visualizeWeir } from "../../src/js/water/structures/weir.js";
-import { setupTimeframeSlider } from "../../src/js/util/Timeframeslider.js";
+import { QueryDataManager } from "../../../src/js/util/QueryDataManager.js";
+import { visualizeWeir } from "../../../src/js/water/structures/weir.js";
+import { setupTimeframeSlider } from "../../../src/js/util/Timeframeslider.js";
+import { createLayout, xyPlot } from "../../../src/js/util/Plot.js";
 
 let weirs = [];
 
@@ -21,7 +22,7 @@ function getDummyWeir() {
 	};
 }
 
-function fillWeirInfo(weir) {
+function updateWeirDetails(weir) {
 
 	if (weir == null) {
 		weir = getDummyWeir();
@@ -49,24 +50,92 @@ function fillWeirInfo(weir) {
 
 
 	let canvas = document.getElementById("weirCanvas");
-	visualizeWeir(canvas, weirTimeframe,weir.heights, weir.datumsA, weir.datumsB, weir.flows, weir.coefficient);
+	visualizeWeir(canvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.flows, weir.coefficient);
+
+	updateFlowPlot(weir);
+
+	updateHeightPlot(weir);
 
 }
 
-function loadWeir(index) {
+function updateFlowPlot(weir) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
+	let colors = {};
+	colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
+
+	let titles = {};
+	titles[WEIR_FLOW_OUTPUT] = "Flow";
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[WEIR_FLOW_OUTPUT] = weir.flows;
+
+	let layout = createWeirPlotLayout();
+	layout.title= {
+	    text: "Flow (m³/s)"
+	  };
+	xyPlot("weirFlowPlot", "scatter", data, properties, colors, titles, layout);
+}
+
+function createWeirPlotLayout(){
+
+	layout = createLayout();
+	layout.showLegend = true;
+	layout.width = 300;
+	layout.height = 200;
+	layout.margin= {l:40, r:40, t:40, b:40};
+	return layout;
+}
+
+function updateHeightPlot(weir) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
+	let colors = {};
+	colors[WEIR_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
+	colors[WEIR_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
+	colors[WEIR_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+
+	let titles = {};
+	titles[WEIR_HEIGHT_OUTPUT] = "Height";
+	titles[WEIR_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
+	titles[WEIR_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[WEIR_HEIGHT_OUTPUT] = weir.heights;
+	data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
+	data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
+	
+	let layout = createWeirPlotLayout();
+	layout.title= {
+	    text: "Height and Datum (m)"
+	  };
+	xyPlot("weirHeightPlot", "scatter", data, properties, colors, titles, layout);
+}
+
+function selectWeir(index) {
 	let main = document.getElementById("mainTitle");
 
 	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
 
 	if (weir == null) {
 		main.innerHTML = "-";
-		fillWeirInfo(weir);
+		updateWeirDetails(weir);
 		return;
 	}
 
 
 	main.innerHTML = weir.name;
-	fillWeirInfo(weir);
+	updateWeirDetails(weir);
 
 	let weirList = document.getElementById("weirList");
 	for (item of weirList.children) {
@@ -92,7 +161,7 @@ function addWeirListItem(index) {
 
 
 	let listItem = document.createElement("a");
-	listItem.onclick = () => loadWeir(index);
+	listItem.onclick = () => selectWeir(index);
 	listItem.innerHTML = weirs[index].name;
 	listItem.myIndex = index;
 
@@ -184,13 +253,13 @@ function updateWeirList() {
 	}
 
 	if (weirs.length > 0) {
-		loadWeir(0, weirTimeframe);
+		selectWeir(0, weirTimeframe);
 	}
 }
 
 setupTimeframeSlider(weirSlider, weirTimeframe, timeframes, function() {
 	weirTimeframe = weirSlider.value;
-	loadWeir(getSelectedWeirIndex());
+	selectWeir(getSelectedWeirIndex());
 });
 
 
