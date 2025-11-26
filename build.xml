@@ -133,7 +133,7 @@
 		<copy file="${dashboardPathHTML}/${base.name}.html" tofile="${destination}/${base.name}.html" />
 
 		<concat destfile="${destination}/css/${base.name}.css" fixlastline="true" eol="unix">
-			<fileset dir="${dashboardPathCSS}/">
+			<fileset dir="dashboards/">
 				<include name="dashboard.css" />
 			</fileset>
 			<fileset dir="${dashboardPathCSS}/">
