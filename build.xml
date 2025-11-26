@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="main" name="Concatenate js files" xmlns:fx="javafx:com.sun.javafx.tools.ant">
-
+	<basename property="filename" file="${file}" />
+	<basename property="foldername" file="${folder}" />
+		
 	<!-- Specify "-Dservertype=preview" in bat arguments to build preview -->
 	<property name="servertype" value="local" />
-	<property name="destination" value="build/${servertype}" />
+	<property name="destination" value="build/${servertype}/${foldername}" />
 
 	<property name="plotly" value="src='https://cdn.plot.ly/plotly-3.0.1.min.js'" />
 
@@ -12,15 +14,15 @@
 
 	<!-- Adjust intros from * to a particular intro to only build that intro -->
 	<property name="dashboard" value="*" />
-	<basename property="filename" file="${file}" />
-	<property name="filepath" value="${destination}/lib/${filename}" />
-	<property name="bodypath" value="${destination}/body/${filename}" />
-
-	<property name="dashboardPath" value="dashboards" />
+	<property name="dashboardPath" value="dashboards/${foldername}" />
 	<property name="dashboardPathJS" value="${dashboardPath}/js" />
 	<property name="dashboardPathHTML" value="${dashboardPath}/html" />
 	<property name="dashboardPathCSS" value="${dashboardPath}/css" />
 	<property name="dashboardPathReplacements" value="${dashboardPath}/replacements" />
+
+	<property name="filepath" value="${destination}/lib/${filename}" />
+	<property name="bodypath" value="${destination}/body/${filename}" />
+
 
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
@@ -29,25 +31,35 @@
 		</classpath>
 	</taskdef>
 
-	<target name="main" description="Concatenate all js files">
+	<target name="main" description="Run per folder">
+
+		<foreach target="sub" param="folder">
+			<path>
+				<dirset dir="dashboards" includes="*"/>
+			</path>
+		</foreach>
+
+	</target>
+
+	<target name="sub" description="Concatenate all js files per file in folder">
+
 
 		<delete dir="${destination}" />
-
 		<foreach target="combined_js" param="file">
 			<path>
-				<fileset id="dashboardset" dir="${dashboardPathJS}/" includes="${dashboard}.js" />
+				<fileset dir="${dashboardPathJS}/" includes="${dashboard}.js" />
 			</path>
 		</foreach>
 
 		<foreach target="split_js" param="file">
 			<path>
-				<fileset id="dashboardset" dir="${dashboardPathJS}/" includes="${dashboard}.js" />
+				<fileset dir="${dashboardPathJS}/" includes="${dashboard}.js" />
 			</path>
 		</foreach>
 
 		<foreach target="create_html_css" param="file">
 			<path>
-				<fileset id="dashboardset" dir="${dashboardPathJS}/" includes="${dashboard}.js" />
+				<fileset dir="${dashboardPathJS}/" includes="${dashboard}.js" />
 			</path>
 		</foreach>
 
