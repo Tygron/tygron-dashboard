@@ -281,10 +281,14 @@ html, body {
 	padding:10px;
 }
 
-.weir-info-row{
+.weir-info-row,
+.weir-info-row-spread{
 	display:flex;
 	flex-wrap: wrap;
 	flex-direction: row;
+}
+
+.weir-info-row-spread{
 	justify-content: space-between;
 }
 
@@ -335,6 +339,10 @@ html, body {
 	column-gap: 1em;
 }
 
+#weirFlowPlot,#weirHeightPlot{
+	max-width: fit-content;
+}
+
 		body {
 	
 }
@@ -347,7 +355,7 @@ html, body {
 			</aside>
 			<section class="main">
 				<div>
-					<div class="weir-info-row">
+					<div class="weir-info-row-spread">
 						<div>
 							<h2 id="mainTitle">Weir name</h2>
 							<div id="weirInfo">
@@ -385,7 +393,7 @@ html, body {
 					</div>
 
 				</div>
-				<div >
+				<div>
 					<div class="timeframe-slider range--ticks slider-background"
 						style='--step: 1; --min: 0; --max: 1; --value: 1; --text-value: "1"; --primaryColor: red; --fill-color: unset; --value-background: unset; --value-active-color: unset;'>
 						<input id="weirSlider" class="timeframe-slider" type="range"
@@ -393,7 +401,12 @@ html, body {
 							oninput="this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))">
 						<output></output>
 					</div>
-					<div id="weirPlot" /></div>
+				</div>
+				<div>
+					<div class="weir-info-row">
+						<div id="weirFlowPlot"></div>
+						<div id="weirHeightPlot"></div>
+					</div>
 				</div>
 			</section>
 		</div>
@@ -1739,6 +1752,41 @@ function barPlot(plotDivName, data, timeframe, properties, colors, titles, layou
 
 	Plotly.newPlot(plotDivName, bardata, layout);
 }
+/**
+ * Function assumes 
+ */
+function xyPlot(plotDivName, type, data, properties, colors, titles, layout) {
+
+	var traces = [];
+	let timeframeProperty = properties[0];
+
+	for (let i = 1; i < properties.length; i++) {
+
+		let property = properties[i];
+		let trace = {
+			x: data[timeframeProperty],
+			y: data[property],
+			marker: {
+				color: "black"
+			},
+			line: {
+				color: "rgba(" + colors[property].join(",") + ")"
+			},
+			name: titles[property],
+			type: type,
+			mode: 'lines+markers'
+		}
+
+		traces.push(trace);
+	}
+
+	if (layout == undefined) {
+		layout = createLayout();
+		layout.showLegend = true;
+	}
+
+	Plotly.newPlot(plotDivName, traces, layout);
+}
 
 function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout, percentual = false) {
 
@@ -1865,7 +1913,7 @@ function createRadarPlot(plotDivName, labels, values, range, layout) {
 	}
 
 	let plotLayout = JSON.parse(JSON.stringify(layout)); //deep copy
-	
+
 	plotLayout['polar'] ??= {
 		radialaxis: {
 			visible: true,
@@ -2741,7 +2789,7 @@ function visualizeWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flow
 
 
 
-let numWeirs = 0;
+
 let weirs = [];
 
 function getDummyWeir() {
@@ -2761,7 +2809,7 @@ function getDummyWeir() {
 	};
 }
 
-function fillWeirInfo(weir) {
+function updateWeirDetails(weir) {
 
 	if (weir == null) {
 		weir = getDummyWeir();
@@ -2789,24 +2837,92 @@ function fillWeirInfo(weir) {
 
 
 	let canvas = document.getElementById("weirCanvas");
-	visualizeWeir(canvas, weirTimeframe,weir.heights, weir.datumsA, weir.datumsB, weir.flows, weir.coefficient);
+	visualizeWeir(canvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.flows, weir.coefficient);
+
+	updateFlowPlot(weir);
+
+	updateHeightPlot(weir);
 
 }
 
-function loadWeir(index) {
+function updateFlowPlot(weir) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
+	let colors = {};
+	colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
+
+	let titles = {};
+	titles[WEIR_FLOW_OUTPUT] = "Flow";
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[WEIR_FLOW_OUTPUT] = weir.flows;
+
+	let layout = createWeirPlotLayout();
+	layout.title= {
+	    text: "Flow (m³/s)"
+	  };
+	xyPlot("weirFlowPlot", "scatter", data, properties, colors, titles, layout);
+}
+
+function createWeirPlotLayout(){
+
+	layout = createLayout();
+	layout.showLegend = true;
+	layout.width = 300;
+	layout.height = 200;
+	layout.margin= {l:40, r:40, t:40, b:40};
+	return layout;
+}
+
+function updateHeightPlot(weir) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
+	let colors = {};
+	colors[WEIR_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
+	colors[WEIR_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
+	colors[WEIR_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+
+	let titles = {};
+	titles[WEIR_HEIGHT_OUTPUT] = "Height";
+	titles[WEIR_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
+	titles[WEIR_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[WEIR_HEIGHT_OUTPUT] = weir.heights;
+	data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
+	data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
+	
+	let layout = createWeirPlotLayout();
+	layout.title= {
+	    text: "Height and Datum (m)"
+	  };
+	xyPlot("weirHeightPlot", "scatter", data, properties, colors, titles, layout);
+}
+
+function selectWeir(index) {
 	let main = document.getElementById("mainTitle");
 
 	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
 
 	if (weir == null) {
 		main.innerHTML = "-";
-		fillWeirInfo(weir);
+		updateWeirDetails(weir);
 		return;
 	}
 
 
 	main.innerHTML = weir.name;
-	fillWeirInfo(weir);
+	updateWeirDetails(weir);
 
 	let weirList = document.getElementById("weirList");
 	for (item of weirList.children) {
@@ -2832,7 +2948,7 @@ function addWeirListItem(index) {
 
 
 	let listItem = document.createElement("a");
-	listItem.onclick = () => loadWeir(index);
+	listItem.onclick = () => selectWeir(index);
 	listItem.innerHTML = weirs[index].name;
 	listItem.myIndex = index;
 
@@ -2892,9 +3008,7 @@ function fillWeirs() {
 	let angle = queryDataManager.getData(WEIR_ANGLE, true);
 	let coefficient = queryDataManager.getData(WEIR_COEFFICIENT, true);
 
-	numWeirs = names.length;
-
-	for (let i = 0; i < numWeirs; i++) {
+	for (let i = 0; i < names.length; i++) {
 
 		let weir = {
 			name: i < names.length ? names[i] : "Weir " + i,
@@ -2926,13 +3040,13 @@ function updateWeirList() {
 	}
 
 	if (weirs.length > 0) {
-		loadWeir(0, weirTimeframe);
+		selectWeir(0, weirTimeframe);
 	}
 }
 
 setupTimeframeSlider(weirSlider, weirTimeframe, timeframes, function() {
 	weirTimeframe = weirSlider.value;
-	loadWeir(getSelectedWeirIndex());
+	selectWeir(getSelectedWeirIndex());
 });
 
 
