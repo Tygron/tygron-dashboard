@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Test Canvas</title>
+	
+	
+</head>
+
+<body>
+	
+	<div>
+	<p>Testshapes:
+	</p>
+	<canvas id="testCanvas" width="400" height="400"></canvas>	
+	<canvas id="testCanvasShape" width="400" height="400"></canvas>
+	<canvas id="testCanvasLine" width="400" height="400"></canvas>
+	<canvas id="testCanvasCircle" width="400" height="400"></canvas>
+	<canvas id="testCanvasFillCircle" width="400" height="400"></canvas>
+	<canvas id="testCanvasCurve" width="400" height="400"></canvas>
+	<canvas id="testCanvasBezier" width="400" height="400"></canvas>
+	</div>
+	<script>
+	
+		let ctx = document.getElementById("testCanvas").getContext("2d");	
+		//define gradient
+		const grad=ctx.createLinearGradient(0,0, 280,0);
+		grad.addColorStop(0, "#22dcfd");
+		grad.addColorStop(0.5, "#0e9ce7");
+		grad.addColorStop(1, "#5866b9");
+		
+		//draw rectangle with stroke
+		ctx.fillStyle = grad;
+		ctx.fillRect(5, 5, 300, 100);
+		//add clear section
+		ctx.clearRect(50, 20, 150, 50);
+		ctx.strokeStyle = "blue"
+		ctx.lineWidth = 5;
+		ctx.strokeRect(5, 5, 300, 100);
+		
+		
+		//draw line
+		ctx = document.getElementById("testCanvasLine").getContext("2d");	
+		ctx.moveTo(0, 0);
+		ctx.lineTo(200, 200);
+		ctx.lineWidth = 10;
+		ctx.strokeStyle = grad;
+		ctx.lineCap = "round";
+		ctx.stroke();
+		
+		//draw circle
+		ctx = document.getElementById("testCanvasCircle").getContext("2d");	
+		ctx.beginPath();		
+		ctx.arc(90, 90, 80, 0, 2 * Math.PI);			
+		ctx.lineWidth = 5;		
+		ctx.strokeStyle = "red";
+		ctx.stroke();
+		
+		//draw filled circle
+		ctx = document.getElementById("testCanvasFillCircle").getContext("2d");	
+		ctx.beginPath();		
+		ctx.arc(190, 90, 60, 0, 2 * Math.PI, true);
+		ctx.fillStyle = grad;
+		ctx.fill();
+		ctx.lineWidth = 5;		
+		ctx.strokeStyle = "black";
+		ctx.stroke();
+		
+		ctx.font = "30px Arial";
+		ctx.fillStyle = grad;
+		ctx.fillText("Filled Circle", 60, 30);
+		
+		//draw shape
+		ctx = document.getElementById("testCanvasShape").getContext("2d");	
+		
+		ctx.beginPath();
+			//start point
+		ctx.moveTo(30, 30);
+			//sub points
+		ctx.lineTo(160, 30);
+		ctx.lineTo(200, 160);
+		ctx.lineTo(30, 160);
+			//end-point
+		ctx.lineTo(30, 30);
+		ctx.lineWidth = 5;
+		ctx.strokeStyle = "blue";
+			//add stroke
+		ctx.stroke();
+			
+		//draw quadratic curve
+		ctx = document.getElementById("testCanvasCurve").getContext("2d");	
+		ctx.beginPath();
+		ctx.moveTo(10, 100);
+		ctx.quadraticCurveTo(250, 170, 230, 30);
+		ctx.lineWidth = 5;
+		ctx.stroke();
+		
+		ctx = document.getElementById("testCanvasBezier").getContext("2d");	
+		//draw bezier curve
+		ctx.beginPath();
+		ctx.moveTo(20, 20);
+		ctx.bezierCurveTo(110, 150, 180, 10, 210, 140);
+		ctx.lineWidth = 5;
+		ctx.strokeStyle = grad;
+		ctx.stroke();
+		
+		
+	
+	</script>
+</body>
+
+</html>
