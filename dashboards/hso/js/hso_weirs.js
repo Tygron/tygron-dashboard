@@ -2,7 +2,6 @@ import { QueryDataManager } from "../../src/js/util/QueryDataManager.js";
 import { visualizeWeir } from "../../src/js/water/structures/weir.js";
 import { setupTimeframeSlider } from "../../src/js/util/Timeframeslider.js";
 
-let numWeirs = 0;
 let weirs = [];
 
 function getDummyWeir() {
@@ -153,9 +152,7 @@ function fillWeirs() {
 	let angle = queryDataManager.getData(WEIR_ANGLE, true);
 	let coefficient = queryDataManager.getData(WEIR_COEFFICIENT, true);
 
-	numWeirs = names.length;
-
-	for (let i = 0; i < numWeirs; i++) {
+	for (let i = 0; i < names.length; i++) {
 
 		let weir = {
 			name: i < names.length ? names[i] : "Weir " + i,
