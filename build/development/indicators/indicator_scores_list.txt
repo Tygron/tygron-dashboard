@@ -1,16 +1,4 @@
-<!DOCTYPE html>
-<html lang="en-US">
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>template_area_urban_density</title>
-	<link rel='stylesheet' >
-	<script  charset="utf-8"></script>
-	<script src='https://cdn.plot.ly/plotly-3.0.1.min.js' charset="utf-8"></script>
-</head>
-
-<body>
 	<style>
 		@charset "UTF-8";
 
@@ -271,64 +259,6 @@ html, body {
 	content: var(--text-value);
 	font: var(--value-font);
 }
-	body {
-		padding: 0px;
-		margin:0px; 
-		height: 100vh;
-		
-		position: relative;
-		display: flex;
-		flex-direction: column;
-	}
-	.page {
-		display: flex;
-		flex-direction: column;
-		
-		flex-basis: 10em;
-		flex-grow: 1;
-		
-		position: relative;
-		
-		padding: 1em;
-	}
-	#result table {
-		width:50%;
-	}
-	input[type='button'] {
-	    background-color: lightgrey;
-	}
-	input[type='button'].selected {
-	    background-color: lightblue;
-	}
-	
-	table {
-		width:100%;
-	}
-	th, td {
-		text-align: right;
-	}
-	th:first-child, td:first-child {
-		text-align: left;
-	}
-	
-	div.entry {
-		position: relative;
-		width: 100%;
-		height: 2em;
-		display: flex;
-		flex-direction: row;
-	}
-	div.entry > div {
-		flex-basis: 10%;
-		flex-grow: 1;
-		
-		text-align: right;
-	}
-	div.entry > div:first-child {
-		flex-basis: 20%;
-		
-		text-align: left;
-	}
 
 		body{}
 	</style>
@@ -2682,101 +2612,115 @@ function visualizeWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flow
 }
 
 
+
+
+
 $(window).on("load", function() {
-	/* Get all the data */
+
+	let scoreScale = [[0,1],[0,100]];
+	
+	/* Get all the data from indicators */
 	let queryDataManager = new QueryDataManager();
-
-	queryDataManager.addQuery('name'  , '$SELECT_NAME_WHERE_AREA_IS_ID');
-
-	queryDataManager.addQuery('landsize_current'  , '$SELECT_LANDSIZE_WHERE_AREA_IS_ID_AND_MAP_IS_CURRENT');
-	queryDataManager.addQuery('landsize_maquette'  , '$SELECT_LANDSIZE_WHERE_AREA_IS_ID_AND_MAP_IS_MAQUETTE');
-
-	queryDataManager.addQuery('lotsize_current'  , '$SELECT_LOTSIZE_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
-	queryDataManager.addQuery('lotsize_maquette'  , '$SELECT_LOTSIZE_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
-	
-	queryDataManager.addQuery('floorsize_current'  , '$SELECT_FLOORSIZE_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
-	queryDataManager.addQuery('floorsize_maquette'  , '$SELECT_FLOORSIZE_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
-
-	queryDataManager.addQuery('units_current'  , '$SELECT_UNITS_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
-	queryDataManager.addQuery('units_maquette'  , '$SELECT_UNITS_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
-	
+	queryDataManager.addQuery('indicatorIds', '$SELECT_ID_WHERE_INDICATOR_IS_X');
+	queryDataManager.addQuery('indicatorNames', '$SELECT_NAME_WHERE_INDICATOR_IS_X');
+	queryDataManager.addQuery('indicatorActive', '$SELECT_ACTIVE_WHERE_INDICATOR_IS_X');
+	queryDataManager.addQuery('indicatorCurrent', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('indicatorMaquette', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE');
 	
 	/* If the data has not loaded yet, warn the user */
 	if (!queryDataManager.allQueriesResolved()) {
 		document.body.innerHTML = '<p>Recalculation required before data can be shown.</p>';
 		return;
 	}
-	
-	/* Urban density values of interest */
-	let size = [];
-	let floorspaceIndex = [];
-	let groundspaceIndex = [];
-	let openSpaceRatio = [];
-	let avgFloors = ['-','-'];
-	
-	let denominator = 0;
 
-	/* Calculate all of them. 0 is for current, 1 is for maquette */
-	size[0] = Math.round(queryDataManager.getData('landsize_current', false)/10000)+'&nbsp;ha';
-	size[1] = Math.round(queryDataManager.getData('landsize_maquette', false)/10000)+'&nbsp;ha';
-	
-	denominator = queryDataManager.getData('landsize_current', false);
-	floorspaceIndex[0] = (denominator != 0) ? queryDataManager.getData('floorsize_current', false) / denominator : '-';
-
-	denominator = queryDataManager.getData('landsize_maquette', false);
-	floorspaceIndex[1] = (denominator != 0) ? queryDataManager.getData('floorsize_maquette', false) / denominator : '-';
-
-	denominator = queryDataManager.getData('landsize_current', false);
-	groundspaceIndex[0] = (denominator != 0) ? queryDataManager.getData('lotsize_current', false) / denominator : '-';
-
-	denominator = queryDataManager.getData('landsize_maquette', false);
-	groundspaceIndex[1] = (denominator != 0) ? queryDataManager.getData('lotsize_maquette', false) / denominator : '-';
-
-	if ( (floorspaceIndex[0] != '-') && (groundspaceIndex[0] != 0) )  {
-		openSpaceRatio[0] = (1-groundspaceIndex[0]) / floorspaceIndex[0];
-	}
-	if ( (floorspaceIndex[1] != '-') && (groundspaceIndex[1] != 0) )  {
-		openSpaceRatio[1] = (1-groundspaceIndex[1]) / floorspaceIndex[1];
-	}
-	
-	denominator = queryDataManager.getData('lotsize_current', false);
-	avgFloors[0] = (denominator != 0) ? queryDataManager.getData('floorsize_current', false) / denominator : '-';
-
-	denominator = queryDataManager.getData('lotsize_maquette', false);
-	avgFloors[1] = (denominator != 0) ? queryDataManager.getData('floorsize_maquette', false) / denominator : '-';
-	
-	let data = [];
-
-	data.push( ['Size'].concat(size) );
-	data.push(['FSI'].concat(floorspaceIndex) );
-	data.push( ['GSI'].concat(groundspaceIndex) );
-	data.push( ['OSR'].concat(openSpaceRatio) );
-	data.push( ['Average floors'].concat(avgFloors) );
-	
-	/* All data values which are still just numbers are ratios or fractions. Round them a bit */
-	ArrayUtils.forEach(data, (v,i,a) => {
-			v[1] = NumberUtils.isNumeric(v[1]) ? Math.round( v[1]*100 ) / 100 : v[1];
-			v[2] = NumberUtils.isNumeric(v[2]) ? Math.round( v[2]*100 ) / 100 : v[2];
-			return v;
-		});
-	
-		
-	/* Create a listing which will show the data. A listing is effectively a table. */
+	/* Create a listing which will show the data of the indicators. A listing is effectively a table. */
 	let listing = new ListingPanelController('listing');
 	/* Headers will automatically show at the top */
-	listing.addHeader(['Property', 'Current','Maquette']);
-	/* Content Render Types determe how values are rendered. Labels are 'as is'.*/
-	listing.setDefaultContentRenderTypes(['label', 'label', 'label']);
-
+	listing.addHeader(['Indicator', 'Current', 'Maquette', 'Active']);
+	/* Content Render Types determe how values are rendered. Labels are 'as is'. Buttons show a fixed list of options, with a selected one based on the value in that cell*/
+	listing.setDefaultContentRenderTypes(['label', 'label', 'label', { 'type': 'buttons', 'options': {}, 'inputs': ['Include', 'Ignore'] }]);
 	
-	/* Add the data to the listing, and render it */
+	
+	/* Retrieve the data from the query manager, preprocess, and add to a single data matrix. */
+	let data = [];
+	data.push(queryDataManager.getData('indicatorNames'));
+	
+	/* The scores are unbounded fractions (0-1). Remap them to 0-100, round them, and add a percentage sign. This makes them human-readable. */
+	data.push(ArrayUtils.forEach(
+			queryDataManager.getData('indicatorCurrent'),
+			(value) => {return ArrayUtils.scaleValue(value, ...scoreScale, true)+'%';}
+		));
+	data.push(ArrayUtils.forEach(
+			queryDataManager.getData('indicatorMaquette'),
+			(value) => {return ArrayUtils.scaleValue(value, ...scoreScale, true)+'%';}
+		));
+		
+	/* The active state is transformed into the valid values of the buttons in the listing, so the correct button defaults to being selected. */
+	data.push(ArrayUtils.forEach(
+			queryDataManager.getData('indicatorActive'),
+			(value) => {return (value > 0) ? 'Include':'Ignore' }
+		));
+		
+		
+	/* As is, each indicator would become its own column. Flip it, so each indicator is a row */
+	data = ArrayUtils.flipMatrix(data);
+
+	/* Add the indicator data to the listing, and render it */
 	for ( let row of data ) {
 		listing.addContent(row);
 	}
 	listing.render();
+
+
+	
+	/* Create a smaller listing for Current and Maquette averages, based on which indicators were active/inactive */
+	let resultContent = []; /* Separate variable, so can be accessed/filled in by a recalculation function */
+	let result = new ListingPanelController('result', { 'flipXY': true });
+	result.addHeader(['Current', 'Maquette']);
+	result.addContent(resultContent);
+
+	/* Based on a list of which indexes to consider "active", recalculate the averages and place those results in the resultContent array */
+	let recalculateResult = function(actives) {
+		let indicatorScoresCurrent = queryDataManager.getData('indicatorCurrent');
+		let indicatorScoresMaquette = queryDataManager.getData('indicatorMaquette');
+		
+		let count = 0;
+		let current = 0;
+		let maquette = 0;
+		for (let i = 0; i < actives.length; i++) {
+			if (actives[i]) {
+				current += indicatorScoresCurrent[i];
+				maquette += indicatorScoresMaquette[i];
+				count++;
+			}
+		}
+		
+		resultContent[0] = count === 0 ? '' : ArrayUtils.scaleValue(current  / count, ...scoreScale, true)+'%';
+		resultContent[1] = count === 0 ? '' : ArrayUtils.scaleValue(maquette / count, ...scoreScale, true)+'%';
+	}
+	
+	/* Initial calculation of the averaged results based on which indicators are Active in the session now */
+	recalculateResult( queryDataManager.getData('indicatorActive') );
+	result.render();
+	
+
+	
+	/* Use the toggles in the listing to change how the totals are calculated */
+	attachHandler(listing.domElement, 'change', null, function(event) {
+		/* Because the listing features input elements for one column, values from the listing can be retrieved automatically */
+		let values = listing.getValues();
+		/* Iterate through the matrix of retrieved values. Each row is the values from input elements on one listing row */
+		for (let i=0;i<values.length;i++) {
+			/* If the row has any values, het the first (and only) value */
+			values[i] = (Array.isArray(values[i]) && values[i].length>0) ? values[i][0] : null;
+			/* Transform from the human-readable value to a 0 or 1, which is how the Platform and code denotes the Active state. (normalizing the value) */
+			values[i] = (values[i] == 'Include') ? 1 : 0;
+		}
+		/* Recalculation of the averaged results based on which Indicators were Includes or Ignored through buttons in the listing */
+		recalculateResult(values);
+		result.render();
+	});
+	
 });
 
 	</script>
-</body>
-
-</html>

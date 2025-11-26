@@ -1,6 +1,6 @@
 
 	<style>
-@charset "UTF-8";
+		@charset "UTF-8";
 
 :root {
 	--tygron-white: rgba(245, 245, 245, 1.0);
@@ -259,145 +259,18 @@ html, body {
 	content: var(--text-value);
 	font: var(--value-font);
 }
-.container {
-	display: flex;
-	flex-direction: column;
-}
 
-.wrapper {
-	display: flex;
-	flex-direction: row;
-}
-
-.main {
-	flex: 3;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	border: 1px solid grey;
-	border-radius: 5px;
-	box-shadow: 2px 2px 10px #c1c1c1;
-	font-family: Arial;
-	padding:10px;
-}
-
-.weir-info-row{
-	display:flex;
-	flex-wrap: wrap;
-	flex-direction: row;
-	justify-content: space-between;
-}
-
-.flex-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.slider-background{
-	margin:1em;
-	width:95%;
-	height:15px;
-}
-
-
-.sidebar {
-	flex: 1;
-}
-
-.vertical-menu {
-	width: 200px;
-	height: 90vh;
-	overflow-y: auto;
-}
-
-.vertical-menu a {
-	background-color: #eee;
-	color: black;
-	display: block;
-	padding: 12px;
-	text-decoration: none;
-	cursor: default;
-}
-
-.vertical-menu a:hover {
-	background-color: #ccc;
-}
-
-.vertical-menu a.selected {
-	background-color: rgba(79, 185, 207, 1.0);
-	color: white;
-}
-
-#weirInfo {
-	display: grid;
-	grid-template-columns: minmax(80px, auto) 1fr;
-	column-gap: 1em;
-}
-
-		body {
+		body{}
+	</style>
 	
-}
-</style>
-	<div class="container">
-		<div class="wrapper">
-			<aside class="sidebar">
-				<h3>Weirs list:</h3>
-				<div id="weirList" class="vertical-menu"></div>
-			</aside>
-			<section class="main">
-				<div>
-					<div class="weir-info-row">
-						<div>
-							<h2 id="mainTitle">Weir name</h2>
-							<div id="weirInfo">
-								<div class="weir-info-label">Name:</div>
-								<div id="weirInfoName" class="weir-info-value"></div>
-								<div class="weir-info-label">Height:</div>
-								<div id="weirInfoHeight" class="weir-info-value"></div>
-								<div class="weir-info-label">Width:</div>
-								<div id="weirInfoWidth" class="weir-info-value"></div>
-								<div class="weir-info-label">Angle:</div>
-								<div id="weirInfoAngle" class="weir-info-value"></div>
-								<div class="weir-info-label">Coefficient:</div>
-								<div id="weirInfoCoefficient" class="weir-info-value"></div>
-								<div class="weir-info-label">Flow:</div>
-								<div id="weirInfoFlow" class="weir-info-value"></div>
-								<div class="weir-info-label">Datum A:</div>
-								<div id="weirInfoDatumA" class="weir-info-value"></div>
-								<div class="weir-info-label">Datum B:</div>
-								<div id="weirInfoDatumB" class="weir-info-value"></div>
-								<div class="weir-info-label">Dam Height:</div>
-								<div id="weirInfoDamHeight" class="weir-info-value"></div>
-								<div class="weir-info-label">Dam Width:</div>
-								<div id="weirInfoDamWidth" class="weir-info-value"></div>
-								<div class="weir-info-label">Area id A:</div>
-								<div id="weirInfoAreaA" class="weir-info-value"></div>
-								<div class="weir-info-label">Area id B:</div>
-								<div id="weirInfoAreaB" class="weir-info-value"></div>
-							</div>
-						</div>
-
-						<div id="weirImageDiv">
-							<h2 id="drawingTitle">Side view:</h2>
-							<canvas id="weirCanvas" width="300" height="150"></canvas>
-						</div>
-					</div>
-
-				</div>
-				<div >
-					<div class="timeframe-slider range--ticks slider-background"
-						style='--step: 1; --min: 0; --max: 1; --value: 1; --text-value: "1"; --primaryColor: red; --fill-color: unset; --value-background: unset; --value-active-color: unset;'>
-						<input id="weirSlider" class="timeframe-slider" type="range"
-							min="0" max="1" step="1" value="1"
-							oninput="this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))">
-						<output></output>
-					</div>
-					<div id="weirPlot" /></div>
-				</div>
-			</section>
+	<div class="page">
+		<div id="result">
+		</div>
+		<hr>
+		<div id="listing">
 		</div>
 	</div>
+	
 	<script>
 		
 
@@ -2739,204 +2612,98 @@ function visualizeWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flow
 }
 
 
+$(window).on("load", function() {
+	/* Get all the data */
+	let queryDataManager = new QueryDataManager();
 
+	queryDataManager.addQuery('name'  , '$SELECT_NAME_WHERE_AREA_IS_ID');
 
-let numWeirs = 0;
-let weirs = [];
+	queryDataManager.addQuery('landsize_current'  , '$SELECT_LANDSIZE_WHERE_AREA_IS_ID_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('landsize_maquette'  , '$SELECT_LANDSIZE_WHERE_AREA_IS_ID_AND_MAP_IS_MAQUETTE');
 
-function getDummyWeir() {
-	return {
-		name: "-",
-		height: -10000,
-		width: 0,
-		flow: 0,
-		datumA: -10000,
-		datumB: -10000,
-		damWidth: 0,
-		damHeight: -1,
-		areaOutputA: -1,
-		areaOutputB: -1,
-		angle: -10000,
-		coefficient: 1.1,
-	};
-}
+	queryDataManager.addQuery('lotsize_current'  , '$SELECT_LOTSIZE_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('lotsize_maquette'  , '$SELECT_LOTSIZE_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
+	
+	queryDataManager.addQuery('floorsize_current'  , '$SELECT_FLOORSIZE_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('floorsize_maquette'  , '$SELECT_FLOORSIZE_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
 
-function fillWeirInfo(weir) {
-
-	if (weir == null) {
-		weir = getDummyWeir();
-	}
-
-	document.getElementById("weirInfoName").innerHTML = weir.name;
-
-	document.getElementById("weirInfoHeight").innerHTML = weir.heights[weirTimeframe] + " m";
-
-	document.getElementById("weirInfoWidth").innerHTML = weir.width + " m";
-
-	document.getElementById("weirInfoFlow").innerHTML = weir.flows[weirTimeframe] + " m³/s";
-
-	document.getElementById("weirInfoDatumA").innerHTML = weir.datumsA[weirTimeframe] + " m";
-
-	document.getElementById("weirInfoDatumB").innerHTML = weir.datumsB[weirTimeframe] + " m";
-
-	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight + " m";
-	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth + " m";
-	document.getElementById("weirInfoAreaA").innerHTML = weir.areaOutputA;
-	document.getElementById("weirInfoAreaB").innerHTML = weir.areaOutputB;
-	document.getElementById("weirInfoAngle").innerHTML = weir.angle > -10000 ? weir.angle + " &deg;" : "-";
-
-	document.getElementById("weirInfoCoefficient").innerHTML = weir.coefficient;
-
-
-	let canvas = document.getElementById("weirCanvas");
-	visualizeWeir(canvas, weirTimeframe,weir.heights, weir.datumsA, weir.datumsB, weir.flows, weir.coefficient);
-
-}
-
-function loadWeir(index) {
-	let main = document.getElementById("mainTitle");
-
-	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
-
-	if (weir == null) {
-		main.innerHTML = "-";
-		fillWeirInfo(weir);
+	queryDataManager.addQuery('units_current'  , '$SELECT_UNITS_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('units_maquette'  , '$SELECT_UNITS_WHERE_AREA_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
+	
+	
+	/* If the data has not loaded yet, warn the user */
+	if (!queryDataManager.allQueriesResolved()) {
+		document.body.innerHTML = '<p>Recalculation required before data can be shown.</p>';
 		return;
 	}
+	
+	/* Urban density values of interest */
+	let size = [];
+	let floorspaceIndex = [];
+	let groundspaceIndex = [];
+	let openSpaceRatio = [];
+	let avgFloors = ['-','-'];
+	
+	let denominator = 0;
 
+	/* Calculate all of them. 0 is for current, 1 is for maquette */
+	size[0] = Math.round(queryDataManager.getData('landsize_current', false)/10000)+'&nbsp;ha';
+	size[1] = Math.round(queryDataManager.getData('landsize_maquette', false)/10000)+'&nbsp;ha';
+	
+	denominator = queryDataManager.getData('landsize_current', false);
+	floorspaceIndex[0] = (denominator != 0) ? queryDataManager.getData('floorsize_current', false) / denominator : '-';
 
-	main.innerHTML = weir.name;
-	fillWeirInfo(weir);
+	denominator = queryDataManager.getData('landsize_maquette', false);
+	floorspaceIndex[1] = (denominator != 0) ? queryDataManager.getData('floorsize_maquette', false) / denominator : '-';
 
-	let weirList = document.getElementById("weirList");
-	for (item of weirList.children) {
-		if (item.myIndex == index) {
-			item.classList.add('selected');
-		} else {
-			item.classList.remove('selected');
-		}
+	denominator = queryDataManager.getData('landsize_current', false);
+	groundspaceIndex[0] = (denominator != 0) ? queryDataManager.getData('lotsize_current', false) / denominator : '-';
+
+	denominator = queryDataManager.getData('landsize_maquette', false);
+	groundspaceIndex[1] = (denominator != 0) ? queryDataManager.getData('lotsize_maquette', false) / denominator : '-';
+
+	if ( (floorspaceIndex[0] != '-') && (groundspaceIndex[0] != 0) )  {
+		openSpaceRatio[0] = (1-groundspaceIndex[0]) / floorspaceIndex[0];
 	}
-}
-
-function getSelectedWeirIndex() {
-	for (item of document.getElementById("weirList").children) {
-		if (item.classList.contains('selected')) {
-			return item.myIndex;
-		}
+	if ( (floorspaceIndex[1] != '-') && (groundspaceIndex[1] != 0) )  {
+		openSpaceRatio[1] = (1-groundspaceIndex[1]) / floorspaceIndex[1];
 	}
-	return 0;
-}
+	
+	denominator = queryDataManager.getData('lotsize_current', false);
+	avgFloors[0] = (denominator != 0) ? queryDataManager.getData('floorsize_current', false) / denominator : '-';
 
-function addWeirListItem(index) {
-	let weirList = document.getElementById("weirList");
+	denominator = queryDataManager.getData('lotsize_maquette', false);
+	avgFloors[1] = (denominator != 0) ? queryDataManager.getData('floorsize_maquette', false) / denominator : '-';
+	
+	let data = [];
 
+	data.push( ['Size'].concat(size) );
+	data.push(['FSI'].concat(floorspaceIndex) );
+	data.push( ['GSI'].concat(groundspaceIndex) );
+	data.push( ['OSR'].concat(openSpaceRatio) );
+	data.push( ['Average floors'].concat(avgFloors) );
+	
+	/* All data values which are still just numbers are ratios or fractions. Round them a bit */
+	ArrayUtils.forEach(data, (v,i,a) => {
+			v[1] = NumberUtils.isNumeric(v[1]) ? Math.round( v[1]*100 ) / 100 : v[1];
+			v[2] = NumberUtils.isNumeric(v[2]) ? Math.round( v[2]*100 ) / 100 : v[2];
+			return v;
+		});
+	
+		
+	/* Create a listing which will show the data. A listing is effectively a table. */
+	let listing = new ListingPanelController('listing');
+	/* Headers will automatically show at the top */
+	listing.addHeader(['Property', 'Current','Maquette']);
+	/* Content Render Types determe how values are rendered. Labels are 'as is'.*/
+	listing.setDefaultContentRenderTypes(['label', 'label', 'label']);
 
-	let listItem = document.createElement("a");
-	listItem.onclick = () => loadWeir(index);
-	listItem.innerHTML = weirs[index].name;
-	listItem.myIndex = index;
-
-	weirList.appendChild(listItem);
-
-};
-
-const HSO_OVERLAY_TIMEFRAMES = "hso_overlay_timeframes";
-const WEIR_NAMES = 'weir_name';
-const WEIR_HEIGHTS = 'weir_height';
-const WEIR_WIDTH = 'weir_width';
-const WEIR_FLOW_OUTPUT = 'flow_output';
-const WEIR_HEIGHT_OUTPUT = 'height_output';
-const WEIR_DATUM_OUTPUT_A = 'datum_output_a';
-const WEIR_DATUM_OUTPUT_B = 'datum_output_b';
-const WEIR_DAM_WIDTH = 'weir_dam_width';
-const WEIR_DAM_HEIGHT = 'weir_dam_height';
-const WEIR_AREA_OUTPUT_A = 'water_area_output_a';
-const WEIR_AREA_OUTPUT_B = 'water_area_output_b';
-const WEIR_ANGLE = 'weir_angle';
-const WEIR_COEFFICIENT = 'weir_coefficient';
-
-let queryDataManager = new QueryDataManager();
-
-queryDataManager.addQuery(HSO_OVERLAY_TIMEFRAMES, '$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_NAME_IS_TIMEFRAMES');
-
-
-queryDataManager.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY');
-queryDataManager.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
-queryDataManager.addQuery(WEIR_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
-queryDataManager.addQuery(WEIR_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
-queryDataManager.addQuery(WEIR_FLOW_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_FLOW_OUTPUT_AND_TIMEFRAME_IS_X');
-queryDataManager.addQuery(WEIR_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B_AND_TIMEFRAME_IS_X');
-queryDataManager.addQuery(WEIR_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_A_AND_TIMEFRAME_IS_X');
-queryDataManager.addQuery(WEIR_DAM_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_0');
-queryDataManager.addQuery(WEIR_DAM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_1');
-queryDataManager.addQuery(WEIR_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
-queryDataManager.addQuery(WEIR_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
-queryDataManager.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_ANGLE');
-queryDataManager.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
-
-let timeframes = Math.round(queryDataManager.getData(HSO_OVERLAY_TIMEFRAMES));
-let weirTimeframe = 0;
-
-function fillWeirs() {
-
-	let names = queryDataManager.getData(WEIR_NAMES, true);
-	let width = queryDataManager.getData(WEIR_WIDTH, true);
-	let heights = queryDataManager.getData(WEIR_HEIGHT_OUTPUT, true);
-	let flow = queryDataManager.getData(WEIR_FLOW_OUTPUT, true);
-	let datumA = queryDataManager.getData(WEIR_DATUM_OUTPUT_A, true);
-	let datumB = queryDataManager.getData(WEIR_DATUM_OUTPUT_B, true);
-	let damWidth = queryDataManager.getData(WEIR_DAM_WIDTH, true);
-	let damHeight = queryDataManager.getData(WEIR_DAM_HEIGHT, true);
-	let areaOutputA = queryDataManager.getData(WEIR_AREA_OUTPUT_A, true);
-	let areaOutputB = queryDataManager.getData(WEIR_AREA_OUTPUT_B, true);
-	let angle = queryDataManager.getData(WEIR_ANGLE, true);
-	let coefficient = queryDataManager.getData(WEIR_COEFFICIENT, true);
-
-	numWeirs = names.length;
-
-	for (let i = 0; i < numWeirs; i++) {
-
-		let weir = {
-			name: i < names.length ? names[i] : "Weir " + i,
-
-			// array values
-			heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
-			flows: i < flow.length ? flow[i] : Array(timeframes).fill(0),
-			datumsA: i < datumA.length ? datumA[i] : Array(timeframes).fill(-10000),
-			datumsB: i < datumB.length ? datumB[i] : Array(timeframes).fill(-10000),
-
-			// single value
-			width: i < width.length ? width[i] : Array(timeframes).fill(0),
-			damWidth: i < damWidth.length ? damWidth[i] : 0,
-			damHeight: i < damHeight.length ? damHeight[i] : -1,
-			areaOutputA: i < areaOutputA.length ? areaOutputA[i] : -1,
-			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
-			angle: i < angle.length ? angle[i] : -10000,
-			coefficient: i < coefficient.length && coefficient[i] > 0 ? coefficient[i] : 1.1,
-		};
-		weirs.push(weir);
-
+	
+	/* Add the data to the listing, and render it */
+	for ( let row of data ) {
+		listing.addContent(row);
 	}
-}
-
-
-function updateWeirList() {
-	for (let i = 0; i < weirs.length; i++) {
-		addWeirListItem(i);
-	}
-
-	if (weirs.length > 0) {
-		loadWeir(0, weirTimeframe);
-	}
-}
-
-setupTimeframeSlider(weirSlider, weirTimeframe, timeframes, function() {
-	weirTimeframe = weirSlider.value;
-	loadWeir(getSelectedWeirIndex());
+	listing.render();
 });
-
-
-fillWeirs();
-updateWeirList();
 
 	</script>

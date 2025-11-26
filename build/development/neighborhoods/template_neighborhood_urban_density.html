@@ -1,4 +1,16 @@
+<!DOCTYPE html>
+<html lang="en-US">
 
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>template_neighborhood_urban_density</title>
+	<link rel='stylesheet' >
+	<script  charset="utf-8"></script>
+	<script src='https://cdn.plot.ly/plotly-3.0.1.min.js' charset="utf-8"></script>
+</head>
+
+<body>
 	<style>
 		@charset "UTF-8";
 
@@ -259,63 +271,15 @@ html, body {
 	content: var(--text-value);
 	font: var(--value-font);
 }
-	html {
-		padding:0px;
-		margin:0px;
-		
-		width:100%;
-		height:100%;
-		
-		position:relative;
-	}
-	body {
-		padding:0px;
-		margin:0px;
-		
-		width:100%;
-		height:100%;
-		
-		position:relative;
-		
-		display: flex;
-		flex-direction: column;
-	}
-	#controls {
-		height: 2em;
-		line-height: 2em;
-		
-		position:relative;
-	}
-	.page {
-		padding: 0px;
-		margin:0px;
-		
-		position: relative;
-		
-		display: flex;
-		flex-direction: column;
-		
-		flex-basis: 1px;
-		flex-grow: 1;
-	}
-	#chart {		
-		width:100%;
-		height:100%;
-	
-		position: relative;
-	
-		flex-basis:1px;
-		flex-grow: 1;
-	}
 
 		body{}
 	</style>
 	
-	<div id="controls">
-	</div>
-	
 	<div class="page">
-		<div id="chart">
+		<div id="result">
+		</div>
+		<hr>
+		<div id="listing">
 		</div>
 	</div>
 	
@@ -2660,18 +2624,24 @@ function visualizeWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flow
 }
 
 
-
-
 $(window).on("load", function() {
-	let scoreScale = [[0,1],[0,100]];
-
-	/* Get all the data from indicators */
+	/* Get all the data */
 	let queryDataManager = new QueryDataManager();
-	queryDataManager.addQuery('indicatorIds', '$SELECT_ID_WHERE_INDICATOR_IS_X');
-	queryDataManager.addQuery('indicatorNames', '$SELECT_NAME_WHERE_INDICATOR_IS_X');
-	queryDataManager.addQuery('indicatorActive', '$SELECT_ACTIVE_WHERE_INDICATOR_IS_X');
-	queryDataManager.addQuery('indicatorCurrent', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_CURRENT');
-	queryDataManager.addQuery('indicatorMaquette', '$SELECT_SCORE_WHERE_INDICATOR_IS_X_AND_MAP_IS_MAQUETTE');
+
+	queryDataManager.addQuery('name'  , '$SELECT_NAME_WHERE_NEIGHBORHOOD_IS_ID');
+
+	queryDataManager.addQuery('landsize_current'  , '$SELECT_LANDSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('landsize_maquette'  , '$SELECT_LANDSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_MAP_IS_MAQUETTE');
+
+	queryDataManager.addQuery('lotsize_current'  , '$SELECT_LOTSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('lotsize_maquette'  , '$SELECT_LOTSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
+	
+	queryDataManager.addQuery('floorsize_current'  , '$SELECT_FLOORSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('floorsize_maquette'  , '$SELECT_FLOORSIZE_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
+
+	queryDataManager.addQuery('units_current'  , '$SELECT_UNITS_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_CURRENT');
+	queryDataManager.addQuery('units_maquette'  , '$SELECT_UNITS_WHERE_NEIGHBORHOOD_IS_ID_AND_ATTRIBUTE_MULT_IS_SOLID_AND_MAP_IS_MAQUETTE');
+	
 	
 	/* If the data has not loaded yet, warn the user */
 	if (!queryDataManager.allQueriesResolved()) {
@@ -2679,36 +2649,76 @@ $(window).on("load", function() {
 		return;
 	}
 	
+	/* Urban density values of interest */
+	let size = [];
+	let floorspaceIndex = [];
+	let groundspaceIndex = [];
+	let openSpaceRatio = [];
+	let avgFloors = ['-','-'];
 	
+	let denominator = 0;
+
+	/* Calculate all of them. 0 is for current, 1 is for maquette */
+	size[0] = Math.round(queryDataManager.getData('landsize_current', false)/10000)+'&nbsp;ha';
+	size[1] = Math.round(queryDataManager.getData('landsize_maquette', false)/10000)+'&nbsp;ha';
 	
-	/* Get all indicator names , filtered to only obtain the names of indicators which are active */
-	let indicatorNames = ArrayUtils.filterByArray( queryDataManager.getData('indicatorNames'), queryDataManager.getData('indicatorActive') );
-	
-	/* Get all indicator scores, filtered to only obtain the scores of indicators which are active */
-	let indicatorScores = {
-	 	'Current': 	ArrayUtils.filterByArray( queryDataManager.getData('indicatorCurrent'), queryDataManager.getData('indicatorActive') ),
-		'Maquette':	ArrayUtils.filterByArray( queryDataManager.getData('indicatorMaquette'), queryDataManager.getData('indicatorActive') ),
-	};
-		
-	/* Scale all the scores to human-readable percentage values */
-	indicatorScores = ArrayUtils.scaleValues(indicatorScores, ...scoreScale, true);
-		
-	/* If Current and Maquette are the same, show only a single set of values */
-	if ( JSON.stringify(indicatorScores['Current']) == JSON.stringify(indicatorScores['Maquette']) ) {
-		indicatorScores = { 'Values' : indicatorScores['Current'] };
+	denominator = queryDataManager.getData('landsize_current', false);
+	floorspaceIndex[0] = (denominator != 0) ? queryDataManager.getData('floorsize_current', false) / denominator : '-';
+
+	denominator = queryDataManager.getData('landsize_maquette', false);
+	floorspaceIndex[1] = (denominator != 0) ? queryDataManager.getData('floorsize_maquette', false) / denominator : '-';
+
+	denominator = queryDataManager.getData('landsize_current', false);
+	groundspaceIndex[0] = (denominator != 0) ? queryDataManager.getData('lotsize_current', false) / denominator : '-';
+
+	denominator = queryDataManager.getData('landsize_maquette', false);
+	groundspaceIndex[1] = (denominator != 0) ? queryDataManager.getData('lotsize_maquette', false) / denominator : '-';
+
+	if ( (floorspaceIndex[0] != '-') && (groundspaceIndex[0] != 0) )  {
+		openSpaceRatio[0] = (1-groundspaceIndex[0]) / floorspaceIndex[0];
+	}
+	if ( (floorspaceIndex[1] != '-') && (groundspaceIndex[1] != 0) )  {
+		openSpaceRatio[1] = (1-groundspaceIndex[1]) / floorspaceIndex[1];
 	}
 	
-	
-	/* Establish the values for the radar plot */
-	let radarIndicatorLabels = indicatorNames;
-	let radarIndicatorScoresPerMapType = indicatorScores;
-	let radarRange = scoreScale[1];
-	
-	/* Render the radar plot */
-	let layout = createRadarPlotLayout();
-	createRadarPlot('chart', radarIndicatorLabels, radarIndicatorScoresPerMapType, radarRange, layout);
-	
+	denominator = queryDataManager.getData('lotsize_current', false);
+	avgFloors[0] = (denominator != 0) ? queryDataManager.getData('floorsize_current', false) / denominator : '-';
 
+	denominator = queryDataManager.getData('lotsize_maquette', false);
+	avgFloors[1] = (denominator != 0) ? queryDataManager.getData('floorsize_maquette', false) / denominator : '-';
+	
+	let data = [];
+
+	data.push( ['Size'].concat(size) );
+	data.push(['FSI'].concat(floorspaceIndex) );
+	data.push( ['GSI'].concat(groundspaceIndex) );
+	data.push( ['OSR'].concat(openSpaceRatio) );
+	data.push( ['Average floors'].concat(avgFloors) );
+	
+	/* All data values which are still just numbers are ratios or fractions. Round them a bit */
+	ArrayUtils.forEach(data, (v,i,a) => {
+			v[1] = NumberUtils.isNumeric(v[1]) ? Math.round( v[1]*100 ) / 100 : v[1];
+			v[2] = NumberUtils.isNumeric(v[2]) ? Math.round( v[2]*100 ) / 100 : v[2];
+			return v;
+		});
+	
+		
+	/* Create a listing which will show the data. A listing is effectively a table. */
+	let listing = new ListingPanelController('listing');
+	/* Headers will automatically show at the top */
+	listing.addHeader(['Property', 'Current','Maquette']);
+	/* Content Render Types determe how values are rendered. Labels are 'as is'.*/
+	listing.setDefaultContentRenderTypes(['label', 'label', 'label']);
+
+	
+	/* Add the data to the listing, and render it */
+	for ( let row of data ) {
+		listing.addContent(row);
+	}
+	listing.render();
 });
 
 	</script>
+</body>
+
+</html>
