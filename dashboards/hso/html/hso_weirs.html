@@ -61,7 +61,7 @@ BODYSTYLE
 					</div>
 
 				</div>
-				<div >
+				<div>
 					<div class="timeframe-slider range--ticks slider-background"
 						style='--step: 1; --min: 0; --max: 1; --value: 1; --text-value: "1"; --primaryColor: red; --fill-color: unset; --value-background: unset; --value-active-color: unset;'>
 						<input id="weirSlider" class="timeframe-slider" type="range"
@@ -69,7 +69,10 @@ BODYSTYLE
 							oninput="this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))">
 						<output></output>
 					</div>
-					<div id="weirPlot" /></div>
+				</div>
+				<div class="weir-info-row">
+					<div id="weirFlowPlot"></div>
+					<div id="weirHeightPlot"></div>
 				</div>
 			</section>
 		</div>
