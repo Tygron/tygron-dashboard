@@ -20,10 +20,14 @@
 	padding:10px;
 }
 
-.weir-info-row{
+.weir-info-row,
+.weir-info-row-spread{
 	display:flex;
 	flex-wrap: wrap;
 	flex-direction: row;
+}
+
+.weir-info-row-spread{
 	justify-content: space-between;
 }
 
@@ -72,4 +76,8 @@
 	display: grid;
 	grid-template-columns: minmax(80px, auto) 1fr;
 	column-gap: 1em;
+}
+
+#weirFlowPlot,#weirHeightPlot{
+	max-width: fit-content;
 }
