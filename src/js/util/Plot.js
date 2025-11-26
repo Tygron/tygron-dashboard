@@ -34,6 +34,41 @@ export function barPlot(plotDivName, data, timeframe, properties, colors, titles
 
 	Plotly.newPlot(plotDivName, bardata, layout);
 }
+/**
+ * Function assumes 
+ */
+export function xyPlot(plotDivName, type, data, properties, colors, titles, layout) {
+
+	var traces = [];
+	let timeframeProperty = properties[0];
+
+	for (let i = 1; i < properties.length; i++) {
+
+		let property = properties[i];
+		let trace = {
+			x: data[timeframeProperty],
+			y: data[property],
+			marker: {
+				color: "black"
+			},
+			line: {
+				color: "rgba(" + colors[property].join(",") + ")"
+			},
+			name: titles[property],
+			type: type,
+			mode: 'lines+markers'
+		}
+
+		traces.push(trace);
+	}
+
+	if (layout == undefined) {
+		layout = createLayout();
+		layout.showLegend = true;
+	}
+
+	Plotly.newPlot(plotDivName, traces, layout);
+}
 
 export function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout, percentual = false) {
 
@@ -160,7 +195,7 @@ export function createRadarPlot(plotDivName, labels, values, range, layout) {
 	}
 
 	let plotLayout = JSON.parse(JSON.stringify(layout)); //deep copy
-	
+
 	plotLayout['polar'] ??= {
 		radialaxis: {
 			visible: true,
