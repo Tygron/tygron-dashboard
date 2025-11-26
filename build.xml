@@ -137,7 +137,7 @@
 				<include name="dashboard.css" />
 			</fileset>
 			<fileset dir="${dashboardPath}/">
-				<include name="${base.name}.css" />
+				<include name="**/${base.name}.css" />
 			</fileset>
 		</concat>
 
