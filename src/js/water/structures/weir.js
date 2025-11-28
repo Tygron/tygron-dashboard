@@ -277,7 +277,37 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
 	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
+	
 	//TODO: (@ArtistTygron) Implement front view 
+
+	//ctx.beginPath();
+
+	// Set start-point
+	//ctx.moveTo(0,70);
+
+	// Set sub-points
+//	ctx.lineTo(100,70);
+	//ctx.lineTo(100,110);
+	//ctx.lineTo(200,110);
+	//ctx.lineTo(200,70);
+	//ctx.lineTo(300,70);
+	//ctx.lineTo(300,150);
+	//ctx.lineTo(0,150);
+	
+	// Set end-point
+	//ctx.lineTo(0,70);
+
+	// Stroke it (do the drawing)
+	//ctx.stroke();
+	
+	ctx.fillStyle = "grey";
+	ctx.fillRect(0,70, 300,150);
+	
+	
+	
+	
+	ctx.clearRect(80,70, 140,35);
+	
 	
 	let baseHeight = canvasHeight / 8;
 	let heightMultiplier = (canvasHeight - baseHeight) / range;
