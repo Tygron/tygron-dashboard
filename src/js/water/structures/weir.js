@@ -280,15 +280,32 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	
 	//TODO: (@ArtistTygron) Implement front view 
 
+	let damHeightLeftX = 100;
+	let damHeightLeftY = 70;
+	let weirHeightLeftX = 100;
+	let weirHeightLeftY = 110;
+	let weirHeightRightX = 200;
+	let weirHeightRightY = 110;
+	let damHeightRightX = 200;
+	let damHeightRightY = 70;
 	
 	
-	ctx.fillStyle = "grey";
-	ctx.fillRect(0,70, 300,150);
+	ctx.beginPath();
+	//Set start-point
+	ctx.moveTo(0,70);
+	// Set sub-points
+	ctx.lineTo(damHeightLeftX,damHeightLeftY);
+	ctx.lineTo(weirHeightLeftX,weirHeightLeftY);
+	ctx.lineTo(weirHeightRightX,weirHeightRightY);
+	ctx.lineTo(damHeightRightX,damHeightRightY);
+	ctx.lineTo(300,70);
+	ctx.lineTo(300,150);
+	ctx.lineTo(0,150);
+	// Set end-point
+	ctx.lineTo(0,70);
+	// Stroke it (do the drawing)
+	ctx.stroke();
 	
-	
-	
-	
-	ctx.clearRect(80,70, 140,35);
 	
 	
 	let baseHeight = canvasHeight / 8;
