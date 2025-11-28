@@ -2611,25 +2611,25 @@ function drawWeirCustom(ctx, x, width, height) {
 }
 
 
-function drawWeirFrontVShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight){
-	
+function drawWeirFrontVShape(ctx, weirWidth, weirHeight, weirDamWidth, weirDamHeight) {
+
 }
 
-function drawWeirFrontUShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight){
-	
+function drawWeirFrontUShape(ctx, weirWidth, weirHeight, weirDamWidth, weirDamHeight) {
+
 }
 
-function drawWeirFrontShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight, weirN) {
+function drawWeirFrontShape(ctx, weirWidth, weirHeight, weirDamWidth, weirDamHeight, weirN) {
 
 	ctx.fillStyle = "#cdb59f";
 	ctx.strokeStyle = "black";
 
-	if (equalsCoefficient(coefficient, 5/3)) {
-		drawWeirFrontVShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight);
+	if (equalsCoefficient(weirN, 5 / 3)) {
+		drawWeirFrontVShape(ctx, weirWidth, weirHeight, weirDamWidth, weirDamHeight);
 
 	} else {
-		drawWeirFrontUShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight);
-	} 
+		drawWeirFrontUShape(ctx, weirWidth, weirHeight, weirDamWidth, weirDamHeight);
+	}
 }
 
 function drawWeirSideShape(ctx, x, weirThickness, height, coefficient) {
@@ -2758,18 +2758,51 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
 	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
+
 	//TODO: (@ArtistTygron) Implement front view 
-	
-	let baseHeight = canvasHeight / 8;
-	let heightMultiplier = (canvasHeight - baseHeight) / range;
-	
+
+	let damHeightLeftX = canvas.width / 3;
+	let damHeightLeftY = canvas.height / 3;
+	let weirHeightLeftX = 100;
+	let weirHeightLeftY = 110;
+	let weirHeightRightX = 200;
+	let weirHeightRightY = 110;
+	let damHeightRightX = 200;
+	let damHeightRightY = 70;
+
+
+	ctx.beginPath();
+	//Set start-point
+	ctx.moveTo(0, 70);
+	// Set sub-points
+	ctx.lineTo(damHeightLeftX, damHeightLeftY);
+	ctx.lineTo(weirHeightLeftX, weirHeightLeftY);
+	ctx.lineTo(weirHeightRightX, weirHeightRightY);
+	ctx.lineTo(damHeightRightX, damHeightRightY);
+	ctx.lineTo(300, 70);
+	ctx.lineTo(300, 150);
+	ctx.lineTo(0, 150);
+	// Set end-point
+	ctx.lineTo(0, 70);
+	ctx.closePath();
+	ctx.fillStyle = "red";
+	ctx.fill();
+
+	// Stroke it (do the drawing)
+	ctx.stroke();
+
+
+
+	let baseHeight = canvas.height / 8;
+	let heightMultiplier = (canvas.height - baseHeight) / range;
+
 	let datumMin = Math.min(datumLeft, datumRight);
 	let datumMax = Math.max(datumLeft, datumRight);
-	
+
 	// drawWeirFrontMaxLevel : solid, using datumMax
-	
+
 	drawWeirFrontShape(ctx, weirWidth, weirHeight, weirDamWidth, weirDamHeight, weirN);
-	
+
 	// drawWeirFrontMinLevel : dashed, using datumMin
 }
 
