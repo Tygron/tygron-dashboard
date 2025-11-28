@@ -130,29 +130,25 @@ function drawWeirCustom(ctx, x, width, height) {
 }
 
 
-function drawWeirFrontShape(ctx, x, weirThickness, height, weirN) {
+function drawWeirFrontVShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight){
+	
+}
+
+function drawWeirFrontUShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight){
+	
+}
+
+function drawWeirFrontShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight, weirN) {
 
 	ctx.fillStyle = "#cdb59f";
 	ctx.strokeStyle = "black";
 
-	if (equalsCoefficient(coefficient, 0.865)) {
-		drawWeirBroadPerpendicular(ctx, x, weirThickness, height);
-
-	} else if (equalsCoefficient(coefficient, 0.91)) {
-		drawWeirBroadRounded(ctx, x, weirThickness, height);
-
-	} else if (equalsCoefficient(coefficient, 1.1)) {
-		drawWeirSharp(ctx, x, weirThickness, height);
-
-	} else if (equalsCoefficient(coefficient, 1.3)) {
-		drawWeirRounded(ctx, x, weirThickness, height);
-
-	} else if (equalsCoefficient(coefficient, 1.37)) {
-		drawWeirRoundedRoof(ctx, x, weirThickness, height);
+	if (equalsCoefficient(coefficient, 5/3)) {
+		drawWeirFrontVShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight);
 
 	} else {
-		drawWeirCustom(ctx, x, weirThickness, height);
-	}
+		drawWeirFrontUShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight);
+	} 
 }
 
 function drawWeirSideShape(ctx, x, weirThickness, height, coefficient) {
@@ -277,16 +273,21 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight);
 
 	let range = maxDatum - minDatum;
-	let canvasWidth = ctx.canvas.width;
-	let canvasHeight = ctx.canvas.height;
 
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
 	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
 	//TODO: (@ArtistTygron) Implement front view 
 	
+	let baseHeight = canvasHeight / 8;
+	let heightMultiplier = (canvasHeight - baseHeight) / range;
+	
 	let datumMin = Math.min(datumLeft, datumRight);
 	let datumMax = Math.max(datumLeft, datumRight);
 	
+	// drawWeirFrontMaxLevel : solid, using datumMax
 	
+	drawWeirFrontShape(ctx, weirWidth, weirHeight, weirDamWidth, weirDamHeight, weirN);
+	
+	// drawWeirFrontMinLevel : dashed, using datumMin
 }
