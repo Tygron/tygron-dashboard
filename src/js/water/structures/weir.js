@@ -5,40 +5,38 @@ function equalsCoefficient(coefficient, value) {
 }
 
 
-function drawWeirSharp(canvas, x, width, height) {
+function drawWeirSharp(ctx, x, width, height) {
 
-	const ctx = canvas.getContext("2d");
 	const halfWidth = width / 2;
 
 
 	ctx.beginPath();
-	ctx.moveTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height - height + width);
-	ctx.lineTo(x - halfWidth, canvas.height - height);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height + width);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height - height);
 	ctx.closePath();
 
 	ctx.fill();
 	ctx.stroke();
 }
 
-function drawWeirBroadRounded(canvas, x, width, height) {
+function drawWeirBroadRounded(ctx, x, width, height) {
 
-	const ctx = canvas.getContext("2d");
 	let radius = width / 4;
 	const halfWidth = width / 2;
 
 
 	ctx.beginPath();
-	ctx.moveTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height - height + radius);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height + radius);
 
-	ctx.arc(x + halfWidth - radius, canvas.height - height + radius, radius, 0, 1.5 * Math.PI, true);
-	ctx.lineTo(x - halfWidth + radius, canvas.height - height);
+	ctx.arc(x + halfWidth - radius, ctx.canvas.height - height + radius, radius, 0, 1.5 * Math.PI, true);
+	ctx.lineTo(x - halfWidth + radius, ctx.canvas.height - height);
 
-	ctx.arc(x - halfWidth + radius, canvas.height - height + radius, radius, 1.5 * Math.PI, Math.PI, true);
-	ctx.lineTo(x - halfWidth, canvas.height);
+	ctx.arc(x - halfWidth + radius, ctx.canvas.height - height + radius, radius, 1.5 * Math.PI, Math.PI, true);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height);
 
 	ctx.closePath();
 
@@ -47,15 +45,15 @@ function drawWeirBroadRounded(canvas, x, width, height) {
 
 }
 
-function drawWeirBroadPerpendicular(canvas, x, width, height) {
-	const ctx = canvas.getContext("2d");
+function drawWeirBroadPerpendicular(ctx, x, width, height) {
+
 	const halfWidth = width / 2;
 
 	ctx.beginPath();
-	ctx.moveTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height - height);
-	ctx.lineTo(x - halfWidth, canvas.height - height);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height - height);
 	ctx.closePath();
 
 
@@ -63,29 +61,28 @@ function drawWeirBroadPerpendicular(canvas, x, width, height) {
 	ctx.stroke();
 }
 
-function drawWeirRounded(canvas, x, width, height) {
-	const ctx = canvas.getContext("2d");
+function drawWeirRounded(ctx, x, width, height) {
+
 	let radius = width / 4;
 	const halfWidth = width / 2;
 
 
 	ctx.beginPath();
 
-	ctx.moveTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x - halfWidth, canvas.height - height + radius);
-	ctx.arc(x - halfWidth + radius, canvas.height - height + radius, radius, Math.PI, 1.65 * Math.PI, false);
+	ctx.moveTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height - height + radius);
+	ctx.arc(x - halfWidth + radius, ctx.canvas.height - height + radius, radius, Math.PI, 1.65 * Math.PI, false);
 
-	ctx.lineTo(x + halfWidth, canvas.height - height + radius);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height + radius);
 	ctx.closePath();
 
 	ctx.fill();
 	ctx.stroke();
 }
 
-function drawWeirRoundedRoof(canvas, x, width, height) {
+function drawWeirRoundedRoof(ctx, x, width, height) {
 
-	const ctx = canvas.getContext("2d");
 	const halfWidth = width / 2;
 
 	let xOffset = width / 4;
@@ -95,34 +92,32 @@ function drawWeirRoundedRoof(canvas, x, width, height) {
 
 	ctx.beginPath();
 
-	ctx.moveTo(x - halfWidth, canvas.height - height + yOffset);
-	ctx.quadraticCurveTo(controlLeft, canvas.height - height, x, canvas.height - height);
-	ctx.quadraticCurveTo(controlRight, canvas.height - height, x + halfWidth, canvas.height - height + yOffset);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height - height + yOffset);
+	ctx.quadraticCurveTo(controlLeft, ctx.canvas.height - height, x, ctx.canvas.height - height);
+	ctx.quadraticCurveTo(controlRight, ctx.canvas.height - height, x + halfWidth, ctx.canvas.height - height + yOffset);
 
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x - halfWidth, canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height);
 	ctx.closePath();
 	ctx.fill();
 	ctx.stroke();
 }
 
-function drawWeirCustom(canvas, x, width, height) {
-
-	const ctx = canvas.getContext("2d");
+function drawWeirCustom(ctx, x, width, height) {
 
 	let radius = width / 4;
 	const halfWidth = width / 2;
 
 	ctx.beginPath();
-	ctx.moveTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height - height + radius);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height + radius);
 
-	ctx.arc(x + halfWidth - radius, canvas.height - height + radius, radius, 0, 1.5 * Math.PI, true);
-	ctx.lineTo(x - halfWidth + radius, canvas.height - height);
+	ctx.arc(x + halfWidth - radius, ctx.canvas.height - height + radius, radius, 0, 1.5 * Math.PI, true);
+	ctx.lineTo(x - halfWidth + radius, ctx.canvas.height - height);
 
-	ctx.arc(x - halfWidth + radius, canvas.height - height + radius, radius, 1.5 * Math.PI, Math.PI, true);
-	ctx.lineTo(x - halfWidth, canvas.height);
+	ctx.arc(x - halfWidth + radius, ctx.canvas.height - height + radius, radius, 1.5 * Math.PI, Math.PI, true);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height);
 
 	ctx.closePath();
 
@@ -131,32 +126,31 @@ function drawWeirCustom(canvas, x, width, height) {
 
 	ctx.font = "48px serif";
 	ctx.fillStyle = "black";
-	ctx.fillText("?", x - halfWidth / 2, canvas.height - height + halfWidth);
+	ctx.fillText("?", x - halfWidth / 2, ctx.canvas.height - height + halfWidth);
 }
 
-function drawWeirSideShape(canvas, x, weirThickness, height, coefficient) {
+function drawWeirSideShape(ctx, x, weirThickness, height, coefficient) {
 
-	const ctx = canvas.getContext("2d");
 	ctx.fillStyle = "#cdb59f";
 	ctx.strokeStyle = "black";
 
 	if (equalsCoefficient(coefficient, 0.865)) {
-		drawWeirBroadPerpendicular(canvas, x, weirThickness, height);
+		drawWeirBroadPerpendicular(ctx, x, weirThickness, height);
 
 	} else if (equalsCoefficient(coefficient, 0.91)) {
-		drawWeirBroadRounded(canvas, x, weirThickness, height);
+		drawWeirBroadRounded(ctx, x, weirThickness, height);
 
 	} else if (equalsCoefficient(coefficient, 1.1)) {
-		drawWeirSharp(canvas, x, weirThickness, height);
+		drawWeirSharp(ctx, x, weirThickness, height);
 
 	} else if (equalsCoefficient(coefficient, 1.3)) {
-		drawWeirRounded(canvas, x, weirThickness, height);
+		drawWeirRounded(ctx, x, weirThickness, height);
 
 	} else if (equalsCoefficient(coefficient, 1.37)) {
-		drawWeirRoundedRoof(canvas, x, weirThickness, height);
+		drawWeirRoundedRoof(ctx, x, weirThickness, height);
 
 	} else {
-		drawWeirCustom(canvas, x, weirThickness, height);
+		drawWeirCustom(ctx, x, weirThickness, height);
 	}
 }
 
@@ -242,7 +236,7 @@ export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight
 	drawWeirSideWaterLevels(ctx, weirThickness, baseHeight, multiplier, datumLeft, datumRight, minDatum);
 
 	let heightInCanvas = (baseHeight + multiplier * (weirHeight - minDatum));
-	drawWeirSideShape(canvas, canvasWidth / 2, weirThickness, heightInCanvas, coefficient);
+	drawWeirSideShape(ctx, canvasWidth / 2, weirThickness, heightInCanvas, coefficient);
 
 }
 
@@ -252,5 +246,7 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	}
 
 	const ctx = canvas.getContext("2d");
+	
+	//TODO: (@ArtistTygron) Implement front view
 
 }
