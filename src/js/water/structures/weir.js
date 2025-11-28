@@ -143,7 +143,7 @@ function drawWeirFrontShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeig
 	ctx.fillStyle = "#cdb59f";
 	ctx.strokeStyle = "black";
 
-	if (equalsCoefficient(coefficient, 5/3)) {
+	if (equalsCoefficient(weirN, 5/3)) {
 		drawWeirFrontVShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight);
 
 	} else {
