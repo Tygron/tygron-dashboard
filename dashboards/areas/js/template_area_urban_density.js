@@ -1,4 +1,4 @@
-import { QueryDataManager } from "../../src/js/util/QueryDataManager.js";
+import { QueryDataManager } from "../../../src/js/util/QueryDataManager.js";
 
 $(window).on("load", function() {
 	/* Get all the data */
