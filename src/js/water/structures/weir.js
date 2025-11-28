@@ -160,7 +160,7 @@ function drawWeir(canvas, x, weirThickness, height, coefficient) {
 	}
 }
 
-export function visualizeWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flows, coefficient) {
+export function drawSideWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flows, coefficient) {
 
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;

@@ -1,5 +1,5 @@
 import { QueryDataManager } from "../../../src/js/util/QueryDataManager.js";
-import { visualizeWeir } from "../../../src/js/water/structures/weir.js";
+import { drawSideWeir } from "../../../src/js/water/structures/weir.js";
 import { setupTimeframeSlider } from "../../../src/js/util/Timeframeslider.js";
 import { createLayout, xyPlot } from "../../../src/js/util/Plot.js";
 
@@ -50,7 +50,7 @@ function updateWeirDetails(weir) {
 
 
 	let canvas = document.getElementById("weirCanvas");
-	visualizeWeir(canvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.flows, weir.coefficient);
+	drawSideWeir(canvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.flows, weir.coefficient);
 
 	updateFlowPlot(weir);
 
