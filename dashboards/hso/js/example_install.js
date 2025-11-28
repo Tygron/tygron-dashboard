@@ -1,4 +1,4 @@
-import { getGridOverlay, getGridOverlays } from "../../src/js/util/OverlayUtils.js";
+import { getGridOverlay, getGridOverlays } from "../../../src/js/util/OverlayUtils.js";
 
 let RAINFALL_OVERLAY_ATTRIBUTE = "HSO_RAINFALL_OVERLAY";
 let RAINFALL_OVERLAY_TYPE = "RAINFALL";
