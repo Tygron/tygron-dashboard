@@ -2470,40 +2470,38 @@ function equalsCoefficient(coefficient, value) {
 }
 
 
-function drawWeirSharp(canvas, x, width, height) {
+function drawWeirSharp(ctx, x, width, height) {
 
-	const ctx = canvas.getContext("2d");
 	const halfWidth = width / 2;
 
 
 	ctx.beginPath();
-	ctx.moveTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height - height + width);
-	ctx.lineTo(x - halfWidth, canvas.height - height);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height + width);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height - height);
 	ctx.closePath();
 
 	ctx.fill();
 	ctx.stroke();
 }
 
-function drawWeirBroadRounded(canvas, x, width, height) {
+function drawWeirBroadRounded(ctx, x, width, height) {
 
-	const ctx = canvas.getContext("2d");
 	let radius = width / 4;
 	const halfWidth = width / 2;
 
 
 	ctx.beginPath();
-	ctx.moveTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height - height + radius);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height + radius);
 
-	ctx.arc(x + halfWidth - radius, canvas.height - height + radius, radius, 0, 1.5 * Math.PI, true);
-	ctx.lineTo(x - halfWidth + radius, canvas.height - height);
+	ctx.arc(x + halfWidth - radius, ctx.canvas.height - height + radius, radius, 0, 1.5 * Math.PI, true);
+	ctx.lineTo(x - halfWidth + radius, ctx.canvas.height - height);
 
-	ctx.arc(x - halfWidth + radius, canvas.height - height + radius, radius, 1.5 * Math.PI, Math.PI, true);
-	ctx.lineTo(x - halfWidth, canvas.height);
+	ctx.arc(x - halfWidth + radius, ctx.canvas.height - height + radius, radius, 1.5 * Math.PI, Math.PI, true);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height);
 
 	ctx.closePath();
 
@@ -2512,15 +2510,15 @@ function drawWeirBroadRounded(canvas, x, width, height) {
 
 }
 
-function drawWeirBroadPerpendicular(canvas, x, width, height) {
-	const ctx = canvas.getContext("2d");
+function drawWeirBroadPerpendicular(ctx, x, width, height) {
+
 	const halfWidth = width / 2;
 
 	ctx.beginPath();
-	ctx.moveTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height - height);
-	ctx.lineTo(x - halfWidth, canvas.height - height);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height - height);
 	ctx.closePath();
 
 
@@ -2528,29 +2526,28 @@ function drawWeirBroadPerpendicular(canvas, x, width, height) {
 	ctx.stroke();
 }
 
-function drawWeirRounded(canvas, x, width, height) {
-	const ctx = canvas.getContext("2d");
+function drawWeirRounded(ctx, x, width, height) {
+
 	let radius = width / 4;
 	const halfWidth = width / 2;
 
 
 	ctx.beginPath();
 
-	ctx.moveTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x - halfWidth, canvas.height - height + radius);
-	ctx.arc(x - halfWidth + radius, canvas.height - height + radius, radius, Math.PI, 1.65 * Math.PI, false);
+	ctx.moveTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height - height + radius);
+	ctx.arc(x - halfWidth + radius, ctx.canvas.height - height + radius, radius, Math.PI, 1.65 * Math.PI, false);
 
-	ctx.lineTo(x + halfWidth, canvas.height - height + radius);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height + radius);
 	ctx.closePath();
 
 	ctx.fill();
 	ctx.stroke();
 }
 
-function drawWeirRoundedRoof(canvas, x, width, height) {
+function drawWeirRoundedRoof(ctx, x, width, height) {
 
-	const ctx = canvas.getContext("2d");
 	const halfWidth = width / 2;
 
 	let xOffset = width / 4;
@@ -2560,34 +2557,32 @@ function drawWeirRoundedRoof(canvas, x, width, height) {
 
 	ctx.beginPath();
 
-	ctx.moveTo(x - halfWidth, canvas.height - height + yOffset);
-	ctx.quadraticCurveTo(controlLeft, canvas.height - height, x, canvas.height - height);
-	ctx.quadraticCurveTo(controlRight, canvas.height - height, x + halfWidth, canvas.height - height + yOffset);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height - height + yOffset);
+	ctx.quadraticCurveTo(controlLeft, ctx.canvas.height - height, x, ctx.canvas.height - height);
+	ctx.quadraticCurveTo(controlRight, ctx.canvas.height - height, x + halfWidth, ctx.canvas.height - height + yOffset);
 
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x - halfWidth, canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height);
 	ctx.closePath();
 	ctx.fill();
 	ctx.stroke();
 }
 
-function drawWeirCustom(canvas, x, width, height) {
-
-	const ctx = canvas.getContext("2d");
+function drawWeirCustom(ctx, x, width, height) {
 
 	let radius = width / 4;
 	const halfWidth = width / 2;
 
 	ctx.beginPath();
-	ctx.moveTo(x - halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height);
-	ctx.lineTo(x + halfWidth, canvas.height - height + radius);
+	ctx.moveTo(x - halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height);
+	ctx.lineTo(x + halfWidth, ctx.canvas.height - height + radius);
 
-	ctx.arc(x + halfWidth - radius, canvas.height - height + radius, radius, 0, 1.5 * Math.PI, true);
-	ctx.lineTo(x - halfWidth + radius, canvas.height - height);
+	ctx.arc(x + halfWidth - radius, ctx.canvas.height - height + radius, radius, 0, 1.5 * Math.PI, true);
+	ctx.lineTo(x - halfWidth + radius, ctx.canvas.height - height);
 
-	ctx.arc(x - halfWidth + radius, canvas.height - height + radius, radius, 1.5 * Math.PI, Math.PI, true);
-	ctx.lineTo(x - halfWidth, canvas.height);
+	ctx.arc(x - halfWidth + radius, ctx.canvas.height - height + radius, radius, 1.5 * Math.PI, Math.PI, true);
+	ctx.lineTo(x - halfWidth, ctx.canvas.height);
 
 	ctx.closePath();
 
@@ -2596,75 +2591,60 @@ function drawWeirCustom(canvas, x, width, height) {
 
 	ctx.font = "48px serif";
 	ctx.fillStyle = "black";
-	ctx.fillText("?", x - halfWidth / 2, canvas.height - height + halfWidth);
+	ctx.fillText("?", x - halfWidth / 2, ctx.canvas.height - height + halfWidth);
 }
 
-function drawWeir(canvas, x, weirThickness, height, coefficient) {
 
-	const ctx = canvas.getContext("2d");
+function drawWeirFrontVShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight){
+	
+}
+
+function drawWeirFrontUShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight){
+	
+}
+
+function drawWeirFrontShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight, weirN) {
+
+	ctx.fillStyle = "#cdb59f";
+	ctx.strokeStyle = "black";
+
+	if (equalsCoefficient(coefficient, 5/3)) {
+		drawWeirFrontVShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight);
+
+	} else {
+		drawWeirFrontUShape(ctx,weirWidth, weirHeight, weirDamWidth, weirDamHeight);
+	} 
+}
+
+function drawWeirSideShape(ctx, x, weirThickness, height, coefficient) {
+
 	ctx.fillStyle = "#cdb59f";
 	ctx.strokeStyle = "black";
 
 	if (equalsCoefficient(coefficient, 0.865)) {
-		drawWeirBroadPerpendicular(canvas, x, weirThickness, height);
+		drawWeirBroadPerpendicular(ctx, x, weirThickness, height);
 
 	} else if (equalsCoefficient(coefficient, 0.91)) {
-		drawWeirBroadRounded(canvas, x, weirThickness, height);
+		drawWeirBroadRounded(ctx, x, weirThickness, height);
 
 	} else if (equalsCoefficient(coefficient, 1.1)) {
-		drawWeirSharp(canvas, x, weirThickness, height);
+		drawWeirSharp(ctx, x, weirThickness, height);
 
 	} else if (equalsCoefficient(coefficient, 1.3)) {
-		drawWeirRounded(canvas, x, weirThickness, height);
+		drawWeirRounded(ctx, x, weirThickness, height);
 
 	} else if (equalsCoefficient(coefficient, 1.37)) {
-		drawWeirRoundedRoof(canvas, x, weirThickness, height);
+		drawWeirRoundedRoof(ctx, x, weirThickness, height);
 
 	} else {
-		drawWeirCustom(canvas, x, weirThickness, height);
+		drawWeirCustom(ctx, x, weirThickness, height);
 	}
 }
 
-function visualizeWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flows, coefficient) {
+function drawWeirSideWaterLevels(ctx, weirThickness, baseHeight, multiplier, datumLeft, datumRight, minDatum) {
 
-	if (!canvas || canvas.nodeName != "CANVAS") {
-		return;
-	}
-
-	const ctx = canvas.getContext("2d");
-	
-	let minDatumLeft = Array.isArray(datumsLeft)? Math.min.apply(Math, datumsLeft) : datumsLeft;
-	let minDatumRight = Array.isArray(datumsRight)? Math.min.apply(Math, datumsRight) : datumsRight;
-	let minWeirHeights = Array.isArray(weirHeights)? Math.min.apply(Math, weirHeights) : weirHeights;
-	
-	let maxDatumLeft = Array.isArray(datumsLeft)? Math.max.apply(Math, datumsLeft) : datumsLeft;
-	let maxDatumRight = Array.isArray(datumsRight)? Math.max.apply(Math, datumsRight) : datumsRight;
-	let maxWeirHeights = Array.isArray(weirHeights)? Math.max.apply(Math, weirHeights) : weirHeights;
-		
-
-	let minDatum = Math.min(minDatumLeft, minDatumRight, minWeirHeights);
-	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxWeirHeights);
-
-	let range = maxDatum - minDatum;
 	let canvasWidth = ctx.canvas.width;
 	let canvasHeight = ctx.canvas.height;
-	
-	let datumLeft = Array.isArray(datumsLeft) ?datumsLeft[index]: datumsLeft;
-	let datumRight = Array.isArray(datumsRight) ?datumsRight[index]: datumsRight;
-	let weirHeight = Array.isArray(weirHeights) ?weirHeights[index]: weirHeights;
-
-	ctx.fillStyle = "white";
-	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-	if (range <= 0) {
-		return;
-	}
-
-	console.log(canvasWidth + "x" + canvasHeight);
-	let baseHeight = canvasHeight/8;
-	let weirThickness = canvasWidth/8;
-	let multiplier = (canvasHeight - baseHeight) / range;
-
 
 	ctx.fillStyle = 'cyan';
 	ctx.beginPath();
@@ -2682,10 +2662,99 @@ function visualizeWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flow
 	ctx.lineTo(1 * canvasWidth / 2 + weirThickness / 2, canvasHeight - (baseHeight + multiplier * (datumRight - minDatum)));
 	ctx.closePath();
 	ctx.fill();
+}
+
+function getMinDatumWeir(weirHeights, datumsLeft, datumsRight) {
+	let minWeirHeights = Array.isArray(weirHeights) ? Math.min.apply(Math, weirHeights) : weirHeights;
+	let minDatumLeft = Array.isArray(datumsLeft) ? Math.min.apply(Math, datumsLeft) : datumsLeft;
+	let minDatumRight = Array.isArray(datumsRight) ? Math.min.apply(Math, datumsRight) : datumsRight;
+
+	let minDatum = Math.min(minDatumLeft, minDatumRight, minWeirHeights);
+	return minDatum;
+}
+
+
+function getMaxDatumWeir(weirHeights, datumsLeft, datumsRight) {
+
+	let maxWeirHeights = Array.isArray(weirHeights) ? Math.max.apply(Math, weirHeights) : weirHeights;
+	let maxDatumLeft = Array.isArray(datumsLeft) ? Math.max.apply(Math, datumsLeft) : datumsLeft;
+	let maxDatumRight = Array.isArray(datumsRight) ? Math.max.apply(Math, datumsRight) : datumsRight;
+
+	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxWeirHeights);
+	return maxDatum;
+}
+
+function clearWeirContext(ctx) {
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+}
+
+function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, flows, coefficient) {
+
+	if (!canvas || canvas.nodeName != "CANVAS") {
+		return;
+	}
+
+	const ctx = canvas.getContext("2d");
+	clearWeirContext(ctx);
+
+	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
+	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight);
+
+	let range = maxDatum - minDatum;
+	let canvasWidth = ctx.canvas.width;
+	let canvasHeight = ctx.canvas.height;
+
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
+
+
+
+	if (range <= 0) {
+		return;
+	}
+
+	let weirThickness = canvasWidth / 8;
+	let baseHeight = canvasHeight / 8;
+	let multiplier = (canvasHeight - baseHeight) / range;
+
+
+	drawWeirSideWaterLevels(ctx, weirThickness, baseHeight, multiplier, datumLeft, datumRight, minDatum);
 
 	let heightInCanvas = (baseHeight + multiplier * (weirHeight - minDatum));
-	drawWeir(canvas, canvasWidth / 2, weirThickness, heightInCanvas, coefficient);
+	drawWeirSideShape(ctx, canvasWidth / 2, weirThickness, heightInCanvas, coefficient);
 
+}
+
+function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weirWidth, weirDamWidth, weirDamHeight, flows, weirN) {
+	if (!canvas || canvas.nodeName != "CANVAS") {
+		return;
+	}
+
+	const ctx = canvas.getContext("2d");
+
+	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
+	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight);
+
+	let range = maxDatum - minDatum;
+
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
+	//TODO: (@ArtistTygron) Implement front view 
+	
+	let baseHeight = canvasHeight / 8;
+	let heightMultiplier = (canvasHeight - baseHeight) / range;
+	
+	let datumMin = Math.min(datumLeft, datumRight);
+	let datumMax = Math.max(datumLeft, datumRight);
+	
+	// drawWeirFrontMaxLevel : solid, using datumMax
+	
+	drawWeirFrontShape(ctx, weirWidth, weirHeight, weirDamWidth, weirDamHeight, weirN);
+	
+	// drawWeirFrontMinLevel : dashed, using datumMin
 }
 
 
