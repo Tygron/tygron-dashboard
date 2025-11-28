@@ -1,8 +1,10 @@
 import { getGridOverlay, getGridOverlays } from "../../../src/js/util/OverlayUtils.js";
+import { connector } from "../../../src/js/util/Connector.js";
 
 let RAINFALL_OVERLAY_ATTRIBUTE = "HSO_RAINFALL_OVERLAY";
 let RAINFALL_OVERLAY_TYPE = "RAINFALL";
 
+let installer = {vars:{}};
 let installStatus = {};
 
 
@@ -48,17 +50,17 @@ async function addOverlay(type, resultType, attributes) {
 }
 
 async function addResultChildOverlay(parentOverlay, resultType) {
-	let content = await fetch(app.api() + 'session/event/editoroverlay/add_result_child/?token=' + app.token(), {
-		method: 'POST',
-		body: JSON.stringify([parentOverlay.id, resultType])
-
-	}).then(response => response.json());
-
-	if (content == null || !Number.isInteger(content)) {
-		throw new Error("Failed to add Overlay with type " + type);
-	}
-
-	return content;
+	installer.chain
+		.then(fetch(app.api() + 'session/event/editoroverlay/add_result_child/?token=' + app.token(), {
+			method: 'POST',
+			body: JSON.stringify([parentOverlay.id, resultType])
+		}))
+		.then(response => {
+			let content = response.json();
+			if (content == null || !Number.isInteger(content)) {
+				throw new Error("Failed to add Overlay with type " + type);
+			}
+		});
 }
 
 function attributeMap(attributeName) {
@@ -67,8 +69,8 @@ function attributeMap(attributeName) {
 	return map;
 }
 
-function getRainfallOverlay(overlays) {
-	return getGridOverlay(overlays, RAINFALL_OVERLAY_TYPE, null, null, attributeMap(RAINFALL_OVERLAY_ATTRIBUTE));
+function getRainfallOverlay() {
+	return getGridOverlay(installer.vars["gridOverlays"], RAINFALL_OVERLAY_TYPE, null, null, attributeMap(RAINFALL_OVERLAY_ATTRIBUTE));
 }
 
 function addRainfallOverlay() {
@@ -100,10 +102,10 @@ function addRainfallChildren(overlays, rainfallOverlay) {
 	}
 }
 
-async function validateOverlays(overlays) {
+function validateOverlays(overlays) {
 
 	if (!Array.isArray(overlays)) {
-		throw new Error("Requested Overlays object is not an array!");
+		throw new Error("Requested Overlays object is not an array! " + overlays);
 	}
 
 	let gridOverlays = getGridOverlays(overlays);
@@ -114,7 +116,7 @@ async function validateOverlays(overlays) {
 
 			addRainfallOverlay();
 			//appendStatus("RainOverlay added with attribute " + RAINFALL_OVERLAY_ATTRIBUTE);
-		    installStatus["RainOverlayAdd"] = true;
+			installStatus["RainOverlayAdd"] = true;
 			validateInstall();
 			return;
 
@@ -128,13 +130,20 @@ async function validateOverlays(overlays) {
 
 }
 
-async function getOverlays() {
-	const request = new Request(app.api() + "session/items/overlays?" + new URLSearchParams({
+function getOverlays() {
+	return installer.chain.then(installer.connector.get("items/overlays?", {
 		token: app.token(),
 		f: "JSON"
-	}));
+	})).then(overlays => {
+		app.info("Receive overlays:" + overlays);
+		if (!Array.isArray(overlays)) {
+			throw new Error("Requested Overlays object is not an array! " + overlays);
+		}
 
-	return await fetch(request).then(response => response.json());
+		installer.vars["gridOverlays"] = getGridOverlays(overlays);
+		installer.vars["rainfallOverlay"] = getRainfallOverlay();
+	
+	});
 }
 
 function appendStatus(text) {
@@ -153,21 +162,21 @@ function setFeedback(feedback) {
 	document.getElementById("feedback").innerHTML = feedback;
 }
 
-async function validateInstall() {
+function validateInstall() {
 
 	setFeedback("Validate Overlays...");
 
-	getOverlays()
-		.then(data => validateOverlays(data))
-		.catch(error => setFeedback("Failed installing! Error: " + error));
+	installer.connector = connector(app.token());
+	installer.chain = installer.connector.start();
+	app.info("Started chain");
+	installer.chain = getOverlays();
+	installer.chain = installer.chain.then(()=>
+		app.info("GridOverlays: "+installer.vars["gridOverlays"])
+	);
+	//installer.chain = validateOverlays();
+	
+	installer.chain = installer.chain.catch(error => setFeedback("Failed installing! Error: " + error));
 
-}
-
-//TODO: (Frank) Enable for browser api testing
-if (typeof app === "undefined") {
-	app = {};
-	app.token = () => { return "6c3554a1xZV06osxHTioKfhVzKuUQ9fy" };
-	app.api = () => { return "https://development.tygron.com/api/" };
 }
 
 $(window).on("load", function() {
