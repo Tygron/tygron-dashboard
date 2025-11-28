@@ -2522,14 +2522,14 @@ function addOverlay(type, resultType, attributes) {
 					ids.push(overlayID);
 				}
 				appendStatus("Setting " + keys.length + " RainOverlay attribute(s)");
-				installer.vars["attributes"]= [ids, keys, values];
+				installer.vars["attributes"] = [ids, keys, values];
 
 			}))
-			.then(installer.connector.post("event/editoroverlay/set_attributes", null, [[],[],[]],
-				(d, u, qp, params)=>{
+			.then(installer.connector.post("event/editoroverlay/set_attributes", null, [],
+				(d, u, qp, params) => {
 					let newParams = installer.vars["attributes"];
-					for(let i = 0; i < newParams.length; i++ ){
-					params[i] = newParams[i];
+					for (let n = 0; n < newParams.length; n++) {
+						params.push(newParams[n]);
 					}
 				}
 			)
@@ -2538,13 +2538,13 @@ function addOverlay(type, resultType, attributes) {
 
 	if (resultType != null) {
 		installer.chain = installer.chain
-			.then(
-				installer.connector.chain((data) => {
-					appendStatus("Setting RainOverlay resultType to " + resultType);
-					return installer.connector.post("event/editoroverlay/set_result_type", { token: app.token() }, [installer.vars["addedOverlayID"], resultType]);
+			.then(installer.connector.chain((data) =>
+				appendStatus("Setting RainOverlay resultType to " + resultType)))
 
-				}));
-
+			.then(installer.connector.post("event/editoroverlay/set_result_type", null, [], (d, u, qp, params) => {
+				params.push(installer.vars["addedOverlayID"]);
+				params.push(resultType);
+			}));
 	}
 }
 
