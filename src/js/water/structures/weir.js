@@ -160,46 +160,10 @@ function drawWeirSideShape(canvas, x, weirThickness, height, coefficient) {
 	}
 }
 
-export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, flows, coefficient) {
+function drawWeirSideWaterLevels(ctx, weirThickness, baseHeight, multiplier, datumLeft, datumRight, minDatum) {
 
-	if (!canvas || canvas.nodeName != "CANVAS") {
-		return;
-	}
-
-	const ctx = canvas.getContext("2d");
-	
-	let minDatumLeft = Array.isArray(datumsLeft)? Math.min.apply(Math, datumsLeft) : datumsLeft;
-	let minDatumRight = Array.isArray(datumsRight)? Math.min.apply(Math, datumsRight) : datumsRight;
-	let minWeirHeights = Array.isArray(weirHeights)? Math.min.apply(Math, weirHeights) : weirHeights;
-	
-	let maxDatumLeft = Array.isArray(datumsLeft)? Math.max.apply(Math, datumsLeft) : datumsLeft;
-	let maxDatumRight = Array.isArray(datumsRight)? Math.max.apply(Math, datumsRight) : datumsRight;
-	let maxWeirHeights = Array.isArray(weirHeights)? Math.max.apply(Math, weirHeights) : weirHeights;
-		
-
-	let minDatum = Math.min(minDatumLeft, minDatumRight, minWeirHeights);
-	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxWeirHeights);
-
-	let range = maxDatum - minDatum;
 	let canvasWidth = ctx.canvas.width;
 	let canvasHeight = ctx.canvas.height;
-	
-	let datumLeft = Array.isArray(datumsLeft) ?datumsLeft[index]: datumsLeft;
-	let datumRight = Array.isArray(datumsRight) ?datumsRight[index]: datumsRight;
-	let weirHeight = Array.isArray(weirHeights) ?weirHeights[index]: weirHeights;
-
-	ctx.fillStyle = "white";
-	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-	if (range <= 0) {
-		return;
-	}
-
-	console.log(canvasWidth + "x" + canvasHeight);
-	let baseHeight = canvasHeight/8;
-	let weirThickness = canvasWidth/8;
-	let multiplier = (canvasHeight - baseHeight) / range;
-
 
 	ctx.fillStyle = 'cyan';
 	ctx.beginPath();
@@ -217,12 +181,76 @@ export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight
 	ctx.lineTo(1 * canvasWidth / 2 + weirThickness / 2, canvasHeight - (baseHeight + multiplier * (datumRight - minDatum)));
 	ctx.closePath();
 	ctx.fill();
+}
+
+function getMinDatumWeir(weirHeights, datumsLeft, datumsRight) {
+	let minWeirHeights = Array.isArray(weirHeights) ? Math.min.apply(Math, weirHeights) : weirHeights;
+	let minDatumLeft = Array.isArray(datumsLeft) ? Math.min.apply(Math, datumsLeft) : datumsLeft;
+	let minDatumRight = Array.isArray(datumsRight) ? Math.min.apply(Math, datumsRight) : datumsRight;
+
+	let minDatum = Math.min(minDatumLeft, minDatumRight, minWeirHeights);
+	return minDatum;
+}
+
+
+function getMaxDatumWeir(weirHeights, datumsLeft, datumsRight) {
+
+	let maxWeirHeights = Array.isArray(weirHeights) ? Math.max.apply(Math, weirHeights) : weirHeights;
+	let maxDatumLeft = Array.isArray(datumsLeft) ? Math.max.apply(Math, datumsLeft) : datumsLeft;
+	let maxDatumRight = Array.isArray(datumsRight) ? Math.max.apply(Math, datumsRight) : datumsRight;
+
+	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxWeirHeights);
+	return maxDatum;
+}
+
+function clearWeirContext(ctx) {
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+}
+
+export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, flows, coefficient) {
+
+	if (!canvas || canvas.nodeName != "CANVAS") {
+		return;
+	}
+
+	const ctx = canvas.getContext("2d");
+	clearWeirContext(ctx);
+
+	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
+	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight);
+
+	let range = maxDatum - minDatum;
+	let canvasWidth = ctx.canvas.width;
+	let canvasHeight = ctx.canvas.height;
+
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
+
+
+
+	if (range <= 0) {
+		return;
+	}
+
+	let weirThickness = canvasWidth / 8;
+	let baseHeight = canvasHeight / 8;
+	let multiplier = (canvasHeight - baseHeight) / range;
+
+
+	drawWeirSideWaterLevels(ctx, weirThickness, baseHeight, multiplier, datumLeft, datumRight, minDatum);
 
 	let heightInCanvas = (baseHeight + multiplier * (weirHeight - minDatum));
 	drawWeirSideShape(canvas, canvasWidth / 2, weirThickness, heightInCanvas, coefficient);
 
 }
 
-export function drawFrontWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flows, weirN){
-	
+export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, flows, weirN) {
+	if (!canvas || canvas.nodeName != "CANVAS") {
+		return;
+	}
+
+	const ctx = canvas.getContext("2d");
+
 }
