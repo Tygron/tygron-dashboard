@@ -289,9 +289,17 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	let damHeightRightX = canvas.width / 1.5;
 	let damHeightRightY = canvas.height / 3;
 	let waterLevel1 = 85;
-	let waterLevel2 = canvas.height - 15;
-
-	ctx.fillStyle = "blue";
+	let waterLevel2 = canvas.height - 40;
+	
+	const gradWater=ctx.createLinearGradient(0,0, 0,300);
+	gradWater.addColorStop(0, "lightblue");
+	gradWater.addColorStop(1, "darkblue"); 
+	
+	const gradWeir=ctx.createLinearGradient(0,0, 0,300);
+	gradWeir.addColorStop(0, "#c7cdd8");
+	gradWeir.addColorStop(1, "#9faab7"); 
+	
+	ctx.fillStyle = gradWater;
 	ctx.fillRect(0,waterLevel1, canvas.width,canvas.height);
 	
 	
@@ -310,11 +318,11 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	// Set end-point
 	ctx.lineTo(0, 70);
 	ctx.closePath();
-	ctx.fillStyle = "red";
+	ctx.fillStyle = gradWeir;
 	ctx.fill();
 	ctx.stroke();
 
-	ctx.fillStyle = "rgba(30, 40, 50, 60)";
+	ctx.fillStyle = gradWater;
 	ctx.fillRect(0,waterLevel2, canvas.width,canvas.height);
 
 
