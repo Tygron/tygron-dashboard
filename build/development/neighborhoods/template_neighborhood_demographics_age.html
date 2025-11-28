@@ -2759,23 +2759,23 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 
 	let damHeightLeftX = canvas.width / 3;
 	let damHeightLeftY = canvas.height / 3;
-	let weirHeightLeftX = 100;
-	let weirHeightLeftY = 110;
-	let weirHeightRightX = 200;
-	let weirHeightRightY = 110;
-	let damHeightRightX = 200;
-	let damHeightRightY = 70;
+	let weirHeightLeftX = canvas.width / 3;
+	let weirHeightLeftY = canvas.height /1.5;
+	let weirHeightRightX = canvas.width / 1.5;
+	let weirHeightRightY = canvas.height /1.5;
+	let damHeightRightX = canvas.width / 1.5;
+	let damHeightRightY = canvas.height / 3;
 
 
 	ctx.beginPath();
 	//Set start-point
-	ctx.moveTo(0, 70);
+	ctx.moveTo(0, damHeightLeftY);
 	// Set sub-points
 	ctx.lineTo(damHeightLeftX, damHeightLeftY);
 	ctx.lineTo(weirHeightLeftX, weirHeightLeftY);
 	ctx.lineTo(weirHeightRightX, weirHeightRightY);
 	ctx.lineTo(damHeightRightX, damHeightRightY);
-	ctx.lineTo(300, 70);
+	ctx.lineTo(300, damHeightLeftY);
 	ctx.lineTo(300, 150);
 	ctx.lineTo(0, 150);
 	// Set end-point
