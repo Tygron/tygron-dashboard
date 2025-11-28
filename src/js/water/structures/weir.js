@@ -134,7 +134,7 @@ function drawWeirCustom(canvas, x, width, height) {
 	ctx.fillText("?", x - halfWidth / 2, canvas.height - height + halfWidth);
 }
 
-function drawWeir(canvas, x, weirThickness, height, coefficient) {
+function drawWeirSideShape(canvas, x, weirThickness, height, coefficient) {
 
 	const ctx = canvas.getContext("2d");
 	ctx.fillStyle = "#cdb59f";
@@ -160,7 +160,7 @@ function drawWeir(canvas, x, weirThickness, height, coefficient) {
 	}
 }
 
-export function drawSideWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flows, coefficient) {
+export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, flows, coefficient) {
 
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
@@ -219,6 +219,10 @@ export function drawSideWeir(canvas, index, weirHeights, datumsLeft, datumsRight
 	ctx.fill();
 
 	let heightInCanvas = (baseHeight + multiplier * (weirHeight - minDatum));
-	drawWeir(canvas, canvasWidth / 2, weirThickness, heightInCanvas, coefficient);
+	drawWeirSideShape(canvas, canvasWidth / 2, weirThickness, heightInCanvas, coefficient);
 
+}
+
+export function drawFrontWeir(canvas, index, weirHeights, datumsLeft, datumsRight, flows, weirN){
+	
 }

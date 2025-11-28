@@ -1,4 +1,4 @@
-import { drawSideWeir } from "../../../src/js/water/structures/weir.js";
+import { drawWeirSide } from "../../../src/js/water/structures/weir.js";
 
 let weirHeight = 1.5;
 let weirDatumLeft = 2.6;
@@ -25,7 +25,7 @@ for (let i = 0; i < coefficients.length; i++) {
 }
 
 function updateWeir() {
-	drawSideWeir(canvas, timeframe, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficients[coefficientIndex]);
+	drawWeirSide(canvas, timeframe, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficients[coefficientIndex]);
 }
 
 let leftField = document.createElement("input");
