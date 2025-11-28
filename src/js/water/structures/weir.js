@@ -129,6 +129,32 @@ function drawWeirCustom(ctx, x, width, height) {
 	ctx.fillText("?", x - halfWidth / 2, ctx.canvas.height - height + halfWidth);
 }
 
+
+function drawWeirFrontShape(ctx, x, weirThickness, height, weirN) {
+
+	ctx.fillStyle = "#cdb59f";
+	ctx.strokeStyle = "black";
+
+	if (equalsCoefficient(coefficient, 0.865)) {
+		drawWeirBroadPerpendicular(ctx, x, weirThickness, height);
+
+	} else if (equalsCoefficient(coefficient, 0.91)) {
+		drawWeirBroadRounded(ctx, x, weirThickness, height);
+
+	} else if (equalsCoefficient(coefficient, 1.1)) {
+		drawWeirSharp(ctx, x, weirThickness, height);
+
+	} else if (equalsCoefficient(coefficient, 1.3)) {
+		drawWeirRounded(ctx, x, weirThickness, height);
+
+	} else if (equalsCoefficient(coefficient, 1.37)) {
+		drawWeirRoundedRoof(ctx, x, weirThickness, height);
+
+	} else {
+		drawWeirCustom(ctx, x, weirThickness, height);
+	}
+}
+
 function drawWeirSideShape(ctx, x, weirThickness, height, coefficient) {
 
 	ctx.fillStyle = "#cdb59f";
@@ -240,13 +266,27 @@ export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight
 
 }
 
-export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, flows, weirN) {
+export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weirWidth, weirDamWidth, weirDamHeight, flows, weirN) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
 	}
 
 	const ctx = canvas.getContext("2d");
-	
-	//TODO: (@ArtistTygron) Implement front view
 
+	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
+	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight);
+
+	let range = maxDatum - minDatum;
+	let canvasWidth = ctx.canvas.width;
+	let canvasHeight = ctx.canvas.height;
+
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
+	//TODO: (@ArtistTygron) Implement front view 
+	
+	let datumMin = Math.min(datumLeft, datumRight);
+	let datumMax = Math.max(datumLeft, datumRight);
+	
+	
 }
