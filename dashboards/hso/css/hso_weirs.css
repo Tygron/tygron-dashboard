@@ -31,6 +31,12 @@
 	justify-content: space-between;
 }
 
+.weir-info-column{
+	display:flex;
+	flex-wrap: wrap;
+	flex-direction: column;
+}
+
 .flex-container {
   display: flex;
   flex-direction: column;
