@@ -126,41 +126,51 @@ export function getOverlay(overlays, id) {
 	return null;
 }
 
+export function isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes) {
+	if (overlay == null) {
+		return;
+	}
+
+	if (type != null && type != overlay.type) {
+		return false;
+	}
+
+	if (resultType != null && resultType != getResultType(overlay)) {
+		return false;
+	}
+
+	if (resultParentID != null && resultParentID != getResultParentID(overlay)) {
+		return false;
+	}
+
+	if (requiredAttributes != null && overlay.attributes != null) {
+
+		for (const key of requiredAttributes.keys()) {
+
+			let value = requiredAttributes[key];
+
+			if (value == null && overlay.attributes[key] == null) {
+
+				return false;
+
+			} else if (value != null && overlay.attributes[key] != value) {
+				return false;
+			}
+		}
+
+	}
+
+	return true;
+}
+
 export function getGridOverlay(overlays, type, resultType, resultParentID, requiredAttributes) {
 
-	overlayloop: for (let i = 0; i < overlays.length; i++) {
+	for (let i = 0; i < overlays.length; i++) {
 		let overlay = overlays[i];
 
-		if (type != null && type != overlay.type) {
-			continue;
+		if (isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes)) {
+			return overlay;
 		}
-
-		if (resultType != null && resultType != getResultType(overlay)) {
-			continue;
-		}
-
-		if (resultParentID != null && resultParentID != getResultParentID(overlay)) {
-			continue;
-		}
-
-		if (requiredAttributes != null && overlay.attributes != null) {
-
-			for (const key of requiredAttributes.keys()) {
-
-				let value = requiredAttributes[key];
-
-				if (value == null && overlay.attributes[key] == null) {
-
-					continue overlayloop;
-
-				} else if (value != null && overlay.attributes[key] != value) {
-					continue overlayloop;
-				}
-			}
-
-		}
-
-		return overlay;
 	}
 
 	return null;
@@ -168,7 +178,7 @@ export function getGridOverlay(overlays, type, resultType, resultParentID, requi
 
 }
 
-export function getGridOverlays(overlays) {
+export function getGridOverlays(overlays, type, resultType, resultParentID, requiredAttributes) {
 
 	let gridOverlays = [];
 
@@ -178,7 +188,7 @@ export function getGridOverlays(overlays) {
 
 	for (let i = 0; i < overlays.length; i++) {
 		let overlay = overlays[i];
-		if (isGridOverlay(overlay)) {
+		if (isGridOverlay(overlay)&& isOverlayOf(overlay,type,resultType, resultParentID, requiredAttributes)) {
 			gridOverlays.push(overlay);
 		}
 	}
