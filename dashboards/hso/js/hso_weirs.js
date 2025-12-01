@@ -1,5 +1,5 @@
 import { QueryDataManager } from "../../../src/js/util/QueryDataManager.js";
-import { drawWeirSide } from "../../../src/js/water/structures/weir.js";
+import { drawWeirSide, drawWeirFront} from "../../../src/js/water/structures/weir.js";
 import { setupTimeframeSlider } from "../../../src/js/util/Timeframeslider.js";
 import { createLayout, xyPlot } from "../../../src/js/util/Plot.js";
 
@@ -19,6 +19,7 @@ function getDummyWeir() {
 		areaOutputB: -1,
 		angle: -10000,
 		coefficient: 1.1,
+		weirN: 3/2,
 	};
 }
 
@@ -47,10 +48,14 @@ function updateWeirDetails(weir) {
 	document.getElementById("weirInfoAngle").innerHTML = weir.angle > -10000 ? weir.angle + " &deg;" : "-";
 
 	document.getElementById("weirInfoCoefficient").innerHTML = weir.coefficient;
+	document.getElementById("weirInfoN").innerHTML = weir.weirN;
 
 
-	let canvas = document.getElementById("weirCanvas");
-	drawWeirSide(canvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB,weir.damHeight, weir.flows, weir.coefficient);
+	let sideCanvas = document.getElementById("weirSideCanvas");
+	let frontCanvas = document.getElementById("weirFrontCanvas");
+	
+	drawWeirSide(sideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB,weir.damHeight, weir.flows, weir.coefficient);
+	drawWeirFront(frontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
 
 	updateFlowPlot(weir);
 
@@ -183,6 +188,7 @@ const WEIR_AREA_OUTPUT_A = 'water_area_output_a';
 const WEIR_AREA_OUTPUT_B = 'water_area_output_b';
 const WEIR_ANGLE = 'weir_angle';
 const WEIR_COEFFICIENT = 'weir_coefficient';
+const WEIR_N = 'weir_n';
 
 let queryDataManager = new QueryDataManager();
 
@@ -202,6 +208,7 @@ queryDataManager.addQuery(WEIR_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_
 queryDataManager.addQuery(WEIR_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
 queryDataManager.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_ANGLE');
 queryDataManager.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
+queryDataManager.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_N');
 
 let timeframes = Math.round(queryDataManager.getData(HSO_OVERLAY_TIMEFRAMES));
 let weirTimeframe = 0;
@@ -220,6 +227,7 @@ function fillWeirs() {
 	let areaOutputB = queryDataManager.getData(WEIR_AREA_OUTPUT_B, true);
 	let angle = queryDataManager.getData(WEIR_ANGLE, true);
 	let coefficient = queryDataManager.getData(WEIR_COEFFICIENT, true);
+	let weirN = queryDataManager.getData(WEIR_N, true);
 
 	for (let i = 0; i < names.length; i++) {
 
@@ -240,6 +248,7 @@ function fillWeirs() {
 			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
 			angle: i < angle.length ? angle[i] : -10000,
 			coefficient: i < coefficient.length && coefficient[i] > 0 ? coefficient[i] : 1.1,
+			weirN: i < weirN.length  && weirN[i] > 0 ? weirN[i] : 3/2,
 		};
 		weirs.push(weir);
 

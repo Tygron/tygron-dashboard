@@ -25,7 +25,7 @@ BODYSTYLE
 				<div>
 					<div class="weir-info-row-spread">
 						<div>
-							<h2 id="mainTitle">Weir name</h2>
+							<h2 id="mainTitle">Weir information</h2>
 							<div id="weirInfo">
 								<div class="weir-info-label">Name:</div>
 								<div id="weirInfoName" class="weir-info-value"></div>
@@ -37,6 +37,8 @@ BODYSTYLE
 								<div id="weirInfoAngle" class="weir-info-value"></div>
 								<div class="weir-info-label">Coefficient:</div>
 								<div id="weirInfoCoefficient" class="weir-info-value"></div>
+								<div class="weir-info-label">N:</div>
+								<div id="weirInfoN" class="weir-info-value"></div>
 								<div class="weir-info-label">Flow:</div>
 								<div id="weirInfoFlow" class="weir-info-value"></div>
 								<div class="weir-info-label">Datum A:</div>
@@ -53,10 +55,13 @@ BODYSTYLE
 								<div id="weirInfoAreaB" class="weir-info-value"></div>
 							</div>
 						</div>
-
-						<div id="weirImageDiv">
-							<h2 id="drawingTitle">Side view:</h2>
-							<canvas id="weirCanvas" width="300" height="150"></canvas>
+						<div id="weirFrontDiv">
+							<h2 id="weirFrontTitle">Front view:</h2>
+							<canvas id="weirFrontCanvas" width="300" height="150"></canvas>
+						</div>
+						<div id="weirSideDiv">
+							<h2 id="weirSideTitle">Side view:</h2>
+							<canvas id="weirSideCanvas" width="300" height="150"></canvas>
 						</div>
 					</div>
 
