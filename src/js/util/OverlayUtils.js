@@ -133,16 +133,18 @@ export function getGridOverlay(overlays, type, resultType, resultParentID, requi
 		if(resultParentID != null && resultParentID != getResultParentID(overlay)){
 			continue;
 		}
+				
+		if (requiredAttributes != null && overlay.attributes != null) {
 
-		if (requiredAttributes instanceof Map && overlay.attributes instanceof Map) {
-
-			for (let [key, value] of requiredAttributes) {
+			for (const key of requiredAttributes.keys()) {
+				
+				let value = requiredAttributes[key];
 				
 				if (value == null && overlay.attributes[key] == null) {
 
 					continue overlayloop;
 
-				} else if (overlay.attributes[key] != value) {
+				} else if (value != null && overlay.attributes[key] != value) {
 					continue overlayloop;
 				}
 			}
