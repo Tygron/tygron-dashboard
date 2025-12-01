@@ -2573,7 +2573,7 @@ function setRequiredOverlayAttribute(attributes, idVar) {
 				values.push(Number.isFinite(value) ? value : 1.0);
 				ids.push(overlayID);
 			}
-			appendStatus("Setting " + keys.length + " RainOverlay attribute(s)");
+			appendStatus("Setting attribute(s): "+keys);
 			installer.vars["attributes"] = [ids, keys, values];
 
 		}),
@@ -2634,13 +2634,13 @@ function adjustOverlay(overlay, resultType, attributes, resultIDVar) {
 }
 
 
-function addResultChildOverlay(parentOverlayID, resultType) {
+function addResultChildOverlay(overlay, resultType) {
 	installer.chain = installer.chain
 		.then(installer.connector.chain((_data) =>
-			appendStatus("Adding result child overlay of " + resultType + " to Overlay with id " + parentOverlayID)))
+			appendStatus("Adding result child overlay of " + resultType + " to Overlay " + overlay.name)))
 
 		.then(installer.connector.post("event/editoroverlay/add_result_child", null, [], (_d, _u, _gp, params) => {
-			params.push(parentOverlayID);
+			params.push(overlay.id);
 			params.push(resultType);
 		}));
 
@@ -2702,7 +2702,7 @@ function addRainfallChildren() {
 		for (let resultType of resultTypes) {
 			let resultOverlay = getGridOverlay(overlays, "RESULT_CHILD", resultType, overlayID, null);
 			if (resultOverlay == null && getResultType(overlay) != resultType) {
-				addResultChildOverlay(overlayID, resultType);
+				addResultChildOverlay(overlay, resultType);
 			} else {
 				appendFeedback("Result child found: " + resultType);
 			}
