@@ -110,11 +110,20 @@ export function getResultType(gridOverlay, type) {
 	}
 }
 
-export function getResultParentID(gridOverlay){
+export function getResultParentID(gridOverlay) {
 	if (gridOverlay == null || gridOverlay.parentID == null) {
-			return null;
+		return null;
 	}
 	return gridOverlay.parentID;
+}
+
+export function getOverlay(overlays, id) {
+	for (let i = 0; i < overlays.length; i++) {
+		if (overlays[i] != null && overlays[i].id == id) {
+			return overlays[i];
+		}
+	}
+	return null;
 }
 
 export function getGridOverlay(overlays, type, resultType, resultParentID, requiredAttributes) {
@@ -129,17 +138,17 @@ export function getGridOverlay(overlays, type, resultType, resultParentID, requi
 		if (resultType != null && resultType != getResultType(overlay)) {
 			continue;
 		}
-		
-		if(resultParentID != null && resultParentID != getResultParentID(overlay)){
+
+		if (resultParentID != null && resultParentID != getResultParentID(overlay)) {
 			continue;
 		}
-				
+
 		if (requiredAttributes != null && overlay.attributes != null) {
 
 			for (const key of requiredAttributes.keys()) {
-				
+
 				let value = requiredAttributes[key];
-				
+
 				if (value == null && overlay.attributes[key] == null) {
 
 					continue overlayloop;
@@ -150,10 +159,10 @@ export function getGridOverlay(overlays, type, resultType, resultParentID, requi
 			}
 
 		}
-		
+
 		return overlay;
 	}
-	
+
 	return null;
 
 
