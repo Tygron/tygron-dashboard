@@ -291,11 +291,11 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	let waterLevel1 = 85;
 	let waterLevel2 = canvas.height - 40;
 	
-	const gradWater=ctx.createLinearGradient(0,0, 0,300);
+	const gradWater=ctx.createLinearGradient(0,0, 0,10);
 	gradWater.addColorStop(0, "lightblue");
 	gradWater.addColorStop(1, "darkblue"); 
 	
-	const gradWeir=ctx.createLinearGradient(0,0, 0,300);
+	const gradWeir=ctx.createLinearGradient(0,0, 0,10);
 	gradWeir.addColorStop(0, "#c7cdd8");
 	gradWeir.addColorStop(1, "#9faab7"); 
 	
