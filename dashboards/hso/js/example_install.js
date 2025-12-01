@@ -55,7 +55,7 @@ function addOverlay(type, resultType, attributes) {
 				let values = [];
 				let ids = [];
 
-				for (let key in attributes) {
+				for (let key of attributes.keys()) {
 					keys.push(key);
 					let value = attributes[key];
 					values.push(Number.isFinite(value) ? value : 1.0);
@@ -79,7 +79,7 @@ function addOverlay(type, resultType, attributes) {
 
 	if (resultType != null) {
 		appendChains([
-			newChain((_data) =>	appendStatus("Setting RainOverlay resultType to " + resultType)),
+			newChain((_data) => appendStatus("Setting RainOverlay resultType to " + resultType)),
 
 			installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
 				params.push(installer.vars["addedOverlayID"]);
@@ -88,6 +88,53 @@ function addOverlay(type, resultType, attributes) {
 		]);
 	}
 }
+
+function adjustOverlay(overlay, resultType, attributes) {
+
+	installer.vars["addedOverlayID"] = overlay.id;
+	
+	if (attributes != null) {
+		appendChains([
+			newChain(_data => {
+				let overlayID = installer.vars["addedOverlayID"];
+				let keys = [];
+				let values = [];
+				let ids = [];
+
+				for (let key of attributes.keys()) {
+					keys.push(key);
+					let value = attributes[key];
+					values.push(Number.isFinite(value) ? value : 1.0);
+					ids.push(overlayID);
+				}
+				appendStatus("Setting " + keys.length + " RainOverlay attribute(s)");
+				installer.vars["attributes"] = [ids, keys, values];
+
+			}),
+
+			installer.connector.post("event/editoroverlay/set_attributes", null, [],
+				(_d, _u, _qp, params) => {
+					let newParams = installer.vars["attributes"];
+					for (let n = 0; n < newParams.length; n++) {
+						params.push(newParams[n]);
+					}
+				}
+
+			)]);
+	}
+
+	if (resultType != null) {
+		appendChains([
+			newChain((_data) => appendStatus("Setting RainOverlay resultType to " + resultType)),
+
+			installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
+				params.push(installer.vars["addedOverlayID"]);
+				params.push(resultType);
+			})
+		]);
+	}
+}
+
 
 function addResultChildOverlay(parentOverlayID, resultType) {
 	installer.chain = installer.chain
@@ -103,12 +150,8 @@ function addResultChildOverlay(parentOverlayID, resultType) {
 
 function attributeMap(attributeName) {
 	let map = new Map();
-	map[attributeName] = null;
+	map.set(attributeName, null);
 	return map;
-}
-
-function getRainfallOverlay() {
-	return getGridOverlay(installer.vars["gridOverlays"], RAINFALL_OVERLAY_TYPE, null, null, attributeMap(RAINFALL_OVERLAY_ATTRIBUTE));
 }
 
 function addRainfallOverlay() {
@@ -123,9 +166,18 @@ function addRainfallOverlay() {
 						addRainfallChildren(installer.vars["addedOverlayID"]);
 					}));
 
+			} else if (installer.vars["hsoOverlay"] == null) {
+				
+				adjustOverlay(installer.vars["rainfallOverlay"], "SURFACE_LAST_VALUE", attributeMap(RAINFALL_OVERLAY_ATTRIBUTE));
+							
+				installer.chain = installer.chain
+					.then(installer.connector.chain(() => {
+						appendFeedback("Added overlay with id: " + installer.vars["addedOverlayID"]);
+						addRainfallChildren(installer.vars["addedOverlayID"]);
+					}));
 			} else {
 				appendFeedback("HSO Rainfall Overlay present in project.");
-				addRainfallChildren(installer.vars["rainfallOverlay"].id);
+				addRainfallChildren(installer.vars["hsoOverlay"].id);
 
 			}
 		}));
@@ -202,8 +254,10 @@ function validateInstall() {
 	installer.chain = installer.chain.then(() => {
 		app.info("GridOverlays: " + installer.vars["gridOverlays"]);
 
-		installer.vars["rainfallOverlay"] = getRainfallOverlay();
+		installer.vars["hsoOverlay"] = getGridOverlay(installer.vars["gridOverlays"], RAINFALL_OVERLAY_TYPE, null, null, attributeMap(RAINFALL_OVERLAY_ATTRIBUTE));
+		installer.vars["rainfallOverlay"] = getGridOverlay(installer.vars["gridOverlays"], RAINFALL_OVERLAY_TYPE, null, null);
 
+		app.info("HSO Overlay: " + installer.vars["hsoOverlay"]);
 		app.info("RainfallOverlay: " + installer.vars["rainfallOverlay"]);
 		if (installer.vars["rainfallOverlay"] == null) {
 			setFeedback("Adding new Rainfall Overlay.");
