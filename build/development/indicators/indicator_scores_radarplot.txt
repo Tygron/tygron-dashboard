@@ -2759,8 +2759,14 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	let weirHeightRightY = canvas.height /1.5;
 	let damHeightRightX = canvas.width / 1.5;
 	let damHeightRightY = canvas.height / 3;
+	let waterLevel1 = 85;
+	let waterLevel2 = canvas.height - 15;
 
-
+	ctx.fillStyle = "blue";
+	ctx.fillRect(0,waterLevel1, canvas.width,canvas.height);
+	
+	
+	
 	ctx.beginPath();
 	//Set start-point
 	ctx.moveTo(0, damHeightLeftY);
@@ -2777,10 +2783,10 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	ctx.closePath();
 	ctx.fillStyle = "red";
 	ctx.fill();
-
-	// Stroke it (do the drawing)
 	ctx.stroke();
 
+	ctx.fillStyle = "rgba(30, 40, 50, 60)";
+	ctx.fillRect(0,waterLevel2, canvas.width,canvas.height);
 
 
 	let baseHeight = canvas.height / 8;

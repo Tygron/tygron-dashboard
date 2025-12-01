@@ -4,63 +4,101 @@ import { connector } from "../../../src/js/util/Connector.js";
 let RAINFALL_OVERLAY_ATTRIBUTE = "HSO_RAINFALL_OVERLAY";
 let RAINFALL_OVERLAY_TYPE = "RAINFALL";
 
-let installer = {vars:{}};
+let installer = {
+	vars: {}
+};
 let installStatus = {};
 
-
-async function addOverlay(type, resultType, attributes) {
-	let content = await fetch(app.api() + 'session/event/editoroverlay/add/?token=' + app.token(), {
-		method: 'POST',
-		body: JSON.stringify([type])
-
-	}).then(response => response.json());
-
-	if (content == null || !Number.isInteger(content)) {
-		throw new Error("Failed to add Overlay with type " + type);
+function newChain(lambda) {
+	if (typeof lambda === 'function') {
+		return installer.connector.chain(lambda);
+	} else {
+		return installer.connector.chain(() => { });
 	}
+}
 
-	let overlayID = content;
+function appendChains(functions) {
+	if (Array.isArray(functions)) {
+		let next = installer.chain;
+		for (let i = 0; i < functions.length; i++) {
+			if (typeof functions[i] === 'function') {
+				next = next.then(installer.connector.chain(functions[i]));
+			}
+		}
+		installer.chain = next;
+	} else if (typeof functions === 'function') {
+		installer.chain = installer.chain.then((installer.connector.chain(functions)));
+	}
+}
+
+
+
+function addOverlay(type, resultType, attributes) {
+
+	appendChains([
+		installer.connector.post("event/editoroverlay/add", null, [type]),
+
+		newChain(overlayID => {
+			if (overlayID == null || !Number.isInteger(overlayID)) {
+				throw new Error("Failed to add Overlay with type " + type);
+			}
+			appendStatus("Added Overlay of type " + type + " with ID: " + overlayID);
+			installer.vars["addedOverlayID"] = overlayID;
+		})
+	]);
 
 	if (attributes != null) {
-		let keys = [];
-		let values = [];
-		let ids = [];
+		appendChains([
+			newChain(_data => {
+				let overlayID = installer.vars["addedOverlayID"];
+				let keys = [];
+				let values = [];
+				let ids = [];
 
-		for (let key in attributes) {
-			keys.push(key);
-			let value = attributes[key];
-			values.push(Number.isFinite(value) ? value : 1.0);
-			ids.push(overlayID);
-		}
+				for (let key in attributes) {
+					keys.push(key);
+					let value = attributes[key];
+					values.push(Number.isFinite(value) ? value : 1.0);
+					ids.push(overlayID);
+				}
+				appendStatus("Setting " + keys.length + " RainOverlay attribute(s)");
+				installer.vars["attributes"] = [ids, keys, values];
 
+			}),
 
-		await fetch(app.api() + 'session/event/editoroverlay/set_attributes/?token=' + app.token(), {
-			method: 'POST',
-			body: JSON.stringify([ids, keys, values])
-		});
+			installer.connector.post("event/editoroverlay/set_attributes", null, [],
+				(_d, _u, _qp, params) => {
+					let newParams = installer.vars["attributes"];
+					for (let n = 0; n < newParams.length; n++) {
+						params.push(newParams[n]);
+					}
+				}
+
+			)]);
 	}
 
 	if (resultType != null) {
-		await fetch(app.api() + 'session/event/editoroverlay/set_result_type/?token=' + app.token(), {
-			method: 'POST',
-			body: JSON.stringify([overlayID, resultType])
-		});
-	}
+		appendChains([
+			newChain((_data) =>	appendStatus("Setting RainOverlay resultType to " + resultType)),
 
+			installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
+				params.push(installer.vars["addedOverlayID"]);
+				params.push(resultType);
+			})
+		]);
+	}
 }
 
-async function addResultChildOverlay(parentOverlay, resultType) {
-	installer.chain
-		.then(fetch(app.api() + 'session/event/editoroverlay/add_result_child/?token=' + app.token(), {
-			method: 'POST',
-			body: JSON.stringify([parentOverlay.id, resultType])
-		}))
-		.then(response => {
-			let content = response.json();
-			if (content == null || !Number.isInteger(content)) {
-				throw new Error("Failed to add Overlay with type " + type);
-			}
-		});
+function addResultChildOverlay(parentOverlayID, resultType) {
+	installer.chain = installer.chain
+		.then(installer.connector.chain((_data) =>
+			appendStatus("Adding result child overlay of " + resultType + " to Overlay with id " + parentOverlayID)))
+
+		.then(installer.connector.post("event/editoroverlay/add_result_child", null, [], (_d, _u, _gp, params) => {
+			params.push(parentOverlayID);
+			params.push(resultType);
+		}));
+
 }
 
 function attributeMap(attributeName) {
@@ -74,11 +112,27 @@ function getRainfallOverlay() {
 }
 
 function addRainfallOverlay() {
-	addOverlay(RAINFALL_OVERLAY_TYPE, null, attributeMap(RAINFALL_OVERLAY_ATTRIBUTE));
+	installer.chain = installer.chain
+		.then(installer.connector.chain(() => {
+			if (installer.vars["rainfallOverlay"] == null) {
+				addOverlay(RAINFALL_OVERLAY_TYPE, "SURFACE_LAST_VALUE", attributeMap(RAINFALL_OVERLAY_ATTRIBUTE));
+
+				installer.chain = installer.chain
+					.then(installer.connector.chain(() => {
+						appendFeedback("Added overlay with id: " + installer.vars["addedOverlayID"]);
+						addRainfallChildren(installer.vars["addedOverlayID"]);
+					}));
+
+			} else {
+				appendFeedback("HSO Rainfall Overlay present in project.");
+				addRainfallChildren(installer.vars["rainfallOverlay"].id);
+
+			}
+		}));
 
 }
 
-function addRainfallChildren(overlays, rainfallOverlay) {
+function addRainfallChildren(overlayID) {
 	let resultTypes = [
 		'BUILDING_LAST_STORAGE',
 		'RAIN',
@@ -89,49 +143,23 @@ function addRainfallChildren(overlays, rainfallOverlay) {
 		'EVAPOTRANSPIRATION',
 		'BASE_TYPES',
 		'GROUND_LAST_UNSATURATED_STORAGE'];
+	installer.chain = installer.chain.then(installer.connector.chain(() => {
 
 
-	for (let resultType of resultTypes) {
-		let resultOverlay = getGridOverlay(overlays, "RESULT_CHILD", resultType, rainfallOverlay.id, null);
-		if (resultOverlay == null) {
-			addResultChildOverlay(rainfallOverlay, resultType);
-			appendStatus("Added result child: " + resultType);
-		} else {
-			appendFeedback("Result child found: " + resultType);
+		let overlays = installer.vars["overlays"];
+		for (let resultType of resultTypes) {
+			let resultOverlay = getGridOverlay(overlays, "RESULT_CHILD", resultType, overlayID, null);
+			if (resultOverlay == null) {
+				addResultChildOverlay(overlayID, resultType);
+			} else {
+				appendFeedback("Result child found: " + resultType);
+			}
 		}
-	}
-}
-
-function validateOverlays(overlays) {
-
-	if (!Array.isArray(overlays)) {
-		throw new Error("Requested Overlays object is not an array! " + overlays);
-	}
-
-	let gridOverlays = getGridOverlays(overlays);
-	let rainfallOverlay = getRainfallOverlay(gridOverlays);
-
-	if (installStatus["RainOverlayAdd"] == undefined) {
-		if (rainfallOverlay == null) {
-
-			addRainfallOverlay();
-			//appendStatus("RainOverlay added with attribute " + RAINFALL_OVERLAY_ATTRIBUTE);
-			installStatus["RainOverlayAdd"] = true;
-			validateInstall();
-			return;
-
-		} else {
-			appendFeedback("RainOverlay found with attribute " + RAINFALL_OVERLAY_ATTRIBUTE);
-		}
-	}
-
-	addRainfallChildren(gridOverlays, rainfallOverlay);
-
-
+	}));
 }
 
 function getOverlays() {
-	return installer.chain.then(installer.connector.get("items/overlays?", {
+	installer.chain = installer.chain.then(installer.connector.get("items/overlays?", {
 		token: app.token(),
 		f: "JSON"
 	})).then(overlays => {
@@ -140,9 +168,8 @@ function getOverlays() {
 			throw new Error("Requested Overlays object is not an array! " + overlays);
 		}
 
+		installer.vars["overlays"] = overlays;
 		installer.vars["gridOverlays"] = getGridOverlays(overlays);
-		installer.vars["rainfallOverlay"] = getRainfallOverlay();
-	
 	});
 }
 
@@ -169,15 +196,31 @@ function validateInstall() {
 	installer.connector = connector(app.token());
 	installer.chain = installer.connector.start();
 	app.info("Started chain");
-	installer.chain = getOverlays();
-	installer.chain = installer.chain.then(()=>
-		app.info("GridOverlays: "+installer.vars["gridOverlays"])
-	);
-	//installer.chain = validateOverlays();
-	
+
+	getOverlays();
+
+	installer.chain = installer.chain.then(() => {
+		app.info("GridOverlays: " + installer.vars["gridOverlays"]);
+
+		installer.vars["rainfallOverlay"] = getRainfallOverlay();
+
+		app.info("RainfallOverlay: " + installer.vars["rainfallOverlay"]);
+		if (installer.vars["rainfallOverlay"] == null) {
+			setFeedback("Adding new Rainfall Overlay.");
+		}
+	});
+
+	addRainfallOverlay();
+
 	installer.chain = installer.chain.catch(error => setFeedback("Failed installing! Error: " + error));
 
 }
+
+let app = {
+	token: function() { return "5facca7c3rBCIES2ChYBux6fwSIckn0X" },
+	info: function(info) { console.log(info) },
+};
+
 
 $(window).on("load", function() {
 
