@@ -50,7 +50,7 @@ function updateWeirDetails(weir) {
 
 
 	let canvas = document.getElementById("weirCanvas");
-	drawWeirSide(canvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.flows, weir.coefficient);
+	drawWeirSide(canvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB,weir.damHeight, weir.flows, weir.coefficient);
 
 	updateFlowPlot(weir);
 

@@ -31,7 +31,7 @@ for (let i = 0; i < coefficients.length; i++) {
 }
 
 function updateWeir() {
-	drawWeirSide(sideCanvas, timeframe, weirHeight, weirDatumLeft, weirDatumRight, flow, coefficients[coefficientIndex]);
+	drawWeirSide(sideCanvas, timeframe, weirHeight, weirDatumLeft, weirDatumRight,weirDamHeight, flow, coefficients[coefficientIndex]);
 	drawWeirFront(frontCanvas, timeframe, weirHeight, weirDatumLeft, weirDatumRight, weirWidth, weirDamWidth, weirDamHeight, flow, weirN );
 }
 
