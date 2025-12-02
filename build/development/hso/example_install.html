@@ -1,6 +1,4 @@
-<p id="feedback">Test</p>
-<p id="status"></p>
-<p id="output"></p>
+<div id="feedback"></div>
 <script>
 
 
@@ -2592,7 +2590,7 @@ function setRequiredOverlayAttribute(attributes, idVar) {
 				values.push(Number.isFinite(value) ? value : 1.0);
 				ids.push(overlayID);
 			}
-			appendStatus("Setting attribute(s): " + keys);
+			appendFeedback("Setting attribute(s): " + keys);
 			installer[vars.ATTRIBUTES] = [ids, keys, values];
 
 		},
@@ -2612,7 +2610,7 @@ function setRequiredOverlayAttribute(attributes, idVar) {
 function setResultType(resultType, idVar) {
 
 	appendChains([
-		(_data) => appendStatus("Setting RainOverlay resultType to " + resultType),
+		(_data) => appendFeedback("Setting RainOverlay resultType to " + resultType),
 
 		installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
 			params.push(installer[idVar]);
@@ -2656,7 +2654,7 @@ function addResultChildOverlay(overlay, resultType) {
 
 	appendChains([
 
-		(_data) => appendStatus("Adding result child overlay of " + resultType + " to Overlay " + overlay.name),
+		(_data) => appendFeedback("Adding result child overlay of " + resultType + " to Overlay " + overlay.name),
 
 
 		installer.connector.post("event/editoroverlay/add_result_child", null, [], (_d, _u, _gp, params) => {
@@ -2752,14 +2750,6 @@ function getOverlays() {
 	]);
 }
 
-function appendStatus(text) {
-	document.getElementById("status").innerHTML += "<br>" + text;
-}
-
-function setStatus(text) {
-	document.getElementById("status").innerHTML = text;
-}
-
 function appendFeedback(feedback) {
 	document.getElementById("feedback").innerHTML += "<br>" + feedback;
 }
@@ -2785,7 +2775,7 @@ function removeHSOAttributeFromNonWaterOverlays() {
 				let overlay = gridOverlays[i];
 				if (!isWaterOverlay(overlay) && isOverlayOf(overlay, null, null, null, hsoAttributeMap)) {
 					eventOverlayIDs.push(overlay.id);
-					appendStatus("Removing HSO Attribute from Overlay: " + overlay.name);
+					appendFeedback("Removing HSO Attribute from Overlay: " + overlay.name);
 				}
 			}
 			installer[vars.NON_WATER_HSO_OVERLAYS] = eventOverlayIDs;
