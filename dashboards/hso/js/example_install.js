@@ -21,6 +21,15 @@ const vars = {
 	NON_WATER_HSO_OVERLAYS: "nonWaterHsoOverlays",
 
 };
+
+function attributeMap(attributeName) {
+	let map = new Map();
+	map.set(attributeName, null);
+	return map;
+}
+
+const HSO_ATTRIBUTE_MAP = attributeMap(HSO_OVERLAY_ATTRIBUTE);
+
 const installer = {
 
 };
@@ -138,14 +147,8 @@ function addResultChildOverlay(overlay, resultType) {
 	);
 }
 
-function attributeMap(attributeName) {
-	let map = new Map();
-	map.set(attributeName, null);
-	return map;
-}
-
 function createHsoOverlay(type) {
-	addOverlay(type, "SURFACE_LAST_VALUE", attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+	addOverlay(type, "SURFACE_LAST_VALUE", HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
 
 	resolveHsoOverlay();
 }
@@ -184,7 +187,7 @@ function setHsoOverlay(overlays, selectedOverlayID) {
 
 	installer[vars.SELECTED_OVERLAY_ID] = selectedOverlayID;
 
-	setRequiredOverlayAttribute(attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.SELECTED_OVERLAY_ID);
+	setRequiredOverlayAttribute(HSO_ATTRIBUTE_MAP, vars.SELECTED_OVERLAY_ID);
 
 	const overlayIDs = []
 	for (let i = overlays.length - 1; i >= 0; i--) {
@@ -200,7 +203,7 @@ function setHsoOverlay(overlays, selectedOverlayID) {
 		installer.connector.post("event/editoroverlay/remove_attribute", null, [], (_d, _u, _qp, params) => {
 			params.push(installer[vars.UNSELECTED_OVERLAY_IDS]);
 			params.push([HSO_OVERLAY_ATTRIBUTE]);
-		})		
+		})
 	);
 
 	resolveHsoOverlay();
@@ -239,8 +242,8 @@ function requestHsoOverlayType() {
 
 function setWaterOverlayAsHso(overlay) {
 
-	adjustOverlay(overlay, null, attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
-	
+	adjustOverlay(overlay, null, HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
+
 	resolveHsoOverlay();
 }
 
@@ -357,7 +360,7 @@ function isWaterOverlay(overlay, attributeMap) {
 function getWaterOverlays(hsoAttribute) {
 	let waterOverlays = [];
 	let gridOverlays = installer[vars.GRID_OVERLAYS];
-	let attributes = hsoAttribute ? attributeMap(HSO_OVERLAY_ATTRIBUTE) : null;
+	let attributes = hsoAttribute ? HSO_ATTRIBUTE_MAP : null;
 	for (let i = 0; i < gridOverlays.length; i++) {
 		let overlay = gridOverlays[i];
 		if (isWaterOverlay(overlay, attributes)) {
@@ -371,7 +374,7 @@ function removeHSOAttributeFromNonWaterOverlays() {
 
 	appendChains(
 		() => {
-			let hsoAttributeMap = attributeMap(HSO_OVERLAY_ATTRIBUTE);
+			let hsoAttributeMap = HSO_ATTRIBUTE_MAP;
 			let gridOverlays = installer[vars.GRID_OVERLAYS];
 			let eventOverlayIDs = [];
 			for (let i = 0; i < gridOverlays.length; i++) {
@@ -399,7 +402,7 @@ function validateInstall() {
 
 	installer.connector = connector(app.token());
 	installer.chain = installer.connector.start();
-	
+
 	refreshOverlays();
 
 	removeHSOAttributeFromNonWaterOverlays();
@@ -424,6 +427,6 @@ $(window).on("load", function() {
 		appendFeedback("JSBridge App not found");
 		return;
 	}
-	
+
 	validateInstall();
 });
