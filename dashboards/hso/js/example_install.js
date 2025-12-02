@@ -35,14 +35,61 @@ const installer = {
 };
 
 function appendChains(...functions) {
+	
 	let next = installer.chain;
+	
 	for (func of functions) {
 		if (typeof func === 'function') {
 			next = next.then(installer.connector.chain(func));
 		}
 	}
+	
 	installer.chain = next;
+}
 
+function addOverlay(type, resultType, attributes, resultIDVar) {
+
+	addNewOverlay(type, vars.ADDED_OVERLAY_ID);
+
+	if (attributes != null) {
+		setRequiredOverlayAttribute(attributes, vars.ADDED_OVERLAY_ID);
+	}
+
+	if (resultType != null) {
+		setResultType(resultType, vars.ADDED_OVERLAY_ID);
+	}
+
+	appendChains(_data => installer[resultIDVar] = installer[vars.ADDED_OVERLAY_ID]);
+}
+
+function adjustOverlay(overlay, resultType, attributes, resultIDVar) {
+
+	installer[vars.ADJUSTED_OVERLAY_ID] = overlay.id;
+
+	if (attributes != null) {
+		setRequiredOverlayAttribute(attributes, vars.ADJUSTED_OVERLAY_ID);
+	}
+
+	if (resultType != null) {
+		setResultType(resultType, vars.ADJUSTED_OVERLAY_ID);
+	}
+
+	appendChains(_data => installer[resultIDVar] = installer[vars.ADJUSTED_OVERLAY_ID]);
+}
+
+
+function addResultChildOverlay(overlay, resultType) {
+
+	appendChains(
+
+		(_data) => appendFeedback("Adding result child overlay of " + resultType + " to Overlay " + overlay.name),
+
+
+		installer.connector.post("event/editoroverlay/add_result_child", null, [], (_d, _u, _gp, params) => {
+			params.push(overlay.id);
+			params.push(resultType);
+		})
+	);
 }
 
 function addNewOverlay(type, idVar) {
@@ -97,51 +144,6 @@ function setResultType(resultType, idVar) {
 
 		installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
 			params.push(installer[idVar]);
-			params.push(resultType);
-		})
-	);
-}
-
-function addOverlay(type, resultType, attributes, resultIDVar) {
-
-	addNewOverlay(type, vars.ADDED_OVERLAY_ID);
-
-	if (attributes != null) {
-		setRequiredOverlayAttribute(attributes, vars.ADDED_OVERLAY_ID);
-	}
-
-	if (resultType != null) {
-		setResultType(resultType, vars.ADDED_OVERLAY_ID);
-	}
-
-	appendChains(_data => installer[resultIDVar] = installer[vars.ADDED_OVERLAY_ID]);
-}
-
-function adjustOverlay(overlay, resultType, attributes, resultIDVar) {
-
-	installer[vars.ADJUSTED_OVERLAY_ID] = overlay.id;
-
-	if (attributes != null) {
-		setRequiredOverlayAttribute(attributes, vars.ADJUSTED_OVERLAY_ID);
-	}
-
-	if (resultType != null) {
-		setResultType(resultType, vars.ADJUSTED_OVERLAY_ID);
-	}
-
-	appendChains(_data => installer[resultIDVar] = installer[vars.ADJUSTED_OVERLAY_ID]);
-}
-
-
-function addResultChildOverlay(overlay, resultType) {
-
-	appendChains(
-
-		(_data) => appendFeedback("Adding result child overlay of " + resultType + " to Overlay " + overlay.name),
-
-
-		installer.connector.post("event/editoroverlay/add_result_child", null, [], (_d, _u, _gp, params) => {
-			params.push(overlay.id);
 			params.push(resultType);
 		})
 	);
