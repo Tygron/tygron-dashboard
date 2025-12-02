@@ -5,12 +5,15 @@ const HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
 const RAINFALL_OVERLAY_TYPE = "RAINFALL";
 const GROUNDWATER_OVERLAY_TYPE = "GROUNDWATER";
 const FLOODING_OVERLAY_TYPE = "FLOODING";
-
+let overlayVersion = 0;
 const vars = {
 	ADDED_OVERLAY_ID: "addedOverlayID",
 	ATTRIBUTES: "attributes",
 	ADJUSTED_OVERLAY_ID: "adjustedOverlayID",
-	WATER_OVERLAY: "rainfallOverlay",
+	SELECTED_OVERLAY_ID: "selectedOverlayID",
+	UNSELECTED_OVERLAY_IDS: "unselectedOverlayID",
+	WATER_OVERLAY: "waterOverlay",
+	WATER_OVERLAYS: "waterOverlays",
 	HSO_OVERLAY: "hsoOverlay",
 	HSO_OVERLAY_ID: "hsoOverlayID",
 	GRID_OVERLAYS: "gridOverlays",
@@ -144,7 +147,63 @@ function attributeMap(attributeName) {
 function createHsoOverlay(type) {
 	addOverlay(type, "SURFACE_LAST_VALUE", attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
 
-	addRainfallChildren();
+	resolveHsoOverlay();
+}
+
+function selectHsoOverlay(overlays) {
+	appendFeedback("Select which Water Overlay should be the HSO Overlay:");
+
+	const selectionParent = document.createElement("div");
+
+	const typeOption = document.createElement('select');
+	typeOption.innerHTML += '<option selected value="">Select Water Overlay</option>';
+	for (let i = 0; i < overlays.length; i++) {
+		typeOption.innerHTML += '<option value=' + overlays[i].id + '>' + overlays[i].name + '</option>';
+	}
+
+	const selectButton = document.createElement('input');
+	selectButton.type = 'button';
+	selectButton.value = 'Select';
+	selectButton.disabled = true;
+
+	selectionParent.appendChild(typeOption);
+	selectionParent.appendChild(selectButton);
+
+	appendFeedbackLine(selectionParent);
+
+	attachHandler(selectionParent, 'change', 'select', () => selectButton.disabled = (typeOption.value == ''));
+	attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
+		selectButton.disabled = true;
+		typeOption.disabled = true;
+
+		setHsoOverlay(overlays, typeOption.value);
+	});
+}
+
+function setHsoOverlay(overlays, selectedOverlayID) {
+
+	installer[vars.SELECTED_OVERLAY_ID] = selectedOverlayID;
+
+	setRequiredOverlayAttribute(attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.SELECTED_OVERLAY_ID);
+
+	const overlayIDs = []
+	for (let i = overlays.length - 1; i >= 0; i--) {
+		if (overlays[i].id != selectedOverlayID) {
+			overlayIDs.push(overlays[i].id);
+			appendFeedback("Removing " + HSO_OVERLAY_ATTRIBUTE + " from " + overlays[i].name);
+		}
+	}
+	installer[vars.UNSELECTED_OVERLAY_IDS] = overlayIDs;
+
+	appendChains(
+
+		installer.connector.post("event/editoroverlay/remove_attribute", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[vars.UNSELECTED_OVERLAY_IDS]);
+			params.push([HSO_OVERLAY_ATTRIBUTE]);
+		})		
+	);
+
+	resolveHsoOverlay();
 }
 
 function requestHsoOverlayType() {
@@ -154,14 +213,12 @@ function requestHsoOverlayType() {
 	const selectionParent = document.createElement("div");
 
 	const typeOption = document.createElement('select');
-	typeOption.id = 'hsoOverlayType';
 	typeOption.innerHTML += '<option selected value="">Select Water Overlay Type</option>';
 	typeOption.innerHTML += '<option value="RAINFALL">' + RAINFALL_OVERLAY_TYPE + '</option>';
 	typeOption.innerHTML += '<option value="GROUNDWATER">' + GROUNDWATER_OVERLAY_TYPE + '</option>';
 	typeOption.innerHTML += '<option value="FLOODING">' + FLOODING_OVERLAY_TYPE + '</option>';
 
 	const addButton = document.createElement('input');
-	addButton.id = 'addHsoOverlayButton';
 	addButton.type = 'button';
 	addButton.value = 'Add';
 	addButton.disabled = true;
@@ -180,35 +237,32 @@ function requestHsoOverlayType() {
 
 }
 
-function selectWaterOverlay() {
+function setWaterOverlayAsHso(overlay) {
 
-	appendFeedback("Select which Water Overlay should be setup for the dashboard:");
-
-	adjustOverlay(installer[vars.WATER_OVERLAY], null, attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
-
-	addRainfallChildren();
+	adjustOverlay(overlay, null, attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+	
+	resolveHsoOverlay();
 }
 
-function setupHsoOverlay() {
+function resolveHsoOverlay() {
 
-	if (installer[vars.WATER_OVERLAY] == null) {
+	refreshOverlays(() => {
+		if (installer[vars.HSO_OVERLAY] != null) {
+			return addRainfallChildren();
+		}
 
-		requestHsoOverlayType();
+		if (installer[vars.WATER_OVERLAY] != null) {
+			return setWaterOverlayAsHso(installer[vars.WATER_OVERLAY]);
+		}
 
-	} else if (installer[vars.HSO_OVERLAY] == null) {
+		if (installer[vars.WATER_OVERLAYS].length > 0) {
+			return selectHsoOverlay(installer[vars.WATER_OVERLAYS]);
 
-		selectWaterOverlay();
 
-	} else {
+		} else {
+			return requestHsoOverlayType();
 
-		appendFeedback("HSO Rainfall Overlay present in project.");
-		addRainfallChildren();
-	}
-}
-
-function addRainfallOverlay() {
-	appendChains(() => {
-		setupHsoOverlay();
+		}
 	});
 
 }
@@ -226,26 +280,27 @@ function addRainfallChildren() {
 		'BASE_TYPES',
 		'GROUND_LAST_UNSATURATED_STORAGE'];
 
-	getOverlays();
+	refreshOverlays(
 
-	appendChains(() => {
+		() => {
 
-		let overlayID = installer[vars.HSO_OVERLAY_ID];
-		let overlays = installer[vars.OVERLAYS];
-		let overlay = getOverlay(overlays, overlayID);
-		for (let resultType of resultTypes) {
-			let resultOverlay = getGridOverlay(overlays, "RESULT_CHILD", resultType, overlayID, null);
-			if (resultOverlay == null && getResultType(overlay) != resultType) {
-				addResultChildOverlay(overlay, resultType);
-			} else {
-				appendFeedback("Result child found: " + resultType);
+			let overlayID = installer[vars.HSO_OVERLAY_ID];
+			let overlays = installer[vars.OVERLAYS];
+			let overlay = getOverlay(overlays, overlayID);
+			for (let resultType of resultTypes) {
+				let resultOverlay = getGridOverlay(overlays, "RESULT_CHILD", resultType, overlayID, null);
+				if (resultOverlay == null && getResultType(overlay) != resultType) {
+					addResultChildOverlay(overlay, resultType);
+				} else {
+					appendFeedback("Result child found: " + resultType);
+				}
 			}
 		}
-	});
+	);
 
 }
 
-function getOverlays() {
+function refreshOverlays(actionAfterRefresh) {
 
 	appendChains(
 
@@ -264,7 +319,21 @@ function getOverlays() {
 
 			installer[vars.OVERLAYS] = overlays;
 			installer[vars.GRID_OVERLAYS] = getGridOverlays(overlays);
-		}
+
+			let hsoWaterOverlays = getWaterOverlays(true);
+			if (hsoWaterOverlays.length == 1) {
+				installer[vars.HSO_OVERLAY] = hsoWaterOverlays[0];
+				installer[vars.HSO_OVERLAY_ID] = hsoWaterOverlays[0].id;
+			}
+			let waterOverlays = getWaterOverlays(false);
+			installer[vars.WATER_OVERLAYS] = waterOverlays;
+			if (waterOverlays.length == 1) {
+				installer[vars.WATER_OVERLAY] = waterOverlays[0];
+			}
+		},
+
+		actionAfterRefresh
+
 	);
 }
 
@@ -320,23 +389,9 @@ function removeHSOAttributeFromNonWaterOverlays() {
 			params.push([HSO_OVERLAY_ATTRIBUTE]);
 		}),
 
-		getOverlays()
+
 	);
 }
-
-function refreshOverlayVars() {
-	
-	let hsoWaterOverlays = getWaterOverlays(true);
-	if (hsoWaterOverlays.length == 1) {
-		installer[vars.HSO_OVERLAY] = hsoWaterOverlays[0];
-		installer[vars.HSO_OVERLAY_ID] =  hsoWaterOverlays[0].id;
-	}
-	let waterOverlays = getWaterOverlays(false);
-	if (waterOverlays.length == 1) {
-		installer[vars.WATER_OVERLAY] = waterOverlays[0];
-	}
-}
-
 
 function validateInstall() {
 
@@ -344,34 +399,31 @@ function validateInstall() {
 
 	installer.connector = connector(app.token());
 	installer.chain = installer.connector.start();
-	app.info("Started chain");
+	
+	refreshOverlays();
 
-	getOverlays();
 	removeHSOAttributeFromNonWaterOverlays();
 
-	appendChains(() => refreshOverlayVars());
-
-	addRainfallOverlay();
+	resolveHsoOverlay();
 
 	installer.chain = installer.chain.catch(error => appendFeedback("Failed installing! Error: " + error));
 
 }
 
-/*
+
 let app = {
-	token: function() { return "" },
+	token: function() { return "5facca7c3rBCIES2ChYBux6fwSIckn0X" },
 	info: function(info) { console.log(info) },
 };
-*/
+
 
 $(window).on("load", function() {
 
-	appendFeedback("Validating panel...");
+	appendFeedback("Validating installation for HSO Dasboard.");
 	if (typeof app === "undefined") {
 		appendFeedback("JSBridge App not found");
-
-	} else {
-		validateInstall();
+		return;
 	}
-
+	
+	validateInstall();
 });
