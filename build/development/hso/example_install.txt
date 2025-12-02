@@ -2802,7 +2802,7 @@ const HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
 const RAINFALL_OVERLAY_TYPE = "RAINFALL";
 const GROUNDWATER_OVERLAY_TYPE = "GROUNDWATER";
 const FLOODING_OVERLAY_TYPE = "FLOODING";
-let overlayVersion = 0;
+
 const vars = {
 	ADDED_OVERLAY_ID: "addedOverlayID",
 	ATTRIBUTES: "attributes",
@@ -2818,76 +2818,30 @@ const vars = {
 	NON_WATER_HSO_OVERLAYS: "nonWaterHsoOverlays",
 
 };
+
+function attributeMap(attributeName) {
+	let map = new Map();
+	map.set(attributeName, null);
+	return map;
+}
+
+const HSO_ATTRIBUTE_MAP = attributeMap(HSO_OVERLAY_ATTRIBUTE);
+
 const installer = {
 
 };
 
 function appendChains(...functions) {
+
 	let next = installer.chain;
+
 	for (func of functions) {
 		if (typeof func === 'function') {
 			next = next.then(installer.connector.chain(func));
 		}
 	}
+
 	installer.chain = next;
-
-}
-
-function addNewOverlay(type, idVar) {
-
-	appendChains(
-		installer.connector.post("event/editoroverlay/add", null, [type]),
-
-		overlayID => {
-			if (overlayID == null || !Number.isInteger(overlayID)) {
-				throw new Error("Failed to add Overlay with type " + type);
-			}
-			installer[idVar] = overlayID;
-		}
-	);
-}
-
-function setRequiredOverlayAttribute(attributes, idVar) {
-	appendChains(
-		_data => {
-			let overlayID = installer[idVar];
-			let keys = [];
-			let values = [];
-			let ids = [];
-
-			for (let key of attributes.keys()) {
-				keys.push(key);
-				let value = attributes[key];
-				values.push(Number.isFinite(value) ? value : 1.0);
-				ids.push(overlayID);
-			}
-			appendFeedback("Setting attribute(s): " + keys);
-			installer[vars.ATTRIBUTES] = [ids, keys, values];
-
-		},
-
-		installer.connector.post("event/editoroverlay/set_attributes", null, [],
-			(_d, _u, _qp, params) => {
-				let newParams = installer[vars.ATTRIBUTES];
-				for (let n = 0; n < newParams.length; n++) {
-					params.push(newParams[n]);
-				}
-			}
-
-		)
-	);
-}
-
-function setResultType(resultType, idVar) {
-
-	appendChains(
-		(_data) => appendFeedback("Setting RainOverlay resultType to " + resultType),
-
-		installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
-			params.push(installer[idVar]);
-			params.push(resultType);
-		})
-	);
 }
 
 function addOverlay(type, resultType, attributes, resultIDVar) {
@@ -2935,19 +2889,65 @@ function addResultChildOverlay(overlay, resultType) {
 	);
 }
 
-function attributeMap(attributeName) {
-	let map = new Map();
-	map.set(attributeName, null);
-	return map;
+function addNewOverlay(type, idVar) {
+
+	appendChains(
+		installer.connector.post("event/editoroverlay/add", null, [type]),
+
+		overlayID => {
+			if (overlayID == null || !Number.isInteger(overlayID)) {
+				throw new Error("Failed to add Overlay with type " + type);
+			}
+			installer[idVar] = overlayID;
+		}
+	);
 }
 
-function createHsoOverlay(type) {
-	addOverlay(type, "SURFACE_LAST_VALUE", attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+function setRequiredOverlayAttribute(attributes, idVar) {
 
-	resolveHsoOverlay();
+	appendChains(
+		_data => {
+			let overlayID = installer[idVar];
+			let keys = [];
+			let values = [];
+			let ids = [];
+
+			for (let key of attributes.keys()) {
+				keys.push(key);
+				let value = attributes[key];
+				values.push(Number.isFinite(value) ? value : 1.0);
+				ids.push(overlayID);
+			}
+			appendFeedback("Setting attribute(s): " + keys);
+			installer[vars.ATTRIBUTES] = [ids, keys, values];
+
+		},
+
+		installer.connector.post("event/editoroverlay/set_attributes", null, [],
+			(_d, _u, _qp, params) => {
+				let newParams = installer[vars.ATTRIBUTES];
+				for (let n = 0; n < newParams.length; n++) {
+					params.push(newParams[n]);
+				}
+			}
+
+		)
+	);
 }
 
-function selectHsoOverlay(overlays) {
+function setResultType(resultType, idVar) {
+
+	appendChains(
+		(_data) => appendFeedback("Setting RainOverlay resultType to " + resultType),
+
+		installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[idVar]);
+			params.push(resultType);
+		})
+	);
+}
+
+function requestSelectHsoOverlay(overlays) {
 	appendFeedback("Select which Water Overlay should be the HSO Overlay:");
 
 	const selectionParent = document.createElement("div");
@@ -2981,7 +2981,7 @@ function setHsoOverlay(overlays, selectedOverlayID) {
 
 	installer[vars.SELECTED_OVERLAY_ID] = selectedOverlayID;
 
-	setRequiredOverlayAttribute(attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.SELECTED_OVERLAY_ID);
+	setRequiredOverlayAttribute(HSO_ATTRIBUTE_MAP, vars.SELECTED_OVERLAY_ID);
 
 	const overlayIDs = []
 	for (let i = overlays.length - 1; i >= 0; i--) {
@@ -2997,13 +2997,13 @@ function setHsoOverlay(overlays, selectedOverlayID) {
 		installer.connector.post("event/editoroverlay/remove_attribute", null, [], (_d, _u, _qp, params) => {
 			params.push(installer[vars.UNSELECTED_OVERLAY_IDS]);
 			params.push([HSO_OVERLAY_ATTRIBUTE]);
-		})		
+		})
 	);
 
 	resolveHsoOverlay();
 }
 
-function requestHsoOverlayType() {
+function requestNewHsoOverlayType() {
 
 	appendFeedback("Select which type of Water Overlay to add:");
 
@@ -3029,15 +3029,18 @@ function requestHsoOverlayType() {
 	attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
 		addButton.disabled = true;
 		typeOption.disabled = true;
-		createHsoOverlay(typeOption.value);
+
+		addOverlay(typeOption.value, "SURFACE_LAST_VALUE", HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
+
+		resolveHsoOverlay();
 	});
 
 }
 
 function setWaterOverlayAsHso(overlay) {
 
-	adjustOverlay(overlay, null, attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
-	
+	adjustOverlay(overlay, null, HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
+
 	resolveHsoOverlay();
 }
 
@@ -3053,11 +3056,11 @@ function resolveHsoOverlay() {
 		}
 
 		if (installer[vars.WATER_OVERLAYS].length > 0) {
-			return selectHsoOverlay(installer[vars.WATER_OVERLAYS]);
+			return requestSelectHsoOverlay(installer[vars.WATER_OVERLAYS]);
 
 
 		} else {
-			return requestHsoOverlayType();
+			return requestNewHsoOverlayType();
 
 		}
 	});
@@ -3085,9 +3088,12 @@ function addRainfallChildren() {
 			let overlays = installer[vars.OVERLAYS];
 			let overlay = getOverlay(overlays, overlayID);
 			for (let resultType of resultTypes) {
+
 				let resultOverlay = getGridOverlay(overlays, "RESULT_CHILD", resultType, overlayID, null);
+
 				if (resultOverlay == null && getResultType(overlay) != resultType) {
 					addResultChildOverlay(overlay, resultType);
+
 				} else {
 					appendFeedback("Result child found: " + resultType);
 				}
@@ -3154,7 +3160,7 @@ function isWaterOverlay(overlay, attributeMap) {
 function getWaterOverlays(hsoAttribute) {
 	let waterOverlays = [];
 	let gridOverlays = installer[vars.GRID_OVERLAYS];
-	let attributes = hsoAttribute ? attributeMap(HSO_OVERLAY_ATTRIBUTE) : null;
+	let attributes = hsoAttribute ? HSO_ATTRIBUTE_MAP : null;
 	for (let i = 0; i < gridOverlays.length; i++) {
 		let overlay = gridOverlays[i];
 		if (isWaterOverlay(overlay, attributes)) {
@@ -3168,7 +3174,7 @@ function removeHSOAttributeFromNonWaterOverlays() {
 
 	appendChains(
 		() => {
-			let hsoAttributeMap = attributeMap(HSO_OVERLAY_ATTRIBUTE);
+			let hsoAttributeMap = HSO_ATTRIBUTE_MAP;
 			let gridOverlays = installer[vars.GRID_OVERLAYS];
 			let eventOverlayIDs = [];
 			for (let i = 0; i < gridOverlays.length; i++) {
@@ -3196,7 +3202,7 @@ function validateInstall() {
 
 	installer.connector = connector(app.token());
 	installer.chain = installer.connector.start();
-	
+
 	refreshOverlays();
 
 	removeHSOAttributeFromNonWaterOverlays();
@@ -3221,7 +3227,7 @@ $(window).on("load", function() {
 		appendFeedback("JSBridge App not found");
 		return;
 	}
-	
+
 	validateInstall();
 });
 
