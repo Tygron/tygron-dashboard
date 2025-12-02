@@ -1,10 +1,10 @@
 import { getGridOverlay, getGridOverlays, getOverlay, getResultType, isOverlayOf } from "../../../src/js/util/OverlayUtils.js";
 import { connector } from "../../../src/js/util/Connector.js";
 
-let HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
-let RAINFALL_OVERLAY_TYPE = "RAINFALL";
-let GROUNDWATER_OVERLAY_TYPE = "GROUNDWATER";
-let FLOODING_OVERLAY_TYPE = "FLOODING";
+const HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
+const RAINFALL_OVERLAY_TYPE = "RAINFALL";
+const GROUNDWATER_OVERLAY_TYPE = "GROUNDWATER";
+const FLOODING_OVERLAY_TYPE = "FLOODING";
 
 const vars = {
 	ADDED_OVERLAY_ID: "addedOverlayID",
@@ -141,28 +141,73 @@ function attributeMap(attributeName) {
 	return map;
 }
 
+function createHsoOverlay(type) {
+	addOverlay(type, "SURFACE_LAST_VALUE", attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+	
+	addRainfallChildren();
+}
+
+function requestHsoOverlayType() {
+
+	appendFeedback("Select which type of Water Overlay to add:");
+	
+	const selectionParent = document.createElement("div");
+
+	const typeOption = document.createElement('select');
+	typeOption.id = 'hsoOverlayType';
+	typeOption.innerHTML += '<option selected value="">Select Water Overlay Type</option>';
+	typeOption.innerHTML += '<option value="RAINFALL">' + RAINFALL_OVERLAY_TYPE + '</option>';
+	typeOption.innerHTML += '<option value="GROUNDWATER">' + GROUNDWATER_OVERLAY_TYPE + '</option>';
+	typeOption.innerHTML += '<option value="FLOODING">' + FLOODING_OVERLAY_TYPE + '</option>';
+
+	const addButton = document.createElement('input');
+	addButton.id = 'addHsoOverlayButton';
+	addButton.type = 'button';
+	addButton.value = 'Add';
+	addButton.disabled = true;
+	
+	selectionParent.appendChild(typeOption);
+	selectionParent.appendChild(addButton);
+
+	appendFeedbackLine(selectionParent);
+	
+	attachHandler(selectionParent, 'change', 'select', () => addButton.disabled = (typeOption.value == ''));
+	attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
+		addButton.disabled = true;
+		typeOption.disabled = true;
+		createHsoOverlay(typeOption.value);});
+
+}
+
+function selectWaterOverlay(){
+
+	appendFeedback("Select which Water Overlay should be setup for the dashboard:");
+	
+	adjustOverlay(installer[vars.RAINFALL_OVERLAY], null, attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+	
+	addRainfallChildren();
+}
+
 function setupHsoOverlay() {
 
 	if (installer[vars.RAINFALL_OVERLAY] == null) {
 
-		addOverlay(RAINFALL_OVERLAY_TYPE, "SURFACE_LAST_VALUE", attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+		requestHsoOverlayType();
 
 	} else if (installer[vars.HSO_OVERLAY] == null) {
 
-		adjustOverlay(installer[vars.RAINFALL_OVERLAY], null, attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+		selectWaterOverlay();
 
 	} else {
 
 		appendFeedback("HSO Rainfall Overlay present in project.");
-
+		addRainfallChildren();
 	}
 }
 
 function addRainfallOverlay() {
 	appendChains(() => {
-		appendFeedback("Adding new Rainfall Overlay.");
 		setupHsoOverlay();
-		addRainfallChildren();
 	});
 
 }
@@ -222,11 +267,15 @@ function getOverlays() {
 	);
 }
 
+function appendFeedbackLine(element){
+	element.classList.add("feedback-line");		
+	document.getElementById("feedback").appendChild(element);
+}
+
 function appendFeedback(feedback) {
 	let feedbackLine = document.createElement("div");
-	feedbackLine.classList.add("feedback-line");
 	feedbackLine.innerHTML = feedback;
-	document.getElementById("feedback").appendChild(feedbackLine);
+	appendFeedbackLine(feedbackLine);	
 }
 
 function isWaterOverlay(overlay) {
@@ -262,7 +311,7 @@ function removeHSOAttributeFromNonWaterOverlays() {
 }
 
 function refreshOverlayVars() {
-	
+
 	let gridOverlays = installer[vars.GRID_OVERLAYS];
 	app.info("GridOverlays: " + gridOverlays);
 
