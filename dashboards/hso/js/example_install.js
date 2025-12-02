@@ -261,6 +261,30 @@ function removeHSOAttributeFromNonWaterOverlays() {
 	);
 }
 
+function refreshOverlayVars() {
+	
+	let gridOverlays = installer[vars.GRID_OVERLAYS];
+	app.info("GridOverlays: " + gridOverlays);
+
+	installer[vars.HSO_OVERLAY] = getGridOverlay(gridOverlays, RAINFALL_OVERLAY_TYPE, null, null, attributeMap(HSO_OVERLAY_ATTRIBUTE));
+	installer[vars.RAINFALL_OVERLAY] = getGridOverlay(gridOverlays, RAINFALL_OVERLAY_TYPE, null, null);
+
+	if (installer[vars.HSO_OVERLAY] != null) {
+
+		app.info("HSO Overlay: " + installer[vars.HSO_OVERLAY]);
+		installer[vars.HSO_OVERLAY_ID] = installer[vars.HSO_OVERLAY].id;
+
+	} else if (installer[vars.RAINFALL_OVERLAY] != null) {
+
+		app.info("RainfallOverlay: " + installer[vars.RAINFALL_OVERLAY]);
+
+	} else {
+
+		app.info("No Rainfall Overlay present in project.");
+	}
+}
+
+
 function validateInstall() {
 
 	setFeedback("Validate Overlays...");
@@ -272,29 +296,7 @@ function validateInstall() {
 	getOverlays();
 	removeHSOAttributeFromNonWaterOverlays();
 
-	appendChains(() => {
-
-		let gridOverlays = installer[vars.GRID_OVERLAYS];
-		app.info("GridOverlays: " + gridOverlays);
-
-		installer[vars.HSO_OVERLAY] = getGridOverlay(gridOverlays, RAINFALL_OVERLAY_TYPE, null, null, attributeMap(HSO_OVERLAY_ATTRIBUTE));
-		installer[vars.RAINFALL_OVERLAY] = getGridOverlay(gridOverlays, RAINFALL_OVERLAY_TYPE, null, null);
-
-		if (installer[vars.HSO_OVERLAY] != null) {
-
-			app.info("HSO Overlay: " + installer[vars.HSO_OVERLAY]);
-			installer[vars.HSO_OVERLAY_ID] = installer[vars.HSO_OVERLAY].id;
-
-		} else if (installer[vars.RAINFALL_OVERLAY] != null) {
-
-			app.info("RainfallOverlay: " + installer[vars.RAINFALL_OVERLAY]);
-
-		} else {
-
-			app.info("No Rainfall Overlay present in project.");
-			setFeedback("Adding new Rainfall Overlay.");
-		}
-	});
+	appendChains(() => refreshOverlayVars());
 
 	addRainfallOverlay();
 
