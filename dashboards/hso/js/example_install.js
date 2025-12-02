@@ -160,7 +160,7 @@ function setupHsoOverlay() {
 
 function addRainfallOverlay() {
 	appendChains(() => {
-		setFeedback("Adding new Rainfall Overlay.");
+		appendFeedback("Adding new Rainfall Overlay.");
 		setupHsoOverlay();
 		addRainfallChildren();
 	});
@@ -223,11 +223,10 @@ function getOverlays() {
 }
 
 function appendFeedback(feedback) {
-	document.getElementById("feedback").innerHTML += "<br>" + feedback;
-}
-
-function setFeedback(feedback) {
-	document.getElementById("feedback").innerHTML = feedback;
+	let feedbackLine = document.createElement("div");
+	feedbackLine.classList.add("feedback-line");
+	feedbackLine.innerHTML = feedback;
+	document.getElementById("feedback").appendChild(feedbackLine);
 }
 
 function isWaterOverlay(overlay) {
@@ -288,7 +287,7 @@ function refreshOverlayVars() {
 
 function validateInstall() {
 
-	setFeedback("Validate Overlays...");
+	appendFeedback("Validating project setup");
 
 	installer.connector = connector(app.token());
 	installer.chain = installer.connector.start();
@@ -301,7 +300,7 @@ function validateInstall() {
 
 	addRainfallOverlay();
 
-	installer.chain = installer.chain.catch(error => setFeedback("Failed installing! Error: " + error));
+	installer.chain = installer.chain.catch(error => appendFeedback("Failed installing! Error: " + error));
 
 }
 
@@ -314,9 +313,9 @@ let app = {
 
 $(window).on("load", function() {
 
-	setFeedback("Validating panel...");
+	appendFeedback("Validating panel...");
 	if (typeof app === "undefined") {
-		setFeedback("JSBridge App not found");
+		appendFeedback("JSBridge App not found");
 
 	} else {
 		validateInstall();
