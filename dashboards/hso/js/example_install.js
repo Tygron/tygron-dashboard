@@ -149,12 +149,6 @@ function setResultType(resultType, idVar) {
 	);
 }
 
-function createHsoOverlay(type) {
-	addOverlay(type, "SURFACE_LAST_VALUE", HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
-
-	resolveHsoOverlay();
-}
-
 function selectHsoOverlay(overlays) {
 	appendFeedback("Select which Water Overlay should be the HSO Overlay:");
 
@@ -211,7 +205,7 @@ function setHsoOverlay(overlays, selectedOverlayID) {
 	resolveHsoOverlay();
 }
 
-function requestHsoOverlayType() {
+function requestNewHsoOverlayType() {
 
 	appendFeedback("Select which type of Water Overlay to add:");
 
@@ -237,7 +231,10 @@ function requestHsoOverlayType() {
 	attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
 		addButton.disabled = true;
 		typeOption.disabled = true;
-		createHsoOverlay(typeOption.value);
+				
+		addOverlay(typeOption.value, "SURFACE_LAST_VALUE", HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
+
+		resolveHsoOverlay();
 	});
 
 }
@@ -265,7 +262,7 @@ function resolveHsoOverlay() {
 
 
 		} else {
-			return requestHsoOverlayType();
+			return requestNewHsoOverlayType();
 
 		}
 	});
