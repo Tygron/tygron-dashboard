@@ -149,7 +149,7 @@ function setResultType(resultType, idVar) {
 	);
 }
 
-function selectHsoOverlay(overlays) {
+function requestSelectHsoOverlay(overlays) {
 	appendFeedback("Select which Water Overlay should be the HSO Overlay:");
 
 	const selectionParent = document.createElement("div");
@@ -258,7 +258,7 @@ function resolveHsoOverlay() {
 		}
 
 		if (installer[vars.WATER_OVERLAYS].length > 0) {
-			return selectHsoOverlay(installer[vars.WATER_OVERLAYS]);
+			return requestSelectHsoOverlay(installer[vars.WATER_OVERLAYS]);
 
 
 		} else {
