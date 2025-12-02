@@ -107,6 +107,7 @@ function addNewOverlay(type, idVar) {
 }
 
 function setRequiredOverlayAttribute(attributes, idVar) {
+	
 	appendChains(
 		_data => {
 			let overlayID = installer[idVar];
