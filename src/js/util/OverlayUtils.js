@@ -128,7 +128,7 @@ export function getOverlay(overlays, id) {
 
 export function isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes) {
 	if (overlay == null) {
-		return;
+		return false;
 	}
 
 	if (type != null && type != overlay.type) {
@@ -143,13 +143,17 @@ export function isOverlayOf(overlay, type, resultType, resultParentID, requiredA
 		return false;
 	}
 
-	if (requiredAttributes != null && overlay.attributes != null) {
-
+	if (requiredAttributes != null) {
+		
 		for (const key of requiredAttributes.keys()) {
+			
+			if(overlay.attributes == null){
+				return false;
+			}
 
 			let value = requiredAttributes[key];
 
-			if (value == null && overlay.attributes[key] == null) {
+			if (value == null && !(key in overlay.attributes)) {
 
 				return false;
 
