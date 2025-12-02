@@ -1,8 +1,10 @@
-import { getGridOverlay, getGridOverlays, getOverlay, getResultType } from "../../../src/js/util/OverlayUtils.js";
+import { getGridOverlay, getGridOverlays, getOverlay, getResultType, isOverlayOf } from "../../../src/js/util/OverlayUtils.js";
 import { connector } from "../../../src/js/util/Connector.js";
 
-let RAINFALL_OVERLAY_ATTRIBUTE = "HSO_RAINFALL_OVERLAY";
+let HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
 let RAINFALL_OVERLAY_TYPE = "RAINFALL";
+let GROUNDWATER_OVERLAY_TYPE = "GROUNDWATER";
+let FLOODING_OVERLAY_TYPE = "FLOODING";
 
 const vars = {
 	ADDED_OVERLAY_ID: "addedOverlayID",
@@ -13,6 +15,7 @@ const vars = {
 	HSO_OVERLAY_ID: "hsoOverlayID",
 	GRID_OVERLAYS: "gridOverlays",
 	OVERLAYS: "overlays",
+	NON_WATER_HSO_OVERLAYS: "nonWaterHsoOverlays",
 
 };
 const installer = {
@@ -126,7 +129,7 @@ function addResultChildOverlay(overlay, resultType) {
 	appendChains([
 
 		(_data) => appendStatus("Adding result child overlay of " + resultType + " to Overlay " + overlay.name),
-		
+
 
 		installer.connector.post("event/editoroverlay/add_result_child", null, [], (_d, _u, _gp, params) => {
 			params.push(overlay.id);
@@ -145,11 +148,11 @@ function setupHsoOverlay() {
 
 	if (installer[vars.RAINFALL_OVERLAY] == null) {
 
-		addOverlay(RAINFALL_OVERLAY_TYPE, "SURFACE_LAST_VALUE", attributeMap(RAINFALL_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+		addOverlay(RAINFALL_OVERLAY_TYPE, "SURFACE_LAST_VALUE", attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
 
-	} else if (installer[vars.HSO_OVERLAY == null]) {
+	} else if (installer[vars.HSO_OVERLAY] == null) {
 
-		adjustOverlay(installer[vars.RAINFALL_OVERLAY], null, attributeMap(RAINFALL_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+		adjustOverlay(installer[vars.RAINFALL_OVERLAY], null, attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
 
 	} else {
 
@@ -237,6 +240,38 @@ function setFeedback(feedback) {
 	document.getElementById("feedback").innerHTML = feedback;
 }
 
+function isWaterOverlay(overlay) {
+	return isOverlayOf(overlay, GROUNDWATER_OVERLAY_TYPE, null, null, null) ||
+		isOverlayOf(overlay, RAINFALL_OVERLAY_TYPE, null, null, null) ||
+		isOverlayOf(overlay, FLOODING_OVERLAY_TYPE, null, null, null);
+}
+
+function removeHSOAttributeFromNonWaterOverlays() {
+	
+	appendChains([
+		() => {
+			let hsoAttributeMap = attributeMap(HSO_OVERLAY_ATTRIBUTE);
+			let gridOverlays = installer[vars.GRID_OVERLAYS];
+			let eventOverlayIDs = [];
+			for (let i = 0; i < gridOverlays.length; i++) {
+				let overlay = gridOverlays[i];
+				if (!isWaterOverlay(overlay) && isOverlayOf(overlay, null, null, null, hsoAttributeMap)) {
+					eventOverlayIDs.push(overlay.id);
+					appendStatus("Removing HSO Attribute from Overlay: " + overlay.name);
+				}
+			}
+			installer[vars.NON_WATER_HSO_OVERLAYS] = eventOverlayIDs;
+		},
+
+		installer.connector.post("event/editoroverlay/remove_attribute", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[vars.NON_WATER_HSO_OVERLAYS]);
+			params.push([HSO_OVERLAY_ATTRIBUTE]);
+		}),
+
+		getOverlays()
+	]);
+}
+
 function validateInstall() {
 
 	setFeedback("Validate Overlays...");
@@ -246,13 +281,14 @@ function validateInstall() {
 	app.info("Started chain");
 
 	getOverlays();
+	removeHSOAttributeFromNonWaterOverlays();
 
 	appendChains(() => {
 
 		let gridOverlays = installer[vars.GRID_OVERLAYS];
 		app.info("GridOverlays: " + gridOverlays);
 
-		installer[vars.HSO_OVERLAY] = getGridOverlay(gridOverlays, RAINFALL_OVERLAY_TYPE, null, null, attributeMap(RAINFALL_OVERLAY_ATTRIBUTE));
+		installer[vars.HSO_OVERLAY] = getGridOverlay(gridOverlays, RAINFALL_OVERLAY_TYPE, null, null, attributeMap(HSO_OVERLAY_ATTRIBUTE));
 		installer[vars.RAINFALL_OVERLAY] = getGridOverlay(gridOverlays, RAINFALL_OVERLAY_TYPE, null, null);
 
 		if (installer[vars.HSO_OVERLAY] != null) {
@@ -277,12 +313,12 @@ function validateInstall() {
 
 }
 
-/*
+
 let app = {
-	token: function() { return "" },
+	token: function() { return "5facca7c3rBCIES2ChYBux6fwSIckn0X" },
 	info: function(info) { console.log(info) },
 };
-*/
+
 
 $(window).on("load", function() {
 
