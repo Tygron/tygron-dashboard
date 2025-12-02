@@ -4,12 +4,17 @@
     <pre class="mermaid">
             graph TD
             H0[Remove HSO Attribute from Overlays that are not Water Overlays]-->H
-            H[HSO Overlay Present?]-->|0|A[Rain Overlay Present]
-            H-->|1|B[Is it a water overlay?]
-            B-->|yes|B1[Continue]
-            B-->|no|B2[Remove attribute]
-            B2-->A
-            H-->|>1|C[Select one and remove attribute from others]
+            H[HSO Overlay Present?]-->|0|A[Water Overlay Present?]
+            H-->|1|D 
+           	H-->|>1|C[Select one and remove attribute from others]     
+            A-->|0|A0[Select what kind of Water Overlay to add]
+            A-->|1|A1[Add HSO Attribute to Water Overlay]
+            A-->|>1|A2[Select Water Overlay to add HSO Attribute to]
+            C-->D[Check Result Children: <br>Is Present in me or as child?]
+           	A0-->D
+            A1-->D
+            A2-->D
+            
     </pre>
     
     <script type="module">
