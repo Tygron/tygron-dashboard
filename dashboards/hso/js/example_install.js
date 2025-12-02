@@ -18,7 +18,6 @@ const vars = {
 const installer = {
 
 };
-let installStatus = {};
 
 function appendChains(functions) {
 	if (Array.isArray(functions)) {
