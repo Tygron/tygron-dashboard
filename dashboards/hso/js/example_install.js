@@ -10,7 +10,7 @@ const vars = {
 	ADDED_OVERLAY_ID: "addedOverlayID",
 	ATTRIBUTES: "attributes",
 	ADJUSTED_OVERLAY_ID: "adjustedOverlayID",
-	RAINFALL_OVERLAY: "rainfallOverlay",
+	WATER_OVERLAY: "rainfallOverlay",
 	HSO_OVERLAY: "hsoOverlay",
 	HSO_OVERLAY_ID: "hsoOverlayID",
 	GRID_OVERLAYS: "gridOverlays",
@@ -143,14 +143,14 @@ function attributeMap(attributeName) {
 
 function createHsoOverlay(type) {
 	addOverlay(type, "SURFACE_LAST_VALUE", attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
-	
+
 	addRainfallChildren();
 }
 
 function requestHsoOverlayType() {
 
 	appendFeedback("Select which type of Water Overlay to add:");
-	
+
 	const selectionParent = document.createElement("div");
 
 	const typeOption = document.createElement('select');
@@ -165,32 +165,33 @@ function requestHsoOverlayType() {
 	addButton.type = 'button';
 	addButton.value = 'Add';
 	addButton.disabled = true;
-	
+
 	selectionParent.appendChild(typeOption);
 	selectionParent.appendChild(addButton);
 
 	appendFeedbackLine(selectionParent);
-	
+
 	attachHandler(selectionParent, 'change', 'select', () => addButton.disabled = (typeOption.value == ''));
 	attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
 		addButton.disabled = true;
 		typeOption.disabled = true;
-		createHsoOverlay(typeOption.value);});
+		createHsoOverlay(typeOption.value);
+	});
 
 }
 
-function selectWaterOverlay(){
+function selectWaterOverlay() {
 
 	appendFeedback("Select which Water Overlay should be setup for the dashboard:");
-	
-	adjustOverlay(installer[vars.RAINFALL_OVERLAY], null, attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
-	
+
+	adjustOverlay(installer[vars.WATER_OVERLAY], null, attributeMap(HSO_OVERLAY_ATTRIBUTE), vars.HSO_OVERLAY_ID);
+
 	addRainfallChildren();
 }
 
 function setupHsoOverlay() {
 
-	if (installer[vars.RAINFALL_OVERLAY] == null) {
+	if (installer[vars.WATER_OVERLAY] == null) {
 
 		requestHsoOverlayType();
 
@@ -267,21 +268,34 @@ function getOverlays() {
 	);
 }
 
-function appendFeedbackLine(element){
-	element.classList.add("feedback-line");		
+function appendFeedbackLine(element) {
+	element.classList.add("feedback-line");
 	document.getElementById("feedback").appendChild(element);
 }
 
 function appendFeedback(feedback) {
 	let feedbackLine = document.createElement("div");
 	feedbackLine.innerHTML = feedback;
-	appendFeedbackLine(feedbackLine);	
+	appendFeedbackLine(feedbackLine);
 }
 
-function isWaterOverlay(overlay) {
-	return isOverlayOf(overlay, GROUNDWATER_OVERLAY_TYPE, null, null, null) ||
-		isOverlayOf(overlay, RAINFALL_OVERLAY_TYPE, null, null, null) ||
-		isOverlayOf(overlay, FLOODING_OVERLAY_TYPE, null, null, null);
+function isWaterOverlay(overlay, attributeMap) {
+	return isOverlayOf(overlay, GROUNDWATER_OVERLAY_TYPE, null, null, attributeMap) ||
+		isOverlayOf(overlay, RAINFALL_OVERLAY_TYPE, null, null, attributeMap) ||
+		isOverlayOf(overlay, FLOODING_OVERLAY_TYPE, null, null, attributeMap);
+}
+
+function getWaterOverlays(hsoAttribute) {
+	let waterOverlays = [];
+	let gridOverlays = installer[vars.GRID_OVERLAYS];
+	let attributes = hsoAttribute ? attributeMap(HSO_OVERLAY_ATTRIBUTE) : null;
+	for (let i = 0; i < gridOverlays.length; i++) {
+		let overlay = gridOverlays[i];
+		if (isWaterOverlay(overlay, attributes)) {
+			waterOverlays.push(overlay);
+		}
+	}
+	return waterOverlays;
 }
 
 function removeHSOAttributeFromNonWaterOverlays() {
@@ -311,25 +325,15 @@ function removeHSOAttributeFromNonWaterOverlays() {
 }
 
 function refreshOverlayVars() {
-
-	let gridOverlays = installer[vars.GRID_OVERLAYS];
-	app.info("GridOverlays: " + gridOverlays);
-
-	installer[vars.HSO_OVERLAY] = getGridOverlay(gridOverlays, RAINFALL_OVERLAY_TYPE, null, null, attributeMap(HSO_OVERLAY_ATTRIBUTE));
-	installer[vars.RAINFALL_OVERLAY] = getGridOverlay(gridOverlays, RAINFALL_OVERLAY_TYPE, null, null);
-
-	if (installer[vars.HSO_OVERLAY] != null) {
-
-		app.info("HSO Overlay: " + installer[vars.HSO_OVERLAY]);
-		installer[vars.HSO_OVERLAY_ID] = installer[vars.HSO_OVERLAY].id;
-
-	} else if (installer[vars.RAINFALL_OVERLAY] != null) {
-
-		app.info("RainfallOverlay: " + installer[vars.RAINFALL_OVERLAY]);
-
-	} else {
-
-		app.info("No Rainfall Overlay present in project.");
+	
+	let hsoWaterOverlays = getWaterOverlays(true);
+	if (hsoWaterOverlays.length == 1) {
+		installer[vars.HSO_OVERLAY] = hsoWaterOverlays[0];
+		installer[vars.HSO_OVERLAY_ID] =  hsoWaterOverlays[0].id;
+	}
+	let waterOverlays = getWaterOverlays(false);
+	if (waterOverlays.length == 1) {
+		installer[vars.WATER_OVERLAY] = waterOverlays[0];
 	}
 }
 
