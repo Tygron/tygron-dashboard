@@ -290,9 +290,12 @@ function addRainfallChildren() {
 			let overlays = installer[vars.OVERLAYS];
 			let overlay = getOverlay(overlays, overlayID);
 			for (let resultType of resultTypes) {
+				
 				let resultOverlay = getGridOverlay(overlays, "RESULT_CHILD", resultType, overlayID, null);
+				
 				if (resultOverlay == null && getResultType(overlay) != resultType) {
 					addResultChildOverlay(overlay, resultType);
+				
 				} else {
 					appendFeedback("Result child found: " + resultType);
 				}
