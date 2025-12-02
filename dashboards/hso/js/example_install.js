@@ -5,7 +5,7 @@ const HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
 const RAINFALL_OVERLAY_TYPE = "RAINFALL";
 const GROUNDWATER_OVERLAY_TYPE = "GROUNDWATER";
 const FLOODING_OVERLAY_TYPE = "FLOODING";
-let overlayVersion = 0;
+
 const vars = {
 	ADDED_OVERLAY_ID: "addedOverlayID",
 	ATTRIBUTES: "attributes",
