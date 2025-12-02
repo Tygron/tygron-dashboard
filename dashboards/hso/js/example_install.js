@@ -35,15 +35,15 @@ const installer = {
 };
 
 function appendChains(...functions) {
-	
+
 	let next = installer.chain;
-	
+
 	for (func of functions) {
 		if (typeof func === 'function') {
 			next = next.then(installer.connector.chain(func));
 		}
 	}
-	
+
 	installer.chain = next;
 }
 
@@ -107,7 +107,7 @@ function addNewOverlay(type, idVar) {
 }
 
 function setRequiredOverlayAttribute(attributes, idVar) {
-	
+
 	appendChains(
 		_data => {
 			let overlayID = installer[idVar];
@@ -232,7 +232,7 @@ function requestNewHsoOverlayType() {
 	attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
 		addButton.disabled = true;
 		typeOption.disabled = true;
-				
+
 		addOverlay(typeOption.value, "SURFACE_LAST_VALUE", HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
 
 		resolveHsoOverlay();
@@ -291,12 +291,12 @@ function addRainfallChildren() {
 			let overlays = installer[vars.OVERLAYS];
 			let overlay = getOverlay(overlays, overlayID);
 			for (let resultType of resultTypes) {
-				
+
 				let resultOverlay = getGridOverlay(overlays, "RESULT_CHILD", resultType, overlayID, null);
-				
+
 				if (resultOverlay == null && getResultType(overlay) != resultType) {
 					addResultChildOverlay(overlay, resultType);
-				
+
 				} else {
 					appendFeedback("Result child found: " + resultType);
 				}
