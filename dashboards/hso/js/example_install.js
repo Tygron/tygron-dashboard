@@ -22,23 +22,20 @@ const installer = {
 
 };
 
-function appendChains(functions) {
-	if (Array.isArray(functions)) {
-		let next = installer.chain;
-		for (let i = 0; i < functions.length; i++) {
-			if (typeof functions[i] === 'function') {
-				next = next.then(installer.connector.chain(functions[i]));
-			}
+function appendChains(...functions) {
+	let next = installer.chain;
+	for (func of functions) {
+		if (typeof func === 'function') {
+			next = next.then(installer.connector.chain(func));
 		}
-		installer.chain = next;
-	} else if (typeof functions === 'function') {
-		installer.chain = installer.chain.then((installer.connector.chain(functions)));
 	}
+	installer.chain = next;
+
 }
 
 function addNewOverlay(type, idVar) {
 
-	appendChains([
+	appendChains(
 		installer.connector.post("event/editoroverlay/add", null, [type]),
 
 		overlayID => {
@@ -47,11 +44,11 @@ function addNewOverlay(type, idVar) {
 			}
 			installer[idVar] = overlayID;
 		}
-	]);
+	);
 }
 
 function setRequiredOverlayAttribute(attributes, idVar) {
-	appendChains([
+	appendChains(
 		_data => {
 			let overlayID = installer[idVar];
 			let keys = [];
@@ -78,19 +75,19 @@ function setRequiredOverlayAttribute(attributes, idVar) {
 			}
 
 		)
-	]);
+	);
 }
 
 function setResultType(resultType, idVar) {
 
-	appendChains([
+	appendChains(
 		(_data) => appendFeedback("Setting RainOverlay resultType to " + resultType),
 
 		installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
 			params.push(installer[idVar]);
 			params.push(resultType);
 		})
-	]);
+	);
 }
 
 function addOverlay(type, resultType, attributes, resultIDVar) {
@@ -126,7 +123,7 @@ function adjustOverlay(overlay, resultType, attributes, resultIDVar) {
 
 function addResultChildOverlay(overlay, resultType) {
 
-	appendChains([
+	appendChains(
 
 		(_data) => appendFeedback("Adding result child overlay of " + resultType + " to Overlay " + overlay.name),
 
@@ -135,7 +132,7 @@ function addResultChildOverlay(overlay, resultType) {
 			params.push(overlay.id);
 			params.push(resultType);
 		})
-	]);
+	);
 }
 
 function attributeMap(attributeName) {
@@ -203,7 +200,7 @@ function addRainfallChildren() {
 
 function getOverlays() {
 
-	appendChains([
+	appendChains(
 
 		installer.connector.get("items/overlays?", {
 			token: app.token(),
@@ -221,7 +218,7 @@ function getOverlays() {
 			installer[vars.OVERLAYS] = overlays;
 			installer[vars.GRID_OVERLAYS] = getGridOverlays(overlays);
 		}
-	]);
+	);
 }
 
 function appendFeedback(feedback) {
@@ -239,8 +236,8 @@ function isWaterOverlay(overlay) {
 }
 
 function removeHSOAttributeFromNonWaterOverlays() {
-	
-	appendChains([
+
+	appendChains(
 		() => {
 			let hsoAttributeMap = attributeMap(HSO_OVERLAY_ATTRIBUTE);
 			let gridOverlays = installer[vars.GRID_OVERLAYS];
@@ -261,7 +258,7 @@ function removeHSOAttributeFromNonWaterOverlays() {
 		}),
 
 		getOverlays()
-	]);
+	);
 }
 
 function validateInstall() {
