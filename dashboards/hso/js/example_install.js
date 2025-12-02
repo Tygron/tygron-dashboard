@@ -160,6 +160,7 @@ function setupHsoOverlay() {
 
 function addRainfallOverlay() {
 	appendChains(() => {
+		setFeedback("Adding new Rainfall Overlay.");
 		setupHsoOverlay();
 		addRainfallChildren();
 	});
