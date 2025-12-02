@@ -20,14 +20,6 @@ const installer = {
 };
 let installStatus = {};
 
-function newChain(lambda) {
-	if (typeof lambda === 'function') {
-		return installer.connector.chain(lambda);
-	} else {
-		return installer.connector.chain(() => { });
-	}
-}
-
 function appendChains(functions) {
 	if (Array.isArray(functions)) {
 		let next = installer.chain;
