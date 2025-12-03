@@ -1,170 +1,166 @@
 import { addStructureInfoLabel, addStructureInfoValue, addStructureTimeframeSlider } from "./structurePanel.js";
 
-function addWeirInfoElements(parent) {
+export class WeirPanel {
 
-	addStructureInfoLabel(parent, "Name:");
-	addStructureInfoValue(parent, "weirInfoName");
-
-	addStructureInfoLabel(parent, "Height:");
-	addStructureInfoValue(parent, "weirInfoHeight");
-
-	addStructureInfoLabel(parent, "Width:");
-	addStructureInfoValue(parent, "weirInfoWidth");
-
-	addStructureInfoLabel(parent, "Angle:");
-	addStructureInfoValue(parent, "weirInfoAngle");
-
-	addStructureInfoLabel(parent, "Coefficient:");
-	addStructureInfoValue(parent, "weirInfoCoefficient");
-
-	addStructureInfoLabel(parent, "N:");
-	addStructureInfoValue(parent, "weirInfoN");
-
-	addStructureInfoLabel(parent, "Flow:");
-	addStructureInfoValue(parent, "weirInfoFlow");
-
-	addStructureInfoLabel(parent, "Datum A:");
-	addStructureInfoValue(parent, "weirInfoDatumA");
-
-	addStructureInfoLabel(parent, "Datum B:");
-	addStructureInfoValue(parent, "weirInfoDatumB");
-
-	addStructureInfoLabel(parent, "Dam Height:");
-	addStructureInfoValue(parent, "weirInfoDamHeight");
-
-	addStructureInfoLabel(parent, "Dam Width:");
-	addStructureInfoValue(parent, "weirInfoDamWidth");
-
-	addStructureInfoLabel(parent, "Area id A:");
-	addStructureInfoValue(parent, "weirInfoAreaA");
-
-
-	addStructureInfoLabel(parent, "Area id B:");
-	addStructureInfoValue(parent, "weirInfoAreaB");
-
-}
-
-export function createWeirDetailPanel(parent) {
-
-	let weirDetailContainer = document.createElement("div");
-	parent.appendChild(weirDetailContainer);
-
-	let weirInfoRow = document.createElement("div");
-	weirInfoRow.className = "water-structure-info-row-spread";
-
-	weirDetailContainer.appendChild(weirInfoRow);
-
-	let weirInfoDiv = document.createElement("div");
-	weirInfoRow.appendChild(weirInfoDiv);
-
-	let weirInfoTitle = document.createElement("h2");
-	weirInfoTitle.id = "weirInfoTitle";
-	weirDetailContainer.appendChild(weirInfoTitle);
-
-	let weirInfoColumn = document.createElement("div");
-	weirInfoColumn.id = "weirInfo";
-	weirInfoColumn.className = "water-structure-info-grid";
-	
-	weirInfoDiv.appendChild(weirInfoColumn);
-
-	addWeirInfoElements(weirInfoColumn);
-
-	let weirCanvasColumn = document.createElement("div");
-	weirCanvasColumn.className = "water-structure-info-column";
-	weirInfoRow.appendChild(weirCanvasColumn);
-
-	let weirFrontCanvasDiv = document.createElement("div");
-	weirFrontCanvasDiv.id = "weirFrontCanvasDiv";
-	weirCanvasColumn.appendChild(weirFrontCanvasDiv);
-
-	let weirSideCanvasDiv = document.createElement("div");
-	weirSideCanvasDiv.id = "weirSideCanvasDiv";
-	weirCanvasColumn.appendChild(weirSideCanvasDiv);
-
-	let weirFrontCanvasTitle = document.createElement("h2");
-	weirFrontCanvasTitle.innerHTML = "Front View:";
-	weirFrontCanvasDiv.appendChild(weirFrontCanvasTitle);
-
-	let weirSideCanvasTitle = document.createElement("h2");
-	weirSideCanvasTitle.innerHTML = "Side View:";
-	weirSideCanvasDiv.appendChild(weirSideCanvasTitle);
-
-	let weirFrontCanvas = document.createElement("canvas");
-	weirFrontCanvas.id = "weirFrontCanvas";
-	weirFrontCanvas.width = 300;
-	weirFrontCanvas.height = 100;
-	weirFrontCanvasDiv.appendChild(weirFrontCanvas);
-
-	let weirSideCanvas = document.createElement("canvas");
-	weirSideCanvas.id = "weirSideCanvas";
-	weirSideCanvas.width = 300;
-	weirSideCanvas.height = 150;
-	weirSideCanvasDiv.appendChild(weirSideCanvas);
-
-	let weirSliderContainer = document.createElement("div");
-	parent.appendChild(weirSliderContainer);
-
-	addStructureTimeframeSlider(weirSliderContainer, "weirSlider");
-
-	let weirPlotsContainer = document.createElement("div");
-	let weirPlotRow = document.createElement("div");
-	weirPlotRow.className = "water-structure-info-row";
-
-	weirPlotsContainer.appendChild(weirPlotRow);
-
-	let weirFlowPlot = document.createElement("div");
-	weirFlowPlot.id = "weirFlowPlot";
-	weirPlotRow.appendChild(weirFlowPlot);
-
-	let weirHeightPlot = document.createElement("div");
-	weirHeightPlot.id = "weirHeightPlot";
-	weirPlotRow.appendChild(weirHeightPlot);
-
-}
-
-export function getDummyWeir() {
-	return {
-		name: "-",
-		height: [-10000.0],
-		width: 0,
-		flow: [0.0],
-		datumA: [-10000.0],
-		datumB: [-10000.0],
-		damWidth: 0,
-		damHeight: -1,
-		areaOutputA: -1,
-		areaOutputB: -1,
-		angle: -10000,
-		coefficient: 1.1,
-		weirN: 3 / 2,
-	};
-}
-
-export function updateWeirDetailInfoPanel(weir, weirTimeframe) {
-
-	if (weir == null) {
-		weir = getDummyWeir();
+	static getDummyWeir() {
+		return {
+			name: "-",
+			height: [-10000.0],
+			width: 0,
+			flow: [0.0],
+			datumA: [-10000.0],
+			datumB: [-10000.0],
+			damWidth: 0,
+			damHeight: -1,
+			areaOutputA: -1,
+			areaOutputB: -1,
+			angle: -10000,
+			coefficient: 1.1,
+			weirN: 3 / 2,
+		};
 	}
 
-	document.getElementById("weirInfoName").innerHTML = weir.name;
+	_addWeirInfoElements(parent) {
 
-	document.getElementById("weirInfoHeight").innerHTML = weir.heights[weirTimeframe] + " m";
+		addStructureInfoLabel(parent, "Name:");
+		this.weirInfoName = addStructureInfoValue(parent, "weirInfoName");
 
-	document.getElementById("weirInfoWidth").innerHTML = weir.width + " m";
+		addStructureInfoLabel(parent, "Height:");
+		this.weirInfoHeight = addStructureInfoValue(parent, "weirInfoHeight");
 
-	document.getElementById("weirInfoFlow").innerHTML = weir.flows[weirTimeframe] + " m³/s";
+		addStructureInfoLabel(parent, "Width:");
+		this.weirInfoWidth = addStructureInfoValue(parent, "weirInfoWidth");
 
-	document.getElementById("weirInfoDatumA").innerHTML = weir.datumsA[weirTimeframe] + " m";
+		addStructureInfoLabel(parent, "Angle:");
+		this.weirInfoAngle = addStructureInfoValue(parent, "weirInfoAngle");
 
-	document.getElementById("weirInfoDatumB").innerHTML = weir.datumsB[weirTimeframe] + " m";
+		addStructureInfoLabel(parent, "Coefficient:");
+		this.weirInfoCoefficient = addStructureInfoValue(parent, "weirInfoCoefficient");
 
-	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight + " m";
-	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth + " m";
-	document.getElementById("weirInfoAreaA").innerHTML = weir.areaOutputA;
-	document.getElementById("weirInfoAreaB").innerHTML = weir.areaOutputB;
-	document.getElementById("weirInfoAngle").innerHTML = weir.angle > -10000 ? weir.angle + " &deg;" : "-";
+		addStructureInfoLabel(parent, "N:");
+		this.weirInfoN = addStructureInfoValue(parent, "weirInfoN");
 
-	document.getElementById("weirInfoCoefficient").innerHTML = weir.coefficient;
-	document.getElementById("weirInfoN").innerHTML = weir.weirN;
+		addStructureInfoLabel(parent, "Flow:");
+		this.weirInfoFlow = addStructureInfoValue(parent, "weirInfoFlow");
 
+		addStructureInfoLabel(parent, "Datum A:");
+		this.weirInfoDatumA = addStructureInfoValue(parent, "weirInfoDatumA");
+
+		addStructureInfoLabel(parent, "Datum B:");
+		this.weirInfoDatumB = addStructureInfoValue(parent, "weirInfoDatumB");
+
+		addStructureInfoLabel(parent, "Dam Height:");
+		this.weirInfoDamHeight = addStructureInfoValue(parent, "weirInfoDamHeight");
+
+		addStructureInfoLabel(parent, "Dam Width:");
+		this.weirInfoDamWidth = addStructureInfoValue(parent, "weirInfoDamWidth");
+
+		addStructureInfoLabel(parent, "Area id A:");
+		this.weirInfoAreaA = addStructureInfoValue(parent, "weirInfoAreaA");
+
+		addStructureInfoLabel(parent, "Area id B:");
+		this.weirInfoAreaB = addStructureInfoValue(parent, "weirInfoAreaB");
+
+	}
+
+	constructor(parent) {
+
+		this.weirDetailContainer = document.createElement("div");
+		parent.appendChild(this.weirDetailContainer);
+
+		this.weirInfoRow = document.createElement("div");
+		this.weirInfoRow.className = "water-structure-info-row-spread";
+
+		this.weirDetailContainer.appendChild(this.weirInfoRow);
+
+		this.weirInfoDiv = document.createElement("div");
+		this.weirInfoRow.appendChild(this.weirInfoDiv);
+
+		this.weirInfoTitle = document.createElement("h2");
+		this.weirDetailContainer.appendChild(this.weirInfoTitle);
+
+		this.weirInfoColumn = document.createElement("div");
+		this.weirInfoColumn.className = "water-structure-info-grid";
+
+		this.weirInfoDiv.appendChild(this.weirInfoColumn);
+
+		this._addWeirInfoElements(this.weirInfoColumn);
+
+		this.weirCanvasColumn = document.createElement("div");
+		this.weirCanvasColumn.className = "water-structure-info-column";
+		this.weirInfoRow.appendChild(this.weirCanvasColumn);
+
+		this.weirFrontCanvasDiv = document.createElement("div");
+		this.weirCanvasColumn.appendChild(this.weirFrontCanvasDiv);
+
+		this.weirSideCanvasDiv = document.createElement("div");
+		this.weirCanvasColumn.appendChild(this.weirSideCanvasDiv);
+
+		this.weirFrontCanvasTitle = document.createElement("h2");
+		this.weirFrontCanvasTitle.innerHTML = "Front View:";
+		this.weirFrontCanvasDiv.appendChild(this.weirFrontCanvasTitle);
+
+		this.weirSideCanvasTitle = document.createElement("h2");
+		this.weirSideCanvasTitle.innerHTML = "Side View:";
+		this.weirSideCanvasDiv.appendChild(this.weirSideCanvasTitle);
+
+		this.weirFrontCanvas = document.createElement("canvas");
+		this.weirFrontCanvas.width = 300;
+		this.weirFrontCanvas.height = 100;
+		this.weirFrontCanvasDiv.appendChild(this.weirFrontCanvas);
+
+		this.weirSideCanvas = document.createElement("canvas");
+		this.weirSideCanvas.width = 300;
+		this.weirSideCanvas.height = 150;
+		this.weirSideCanvasDiv.appendChild(this.weirSideCanvas);
+
+		this.weirSliderContainer = document.createElement("div");
+		parent.appendChild(this.weirSliderContainer);
+
+		this.timeframeSlider = addStructureTimeframeSlider(this.weirSliderContainer, "weirSlider");
+
+		this.weirPlotsContainer = document.createElement("div");
+		this.weirPlotRow = document.createElement("div");
+		this.weirPlotRow.className = "water-structure-info-row";
+
+		this.weirPlotsContainer.appendChild(this.weirPlotRow);
+
+		this.weirFlowPlot = document.createElement("div");
+		this.weirFlowPlot.id = "weirFlowPlot";
+		this.weirPlotRow.appendChild(this.weirFlowPlot);
+
+		this.weirHeightPlot = document.createElement("div");
+		this.weirHeightPlot.id = "weirHeightPlot";
+		this.weirPlotRow.appendChild(this.weirHeightPlot);
+
+	}
+
+	updateWeirDetailInfoPanel(weir, weirTimeframe) {
+
+		if (weir == null) {
+			weir = getDummyWeir();
+		}
+
+		this.weirInfoName.innerHTML = weir.name;
+
+		this.weirInfoHeight.innerHTML = weir.heights[weirTimeframe] + " m";
+
+		this.weirInfoWidth.innerHTML = weir.width + " m";
+
+		this.weirInfoFlow.innerHTML = weir.flows[weirTimeframe] + " m³/s";
+
+		this.weirInfoDatumA.innerHTML = weir.datumsA[weirTimeframe] + " m";
+
+		this.weirInfoDatumB.innerHTML = weir.datumsB[weirTimeframe] + " m";
+
+		this.weirInfoDamHeight.innerHTML = weir.damHeight + " m";
+		this.weirInfoDamWidth.innerHTML = weir.damWidth + " m";
+		this.weirInfoAreaA.innerHTML = weir.areaOutputA;
+		this.weirInfoAreaB.innerHTML = weir.areaOutputB;
+		this.weirInfoAngle.innerHTML = weir.angle > -10000 ? weir.angle + " &deg;" : "-";
+
+		this.weirInfoCoefficient.innerHTML = weir.coefficient;
+		this.weirInfoN.innerHTML = weir.weirN;
+
+	}
 }
