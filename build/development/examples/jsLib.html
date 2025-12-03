@@ -2173,6 +2173,7 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput) {
 	};
 }
 
+
 function getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight) {
 	let minCulvertDatum = Array.isArray(culvertDatums) ? Math.min.apply(Math, culvertDatums) : culvertDatums;
 	let minDatumLeft = Array.isArray(datumsLeft) ? Math.min.apply(Math, datumsLeft) : datumsLeft;
@@ -2192,6 +2193,8 @@ function getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeigh
 	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxCulvertDatum + culvertHeight);
 	return maxDatum;
 }
+
+
 
 function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
@@ -2220,11 +2223,11 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
 	}
-
+	
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
-
-
+	
+	
 	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight,culvertHeight);
 
@@ -2239,6 +2242,11 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 	
 
 	//TODO: @Artist Please add draw functions
+	let waterHeight = 50;
+	let waterWidth = canvas.width / 8;
+	ctx.fillStyle = getWaterGradient(ctx, waterHeight);
+	ctx.fillRect(0, waterHeight, waterWidth, canvas.height);
+	
 }
 
 
