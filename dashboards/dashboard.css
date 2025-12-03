@@ -257,3 +257,27 @@ html, body {
 	content: var(--text-value);
 	font: var(--value-font);
 }
+
+.water-structure-info-row,
+.water-structure-info-row-spread{
+	display:flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+}
+
+.water-structure-info-row-spread{
+	justify-content: space-between;
+}
+
+.water-structure-info-column{
+	display:flex;
+	flex-wrap: wrap;
+	flex-direction: column;
+}
+
+
+.water-structure-info-grid{
+	display: grid;
+	grid-template-columns: minmax(80px, auto) 1fr;
+	column-gap: 1em;
+}
