@@ -24,11 +24,22 @@ export function addStructureInfoValue(parent, id, innerHTML) {
 export function addStructureTimeframeSlider(parent, id) {
 	let sliderDiv = document.createElement("div");
 	sliderDiv.className = "timeframe-slider range--ticks slider-background";
-	sliderDiv.style = '--step: 1; --min: 0; --max: 1; --value: 1; --text-value: "1"; --primaryColor: red; --fill-color: unset; --value-background: unset; --value-active-color: unset;';
+
+	let style = sliderDiv.style;
+	style.setProperty('--max', 1);
+	style.setProperty('--min', 0);
+	style.setProperty('--step', 1);
+	style.setProperty('--tickEvery', 1);
+	style.setProperty('--value', 1);
+	style.setProperty('--text-value', "1");	
+
+	style.setProperty('--primaryColor', "red");
+	style.setProperty('--fill-color', "unset");
+	style.setProperty('--value-background', "unset");
+	style.setProperty('--value-active-color', "unset");
 
 	let sliderInput = document.createElement("input");
 
-	sliderDiv.appendChild(sliderInput);
 	sliderInput.id = id;
 	sliderInput.className = "timeframe-slider";
 	sliderInput.type = "range";
@@ -39,6 +50,7 @@ export function addStructureTimeframeSlider(parent, id) {
 	sliderInput.oninput = "this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))";
 
 	let sliderOutput = document.createElement("output");
+	sliderDiv.appendChild(sliderInput);
 	sliderDiv.appendChild(sliderOutput);
 
 	if (parent != null) {
