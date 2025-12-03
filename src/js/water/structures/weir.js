@@ -248,7 +248,7 @@ export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight
 
 }
 
-function getWaterGradient(ctx, startY) {
+export function getWaterGradient(ctx, startY) {
 
 	let rangeY = 100;
 	let waterGradient = ctx.createLinearGradient(0, startY, 0, startY + rangeY);

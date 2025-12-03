@@ -1,3 +1,4 @@
+import {getWaterGradient} from "./weir.js";
 
 function getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight) {
 	let minCulvertDatum = Array.isArray(culvertDatums) ? Math.min.apply(Math, culvertDatums) : culvertDatums;
@@ -18,6 +19,8 @@ function getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeigh
 	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxCulvertDatum + culvertHeight);
 	return maxDatum;
 }
+
+
 
 export function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
@@ -46,11 +49,11 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
 	}
-
+	
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
-
-
+	
+	
 	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight,culvertHeight);
 
@@ -65,4 +68,9 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 	
 
 	//TODO: @Artist Please add draw functions
+	let waterHeight = 50;
+	let waterWidth = canvas.width / 8;
+	ctx.fillStyle = getWaterGradient(ctx, waterHeight);
+	ctx.fillRect(0, waterHeight, waterWidth, canvas.height);
+	
 }
