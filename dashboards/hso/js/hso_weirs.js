@@ -228,9 +228,9 @@ function updateWeirList() {
 	}
 }
 
-const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));	
+const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));
 setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, function() {
-	weirTimeframe = weirSlider.value;
+	weirTimeframe = weirPanel.timeframeSlider.style.getPropertyValue("--value");
 	selectWeir(getSelectedWeirIndex());
 });
 
