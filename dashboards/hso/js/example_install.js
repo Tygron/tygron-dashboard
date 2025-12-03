@@ -416,11 +416,12 @@ function validateInstall() {
 
 }
 
-
+/*
 let app = {
-	token: function() { return "5facca7c3rBCIES2ChYBux6fwSIckn0X" },
+	token: function() { return "" },
 	info: function(info) { console.log(info) },
 };
+*/
 
 
 $(window).on("load", function() {
