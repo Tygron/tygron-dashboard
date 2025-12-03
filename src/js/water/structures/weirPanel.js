@@ -1,4 +1,5 @@
-import { addStructureInfoLabel, addStructureInfoValue, addStructureTimeframeSlider } from "./structurePanel.js";
+import { addStructureInfoLabel, addStructureInfoValue } from "./structurePanel.js";
+import { addTimeframeSlider } from "../../util/Timeframeslider.js";
 
 export class WeirPanel {
 
@@ -68,6 +69,9 @@ export class WeirPanel {
 		this.weirDetailContainer = document.createElement("div");
 		parent.appendChild(this.weirDetailContainer);
 
+		this.weirInfoTitle = document.createElement("h2");
+		this.weirDetailContainer.appendChild(this.weirInfoTitle);
+		
 		this.weirInfoRow = document.createElement("div");
 		this.weirInfoRow.className = "water-structure-info-row-spread";
 
@@ -76,8 +80,6 @@ export class WeirPanel {
 		this.weirInfoDiv = document.createElement("div");
 		this.weirInfoRow.appendChild(this.weirInfoDiv);
 
-		this.weirInfoTitle = document.createElement("h2");
-		this.weirDetailContainer.appendChild(this.weirInfoTitle);
 
 		this.weirInfoColumn = document.createElement("div");
 		this.weirInfoColumn.className = "water-structure-info-grid";
@@ -117,7 +119,7 @@ export class WeirPanel {
 		this.weirSliderContainer = document.createElement("div");
 		parent.appendChild(this.weirSliderContainer);
 
-		this.timeframeSlider = addStructureTimeframeSlider(this.weirSliderContainer, "weirSlider");
+		this.timeframeSlider = addTimeframeSlider(this.weirSliderContainer, "weirSlider");
 
 		this.weirPlotsContainer = document.createElement("div");
 		this.weirPlotRow = document.createElement("div");
@@ -138,7 +140,7 @@ export class WeirPanel {
 	updateWeirDetailInfoPanel(weir, weirTimeframe) {
 
 		if (weir == null) {
-			weir = getDummyWeir();
+			weir = WeirPanel.getDummyWeir();
 		}
 
 		this.weirInfoName.innerHTML = weir.name;
