@@ -19,7 +19,7 @@ function getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeigh
 	return maxDatum;
 }
 
-function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
+export function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
 	}
@@ -42,7 +42,7 @@ function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight,
 	//TODO: @Artist Please add draw functions
 }
 
-function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
+export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
 	}
