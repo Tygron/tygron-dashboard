@@ -220,7 +220,7 @@ export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
 
-	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight, damHeight);
+	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, damHeight);
 
 	let range = maxDatum - minDatum;
@@ -326,7 +326,7 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
 
-	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight, weirDamHeight);
+	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, weirDamHeight);
 
 	let range = maxDatum - minDatum;
