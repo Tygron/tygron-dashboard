@@ -1,27 +1,10 @@
 import { QueryDataManager } from "../../../src/js/util/QueryDataManager.js";
-import { drawWeirSide, drawWeirFront} from "../../../src/js/water/structures/weir.js";
+import { drawWeirSide, drawWeirFront } from "../../../src/js/water/structures/weir.js";
 import { setupTimeframeSlider } from "../../../src/js/util/Timeframeslider.js";
 import { createLayout, xyPlot } from "../../../src/js/util/Plot.js";
+import { createWeirDetailPanel, updateWeirDetailInfoPanel, getDummyWeir } from "../../../src/js/water/structures/weirPanel.js";
 
 let weirs = [];
-
-function getDummyWeir() {
-	return {
-		name: "-",
-		height: -10000,
-		width: 0,
-		flow: 0,
-		datumA: -10000,
-		datumB: -10000,
-		damWidth: 0,
-		damHeight: -1,
-		areaOutputA: -1,
-		areaOutputB: -1,
-		angle: -10000,
-		coefficient: 1.1,
-		weirN: 3/2,
-	};
-}
 
 function updateWeirDetails(weir) {
 
@@ -29,32 +12,12 @@ function updateWeirDetails(weir) {
 		weir = getDummyWeir();
 	}
 
-	document.getElementById("weirInfoName").innerHTML = weir.name;
-
-	document.getElementById("weirInfoHeight").innerHTML = weir.heights[weirTimeframe] + " m";
-
-	document.getElementById("weirInfoWidth").innerHTML = weir.width + " m";
-
-	document.getElementById("weirInfoFlow").innerHTML = weir.flows[weirTimeframe] + " m³/s";
-
-	document.getElementById("weirInfoDatumA").innerHTML = weir.datumsA[weirTimeframe] + " m";
-
-	document.getElementById("weirInfoDatumB").innerHTML = weir.datumsB[weirTimeframe] + " m";
-
-	document.getElementById("weirInfoDamHeight").innerHTML = weir.damHeight + " m";
-	document.getElementById("weirInfoDamWidth").innerHTML = weir.damWidth + " m";
-	document.getElementById("weirInfoAreaA").innerHTML = weir.areaOutputA;
-	document.getElementById("weirInfoAreaB").innerHTML = weir.areaOutputB;
-	document.getElementById("weirInfoAngle").innerHTML = weir.angle > -10000 ? weir.angle + " &deg;" : "-";
-
-	document.getElementById("weirInfoCoefficient").innerHTML = weir.coefficient;
-	document.getElementById("weirInfoN").innerHTML = weir.weirN;
-
+	updateWeirDetailInfoPanel(weir, weirTimeframe);
 
 	let sideCanvas = document.getElementById("weirSideCanvas");
 	let frontCanvas = document.getElementById("weirFrontCanvas");
-	
-	drawWeirSide(sideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB,weir.damHeight, weir.flows, weir.coefficient);
+
+	drawWeirSide(sideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
 	drawWeirFront(frontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
 
 	updateFlowPlot(weir);
@@ -81,19 +44,19 @@ function updateFlowPlot(weir) {
 	data[WEIR_FLOW_OUTPUT] = weir.flows;
 
 	let layout = createWeirPlotLayout();
-	layout.title= {
-	    text: "Flow (m³/s)"
-	  };
+	layout.title = {
+		text: "Flow (m³/s)"
+	};
 	xyPlot("weirFlowPlot", "scatter", data, properties, colors, titles, layout);
 }
 
-function createWeirPlotLayout(){
+function createWeirPlotLayout() {
 
 	layout = createLayout();
 	layout.showLegend = true;
 	layout.width = 300;
 	layout.height = 200;
-	layout.margin= {l:40, r:40, t:40, b:40};
+	layout.margin = { l: 40, r: 40, t: 40, b: 40 };
 	return layout;
 }
 
@@ -119,27 +82,27 @@ function updateHeightPlot(weir) {
 	data[WEIR_HEIGHT_OUTPUT] = weir.heights;
 	data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
 	data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
-	
+
 	let layout = createWeirPlotLayout();
-	layout.title= {
-	    text: "Height and Datum (m)"
-	  };
+	layout.title = {
+		text: "Height and Datum (m)"
+	};
 	xyPlot("weirHeightPlot", "scatter", data, properties, colors, titles, layout);
 }
 
 function selectWeir(index) {
-	let main = document.getElementById("mainTitle");
+	let weirInfoTitle = document.getElementById("weirInfoTitle");
 
 	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
 
 	if (weir == null) {
-		main.innerHTML = "-";
+		weirInfoTitle.innerHTML = "-";
 		updateWeirDetails(weir);
 		return;
 	}
 
 
-	main.innerHTML = weir.name;
+	weirInfoTitle.innerHTML = weir.name;
 	updateWeirDetails(weir);
 
 	let weirList = document.getElementById("weirList");
@@ -248,7 +211,7 @@ function fillWeirs() {
 			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
 			angle: i < angle.length ? angle[i] : -10000,
 			coefficient: i < coefficient.length && coefficient[i] > 0 ? coefficient[i] : 1.1,
-			weirN: i < weirN.length  && weirN[i] > 0 ? weirN[i] : 3/2,
+			weirN: i < weirN.length && weirN[i] > 0 ? weirN[i] : 3 / 2,
 		};
 		weirs.push(weir);
 
@@ -266,11 +229,18 @@ function updateWeirList() {
 	}
 }
 
-setupTimeframeSlider(weirSlider, weirTimeframe, timeframes, function() {
-	weirTimeframe = weirSlider.value;
-	selectWeir(getSelectedWeirIndex());
-});
 
+function initWeirPanel() {
+	let weirParent = document.getElementById("weirDetailParent");
+	createWeirDetailPanel(weirParent);
+	
+	let weirSlider = document.getElementById("weirSlider");
+	setupTimeframeSlider(weirSlider, weirTimeframe, timeframes, function() {
+		weirTimeframe = weirSlider.value;
+		selectWeir(getSelectedWeirIndex());
+	});
+}
 
+initWeirPanel();
 fillWeirs();
 updateWeirList();
