@@ -71,7 +71,7 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 	let waterHeight = 50;
 	let waterWidth = canvas.width / 4;
 	let envelopeHeight = 40;
-	let culvertGradient = ctx.createLinearGradient(0,0, 0,140);
+	let culvertGradient = ctx.createLinearGradient(0,100, 0,140);
 		culvertGradient.addColorStop(0, "#dedede");
 		culvertGradient.addColorStop(1, "#4a4a4a");
 	//left water body
@@ -83,6 +83,8 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 	//Draw culvert envelope
 	ctx.fillStyle = "brown";
 	ctx.fillRect(waterWidth, envelopeHeight, canvas.width / 2.4, canvas.height);
+	ctx.strokeRect(waterWidth, envelopeHeight, canvas.width / 2.4, canvas.height);
+	ctx.stroke();
 	//draw left culvert shape
 	ctx.beginPath();
 	ctx.moveTo(40,100);
