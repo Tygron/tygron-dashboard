@@ -2586,6 +2586,80 @@ function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight,
 	//TODO: @Artist Please add draw functions
 }
 
+function leftWaterBody(ctx, waterHeight, waterWidth){
+		ctx.fillStyle = getWaterGradient(ctx, waterHeight);
+		ctx.fillRect(0, waterHeight, waterWidth, ctx.canvas.height);
+}
+
+function rightWaterBody(ctx, waterHeight, waterWidth){
+		ctx.fillStyle = getWaterGradient(ctx, waterHeight);
+		ctx.fillRect(200, waterHeight, waterWidth, ctx.canvas.height);
+}
+
+function drawEnvelope(ctx, envelopeGradient, waterWidth, envelopeHeight){
+		ctx.fillStyle = envelopeGradient;
+		ctx.fillRect(waterWidth, envelopeHeight, ctx.canvas.width / 2.4, ctx.canvas.height);
+		ctx.strokeRect(waterWidth, envelopeHeight, ctx.canvas.width / 2.4, ctx.canvas.height);
+		ctx.stroke();	
+}
+
+function drawLeftCulvert(ctx, culvertGradient){
+		ctx.beginPath();
+		ctx.moveTo(40,100);
+		ctx.lineTo(140,100);
+		ctx.lineTo(130,110);
+		ctx.lineTo(140,120);
+		ctx.lineTo(130,130);
+		ctx.lineTo(140,140);
+		ctx.lineTo(40,140);
+		ctx.lineTo(40,100);
+		ctx.fillStyle = culvertGradient;
+		ctx.fill();
+		ctx.strokeStyle = "black";
+		ctx.stroke();
+}
+
+function drawRightCulvert(ctx, culvertGradient){
+		ctx.beginPath();
+		ctx.moveTo(150,100);
+		ctx.lineTo(240,100);
+		ctx.lineTo(240,140);
+		ctx.lineTo(150,140);
+		ctx.lineTo(140,130);
+		ctx.lineTo(150,120);
+		ctx.lineTo(140,110);
+		ctx.lineTo(150,100);
+		ctx.fillStyle = culvertGradient;
+		ctx.fill();
+		ctx.strokeStyle = "black";
+		ctx.stroke();	
+}
+
+function drawLeftBreakLine(ctx){
+		ctx.beginPath();
+		ctx.moveTo(130,90);
+		ctx.lineTo(140,100);
+		ctx.lineTo(130,110);
+		ctx.lineTo(140,120);
+		ctx.lineTo(130,130);
+		ctx.lineTo(140,140);
+		ctx.lineTo(130,150);
+		ctx.stroke();
+}
+
+function drawRightBreakLine(ctx){
+		ctx.beginPath();
+		ctx.moveTo(140,90);
+		ctx.lineTo(150,100);
+		ctx.lineTo(140,110);
+		ctx.lineTo(150,120);
+		ctx.lineTo(140,130);
+		ctx.lineTo(150,140);
+		ctx.lineTo(140,150);
+		ctx.stroke();
+}
+
+
 function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
@@ -2608,6 +2682,7 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 	let heightMultiplier = (canvas.height - baseHeight) / range;
 	
 
+
 	//TODO: @Artist Please add draw functions
 	let waterHeight = 50;
 	let waterWidth = canvas.width / 4;
@@ -2618,65 +2693,20 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 	let envelopeGradient = ctx.createLinearGradient(0,envelopeHeight, 0,150);
 		envelopeGradient.addColorStop(0, "#b3aba1");
 		envelopeGradient.addColorStop(1, "#59493c");
-	//left water body
-	ctx.fillStyle = getWaterGradient(ctx, waterHeight);
-	ctx.fillRect(0, waterHeight, waterWidth, canvas.height);
-	//right water body
-	ctx.fillStyle = getWaterGradient(ctx, waterHeight);
-	ctx.fillRect(200, waterHeight, waterWidth, canvas.height);
-	//Draw culvert envelope
-	ctx.fillStyle = envelopeGradient;
-	ctx.fillRect(waterWidth, envelopeHeight, canvas.width / 2.4, canvas.height);
-	ctx.strokeRect(waterWidth, envelopeHeight, canvas.width / 2.4, canvas.height);
-	ctx.stroke();
-	//draw left culvert shape
-	ctx.beginPath();
-	ctx.moveTo(40,100);
-	ctx.lineTo(140,100);
-	ctx.lineTo(130,110);
-	ctx.lineTo(140,120);
-	ctx.lineTo(130,130);
-	ctx.lineTo(140,140);
-	ctx.lineTo(40,140);
-	ctx.lineTo(40,100);
-	ctx.fillStyle = culvertGradient;
-	ctx.fill();
-	ctx.strokeStyle = "black";
-	ctx.stroke();
-	//draw right culvert shape
-	ctx.beginPath();
-	ctx.moveTo(150,100);
-	ctx.lineTo(240,100);
-	ctx.lineTo(240,140);
-	ctx.lineTo(150,140);
-	ctx.lineTo(140,130);
-	ctx.lineTo(150,120);
-	ctx.lineTo(140,110);
-	ctx.lineTo(150,100);
-	ctx.fillStyle = culvertGradient;
-	ctx.fill();
-	ctx.strokeStyle = "black";
-	ctx.stroke();
-	//draw left break line
-	ctx.beginPath();
-	ctx.moveTo(130,90);
-	ctx.lineTo(140,100);
-	ctx.lineTo(130,110);
-	ctx.lineTo(140,120);
-	ctx.lineTo(130,130);
-	ctx.lineTo(140,140);
-	ctx.lineTo(130,150);
-	ctx.stroke();
-	//draw left break line
-	ctx.beginPath();
-	ctx.moveTo(140,90);
-	ctx.lineTo(150,100);
-	ctx.lineTo(140,110);
-	ctx.lineTo(150,120);
-	ctx.lineTo(140,130);
-	ctx.lineTo(150,140);
-	ctx.lineTo(140,150);
-	ctx.stroke();
+	
+	leftWaterBody(ctx, waterHeight, waterWidth);
+
+	rightWaterBody(ctx, waterHeight, waterWidth);
+		
+	drawEnvelope(ctx, envelopeGradient, waterWidth, envelopeHeight);
+		
+	drawLeftCulvert(ctx, culvertGradient);
+	
+	drawRightCulvert(ctx, culvertGradient);
+	
+	drawLeftBreakLine(ctx);
+	
+	drawRightBreakLine(ctx);
 	
 	
 }
