@@ -1,5 +1,5 @@
 import { drawWeirSide, drawWeirFront } from "../../../src/js/water/structures/weir.js";
-import { createWeirDetailPanel, updateWeirDetailInfoPanel } from "../../../src/js/water/structures/weirPanel.js";
+import { WeirPanel } from "../../../src/js/water/structures/weirPanel.js";
 
 let weirName = "My Weir 123";
 let weirHeight = 1.5;
@@ -35,7 +35,7 @@ for (let i = 0; i < coefficients.length; i++) {
 }
 
 let weirDetailParent = document.getElementById("weirDetailParent");
-createWeirDetailPanel(weirDetailParent);
+let weirDetailPanel = new WeirPanel(weirDetailParent);
 
 function updateWeir() {
 	let weir = {
@@ -53,10 +53,11 @@ function updateWeir() {
 		coefficient: coefficients[coefficientIndex],
 		weirN: weirN,
 	}
-	let sideCanvas = document.getElementById("weirSideCanvas");
-	let frontCanvas = document.getElementById("weirFrontCanvas");
+	
+	let sideCanvas = weirDetailPanel.weirSideCanvas;
+	let frontCanvas = weirDetailPanel.weirFrontCanvas;
 
-	updateWeirDetailInfoPanel(weir, 0);
+	weirDetailPanel.updateWeirDetailInfoPanel(weir, 0);
 	drawWeirSide(sideCanvas, timeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
 	drawWeirFront(frontCanvas, timeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.weirN);
 }
