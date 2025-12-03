@@ -2,7 +2,7 @@ import { QueryDataManager } from "../../../src/js/util/QueryDataManager.js";
 import { drawWeirSide, drawWeirFront } from "../../../src/js/water/structures/weir.js";
 import { setupTimeframeSlider } from "../../../src/js/util/Timeframeslider.js";
 import { createLayout, xyPlot } from "../../../src/js/util/Plot.js";
-import { createWeirDetailPanel, updateWeirDetailInfoPanel, getDummyWeir } from "../../../src/js/water/structures/weirPanel.js";
+import { WeirPanel } from "../../../src/js/water/structures/weirPanel.js";
 
 let weirs = [];
 
@@ -12,13 +12,12 @@ function updateWeirDetails(weir) {
 		weir = getDummyWeir();
 	}
 
-	updateWeirDetailInfoPanel(weir, weirTimeframe);
+	weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
 
-	let sideCanvas = document.getElementById("weirSideCanvas");
-	let frontCanvas = document.getElementById("weirFrontCanvas");
 
-	drawWeirSide(sideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
-	drawWeirFront(frontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
+
+	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
+	drawWeirFront(weirPanel.weirFrontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
 
 	updateFlowPlot(weir);
 
@@ -47,7 +46,7 @@ function updateFlowPlot(weir) {
 	layout.title = {
 		text: "Flow (m³/s)"
 	};
-	xyPlot("weirFlowPlot", "scatter", data, properties, colors, titles, layout);
+	xyPlot(weirPanel.weirFlowPlot, "scatter", data, properties, colors, titles, layout);
 }
 
 function createWeirPlotLayout() {
@@ -87,11 +86,11 @@ function updateHeightPlot(weir) {
 	layout.title = {
 		text: "Height and Datum (m)"
 	};
-	xyPlot("weirHeightPlot", "scatter", data, properties, colors, titles, layout);
+	xyPlot(weirPanel.weirHeightPlot, "scatter", data, properties, colors, titles, layout);
 }
 
 function selectWeir(index) {
-	let weirInfoTitle = document.getElementById("weirInfoTitle");
+	let weirInfoTitle = weirPanel.weirInfoTitle;
 
 	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
 
@@ -229,18 +228,11 @@ function updateWeirList() {
 	}
 }
 
+const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));	
+setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, function() {
+	weirTimeframe = weirSlider.value;
+	selectWeir(getSelectedWeirIndex());
+});
 
-function initWeirPanel() {
-	let weirParent = document.getElementById("weirDetailParent");
-	createWeirDetailPanel(weirParent);
-	
-	let weirSlider = document.getElementById("weirSlider");
-	setupTimeframeSlider(weirSlider, weirTimeframe, timeframes, function() {
-		weirTimeframe = weirSlider.value;
-		selectWeir(getSelectedWeirIndex());
-	});
-}
-
-initWeirPanel();
 fillWeirs();
 updateWeirList();
