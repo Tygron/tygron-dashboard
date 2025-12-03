@@ -100,6 +100,8 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 	ctx.lineTo(40,100);
 	ctx.fillStyle = culvertGradient;
 	ctx.fill();
+	ctx.strokeStyle = "black";
+	ctx.stroke();
 	//draw right culvert shape
 	ctx.beginPath();
 	ctx.moveTo(150,100);
@@ -112,6 +114,8 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 	ctx.lineTo(150,100);
 	ctx.fillStyle = culvertGradient;
 	ctx.fill();
+	ctx.strokeStyle = "black";
+	ctx.stroke();
 	//draw left break line
 	ctx.beginPath();
 	ctx.moveTo(130,90);
