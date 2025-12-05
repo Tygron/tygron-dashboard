@@ -82,3 +82,14 @@ Here will be placed the documentation on the HSO Dashboard:
 
 
 # How to use the HSO?
+By installing the HSO, a Water Overlay is created. During installation, you can choose to create a **Groundwater**, **Rainfall**, or **Flooding** overlay. Several child overlays and combo overlays are generated as well. These overlays make it possible to build and visualize the Hydrological System Overview.
+
+## Water level areas
+The HSO is linked to a water level area. All information and insights shown in the HSO apply only to this selected area.
+
+## HSO interface
+After installing the HSO, several tabs become available.
+
+### Hydrological System Overview
+This tab provides an overview of all hydrological processes taking place. For example, it shows how much water is present after the first simulation timestep.
+
