@@ -3,18 +3,22 @@
   	HSO Installation Flow Chart
     <pre class="mermaid">
             graph TD
+            Welcome[This is the installer for the HSO Overlay. Do you want to install this dashboard?]
+            Welcome-->|no|Stop
+            Welcome-->|yes|H0
             H0[Remove HSO Attribute from Overlays that are not Water Overlays]-->H
             H[HSO Overlay Present?]-->|0|A[Water Overlay Present?]
-            H-->|1|D 
+            H-->|1|ResultChildren
            	H-->|>1|C[Select one and remove attribute from others]     
             A-->|0|A0[Select what kind of Water Overlay to add]
             A-->|1|A1[Add HSO Attribute to Water Overlay]
             A-->|>1|A2[Select Water Overlay to add HSO Attribute to]
-            C-->D[Check Result Children: <br>Is Present in me or as child?]
-           	A0-->D
-            A1-->D
-            A2-->D
-            D-->W[Check Water Areas]
+            C-->ResultChildren[Check Result Children: <br>Is Present in me or as child?]
+           	A0-->ResultChildren
+            A1-->ResultChildren
+            A2-->ResultChildren
+            ResultChildren-->Combos[Add combo's that calculate values based on base type result child]
+            Combos-->W[Check Water Areas]
             W-->|0|W0[Check possible Keys]
             W0-->|No keys|WLC[Add complete area with water level using current overlay key]
             WLC-->T
