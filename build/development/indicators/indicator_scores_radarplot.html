@@ -1624,15 +1624,15 @@ function isOverlayOf(overlay, type, resultType, resultParentID, requiredAttribut
 		return false;
 	}
 
-	if (resultParentID != null && resultParentID != getResultParentID(overlay)) {
+	if (resultParentID != null && (resultParentID != getResultParentID(overlay) && overlay.id != resultParentID)) {
 		return false;
 	}
 
 	if (requiredAttributes != null) {
-		
+
 		for (const key of requiredAttributes.keys()) {
-			
-			if(overlay.attributes == null){
+
+			if (overlay.attributes == null) {
 				return false;
 			}
 
@@ -1677,7 +1677,7 @@ function getGridOverlays(overlays, type, resultType, resultParentID, requiredAtt
 
 	for (let i = 0; i < overlays.length; i++) {
 		let overlay = overlays[i];
-		if (isGridOverlay(overlay)&& isOverlayOf(overlay,type,resultType, resultParentID, requiredAttributes)) {
+		if (isGridOverlay(overlay) && isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes)) {
 			gridOverlays.push(overlay);
 		}
 	}
