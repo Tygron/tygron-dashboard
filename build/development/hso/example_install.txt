@@ -3212,6 +3212,7 @@ class WeirPanel {
 
 
 
+
 const HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
 const RAINFALL_OVERLAY_TYPE = "RAINFALL";
 const GROUNDWATER_OVERLAY_TYPE = "GROUNDWATER";
@@ -3273,7 +3274,7 @@ function addOverlay(type, resultType, attributes, resultIDVar) {
 	appendChains(_data => installer[resultIDVar] = installer[vars.ADDED_OVERLAY_ID]);
 }
 
-function adjustOverlay(overlay, resultType, attributes, resultIDVar) {
+function setOverlayTypeAndAttributes(overlay, resultType, attributes, resultIDVar) {
 
 	installer[vars.ADJUSTED_OVERLAY_ID] = overlay.id;
 
@@ -3414,7 +3415,36 @@ function setHsoOverlay(overlays, selectedOverlayID) {
 		})
 	);
 
-	resolveHsoOverlay();
+	setupHsoResultChildren();
+}
+
+function requestInstallation() {
+	appendFeedback("Are you sure you want to run the installation?");
+
+	const selectParent = document.createElement("div");
+	const yesButton = document.createElement("input");
+	yesButton.type = 'button';
+	yesButton.value = 'Yes';
+	const noButton = document.createElement("input");
+	noButton.type = 'button';
+	noButton.value = 'No';
+
+	yesButton.onclick=() => {
+		yesButton.disabled = true;
+		noButton.disabled = true;
+		noButton.style.display = 'none';
+		runInstallation();
+	};
+	noButton.onclick=() => {
+		yesButton.disabled = true;
+		noButton.disabled = true;
+		yesButton.style.display = 'none';
+		appendFeedback("Installation cancelled!");
+	};
+
+	selectParent.appendChild(yesButton);
+	selectParent.appendChild(noButton);
+	appendFeedbackLine(selectParent);
 }
 
 function requestNewHsoOverlayType() {
@@ -3446,23 +3476,25 @@ function requestNewHsoOverlayType() {
 
 		addOverlay(typeOption.value, "SURFACE_LAST_VALUE", HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
 
-		resolveHsoOverlay();
+		setupHsoResultChildren();
 	});
 
 }
 
 function setWaterOverlayAsHso(overlay) {
 
-	adjustOverlay(overlay, null, HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
+	setOverlayTypeAndAttributes(overlay, null, HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
 
-	resolveHsoOverlay();
+	setupHsoResultChildren();
 }
 
-function resolveHsoOverlay() {
+function setupMainHsoOverlay() {
 
-	refreshOverlays(() => {
+	updateOverlays(() => {
+
 		if (installer[vars.HSO_OVERLAY] != null) {
-			return addRainfallChildren();
+			appendFeedback("HSO Overlay: "+installer[vars.HSO_OVERLAY].name+"." );
+			return setupHsoResultChildren();
 		}
 
 		if (installer[vars.WATER_OVERLAY] != null) {
@@ -3481,7 +3513,7 @@ function resolveHsoOverlay() {
 
 }
 
-function addRainfallChildren() {
+function setupHsoResultChildren() {
 	let resultTypes = [
 		'SURFACE_LAST_VALUE',
 		'BUILDING_LAST_STORAGE',
@@ -3494,30 +3526,32 @@ function addRainfallChildren() {
 		'BASE_TYPES',
 		'GROUND_LAST_UNSATURATED_STORAGE'];
 
-	refreshOverlays(
+	updateOverlays(
 
 		() => {
 
 			let overlayID = installer[vars.HSO_OVERLAY_ID];
 			let overlays = installer[vars.OVERLAYS];
 			let overlay = getOverlay(overlays, overlayID);
+			let allPresent = true;
 			for (let resultType of resultTypes) {
 
 				let resultOverlay = getGridOverlay(overlays, "RESULT_CHILD", resultType, overlayID, null);
 
 				if (resultOverlay == null && getResultType(overlay) != resultType) {
 					addResultChildOverlay(overlay, resultType);
-
-				} else {
-					appendFeedback("Result child found: " + resultType);
+					allPresent= false;
 				}
+			}
+			if(allPresent){
+				appendFeedback("Result children: All setup");
 			}
 		}
 	);
 
 }
 
-function refreshOverlays(actionAfterRefresh) {
+function updateOverlays(actionAfterRefresh) {
 
 	appendChains(
 
@@ -3610,18 +3644,18 @@ function removeHSOAttributeFromNonWaterOverlays() {
 	);
 }
 
-function validateInstall() {
+function runInstallation() {
 
 	appendFeedback("Validating project setup");
 
 	installer.connector = connector(app.token());
 	installer.chain = installer.connector.start();
 
-	refreshOverlays();
+	updateOverlays();
 
 	removeHSOAttributeFromNonWaterOverlays();
 
-	resolveHsoOverlay();
+	setupMainHsoOverlay();
 
 	installer.chain = installer.chain.catch(error => appendFeedback("Failed installing! Error: " + error));
 
@@ -3637,13 +3671,12 @@ let app = {
 
 $(window).on("load", function() {
 
-	appendFeedback("Validating installation for HSO Dasboard.");
+	appendFeedback("Welcome to the installer for the HSO Dasboard.");
 	if (typeof app === "undefined") {
-		appendFeedback("JSBridge App not found");
+		appendFeedback("This installer can only be run within the Tygron Client Application!");
 		return;
 	}
-
-	validateInstall();
+	requestInstallation();
 });
 
 </script>
