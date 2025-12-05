@@ -3441,13 +3441,13 @@ function requestInstallation() {
 	noButton.type = 'button';
 	noButton.value = 'No';
 
-	yesButton.onclick=() => {
+	yesButton.onclick = () => {
 		yesButton.disabled = true;
 		noButton.disabled = true;
 		noButton.style.display = 'none';
 		runInstallation();
 	};
-	noButton.onclick=() => {
+	noButton.onclick = () => {
 		yesButton.disabled = true;
 		noButton.disabled = true;
 		yesButton.style.display = 'none';
@@ -3505,7 +3505,7 @@ function setupMainHsoOverlay() {
 	updateOverlays(() => {
 
 		if (installer[vars.HSO_OVERLAY] != null) {
-			appendFeedback("HSO Overlay: "+installer[vars.HSO_OVERLAY].name+"." );
+			appendFeedback("HSO Overlay: " + installer[vars.HSO_OVERLAY].name + ".");
 			return setupHsoResultChildren();
 		}
 
@@ -3552,16 +3552,156 @@ function setupHsoResultChildren() {
 
 				if (resultOverlay == null && getResultType(overlay) != resultType) {
 					addResultChildOverlay(overlay, resultType);
-					allPresent= false;
+					allPresent = false;
 				}
 			}
-			if(allPresent){
-				appendFeedback("Result children: All setup");
+			if (allPresent) {
+				appendFeedback("HSO Overlay Result children: All setup");
 			}
+			setupHsoComboOverlays();
 		}
 	);
 
 }
+
+function comboPrequelEquals(combo, prequelName, prequelOverlay, iteration, timeframe) {
+	if (combo.prequels == null) {
+		return false;
+	}
+	let prequelProperty = combo.prequels[prequelName];
+	if (prequelProperty == null) {
+		return false;
+	}
+
+	if (prequelProperty.overlayID != prequelOverlay.id) {
+		return false;
+	}
+
+	if (iteration != null && prequelProperty.iteration != iteration) {
+		return false;
+	}
+
+	return prequelProperty.timeframe == timeframe;
+}
+
+function addNewComboOverlay(parentID, requirements) {
+
+	const idVar = 'COMBO_' + requirements.attribute;
+	addOverlay('COMBO', null, attributeMap(requirements.attribute), idVar);
+
+	appendChains(
+		installer.connector.post("event/editoroverlay/set_prequel", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[idVar]);
+			params.push(requirements.prequelAId)
+			params.push('A');
+		}),
+		installer.connector.post("event/editoroverlay/set_prequel", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[idVar]);
+			params.push(requirements.prequelBId)
+			params.push('B');
+		}),
+		installer.connector.post("event/editoroverlay/set_combo_formula", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[idVar]);
+			params.push(requirements.formula);
+		}),
+		installer.connector.post("event/editoroverlay/set_name", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[idVar]);
+			params.push(requirements.name);
+		}),
+		installer.connector.post("event/editoroverlay/set_parent", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[idVar]);
+			params.push(parentID);
+		}),
+	);
+}
+
+function setupHsoComboOverlays() {
+	let requiredCombos = [
+		{
+			name: 'HSO M3 in water',
+			attribute: 'M3WATER',
+			resultChildTypeA: 'BASE_TYPES',
+			resultChildTypeB: 'SURFACE_LAST_VALUE',
+			formula: 'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'
+		},
+		{
+			name: 'HSO Rain on water',
+			attribute: 'RAIN_WATER',
+			resultChildTypeA: 'BASE_TYPES',
+			resultChildTypeB: 'RAIN',
+			formula: 'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'
+		},
+		{
+			name: 'HSO Rain on land',
+			attribute: 'RAIN_LAND',
+			resultChildTypeA: 'BASE_TYPES',
+			resultChildTypeB: 'RAIN',
+			formula: 'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)'
+		},
+
+		{
+
+			name: 'HSO Evapotranspiration on water',
+			attribute: 'EVAPOTRANSPIRATIONWATER',
+			resultChildTypeA: 'BASE_TYPES',
+			resultChildTypeB: 'EVAPOTRANSPIRATION',
+			formula: 'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'
+
+		},
+		{
+
+			name: 'HSO Evapotranspiration on land',
+			attribute: 'EVAPOTRANSPIRATIONLAND',
+			resultChildTypeA: 'BASE_TYPES',
+			resultChildTypeB: 'EVAPOTRANSPIRATION',
+			formula: 'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)',
+
+		}
+
+	];
+
+
+	updateOverlays(
+
+		() => {
+
+			let overlayID = installer[vars.HSO_OVERLAY_ID];
+			let overlays = installer[vars.OVERLAYS];
+			let overlay = getOverlay(overlays, overlayID);
+			let allPresent = true;
+			for (let requiredCombo of requiredCombos) {
+				let attributes = attributeMap(requiredCombo.attribute);
+
+				let combo = getGridOverlay(overlays, null, null, null, attributes);
+				let resultOverlayA = getGridOverlay(overlays, null, requiredCombo.resultChildTypeA, overlayID, null);
+				let resultOverlayB = getGridOverlay(overlays, null, requiredCombo.resultChildTypeB, overlayID, null);
+
+				if (combo != null && combo.type == 'COMBO' && comboPrequelEquals(combo, 'A', resultOverlayA) && comboPrequelEquals(combo, 'B', resultOverlayB)
+					&& combo.formula == requiredCombo.formula) {
+					continue;
+				}
+
+				if (combo != null) {
+					const params = [combo.id, requiredCombo.attribute];
+					appendChains(
+						installer.connector.post("event/editoroverlay/remove_attribute", null, params));
+
+				}
+
+				allPresent = false;
+				requiredCombo.prequelAId = resultOverlayA.id;
+				requiredCombo.prequelBId = resultOverlayB.id;
+				addNewComboOverlay(overlayID,requiredCombo);
+			}
+			if (allPresent) {
+				appendFeedback("HSO Overlay Combo overlays: All setup");
+			}
+			setupHsoWaterLevelAreas();
+		});
+
+
+}
+
 
 function updateOverlays(actionAfterRefresh) {
 
@@ -3628,6 +3768,10 @@ function getWaterOverlays(hsoAttribute) {
 		}
 	}
 	return waterOverlays;
+}
+
+function setupHsoWaterLevelAreas() {
+
 }
 
 function removeHSOAttributeFromNonWaterOverlays() {
