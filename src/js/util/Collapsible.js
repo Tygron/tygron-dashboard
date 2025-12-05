@@ -1,11 +1,11 @@
 
 export function initCollapsibles() {
 
-	let coll = document.getElementsByClassName("collapsible");
+	let collapsible = document.getElementsByClassName("collapsible");
 	
-	for (let i = 0; i < coll.length; i++) {
+	for (let i = 0; i < collapsible.length; i++) {
 		
-		coll[i].addEventListener("click", function() {
+		collapsible[i].addEventListener("click", function() {
 
 			this.classList.toggle("active");
 			let content = this.nextElementSibling;
@@ -30,10 +30,10 @@ export function initCollapsibles() {
 
 export function openCollapsibles() {
 	
-	let  coll = document.getElementsByClassName("collapsible");
-	for (i = 0; i < coll.length; i++) {
+	let  collapsible = document.getElementsByClassName("collapsible");
+	for (i = 0; i < collapsible.length; i++) {
 		
-		const collapsible = coll[i];
+		const collapsible = collapsible[i];
 		setTimeout(function() {
 			collapsible.click();
 		}, i * 100);
