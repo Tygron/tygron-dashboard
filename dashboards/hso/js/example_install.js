@@ -21,6 +21,7 @@ const vars = {
 	GRID_OVERLAYS: "gridOverlays",
 	OVERLAYS: "overlays",
 	NON_WATER_HSO_OVERLAYS: "nonWaterHsoOverlays",
+	AREA_KEYS: "areaKeys",
 
 };
 
@@ -533,6 +534,10 @@ function setupHsoComboOverlays() {
 
 }
 
+function setupDashbardTemplatePanel() {
+	appendFeedback("Implement add dashboard!");
+}
+
 function updateOverlays(actionAfterRefresh) {
 
 	appendChains(
@@ -608,8 +613,110 @@ function getWaterOverlays(hsoAttribute) {
 	return waterOverlays;
 }
 
+function addNewWaterLevelArea(){
+	appendFeedback("Implement add new water level area!");
+}
+
+function setOverlayKey(overlay, key, value){
+	appendFeedback("Implement set Overlay Key");
+}
+
+function requestAreaSetup() {
+
+	appendChains(
+		installer.connector.get("items/areas?", {
+			token: app.token(),
+			f: "JSON"
+		}),
+
+		areas => {
+
+			if (!Array.isArray(areas)) {
+				throw new Error("Requested Areas object is not an array!");
+			}
+
+			let map = new Map();
+			for (let area of areas) {
+				if (area.attributes == null) {
+					continue;
+				}
+				for (let key of area.attributes.keys()) {
+					let amount = map.get(key);
+					map.put(key, amount == null ? 1 : amount + 1);
+				}
+			}
+
+			installer[vars.AREA_KEYS] = map;
+		},
+		() => {
+
+			let keys = installer[vars.AREA_KEYS];
+		
+			appendFeedback("No Water Level Areas were detected. Do you want to select a different key or add a default Water Level Area?");
+
+			const selectionParent = document.createElement("div");
+			const typeOption = document.createElement('select');
+			
+			typeOption.innerHTML += '<option selected value="">Select Water Overlay Type</option>';
+			for (let key of keys) {
+				typeOption.innerHTML += '<option value=' + key + ' > ' + key + ': ' + keys[key] + '</option>';
+
+			}
+			typeOption.innerHTML += '<option value="_">Add new Water Level Area</option>';
+			
+			const addButton = document.createElement('input');
+			addButton.type = 'button';
+			addButton.value = 'Add';
+			addButton.disabled = true;
+
+			selectionParent.appendChild(typeOption);
+			selectionParent.appendChild(addButton);
+
+			appendFeedbackLine(selectionParent);
+
+			attachHandler(selectionParent, 'change', 'select', () => addButton.disabled = (typeOption.value == ''));
+			attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
+				addButton.disabled = true;
+				typeOption.disabled = true;
+
+				if(typeOption.value == "_"){
+					addNewWaterLevelArea();
+				}else{
+					setOverlayKey(hsoOverlay, "WATER_LEVEL", key);					
+				}
+				setupDashbardTemplatePanel();
+			});
+
+		}
+	);
+}
+
 function setupHsoWaterLevelAreas() {
-	appendFeedback("Water level configuration is not yet implemented!");
+
+	let hsoOverlay = installer[vars.HSO_OVERLAY];
+	let key = hsoOverlay == null || hsoOverlay.keys["WATER_LEVEL"] == null ? "WATER_LEVEL" : hsoOverlay.keys["WATER_LEVEL"];
+
+	appendChains(
+
+		installer.connector.get("items/areas-" + key + "?", {
+			token: app.token(),
+			f: "JSON"
+		}),
+
+		areas => {
+
+			if (!Array.isArray(areas)) {
+				throw new Error("Requested Areas object is not an array!");
+			}
+
+			if (areas.length > 0) {
+				setupDashbardTemplatePanel();
+			} else {
+				requestAreaSetup();
+			}
+		}
+
+	);
 }
 
 function removeHSOAttributeFromNonWaterOverlays() {
