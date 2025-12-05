@@ -191,6 +191,7 @@ function requestSelectOrAddHsoOverlay(overlays) {
 
 		if (isWaterOverlayType(typeOption.value)) {
 			addOverlay(typeOption.value, "SURFACE_LAST_VALUE", HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
+			setupHsoResultChildren();
 		} else {
 			setHsoOverlay(overlays, typeOption.value);
 		}
@@ -284,13 +285,6 @@ function requestNewHsoOverlayType() {
 		setupHsoResultChildren();
 	});
 
-}
-
-function setWaterOverlayAsHso(overlay) {
-
-	setOverlayTypeAndAttributes(overlay, null, HSO_ATTRIBUTE_MAP, vars.HSO_OVERLAY_ID);
-
-	setupHsoResultChildren();
 }
 
 function requestUseCurrentHsoOverlay(hsoOverlay) {
@@ -615,7 +609,7 @@ function getWaterOverlays(hsoAttribute) {
 }
 
 function setupHsoWaterLevelAreas() {
-
+	appendFeedback("Water level configuration is not yet implemented!");
 }
 
 function removeHSOAttributeFromNonWaterOverlays() {
