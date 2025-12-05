@@ -20,31 +20,6 @@ function getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeigh
 	return maxDatum;
 }
 
-
-
-export function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
-	if (!canvas || canvas.nodeName != "CANVAS") {
-		return;
-	}
-
-	const ctx = canvas.getContext("2d");
-	clearWeirContext(ctx);
-
-	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
-	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight,culvertHeight);
-
-	let range = maxDatum - minDatum;
-
-	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
-	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
-	let culvertDatum = Array.isArray(culvertDatums) ? culvertDatums[index] : culvertDatums;
-
-	let baseHeight = canvas.height / 8;
-	let heightMultiplier = (canvas.height - baseHeight) / range;
-	
-	//TODO: @Artist Please add draw functions
-}
-
 function leftWaterBody(ctx, waterHeight, waterWidth){
 		ctx.fillStyle = getWaterGradient(ctx, waterHeight);
 		ctx.fillRect(0, waterHeight, waterWidth, ctx.canvas.height);
@@ -59,7 +34,6 @@ function drawEnvelope(ctx, envelopeGradient, waterWidth, envelopeHeight){
 		ctx.fillStyle = envelopeGradient;
 		ctx.fillRect(waterWidth, envelopeHeight, ctx.canvas.width / 2.4, ctx.canvas.height);
 		ctx.strokeRect(waterWidth, envelopeHeight, ctx.canvas.width / 2.4, ctx.canvas.height);
-		ctx.stroke();	
 }
 
 function drawLeftCulvert(ctx, culvertGradient){
@@ -118,6 +92,57 @@ function drawRightBreakLine(ctx){
 		ctx.stroke();
 }
 
+export function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
+	if (!canvas || canvas.nodeName != "CANVAS") {
+		return;
+	}
+
+	const ctx = canvas.getContext("2d");
+	clearWeirContext(ctx);
+
+	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
+	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight,culvertHeight);
+
+	let range = maxDatum - minDatum;
+
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let culvertDatum = Array.isArray(culvertDatums) ? culvertDatums[index] : culvertDatums;
+
+	let baseHeight = canvas.height / 8;
+	let heightMultiplier = (canvas.height - baseHeight) / range;
+	
+	//TODO: @Artist Please add draw functions
+	let culvertFrontCentrePointX = ctx.canvas.width / 2;
+	let culvertFrontCentrePointY = 120;
+	let culvertFrontCircle = 2 * Math.PI;
+	let culvertFrontRadius = 20;
+	let envelopeHeight = 40;
+	let waterWidth = canvas.width / 4;			
+	
+	let envelopeGradient = ctx.createLinearGradient(0,envelopeHeight, 0,150);
+	envelopeGradient.addColorStop(0, "#b3aba1");
+	envelopeGradient.addColorStop(1, "#59493c");
+	
+	let waterLevelLow = canvas.height - 10;	
+	let waterLevelHigh = canvas.height -90	
+	
+	ctx.rect(0,waterLevelHigh, canvas.width,canvas.height);
+	ctx.fillStyle = getWaterGradient(ctx, waterLevelHigh); 
+	ctx.fill();
+	
+	drawEnvelope(ctx, envelopeGradient, waterWidth + 10, envelopeHeight);	
+	
+	ctx.beginPath();
+	ctx.arc(culvertFrontCentrePointX, culvertFrontCentrePointY, culvertFrontRadius, 0,culvertFrontCircle );
+	ctx.fillStyle = "grey";
+	ctx.fill();
+	ctx.lineWidth = 6;
+	ctx.stroke();
+
+	ctx.fillStyle = getWaterGradient(ctx, waterLevelLow); 
+	ctx.fillRect(0,waterLevelLow, canvas.width,waterLevelLow);		
+}
 
 export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
@@ -140,7 +165,6 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 	let baseHeight = canvas.height / 8;
 	let heightMultiplier = (canvas.height - baseHeight) / range;
 	
-
 
 	//TODO: @Artist Please add draw functions
 	let waterHeight = 50;
