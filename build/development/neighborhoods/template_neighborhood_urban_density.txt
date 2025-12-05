@@ -616,11 +616,11 @@ class ArrayUtils {
 
 function initCollapsibles() {
 
-	let coll = document.getElementsByClassName("collapsible");
+	let collapsible = document.getElementsByClassName("collapsible");
 	
-	for (let i = 0; i < coll.length; i++) {
+	for (let i = 0; i < collapsible.length; i++) {
 		
-		coll[i].addEventListener("click", function() {
+		collapsible[i].addEventListener("click", function() {
 
 			this.classList.toggle("active");
 			let content = this.nextElementSibling;
@@ -645,10 +645,10 @@ function initCollapsibles() {
 
 function openCollapsibles() {
 	
-	let  coll = document.getElementsByClassName("collapsible");
-	for (i = 0; i < coll.length; i++) {
+	let  collapsible = document.getElementsByClassName("collapsible");
+	for (i = 0; i < collapsible.length; i++) {
 		
-		const collapsible = coll[i];
+		const collapsible = collapsible[i];
 		setTimeout(function() {
 			collapsible.click();
 		}, i * 100);
@@ -2495,7 +2495,42 @@ function createTable(divName, data, properties, colors, titles, timeLabels) {
 		addTimeframeRow(tableBody, t, data, properties, colors, timeLabels);
 	}
 }
+function addTimeframeSlider(parent) {
+	let sliderDiv = document.createElement("div");
+	sliderDiv.className = "timeframe-slider range--ticks slider-background";
 
+	let style = sliderDiv.style;
+	style.setProperty('--max', 1);
+	style.setProperty('--min', 0);
+	style.setProperty('--step', 1);
+	style.setProperty('--tickEvery', 1);
+	style.setProperty('--value', 1);
+	style.setProperty('--text-value', "1");
+
+	style.setProperty('--primaryColor', "red");
+	style.setProperty('--fill-color', "unset");
+	style.setProperty('--value-background', "unset");
+	style.setProperty('--value-active-color', "unset");
+
+	let sliderInput = document.createElement("input");
+
+	sliderInput.className = "timeframe-slider";
+	sliderInput.type = "range";
+	sliderInput.min = "0";
+	sliderInput.max = "1";
+	sliderInput.step = "1";
+	sliderInput.value = "1";
+	sliderInput.oninput = "this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))";
+
+	let sliderOutput = document.createElement("output");
+	sliderDiv.appendChild(sliderInput);
+	sliderDiv.appendChild(sliderOutput);
+
+	if (parent != null) {
+		parent.appendChild(sliderDiv);
+	}
+	return sliderDiv;
+}
 
 function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput) {
 
@@ -2505,11 +2540,9 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput) {
 		sliderInput.value = timeframe;
 
 		sliderInput.oninput = function() {
-			onInput();
-
 			timeframeSlider.style.setProperty('--value', sliderInput.value);
 			timeframeSlider.style.setProperty('--text-value', JSON.stringify(sliderInput.value))
-
+			onInput();
 		};
 	}
 
@@ -2521,8 +2554,8 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput) {
 	timeframeSlider.style.setProperty('--text-value', JSON.stringify(sliderInput.value));
 
 }
-	
-	
+
+
 
 
 function getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight) {
@@ -2717,43 +2750,6 @@ function addStructureInfoValue(parent, id, innerHTML) {
 	return element;
 }
 
-function addStructureTimeframeSlider(parent, id) {
-	let sliderDiv = document.createElement("div");
-	sliderDiv.className = "timeframe-slider range--ticks slider-background";
-
-	let style = sliderDiv.style;
-	style.setProperty('--max', 1);
-	style.setProperty('--min', 0);
-	style.setProperty('--step', 1);
-	style.setProperty('--tickEvery', 1);
-	style.setProperty('--value', 1);
-	style.setProperty('--text-value', "1");	
-
-	style.setProperty('--primaryColor', "red");
-	style.setProperty('--fill-color', "unset");
-	style.setProperty('--value-background', "unset");
-	style.setProperty('--value-active-color', "unset");
-
-	let sliderInput = document.createElement("input");
-
-	sliderInput.id = id;
-	sliderInput.className = "timeframe-slider";
-	sliderInput.type = "range";
-	sliderInput.min = "0";
-	sliderInput.max = "1";
-	sliderInput.step = "1";
-	sliderInput.value = "1";
-	sliderInput.oninput = "this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))";
-
-	let sliderOutput = document.createElement("output");
-	sliderDiv.appendChild(sliderInput);
-	sliderDiv.appendChild(sliderOutput);
-
-	if (parent != null) {
-		parent.appendChild(sliderDiv);
-	}
-	return sliderDiv;
-}
 
 
 function equalsCoefficient(coefficient, value) {
@@ -3106,6 +3102,7 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 }
 
 
+
 class WeirPanel {
 
 	static getDummyWeir() {
@@ -3174,6 +3171,9 @@ class WeirPanel {
 		this.weirDetailContainer = document.createElement("div");
 		parent.appendChild(this.weirDetailContainer);
 
+		this.weirInfoTitle = document.createElement("h2");
+		this.weirDetailContainer.appendChild(this.weirInfoTitle);
+		
 		this.weirInfoRow = document.createElement("div");
 		this.weirInfoRow.className = "water-structure-info-row-spread";
 
@@ -3182,8 +3182,6 @@ class WeirPanel {
 		this.weirInfoDiv = document.createElement("div");
 		this.weirInfoRow.appendChild(this.weirInfoDiv);
 
-		this.weirInfoTitle = document.createElement("h2");
-		this.weirDetailContainer.appendChild(this.weirInfoTitle);
 
 		this.weirInfoColumn = document.createElement("div");
 		this.weirInfoColumn.className = "water-structure-info-grid";
@@ -3223,7 +3221,7 @@ class WeirPanel {
 		this.weirSliderContainer = document.createElement("div");
 		parent.appendChild(this.weirSliderContainer);
 
-		this.timeframeSlider = addStructureTimeframeSlider(this.weirSliderContainer, "weirSlider");
+		this.timeframeSlider = addTimeframeSlider(this.weirSliderContainer, "weirSlider");
 
 		this.weirPlotsContainer = document.createElement("div");
 		this.weirPlotRow = document.createElement("div");
@@ -3244,7 +3242,7 @@ class WeirPanel {
 	updateWeirDetailInfoPanel(weir, weirTimeframe) {
 
 		if (weir == null) {
-			weir = getDummyWeir();
+			weir = WeirPanel.getDummyWeir();
 		}
 
 		this.weirInfoName.innerHTML = weir.name;
