@@ -139,15 +139,15 @@ export function isOverlayOf(overlay, type, resultType, resultParentID, requiredA
 		return false;
 	}
 
-	if (resultParentID != null && resultParentID != getResultParentID(overlay)) {
+	if (resultParentID != null && (resultParentID != getResultParentID(overlay) && overlay.id != resultParentID)) {
 		return false;
 	}
 
 	if (requiredAttributes != null) {
-		
+
 		for (const key of requiredAttributes.keys()) {
-			
-			if(overlay.attributes == null){
+
+			if (overlay.attributes == null) {
 				return false;
 			}
 
@@ -192,7 +192,7 @@ export function getGridOverlays(overlays, type, resultType, resultParentID, requ
 
 	for (let i = 0; i < overlays.length; i++) {
 		let overlay = overlays[i];
-		if (isGridOverlay(overlay)&& isOverlayOf(overlay,type,resultType, resultParentID, requiredAttributes)) {
+		if (isGridOverlay(overlay) && isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes)) {
 			gridOverlays.push(overlay);
 		}
 	}
