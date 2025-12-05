@@ -11,18 +11,18 @@ Here will be placed the documentation on the HSO Dashboard:
 
 # How to install the HSO
 
-1. Start the Preview, log in, and create a new project.
+1. Start the Preview, log in, and create a new project or load an existing project.
 
-2. Create several water management areas:  
+2. Create several water level areas:  
    `Current Situation > Areas > Add Empty Area`
 
-3. Add an attribute to the Area.  
+3. Add an attribute to the area.  
    - Select the area  
    - Go to **Attributes** (next to *General*)  
    - Add an attribute in the bottom-right corner  
 
-   **Name:** `Water level area`  
-   **Values:** `-1`
+   **Name:** `WaterLevelArea`  
+   **Value:** `-1`
 
    Click **Save New Attribute**.
 
@@ -41,7 +41,7 @@ Here will be placed the documentation on the HSO Dashboard:
 6. Click **Close**.
 
 7. Go to **Template** (next to *General*).  
-   - At the bottom, choose which objects to attach this template to  
+   - At the bottom, choose which objects to link this template to  
    - Select the water management areas (areas)
 
 8. Return to **General** and click **Apply Template**.  
@@ -69,14 +69,14 @@ Here will be placed the documentation on the HSO Dashboard:
 14. Click:  
     - **Reset all**  
     - **Select different Attributes for existing Water Areas**  
-    - Choose the attribute: `Peilgebied`
+    - Select the attribute: `WaterLevelArea`
 
     This sets the water level in the watercourses to `-1 m NAP`.
 
 15. Close the wizard and recalculate the project.
 
 16. Open the text panel again.  
-    - Click the browser icon (next to the close button) to open the panel externally  
+    - Click the browser icon (next to the close button) to open the panel in your browser  
     - The Hydrological System Overview will now be displayed
 
 
