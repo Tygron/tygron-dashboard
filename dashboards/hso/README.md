@@ -5,7 +5,7 @@ Here will be placed the documentation on the HSO Dashboard:
 
 # Why an Hydrological System Overview (HSO)?
 
-## What is the HSO?
+# What is the HSO?
 
 
 
