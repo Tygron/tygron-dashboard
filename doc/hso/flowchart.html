@@ -7,9 +7,11 @@
             Welcome-->|no|Stop
             Welcome-->|yes|H0
             H0[Remove HSO Attribute from Overlays that are not Water Overlays]-->H
-            H[HSO Overlay Present?]-->|0|A[Water Overlay Present?]
-            H-->|1|ResultChildren
+            H[HSO Overlay Present?]-->|0|A[Water Overlay Present?]            
            	H-->|>1|C[Select one and remove attribute from others]     
+            H-->|1|HSingle["Install on present HSO?"]
+            HSingle-->|Use current|ResultChildren
+            HSingle-->|Add new|A0           
             A-->|0|A0[Select what kind of Water Overlay to add]
             A-->|1|A1[Add HSO Attribute to Water Overlay]
             A-->|>1|A2[Select Water Overlay to add HSO Attribute to]
