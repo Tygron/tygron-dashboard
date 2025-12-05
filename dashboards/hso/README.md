@@ -4,9 +4,10 @@ Here will be placed the documentation on the HSO Dashboard:
 
 
 # Why an Hydrological System Overview (HSO)?
+bla bla
 
 # What is the HSO?
-
+bla bla
 
 
 # How to install the HSO
@@ -98,7 +99,7 @@ The overview is released under the MIT License. This means that you are free to 
 
 MIT License
 
-Copyright (c) [YEAR] [COPYRIGHT HOLDER]
+Copyright (c) 2025 Tygron
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
