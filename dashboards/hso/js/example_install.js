@@ -756,6 +756,7 @@ function setupHsoWaterLevelAreas() {
 			}
 
 			if (areas.length > 0) {
+				appendFeedback("HSO Water Level Areas: All setup");
 				setupDashbardTemplatePanel();
 			} else {
 				requestAreaSetup();
@@ -787,9 +788,9 @@ function requestAreaSetup() {
 				if (area.attributes == null) {
 					continue;
 				}
-				for (let key of area.attributes.keys()) {
+				for (let key of Object.keys(area.attributes)) {
 					let amount = map.get(key);
-					map.put(key, amount == null ? 1 : amount + 1);
+					map.set(key, amount == null ? 1 : amount + 1);
 				}
 			}
 
@@ -797,16 +798,16 @@ function requestAreaSetup() {
 		},
 		() => {
 
-			let keys = installer[vars.AREA_KEYS];
+			let areaMap = installer[vars.AREA_KEYS];
 
 			appendFeedback("No Water Level Areas were detected. Do you want to select a different key or add a default Water Level Area?");
 
 			const selectionParent = document.createElement("div");
 			const typeOption = document.createElement('select');
 
-			typeOption.innerHTML += '<option selected value="">Select Water Overlay Type</option>';
-			for (let key of keys) {
-				typeOption.innerHTML += '<option value=' + key + ' > ' + key + ': ' + keys[key] + '</option>';
+			typeOption.innerHTML += '<option selected value="">Select Water Level Area Type</option>';
+			for (let key of areaMap.keys()) {
+				typeOption.innerHTML += '<option value=' + key + ' >Select Areas with attribute: ' + key + ' (' + areaMap.get(key) + ' area(s))</option>';
 
 			}
 			typeOption.innerHTML += '<option value="_">Add new Water Level Area</option>';
@@ -837,15 +838,6 @@ function requestAreaSetup() {
 		}
 	);
 }
-
-/*
-let app = {
-	token: function() { return "" },
-	info: function(info) { console.log(info) },
-};
-*/
-
-
 
 $(window).on("load", function() {
 
