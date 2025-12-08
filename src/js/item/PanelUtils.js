@@ -1,4 +1,4 @@
-import { hasRequiredAttributes } from "./ItemUtils.js"
+import { hasRequiredAttributes } from "./ItemUtils.js";
 
 export function isTemplateTextPanel(panel, templateMapLink, templateAttribute, requiredAttributes) {
 	// Is non template?	

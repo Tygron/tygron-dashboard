@@ -1,4 +1,4 @@
-import { hasRequiredAttributes } from "../item/ItemUtils.js"
+import { hasRequiredAttributes } from "../item/ItemUtils.js";
 
 export function isGridOverlay(overlay) {
 	if (overlay == null || overlay.type == null) {
