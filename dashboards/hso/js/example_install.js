@@ -209,18 +209,18 @@ function getAttributeValuesArrays(attributes) {
 			let value = attributes[key];
 			values.push(Number.isFinite(value) ? value : 1.0);
 		}
-		
+
 	} else if (Array.isArray(attributes)) {
 		for (let i = 0; i < attributes.length; i++) {
 			keys.push(attributes[i]);
 			values.push(1.0);
 		}
-		
+
 	} else if (typeof attributes == "string") {
 		keys.push(attributes);
 		values.push(1.0);
 	}
-	
+
 	return [keys, values];
 }
 
@@ -309,11 +309,11 @@ function isWaterOverlay(overlay, attributes) {
 }
 
 function getWaterOverlays(hsoAttribute) {
-	
+
 	let waterOverlays = [];
 	let gridOverlays = installer[vars.GRID_OVERLAYS];
-	let attributes = hsoAttribute ? HSO_OVERLAY_ATTRIBUTE: null;
-	
+	let attributes = hsoAttribute ? HSO_OVERLAY_ATTRIBUTE : null;
+
 	for (let i = 0; i < gridOverlays.length; i++) {
 		let overlay = gridOverlays[i];
 		if (isWaterOverlay(overlay, attributes)) {
@@ -798,11 +798,12 @@ function requestAreaSetup() {
 	);
 }
 
-
+/*
 let app = {
-	token: function() { return "5facca7c3rBCIES2ChYBux6fwSIckn0X" },
+	token: function() { return "" },
 	info: function(info) { console.log(info) },
 };
+*/
 
 
 
