@@ -1008,6 +1008,22 @@ function toCSVContent(data, properties, titles, timeframes) {
 
 }
 
+/**
+* Create a rectangular MultiPolygon object
+*/
+function createRectangleMP(x, y, width, height) {
+	return { type: "MultiPolygon", 
+		coordinates: [
+			[x, y],
+			[x, y + height],
+			[x + width, y + height],
+			[x + width, y],
+			[x, y]
+		]
+	};
+
+}
+
 
 
 /**
@@ -3275,10 +3291,12 @@ class WeirPanel {
 
 
 
+
 const HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
 const RAINFALL_OVERLAY_TYPE = "RAINFALL";
 const GROUNDWATER_OVERLAY_TYPE = "GROUNDWATER";
 const FLOODING_OVERLAY_TYPE = "FLOODING";
+const WATER_LEVEL_KEY = "WATER_LEVEL";
 
 const vars = {
 	ADDED_OVERLAY_ID: "addedOverlayID",
@@ -3296,6 +3314,8 @@ const vars = {
 	NON_WATER_HSO_OVERLAYS: "nonWaterHsoOverlays",
 	AREA_KEYS: "areaKeys",
 
+	DEFAULT_WATERAREA_MP: "waterLevelAreaMP",
+	DEFAULT_WATERAREA_ID: "waterLevelAreaID",
 };
 
 const installer = {
@@ -3401,7 +3421,43 @@ function addResultChildOverlay(overlay, resultType) {
 }
 
 function addNewWaterLevelArea() {
-	appendFeedback("Implement add new water level area!");
+	appendFeedback("Adding new default Water Level Area!");
+
+	appendChains(
+		installer.connector.get("items/settings/MAP_SIZE_M?", {
+			token: app.token(),
+			f: "JSON"
+		}),
+
+		(data) => {
+			let size = data.value.split(" ");
+			let width = Array.isArray(size) && size.length > 0 ? size[0] : 500;
+			let height = Array.isArray(size) && size.length > 1 ? size[1] : 500;
+
+			let mp = createRectangleMP(0,0,width,height);
+			installer[vars.DEFAULT_WATERAREA_MP] = mp;
+		},
+
+		installer.connector.post("event/editorarea/add", null, [1]),
+
+		(data) => {
+			installer[vars.DEFAULT_WATERAREA_ID] = Array.isArray(data) ? data[0] : data;
+		},
+
+		installer.connector.post("event/editorarea/add_polygons",{crs:"LOCAL"}, [], (_d, _u, _qp, params) => {
+			params.push(installer[vars.DEFAULT_WATERAREA_ID]);
+			params.push(installer[vars.DEFAULT_WATERAREA_MP]);
+		}),
+
+		installer.connector.post("event/editorarea/set_attribute", null, [], (_d, _u, _qp, params) => {
+			let hosOverlay = installer[vars.HSO_OVERLAY];
+			let attribute = hosOverlay.keys[WATER_LEVEL_KEY] == null ? WATER_LEVEL_KEY : hosOverlay.keys[WATER_LEVEL_KEY];
+			params.push(installer[vars.DEFAULT_WATERAREA_ID]);
+			params.push(attribute);
+			params.push(1.0);
+		}),
+	);
+
 }
 
 function setOverlayKey(overlay, key, value) {
@@ -4062,7 +4118,7 @@ function requestAreaSetup() {
 				if (typeOption.value == "_") {
 					addNewWaterLevelArea();
 				} else {
-					setOverlayKey(hsoOverlay, "WATER_LEVEL", key);
+					setOverlayKey(hsoOverlay, WATER_LEVEL, key);
 				}
 				setupDashbardTemplatePanel();
 			});
