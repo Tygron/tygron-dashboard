@@ -1,4 +1,4 @@
-
+import { hasRequiredAttributes } from "../item/ItemUtils.js"
 export function isGridOverlay(overlay) {
 	if (overlay == null || overlay.type == null) {
 		return false;
@@ -126,59 +126,6 @@ export function getOverlay(overlays, id) {
 	return null;
 }
 
-export function hasRequiredAttributesAndValues(overlay, requiredAttributes) {
-
-	for (const key of requiredAttributes.keys()) {
-
-		if (overlay.attributes == null) {
-			return false;
-		}
-
-		let value = requiredAttributes[key];
-
-		if (value == null && !(key in overlay.attributes)) {
-
-			return false;
-
-		} else if (value != null && overlay.attributes[key] != value) {
-
-			return false;
-		}
-	}
-	return true;
-}
-
-export function hasRequiredAttribute(overlay, requiredAttribute) {
-	return overlay.attributes != null && overlay.attributes[requiredAttribute] != null;
-}
-
-export function hasRequiredAttributes(overlay, requiredAttributes) {
-
-	if (requiredAttributes instanceof Map) {
-		return hasRequiredAttributesAndValues(overlay, requiredAttributes);
-
-	} else if (Array.isArray(requiredAttributes)) {
-		
-		for (let i = 0; i < requiredAttributes.length; i++) {
-			if (!hasRequiredAttribute(overlay, requiredAttributes[i])) {
-				return false;
-			}
-		}
-		return true;
-
-	} else if (typeof requiredAttributes == "string") {
-		return hasRequiredAttribute(overlay,requiredAttributes);
-
-	} else if (requiredAttributes != null) {
-
-		throw new Exception("Unhandled requiredAttribute type: " + requiredAttributes);
-	}
-
-	return true;
-
-
-
-}
 
 export function isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes) {
 	if (overlay == null) {
