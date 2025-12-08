@@ -389,6 +389,124 @@ html, body {
 	</div>
 	<script>
 		
+function hasRequiredAttributesAndValues(item, requiredAttributes) {
+
+	for (const key of requiredAttributes.keys()) {
+
+		if (item.attributes == null) {
+			return false;
+		}
+
+		let value = requiredAttributes[key];
+
+		if (value == null && !(key in item.attributes)) {
+
+			return false;
+
+		} else if (value != null && item.attributes[key] != value) {
+
+			return false;
+		}
+	}
+	return true;
+}
+
+function hasRequiredAttribute(item, requiredAttribute) {
+	return item.attributes != null && item.attributes[requiredAttribute] != null;
+}
+
+function hasRequiredAttributes(item, requiredAttributes) {
+
+	if (requiredAttributes instanceof Map) {
+		return hasRequiredAttributesAndValues(item, requiredAttributes);
+
+	} else if (Array.isArray(requiredAttributes)) {
+		
+		for (let i = 0; i < requiredAttributes.length; i++) {
+			if (!hasRequiredAttribute(item, requiredAttributes[i])) {
+				return false;
+			}
+		}
+		return true;
+
+	} else if (typeof requiredAttributes == "string") {
+		return hasRequiredAttribute(item,requiredAttributes);
+
+	} else if (requiredAttributes != null) {
+
+		throw new Exception("Unhandled requiredAttribute type: " + requiredAttributes);
+	}
+
+	return true;
+
+
+
+}
+
+
+function isTemplateTextPanel(panel, templateMapLink, templateAttribute, requiredAttributes) {
+	// Is non template?	
+	if (panel == null || panel.autoApplied == null) {
+		return false;
+	}
+
+	// Check template panel type
+	if (panel.excelID != null) {
+		return false;
+	}
+
+	if (templateMapLink != null && panel.mapLink != templateMapLink) {
+		return false;
+	}
+
+	if (templateAttribute != null && panel.attribute != templateAttribute) {
+		return false;
+	}
+
+	if (hasRequiredAttributes != null && !hasRequiredAttributes(panel, requiredAttributes)) {
+		return false;
+	}
+
+	return true;
+
+}
+
+function getTemplateTextPanel(panels, templateMapLink, templateAttribute, requiredAttributes) {
+
+	if (!Array.isArray(panels)) {
+		return panels;
+	}
+
+	for (let i = 0; i < panels.length; i++) {
+
+		if (isTemplateTextPanel(panels[i], templateMapLink, templateAttribute, requiredAttributes)) {
+			return panels[i];
+		}
+	}
+
+	return null;
+
+
+}
+
+function getTemplateTextPanels(panels, templateMapLink, templateAttribute, requiredAttributes) {
+
+	let templateTextPanels = [];
+
+	if (!Array.isArray(panels)) {
+		return templateTextPanels;
+	}
+
+	for (let i = 0; i < panels.length; i++) {
+
+		if (isTemplateTextPanel(panels[i], templateMapLink, templateAttribute, requiredAttributes)) {
+			templateTextPanels.push(panels[i]);
+		}
+	}
+
+	return templateTextPanels;
+}
+
 
 class ArrayUtils {
 
@@ -1532,6 +1650,7 @@ class NumberUtils {
 
 }
 
+
 function isGridOverlay(overlay) {
 	if (overlay == null || overlay.type == null) {
 		return false;
@@ -1659,59 +1778,6 @@ function getOverlay(overlays, id) {
 	return null;
 }
 
-function hasRequiredAttributesAndValues(overlay, requiredAttributes) {
-
-	for (const key of requiredAttributes.keys()) {
-
-		if (overlay.attributes == null) {
-			return false;
-		}
-
-		let value = requiredAttributes[key];
-
-		if (value == null && !(key in overlay.attributes)) {
-
-			return false;
-
-		} else if (value != null && overlay.attributes[key] != value) {
-
-			return false;
-		}
-	}
-	return true;
-}
-
-function hasRequiredAttribute(overlay, requiredAttribute) {
-	return overlay.attributes != null && overlay.attributes[requiredAttribute] != null;
-}
-
-function hasRequiredAttributes(overlay, requiredAttributes) {
-
-	if (requiredAttributes instanceof Map) {
-		return hasRequiredAttributesAndValues(overlay, requiredAttributes);
-
-	} else if (Array.isArray(requiredAttributes)) {
-		
-		for (let i = 0; i < requiredAttributes.length; i++) {
-			if (!hasRequiredAttribute(overlay, requiredAttributes[i])) {
-				return false;
-			}
-		}
-		return true;
-
-	} else if (typeof requiredAttributes == "string") {
-		return hasRequiredAttribute(overlay,requiredAttributes);
-
-	} else if (requiredAttributes != null) {
-
-		throw new Exception("Unhandled requiredAttribute type: " + requiredAttributes);
-	}
-
-	return true;
-
-
-
-}
 
 function isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes) {
 	if (overlay == null) {
