@@ -2,12 +2,16 @@ import { getGridOverlay, getGridOverlays, getOverlay, getResultType, isOverlayOf
 import { connector } from "../../../src/js/util/Connector.js";
 import { attachHandler } from "../../../src/js/util/Dom.js";
 import { createRectangleMP } from "../../../src/js/util/GeometryUtils.js";
+import { getTemplateTextPanels, getTemplateTextPanel } from "../../../src/js/item/PanelUtils.js";
 
 const HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
+const HSO_PANEL_ATTRIBUTE = "HSO_PANEL";
 const RAINFALL_OVERLAY_TYPE = "RAINFALL";
 const GROUNDWATER_OVERLAY_TYPE = "GROUNDWATER";
 const FLOODING_OVERLAY_TYPE = "FLOODING";
 const WATER_LEVEL_KEY = "WATER_LEVEL";
+let PANEL_WIDTH = 800;
+let PANEL_HEIGHT = 800;
 
 const vars = {
 	ADDED_OVERLAY_ID: "addedOverlayID",
@@ -27,6 +31,13 @@ const vars = {
 
 	DEFAULT_WATERAREA_MP: "waterLevelAreaMP",
 	DEFAULT_WATERAREA_ID: "waterLevelAreaID",
+
+	PANELS: "panels",
+	TEMPLATE_TEXT_PANELS: "templateTextPanels",
+	HSO_TEMPLATE_PANELS: "hsoTemplatePanels",
+	HSO_TEMPLATE_PANEL: "hsoTemplatePanel",
+	DASHBOARD_PANEL_ID: "dashboardPanelID",
+	DASHBOARD_CONTENT: "dashboardTextContent",
 };
 
 const installer = {
@@ -145,7 +156,7 @@ function addNewWaterLevelArea() {
 			let width = Array.isArray(size) && size.length > 0 ? size[0] : 500;
 			let height = Array.isArray(size) && size.length > 1 ? size[1] : 500;
 
-			let mp = createRectangleMP(0,0,width,height);
+			let mp = createRectangleMP(0, 0, width, height);
 			installer[vars.DEFAULT_WATERAREA_MP] = mp;
 		},
 
@@ -155,14 +166,14 @@ function addNewWaterLevelArea() {
 			installer[vars.DEFAULT_WATERAREA_ID] = Array.isArray(data) ? data[0] : data;
 		},
 
-		installer.connector.post("event/editorarea/add_polygons",{crs:"LOCAL"}, [], (_d, _u, _qp, params) => {
+		installer.connector.post("event/editorarea/add_polygons", { crs: "LOCAL" }, [], (_d, _u, _qp, params) => {
 			params.push(installer[vars.DEFAULT_WATERAREA_ID]);
 			params.push(installer[vars.DEFAULT_WATERAREA_MP]);
 		}),
 
 		installer.connector.post("event/editorarea/set_attribute", null, [], (_d, _u, _qp, params) => {
-			let hosOverlay = installer[vars.HSO_OVERLAY];
-			let attribute = hosOverlay.keys[WATER_LEVEL_KEY] == null ? WATER_LEVEL_KEY : hosOverlay.keys[WATER_LEVEL_KEY];
+			let hsoOverlay = installer[vars.HSO_OVERLAY];
+			let attribute = hsoOverlay.keys[WATER_LEVEL_KEY] == null ? WATER_LEVEL_KEY : hsoOverlay.keys[WATER_LEVEL_KEY];
 			params.push(installer[vars.DEFAULT_WATERAREA_ID]);
 			params.push(attribute);
 			params.push(1.0);
@@ -293,10 +304,6 @@ function setRequiredOverlayAttribute(attributes, idVar) {
 	);
 }
 
-function setupDashbardTemplatePanel() {
-	appendFeedback("Implement add dashboard!");
-}
-
 function updateOverlays(actionAfterRefresh) {
 
 	appendChains(
@@ -363,7 +370,6 @@ function getWaterOverlays(hsoAttribute) {
 	return waterOverlays;
 }
 
-
 /**
  * Start: Request Installation
  */
@@ -407,6 +413,7 @@ function runInstallation() {
 	installer.connector = connector(app.token());
 	installer.chain = installer.connector.start();
 
+
 	updateOverlays();
 
 	removeHSOAttributeFromNonWaterOverlays();
@@ -414,8 +421,6 @@ function runInstallation() {
 	installer.chain = installer.chain.catch(error => appendFeedback("Failed installing! Error: " + error));
 
 }
-
-
 
 /**
  * Step 1: Remove HSO Attribute from Non Water Overlays
@@ -757,7 +762,7 @@ function setupHsoWaterLevelAreas() {
 
 			if (areas.length > 0) {
 				appendFeedback("HSO Water Level Areas: All setup");
-				setupDashbardTemplatePanel();
+				setupDashboardTemplatePanel();
 			} else {
 				requestAreaSetup();
 			}
@@ -832,11 +837,216 @@ function requestAreaSetup() {
 				} else {
 					setOverlayKey(hsoOverlay, WATER_LEVEL, key);
 				}
-				setupDashbardTemplatePanel();
+				setupDashboardTemplatePanel();
 			});
 
 		}
 	);
+}
+
+
+function updatePanels(actionAfterRefresh) {
+
+	appendChains(
+
+		installer.connector.get("items/panels?", {
+			token: app.token(),
+			f: "JSON"
+		}),
+
+		panels => {
+
+			app.info("Received Panels:" + panels);
+
+			if (!Array.isArray(panels)) {
+				throw new Error("Requested Panels object is not an array! " + panels);
+			}
+
+			let hsoOverlay = installer[vars.HSO_OVERLAY];
+			let attribute = hsoOverlay.keys[WATER_LEVEL_KEY] == null ? WATER_LEVEL_KEY : hsoOverlay.keys[WATER_LEVEL_KEY];
+
+			installer[vars.PANELS] = panels;
+			installer[vars.TEMPLATE_TEXT_PANELS] = getTemplateTextPanels(panels, "AREAS", attribute, null);
+			installer[vars.HSO_TEMPLATE_PANELS] = getTemplateTextPanels(panels, "AREAS", attribute, HSO_PANEL_ATTRIBUTE);
+			installer[vars.HSO_TEMPLATE_PANEL] = getTemplateTextPanel(panels, "AREAS", attribute, HSO_PANEL_ATTRIBUTE);
+		},
+
+		actionAfterRefresh
+
+	);
+}
+
+/**
+ * Step 6 Setup dashboard template panel
+ */
+function setupDashboardTemplatePanel() {
+
+	appendChains(updatePanels(() => requestTemplatePanel()));
+}
+
+function requestTemplatePanel() {
+
+	let templateTextPanels = installer[vars.TEMPLATE_TEXT_PANELS];
+	let hsoTextPanel = installer[vars.HSO_TEMPLATE_PANEL];
+
+	appendFeedback("Select which Template Text Panel should be the HSO Template Panel:");
+
+	const selectionParent = document.createElement("div");
+
+	const typeOption = document.createElement('select');
+	if (hsoTextPanel == null) {
+		typeOption.innerHTML += '<option selected value="">Select or Add new Template Text Panel</option>';
+	} else {
+		typeOption.innerHTML += '<option value=' + hsoTextPanel.id + '>' + hsoTextPanel.name + '</option>';
+	}
+	for (let i = 0; i < templateTextPanels.length; i++) {
+		if (hsoTextPanel == null || hsoTextPanel.id != templateTextPanels[i].id) {
+			typeOption.innerHTML += '<option value=' + templateTextPanels[i].id + '>' + templateTextPanels[i].name + '</option>';
+		}
+	}
+	let newPanelValue = "NEW_PANEL_VALUE";
+
+	typeOption.innerHTML += '<option value=' + newPanelValue + '>New Template Text Panel</option>';
+
+	const selectButton = document.createElement('input');
+	selectButton.type = 'button';
+	selectButton.value = 'Select';
+	selectButton.disabled = hsoTextPanel == null;
+
+	selectionParent.appendChild(typeOption);
+	selectionParent.appendChild(selectButton);
+
+	appendFeedbackLine(selectionParent);
+
+	attachHandler(selectionParent, 'change', 'select', () => {
+		selectButton.disabled = (typeOption.value == '');
+		selectButton.value = isWaterOverlayType(typeOption.value) ? "Add" : "Select";
+	});
+	attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
+		selectButton.disabled = true;
+		typeOption.disabled = true;
+
+		if (newPanelValue == typeOption.value) {
+			addAndSetNewTemplateTextPanel();
+		} else {
+			installer[vars.DASHBOARD_PANEL_ID] = typeOption.value;
+			setHsoTemplatePanel();
+		}
+	});
+}
+
+function setHsoTemplatePanel() {
+
+	appendChains(
+		installer.connector.post("event/editorpanel/set_attribute", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[vars.DASHBOARD_PANEL_ID]);
+			params.push(HSO_PANEL_ATTRIBUTE);
+			params.push(1.0);
+		}),
+
+		installer.connector.post("event/editorpanel/remove_attribute", null, [], (_d, _u, _qp, params) => {
+			let dashboardPanelID = installer[vars.DASHBOARD_PANEL_ID];
+			let templatePanels = installer[vars.TEMPLATE_TEXT_PANELS];
+			let panelIDs = [];
+
+			for (let i = 0; i < templatePanels.length; i++) {
+				if (templatePanels[i].id != dashboardPanelID) {
+					panelIDs.push(templatePanels[i].id);
+				}
+			}
+			params.push(panelIDs);
+			params.push(HSO_PANEL_ATTRIBUTE);
+		}),
+
+		installer.connector.post("event/editorpanel/set_template_panel_maplink", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[vars.DASHBOARD_PANEL_ID]);
+			params.push("AREAS");
+		}),
+
+		installer.connector.post("event/editorpanel/set_template_attribute", null, [], (_d, _u, _qp, params) => {
+			let hsoOverlay = installer[vars.HSO_OVERLAY];
+			params.push(installer[vars.DASHBOARD_PANEL_ID]);
+			let attribute = hsoOverlay.keys[WATER_LEVEL_KEY] == null ? WATER_LEVEL_KEY : hsoOverlay.keys[WATER_LEVEL_KEY];
+			params.push(attribute);
+		}),
+
+		updatePanels(() => setDashboardContent(installer[vars.HSO_TEMPLATE_PANEL]))
+	);
+}
+
+function addAndSetNewTemplateTextPanel() {
+
+	appendChains(
+		installer.connector.post("event/editorpanel/add", null, ["TEMPLATE_TEXT_PANEL"]),
+
+		(data) => {
+			installer[vars.DASHBOARD_PANEL_ID] = Array.isArray(data) ? data[0] : data;
+		},
+
+		installer.connector.post("event/editorpanel/set_size", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[vars.DASHBOARD_PANEL_ID]);
+			params.push(PANEL_WIDTH);
+			params.push(PANEL_HEIGHT);
+		}),
+
+		() => {
+			setHsoTemplatePanel();
+		}
+	);
+}
+
+
+function setDashboardContent(panel) {
+	appendChains(
+
+		getDashboardContent(),
+
+		(data) => {
+			installer[vars.DASHBOARD_CONTENT] = data;
+
+		},
+
+		installer.connector.post("event/editorpanel/set_text", null, [], (_d, _u, _qp, params) => {
+			params.push(panel.id);
+			params.push(installer[vars.DASHBOARD_CONTENT]);
+			// remove dashboard data
+			installer[vars.DASHBOARD_CONTENT] = "";
+		}),
+
+		installer.connector.post("event/editorpanel/apply_template_panels", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[vars.DASHBOARD_PANEL_ID]);
+		}),
+
+		() => {
+			appendFeedback("Updated Template panel " + installer[vars.HSO_TEMPLATE_PANEL].name + "'s content with most recent HSO Dashboard from Public Share.");
+			requestUpdateIndicators();
+		}
+	);
+}
+
+function requestUpdateIndicators() {
+	appendFeedback("Implement request Overlay recalculation. Currently updating forcefully!");
+
+	appendChains(
+		installer.connector.post("event/editor/update", null, [true]),
+
+		() => appendFeedback("Installation of HSO Dashboard finished succesfully!")
+
+	);
+
+}
+
+function getDashboardContent() {
+	return (_data) => {
+		let promise = Promise.resolve(
+			$.ajax({
+				url: "https://devshare.tygron.com/share/public/dashboards/polderapp.txt",
+				method: "GET",
+				contentType: 'text/plain;charset=utf-8'
+			})
+		);
+		return promise;
+	}
 }
 
 $(window).on("load", function() {
