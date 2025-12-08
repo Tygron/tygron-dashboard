@@ -27,10 +27,10 @@
             W0-->|Keys|WK1[Request Select Key]
             WK1-->WK2[Adjust Overlay Key]
             WK2-->T       
-            W-->|>0|T[Template Panel applied on Water Level Areas?]
-            T-->|yes|TY[Finish installation]
-            T-->|no|TN[Import from url]
-            
+            W-->|>0|T[Update panels: is there a text template panel with HSO Attribute on HSO Overlay key?]
+            T-->TSelect[Select or add new template text panel]
+            TSelect-->TConfigure[Set HSO Attribute, Set Content, Reapply template panel]
+            TConfigure-->Finish            
     </pre>
     
     <script type="module">
