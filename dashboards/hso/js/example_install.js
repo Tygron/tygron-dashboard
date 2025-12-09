@@ -1,5 +1,5 @@
-import { getGridOverlay, getGridOverlays, getOverlay, getResultType, isOverlayOf } from "../../../src/js/util/OverlayUtils.js";
-import { connector } from "../../../src/js/util/Connector.js";
+import { getGridOverlay, getGridOverlays, getOverlay, getResultType, isOverlayOf } from "../../../src/js/item/OverlayUtils.js";
+import { connector } from "../../../src/js/io/Connector.js";
 import { attachHandler } from "../../../src/js/util/Dom.js";
 import { createRectangleMP } from "../../../src/js/util/GeometryUtils.js";
 import { getTemplateTextPanels, getTemplateTextPanel } from "../../../src/js/item/PanelUtils.js";

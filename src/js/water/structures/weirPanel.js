@@ -1,5 +1,5 @@
 import { addStructureInfoLabel, addStructureInfoValue } from "./structurePanel.js";
-import { addTimeframeSlider } from "../../util/Timeframeslider.js";
+import { addTimeframeSlider } from "../../ui/Timeframeslider.js";
 
 export class WeirPanel {
 
