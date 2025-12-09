@@ -1,11 +1,14 @@
 import { createTable } from "../../../src/js/ui/Table.js";
 import { barPlot, createBarPlotLayout, } from "../../../src/js/util/Plot.js";
 import { addTimeframeSlider, setupTimeframeSlider } from "../../../src/js/ui/Timeframeslider.js";
-import { addFlowValues, createLinks } from "../../../src/js/data/Data.js";
+import { addFlowValues, createLinks, createTimeframeData, addLink } from "../../../src/js/data/Data.js";
 import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
 import { QueryDataManager } from "../../../src/js/data/QueryDataManager.js";
 
 const queries = new QueryDataManager();
+const stepwise = (value, index, array) => index === 0 ? value : value - array[index - 1];
+const countPositive = value => Math.max(0, value);
+const countNegative = value => Math.abs(Math.min(0, value));
 
 /**
  * Volume section 
@@ -108,6 +111,7 @@ const RAINM3STORAGE = 'RAINM3STORAGE';
 const LANDSEWER = 'LANDSEWER';
 
 const EVAPOTRANSPIRATION = 'EVAPOTRANSPIRATION';
+const BOTTOM_FLOW = "BOTTOM_FLOW";
 const GROUND_TRANSPIRATION = 'GROUND_TRANSPIRATION';
 const SURFACE_EVAPORATIONLAND = 'SURFACE_EVAPORATIONLAND';
 const SURFACE_EVAPORATIONWATER = 'SURFACE_EVAPORATIONWATER';
@@ -302,11 +306,16 @@ function initNodeColors() {
 	return nodeColors;
 }
 
+const AREA_ID = "AreaID";
+queries.addQuery(AREA_ID, "$ID");
+const areaID = queries.getData(AREA_ID, false);
+
+
 const flowTitles = initFlowTitles();
 const flowColors = initFlowColors();
 
 const flowProperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, M3LAND, M3WATER, M3GROUND, M3SATURATED, M3UNSATURATED, M3STORAGE, M3SEWER, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR_IN, WEIR_OUT, WEIR_INNER, BREACH_IN, BREACH_OUT];
-const flowData = createTimeframeData(timeframes, $ID, flowProperties);
+const flowData = createTimeframeData(timeframes, areaID, flowProperties);
 
 const CULVERT_AREA_FROM = "culvertAreaFrom";
 const CULVERT_AREA_TO = "culvertAreaTo";
@@ -322,65 +331,50 @@ const INLET_UNDERGROUND = "inletUnderground";
 const INLET_IS_UNDERGROUND = "inletIsUnderground";
 const INLET_IS_SURFACE = "inletIsSurface";
 
-queries.addQuery(CULVERT_AREA_FROM, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_0");
-queries.addQuery(CULVERT_AREA_TO, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_CULVERT_DIAMETER_AND_INDEX_IS_1");
-queries.addQuery(PUMP_AREA_FROM, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_0");
-queries.addQuery(PUMP_AREA_TO, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_INDEX_IS_1");
-queries.addQuery(INLET_AREA_FROM, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0");
-queries.addQuery(INLET_AREA_TO, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_1");
-queries.addQuery(WEIR_AREA_FROM, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_0");
-queries.addQuery(WEIR_AREA_TO, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XA_WEIR_HEIGHT_AND_INDEX_IS_1");
-queries.addQuery(BREACH_AREA_FROM, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_AREA_IS_XA_BREACH_HEIGHT_AND_INDEX_IS_0");
-queries.addQuery(BREACH_AREA_TO, "SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_WATER_AREA_OUTPUT_AND_AREA_IS_XA_BREACH_HEIGHT_AND_INDEX_IS_1");
-queries.addQuery(INLET_UNDERGROUND, "SELECT_ATTRIBUTE_WHERE_NAME_IS_UNDERGROUND_AND_BUILDING_IS_XA_INLET_Q_AND_INDEX_IS_0");
+queries.addQuery(CULVERT_AREA_FROM, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XK_CULVERT_DIAMETER_AND_INDEX_IS_0");
+queries.addQuery(CULVERT_AREA_TO, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XK_CULVERT_DIAMETER_AND_INDEX_IS_1");
+queries.addQuery(PUMP_AREA_FROM, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XK_PUMP_Q_AND_INDEX_IS_0");
+queries.addQuery(PUMP_AREA_TO, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XK_PUMP_Q_AND_INDEX_IS_1");
+queries.addQuery(INLET_AREA_FROM, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XK_INLET_Q_AND_INDEX_IS_0");
+queries.addQuery(INLET_AREA_TO, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XK_INLET_Q_AND_INDEX_IS_1");
+queries.addQuery(WEIR_AREA_FROM, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XK_WEIR_HEIGHT_AND_INDEX_IS_0");
+queries.addQuery(WEIR_AREA_TO, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_BUILDING_IS_XK_WEIR_HEIGHT_AND_INDEX_IS_1");
+queries.addQuery(BREACH_AREA_FROM, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_AREA_IS_XK_BREACH_HEIGHT_AND_INDEX_IS_0");
+queries.addQuery(BREACH_AREA_TO, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_AREA_IS_XK_BREACH_HEIGHT_AND_INDEX_IS_1");
+queries.addQuery(INLET_UNDERGROUND, "$SELECT_ATTRIBUTE_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_UNDERGROUND_AND_BUILDING_IS_XK_INLET_Q_AND_INDEX_IS_0");
 
 const structureProperties = {};
-for (property of [CULVERT_AREA_FROM, CULVERT_AREA_TO, PUMP_AREA_FROM, PUMP_AREA_TO, INLET_AREA_FROM, INLET_AREA_TO, WEIR_AREA_FROM, WEIR_AREA_TO,BREACH_AREA_FROM, BREACH_AREA_TO, INLET_IS_UNDERGROUND]) {
+for (property of
+	[CULVERT_AREA_FROM, CULVERT_AREA_TO, PUMP_AREA_FROM, PUMP_AREA_TO, INLET_AREA_FROM, INLET_AREA_TO,
+		WEIR_AREA_FROM, WEIR_AREA_TO, BREACH_AREA_FROM, BREACH_AREA_TO, INLET_IS_UNDERGROUND]) {
 	structureProperties[property] = queries.getData(property);
 }
-structureProperties[INLET_IS_SURFACE] = structureProperties[INLET_UNDERGROUND].map((value, _index)=> value <= 0);
-structureProperties[INLET_IS_UNDERGROUND] = structureProperties[INLET_UNDERGROUND].map((value, _index)=> value > 0);
+structureProperties[INLET_IS_SURFACE] = structureProperties[INLET_UNDERGROUND].map((value, _index) => value <= 0);
+structureProperties[INLET_IS_UNDERGROUND] = structureProperties[INLET_UNDERGROUND].map((value, _index) => value > 0);
 
-for (var i = 0; i < timeframes; i++)
-	flowData[TIMEFRAMES][i] = i;
+flowData[TIMEFRAMES] = data[TIMEFRAMES];
+flowData[TIMEFRAMETIMES] = data[TIMEFRAMETIMES];
 
-setTimeframeValues(flowData, RAINM3, [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_RAIN_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID], { relative: true });
+queries.addQuery(RAINM3, "$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_RESULTTYPE_IS_RAIN_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
+queries.addQuery(RAINM3LAND, "$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_RAIN_LAND_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
+queries.addQuery(RAINM3WATER, "$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_RAIN_WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
+queries.addQuery(RAINM3STORAGE, "$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_BUILDING_LAST_STORAGE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
+queries.addQuery(EVAPOTRANSPIRATION, "$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_RESULTTYPE_IS_EVAPOTRANSPIRATION_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
+queries.addQuery(BOTTOM_FLOW, "$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND__RESULTTYPE_IS_GROUND_BOTTOM_FLOW_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
+queries.addQuery(LANDSEWER, "$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
+queries.addQuery(SURFACE_EVAPORATIONLAND, "$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_EVAPORATIONLAND_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
+queries.addQuery(SURFACE_EVAPORATIONWATER, "$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_EVAPORATIONWATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
+queries.addQuery(GROUND_TRANSPIRATION, "$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_TRANSPIRATION_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID");
 
 
+for (property of [RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, LANDSEWER, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, GROUND_TRANSPIRATION]) {
+	flowData[property] = queries.getData(property).map(stepwise);
+}
 
-const cumulativeValuesRain = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_RAIN_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesRain = cumulativeValuesRain.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, RAINM3, stepwiseValuesRain);
+flowData[BOTTOM_FLOW_IN] = queries.getData(BOTTOM_FLOW).map(countPositive).map(stepwise);
+flowData[BOTTOM_FLOW_OUT] = queries.getData(BOTTOM_FLOW).map(countNegative).map(stepwise);
 
-const cumulativeValuesEvaporated = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_EVAPOTRANSPIRATION_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesEvaporated = cumulativeValuesEvaporated.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, EVAPOTRANSPIRATION, stepwiseValuesEvaporated);
 
-const rawValuesBottomFlowIn = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_BOTTOM_FLOW_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const cumulativeValuesBottomFlowIn = rawValuesBottomFlowIn.map(val => Math.max(0, val));
-
-const stepwiseValuesBottomFlowIn = cumulativeValuesBottomFlowIn.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-
-setTimeframeValues(flowData, BOTTOM_FLOW_IN, stepwiseValuesBottomFlowIn);
-
-const rawValuesBottomFlowOut = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_BOTTOM_FLOW_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const cumulativeValuesBottomFlowOut = rawValuesBottomFlowOut.map(val => Math.abs(val));
-
-const stepwiseValuesBottomFlowOut = cumulativeValuesBottomFlowOut.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-
-setTimeframeValues(flowData, BOTTOM_FLOW_OUT, stepwiseValuesBottomFlowOut);
 
 flowData[M3TOTAL] = data[M3TOTAL];
 flowData[M3WATER] = data[M3WATER];
@@ -404,81 +398,6 @@ flowData[MODEL_OUT] = flowData[EVAPOTRANSPIRATION].map((_, i) =>
 	flowData[OUTLET_SURFACE][i] +
 	flowData[BOTTOM_FLOW_OUT][i]
 );
-
-// Voeg duikerbijdrage toe
-flowData[CULVERT_IN].forEach((_, i) => {
-	const verschil = flowData[CULVERT_IN][i] - flowData[CULVERT_OUT][i];
-	if (verschil > 0) {
-		flowData[MODEL_IN][i] += verschil;
-	} else {
-		flowData[MODEL_OUT][i] += Math.abs(verschil);
-	}
-});
-
-//Neerslag - Berging Land
-const cumulativeValuesRainLand = [$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_RAIN_LAND_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesRainLand = cumulativeValuesRainLand.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, RAINM3LAND, stepwiseValuesRainLand);
-
-//Neerslag - Berging Oppervlaktewater
-const cumulativeValuesRainWater = [$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_RAIN_WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesRainWater = cumulativeValuesRainWater.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, RAINM3WATER, stepwiseValuesRainWater);
-
-//Neerslag - Berging Gebouwen
-const cumulativeValuesRainStorage = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_BUILDING_LAST_STORAGE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesRainStorage = cumulativeValuesRainStorage.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, RAINM3STORAGE, stepwiseValuesRainStorage);
-
-//Berging Land - Berging riool
-const cumulativeValuesSewer = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesSewer = cumulativeValuesSewer.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, LANDSEWER, stepwiseValuesSewer);
-
-//Verdamping totaal
-const cumulativeValuesEvapotranspiration = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_EVAPOTRANSPIRATION_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesEvapotranspiration = cumulativeValuesEvapotranspiration.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, EVAPOTRANSPIRATION, stepwiseValuesEvapotranspiration);
-
-//Berging Bodem - Verdamping
-const cumulativeValuesTranspiration = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_TRANSPIRATION_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesTranspiration = cumulativeValuesTranspiration.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, GROUND_TRANSPIRATION, stepwiseValuesTranspiration);
-
-//Verdamping Land
-const cumulativeValuesEVAPORATIONLAND = [$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_EVAPORATIONLAND_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesEVAPORATIONLAND = cumulativeValuesEVAPORATIONLAND.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, SURFACE_EVAPORATIONLAND, stepwiseValuesEVAPORATIONLAND);
-
-
-//Verdamping Water
-const cumulativeValuesEVAPORATIONWATER = [$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_EVAPORATIONWATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-const stepwiseValuesEVAPORATIONWATER = cumulativeValuesEVAPORATIONWATER.map((val, index, arr) => {
-	if (index === 0) return val;
-	return val - arr[index - 1];
-});
-setTimeframeValues(flowData, SURFACE_EVAPORATIONWATER, stepwiseValuesEVAPORATIONWATER);
 
 //Berging Land - Uitlaat/Inlaat
 const landInlet = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_TIMEFRAME_IS_Y];
