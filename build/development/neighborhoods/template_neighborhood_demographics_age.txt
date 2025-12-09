@@ -339,547 +339,6 @@ html, body {
 	
 	<script>
 		
-function hasRequiredAttributesAndValues(item, requiredAttributes) {
-
-	for (const key of requiredAttributes.keys()) {
-
-		if (item.attributes == null) {
-			return false;
-		}
-
-		let value = requiredAttributes[key];
-
-		if (value == null && !(key in item.attributes)) {
-
-			return false;
-
-		} else if (value != null && item.attributes[key] != value) {
-
-			return false;
-		}
-	}
-	return true;
-}
-
-function hasRequiredAttribute(item, requiredAttribute) {
-	return item.attributes != null && item.attributes[requiredAttribute] != null;
-}
-
-function hasRequiredAttributes(item, requiredAttributes) {
-
-	if (requiredAttributes instanceof Map) {
-		return hasRequiredAttributesAndValues(item, requiredAttributes);
-
-	} else if (Array.isArray(requiredAttributes)) {
-		
-		for (let i = 0; i < requiredAttributes.length; i++) {
-			if (!hasRequiredAttribute(item, requiredAttributes[i])) {
-				return false;
-			}
-		}
-		return true;
-
-	} else if (typeof requiredAttributes == "string") {
-		return hasRequiredAttribute(item,requiredAttributes);
-
-	} else if (requiredAttributes != null) {
-
-		throw new Exception("Unhandled requiredAttribute type: " + requiredAttributes);
-	}
-
-	return true;
-
-
-
-}
-
-
-function isTemplateTextPanel(panel, templateMapLink, templateAttribute, requiredAttributes) {
-	// Is non template?	
-	if (panel == null || panel.autoApplied == null) {
-		return false;
-	}
-
-	// Check template panel type
-	if (panel.excelID != null) {
-		return false;
-	}
-
-	if (templateMapLink != null && panel.mapLink != templateMapLink) {
-		return false;
-	}
-
-	if (templateAttribute != null && panel.attribute != templateAttribute) {
-		return false;
-	}
-
-	if (hasRequiredAttributes != null && !hasRequiredAttributes(panel, requiredAttributes)) {
-		return false;
-	}
-
-	return true;
-
-}
-
-function getTemplateTextPanel(panels, templateMapLink, templateAttribute, requiredAttributes) {
-
-	if (!Array.isArray(panels)) {
-		return panels;
-	}
-
-	for (let i = 0; i < panels.length; i++) {
-
-		if (isTemplateTextPanel(panels[i], templateMapLink, templateAttribute, requiredAttributes)) {
-			return panels[i];
-		}
-	}
-
-	return null;
-
-
-}
-
-function getTemplateTextPanels(panels, templateMapLink, templateAttribute, requiredAttributes) {
-
-	let templateTextPanels = [];
-
-	if (!Array.isArray(panels)) {
-		return templateTextPanels;
-	}
-
-	for (let i = 0; i < panels.length; i++) {
-
-		if (isTemplateTextPanel(panels[i], templateMapLink, templateAttribute, requiredAttributes)) {
-			templateTextPanels.push(panels[i]);
-		}
-	}
-
-	return templateTextPanels;
-}
-
-
-class ArrayUtils {
-
-	/** 
-	 * 	Rescale a value to desired range. 
-	 * 		E.g. Turn fraction into neat percentage: scaleValue(fraction, [0,1], [0,100], true)
-	 * 		Non-numeric value input is ignored and returned as-is.
-	 * 		originalRange and targetRange must be an array of exactly 2 different numbers
-	*/
-	static scaleValue(value, originalRange, targetRange, round = false) {
-		if (!NumberUtils.isNumeric(value)) {
-			return value;
-		}
-		if ((!this.isRange(originalRange)) || (!this.isRange(targetRange))) {
-			throw 'Both the original and target range must be array of 2 different numeric values';
-		}
-		value = ((value - originalRange[0]) / (originalRange[1] - originalRange[0]));
-		value = (value * (targetRange[1] - targetRange[0])) + targetRange[0];
-
-		return round ? Math.round(value) : value;
-	}
-
-	/** 
-	 *	Array-wrapper for scaleValue
-	*/
-	static scaleValues(values, originalRange, targetRange, round = false) {
-		if (!(Array.isArray(values)|| this.isMap(values)) ) {
-			return this.scaleValue(values, originalRange, targetRange, round);
-		}
-
-		let arr = this.isMap(values) ? {} : [];
-		for (let i in values) {
-			arr[i] = (this.scaleValues(values[i], originalRange, targetRange, round));
-		}
-		return arr;
-	}
-
-	/**
-	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'.
-	 *	Operates in-place
-	 */
-	static forEach(array, func) {
-		if ( !Array.isArray(array) ) {
-			throw 'Not an array to iterate on';
-		}
-		if ( typeof func !== 'function' ) {
-			throw 'Not a function to apply';
-		}
-		for( let i in array ) {
-			let output = func(array[i],i,array);
-			if (typeof output !== 'undefined') {
-				array[i] = output;
-			}	
-		}
-		return array;
-	}
-	
-	static isRange(value, allowEqual = false) {
-		if (!Array.isArray(value) || value.length != 2) {
-			return false;
-		}
-		if ((!NumberUtils.isNumeric(value[0])) || (!NumberUtils.isNumeric(value[1]))) {
-			return false;
-		}
-		return ((value[0] != value[1]) || allowEqual);
-	}
-
-	static coerceToArray(value) {
-		return (!Array.isArray(value)) ? [value] : value;
-	}
-	static unArrayIfSingleElement(value, nullIfEmpty = true) {
-		if (!Array.isArray(value)) {
-			return value;
-		}
-		if (value.length === 1) {
-			return value[0];
-		}
-		if (value.length === 0) {
-			return nullIfEmpty ? null : value;
-		}
-		return value
-	}
-	
-	static filterByArray(data, filter, func = null) {
-		if ( !Array.isArray(data) ) { 
-			throw new TypeError('Data must be an array');
-		}
-		if ( !Array.isArray(filter) ) {
-			throw new TypeError('Filter must be an array');
-		}
-		
-		if (typeof func !== 'function') {
-			func = (d,f) => {return !!f};
-		}
-		
-		let values = [];
-		for ( let i=0 ; i < Math.min(data.length, filter.length) ; i++ ) {
-			if (typeof func === 'function') {
-				if ( func( data[i], filter[i] ) ) {
-					values.push( data[i] );
-				}
-			}
-		}
-		return values;
-	}
-	
-	/* Simple check to see if value is mapping, rather than array or primitive. For simplicity, objects are maps */
-	static isMap(obj) 	{
-		if (!obj) {
-			// Not null or undefined
-			return false;
-		}
-		if ( Array.isArray(obj) ) {
-			// Not an array
-			return false;
-		}
-		if ( ({}).constructor == Object(obj).constructor ) {
-			// Has a generic object constructor
-			return true;
-		}
-		return false;
-	}
-
-	static mapFromKeyValueArray(array) {
-		if (this.isMatrix(array)) {
-			return this.mapFromKeyValueMatrix(array);
-		}
-
-		let map = {};
-		for(let i = 0 ; i < array.length ; i+=2) {
-			map[array[i]] = array[i+1];
-		}
-		return map;
-	}
-	
-	static mapFromKeyValueMatrix(matrix) {
-		if (!this.isMatrix(matrix)) {
-			return this.mapFromKeyValueArray(matrix);
-		}
-		
-		let list = [];
-		for (let i=0;i<matrix.length;i++) {
-			list.push(this.mapFromKeyValueArray(matrix[i]));
-		}
-		
-		return list;
-	}
-	
-	static mergeMaps(concat, ...maps) {
-		let newMap = {};
-		
-		if (maps.length === 0 ) {
-			return newMap;
-		}
-		
-		for (let key in maps[0]) {
-			newMap[key] = [];
-		}
-		
-		for (let i=0;i<maps.length;i++) {
-			for (let key in newMap) {
-				if (concat) {
-					newMap[key] = newMap[key].concat(maps[i][key] ?? []);
-				} else {
-					newMap[key] = newMap[key].push(maps[i][key] ?? null);
-				}
-			}
-		}
-		return newMap;
-	}
-	
-	static changeMapKeys(map, remapping) {
-		let newMap = {};
-		for (let oldKey in map) {
-			newMap[remapping[oldKey]] = map[oldKey];
-		}
-		return newMap;
-	}
-	
-	static flipMatrix(matrix) {
-		let newMatrix = [];
-		let ySize = null;
-		
-		for (let i = 0; i < matrix.length; i++) {
-			
-			ySize = ySize ?? matrix[i].length;
-			
-			if (matrix[i].length != ySize) {
-				throw 'Matrix lengths inconsistent, could not flip';
-			}
-			
-			for (let j = 0; j < matrix[i].length; j++) {
-				
-				newMatrix[j] = newMatrix[j] ?? [];
-				newMatrix[j][i] = matrix[i][j];
-			}
-		}
-		
-		return newMatrix;
-	}
-
-	static clampMatrixSize(matrix, defaultValue, minSizeOuter, maxSizeOuter, minSizeInner, maxSizeInner) {
-		
-		let newMatrix = [];
-		if (!this.isMatrix(matrix)) {
-			throw new TypeError('Not a matrix');
-		}
-		
-		for (let i = 0; i < Math.min(matrix.length, maxSizeOuter ?? matrix.length); i++) {
-			
-			if ((maxSizeInner ?? -1) < 0) {				
-				newMatrix[i] = matrix[i];
-			
-			} else {				
-				newMatrix[i] = matrix[i].slice(0, maxSizeInner);	
-			}
-			
-			if (minSizeInner) {				
-				newMatrix[i] = newMatrix[i].concat(Array(Math.max(0,minSizeInner - matrix[i].length)).fill(defaultValue));
-			}
-		}
-		
-		if (minSizeOuter) {
-			
-			for (let i = newMatrix.length; i < minSizeOuter; i++) {
-				
-				newMatrix[i] = new Array(minSizeInner ?? 0).fill(defaultValue);
-			}
-		}
-		return newMatrix;
-	}
-
-	static clampMatrixSizeOuter(matrix, defaultValue, minSize, maxSize) {
-		
-		return this.clampMatrixSize(matrix, defaultValue, minSize, maxSize, null, null);
-	}	
-
-	static clampMatrixSizeInner(matrix, defaultValue, minSize, maxSize) {
-		
-		return this.clampMatrixSize(matrix, defaultValue, null, null, minSize, maxSize);
-	}
-
-	static isMatrix(matrix) {
-		
-		if (!Array.isArray(matrix)) {
-			return false;
-		}
-		
-		for (let inner of matrix) {
-			if (!Array.isArray(inner)) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-
-}
-
-function initCollapsibles() {
-
-	let collapsible = document.getElementsByClassName("collapsible");
-	
-	for (let i = 0; i < collapsible.length; i++) {
-		
-		collapsible[i].addEventListener("click", function() {
-
-			this.classList.toggle("active");
-			let content = this.nextElementSibling;
-			let style = content.style;
-
-			if (content.classList.contains("delayed")) {
-				
-				if (style.maxHeight) {
-					style.maxHeight = null;
-				} else {
-					style.maxHeight = content.scrollHeight + "px";
-				}
-			
-			} else {
-				style.display = style.display === "block" ? "none" : "block";
-			}
-
-
-		});
-	}
-}
-
-function openCollapsibles() {
-	
-	let  collapsible = document.getElementsByClassName("collapsible");
-	for (i = 0; i < collapsible.length; i++) {
-		
-		const collapsible = collapsible[i];
-		setTimeout(function() {
-			collapsible.click();
-		}, i * 100);
-	}
-}
-function connector(token, baseUrl, basePath,) {
-	
-	return {
-		token : token ?? null,
-		basePath : basePath ?? '/api/session/',
-		baseUrl : baseUrl ?? null,
-		protocol: 'https',
-		
-		start(funcToRun) {
-			return (typeof funcToRun === 'function') ? Promise.resolve(funcToRun()) : Promise.resolve(funcToRun ?? null);
-		},
-		
-		get(url, queryParams, preparationFunction) {
-			let self = this;
-			return function(data) {
-				return self._call( 'GET', url, queryParams, null, preparationFunction )();
-			}
-		},
-		post(url, queryParams, params, preparationFunction) {
-			let self = this;
-			return function(data) {
-				return self._call( 'POST', url, queryParams, params, preparationFunction )();
-			}
-		},
-		
-		recalculate( xqueries ) {
-			let self = this;
-			return function(data) {
-				return self.post('/api/session/event/editorindicator/reset_indicators/',null,[!!xqueries])(data);
-			}
-		},
-
-		consoleLog: function(message) {
-			return function(data) {
-				if (message) {
-					console.log(message);
-				}
-				console.log(data);
-				return data;
-			}
-		},
-		
-		_prepareQueryString: function(queryParams, url) {
-			queryParams = queryParams ?? {};
-			let queryString = new URLSearchParams(queryParams).toString();
-			if ( queryString.length > 0 ) {
-				if ( url.indexOf('?')===-1 ) {
-					queryString = '?'+ queryString;
-				} else {
-					queryString = '&'+ queryString;
-				}
-			}
-			return queryString;
-		},
-		
-		_prepareQueryParams: function(queryParams) {
-			queryParams = queryParams ?? {};
-			if ( !(typeof queryParams === 'object') ) {
-				queryParams = {};
-			}
-			return queryParams;
-		},
-		
-		_prepareParams: function(params) {
-			params = params ?? [];
-			if (!Array.isArray(params)) {
-				params = [params];
-			}
-			return params;
-		},
-		
-		_call: function (method, url, queryParams, params, preparationFunction) {
-			let self = this;
-			return function(data) {
-				params = method.toUpperCase() == 'GET' ? null : self._prepareParams(params);
-				queryParams = self._prepareQueryParams(queryParams);
-				queryParams['token'] = queryParams['token'] ?? self.token;
-				queryParams['f'] = queryParams['f'] ?? 'JSON';
-				
-				if (typeof preparationFunction == 'function') {
-					url = preparationFunction(data, url, queryParams, params) ?? url;
-				}
-				
-				let queryString = self._prepareQueryString(queryParams, url);
-				if ( self.basePath && !(url.indexOf('/')==0) ) {
-					url = self.basePath + url;
-				}
-				if (self.baseUrl) {
-					url = self.protocol + self.baseUrl + url;
-				}
-				url = url + queryString;
-				
-				let promise = Promise.resolve(
-					$.ajax({
-						url: url,
-						method: method.toUpperCase(),
-						contentType: 'application/json',
-						dataType: 'json',
-						data: JSON.stringify(params),
-					})
-				);
-				return promise;
-			};
-		},
-
-		//To use a single argument which is an array itself, wrap the arguments in an array.
-		chain: function(func, args) {
-			if ( typeof args === 'undefined' ) {
-				return function(data) {
-					return func(data);
-				}
-			}
-			if ( Array.isArray(args) ) {
-				return function(data) {
-					return func.apply(this, args.slice().unshift(data));
-				}
-			}
-			return function(data) {
-				return func.apply(this, [data, args]);
-			}
-		},
-	};
-}
-
 /**
  * @param {Array.<string>} properties Array of Property names to set into data
  * @returns {Object} Data Object containing the properties.
@@ -1064,729 +523,6 @@ function addValuesForTimeframeAndID(data, timeframe, property, idValues, values)
 	}
 
 }
-function ensureDomElement(domElementId) {
-	
-	let domElement = domElementId;
-	if (!(domElement instanceof HTMLElement)) {
-		domElement = document.getElementById(domElementId);
-	}
-	
-	if (!(domElement instanceof HTMLElement)) {
-		throw 'No element found matching ' + domElementId;
-	}
-	
-	return domElement;
-}
-
-function attachHandler(parentElement, eventType, selector, handler, referenceClass) {
-	
-	let checkHandler = function(event) {
-		event = event || window.event;
-		event.target = event.target || event.srcElement;
-
-		let foundElement = selector ? event.target.closest(selector) : parentElement;
-		if (foundElement) {
-			handler.call(foundElement, event);
-		}
-	};
-
-	if (parentElement.addEventListener) {
-		parentElement.addEventListener(eventType, checkHandler, false);
-	}
-	
-	if (referenceClass) {
-		parentElement.classList.add(referenceClass);
-	}
-}
-
-function popupPanel(parent, panelID, webPath) {
-
-	let popupPanel = document.createElement('div');
-	popupPanel.classList.add('popup');
-
-	let panelCloser = document.createElement('div');
-	panelCloser.classList.add('closer');
-	attachHandler(panelCloser, 'click', null, function() { clearPopupPanel(parent); });
-
-	let panelFrame = document.createElement('iframe');
-	panelFrame.classList.add('popupFrame');
-
-	popupPanel.appendChild(panelCloser);
-	popupPanel.appendChild(panelFrame);
-
-	webPath = webPath ?? '/web/panel.html';
-	let queryString = 'token=$TOKEN&id=' + panelID;
-	let webTarget = webPath + (webPath.indexOf('?') < 0 ? '?' : '&') + queryString;
-	panelFrame.src = webTarget;
-
-	clearPopupPanel(parent);
-	parent.appendChild(popupPanel);
-}
-
-function clearPopupPanel(element) {
-	let popups = element.getElementsByClassName('popup');
-	for (let i = 0; i < popups.length; i++) {
-		popups[i].remove();
-	}
-	return element;
-}
-
-function addDownloadHandler(element, fileName, contentFunction) {
-	
-	element.addEventListener('click', () => {
-		
-		let content = contentFunction();
-		let blob = new Blob([content], { type: 'text/plain' });
-
-		// temp link 
-		const link = document.createElement('a');
-		link.href = URL.createObjectURL(blob);
-		link.download = fileName;
-		link.click();
-
-		// cleanup
-		URL.revokeObjectURL(link.href);
-	});
-}
-
-function toCSVContent(data, properties, titles, timeframes) {
-	
-	let csvContent = "data:text/csv;charset=utf-8,";
-
-	for (let i = 0; i < properties.length; i++) {
-		csvContent += titles[properties[i]];
-		csvContent += i < properties.length - 1 ? "," : "\r\n";
-	}
-	
-	for (let t = 0; t < timeframes; t++) {
-		for (let i = 0; i < properties.length; i++) {
-			csvContent += data[properties[i]][t];
-			csvContent += i < properties.length - 1 ? "," : "\r\n";
-		}
-	}
-
-	return csvContent;
-
-}
-
-/**
-* Create a rectangular MultiPolygon object
-*/
-function createRectangleMP(x, y, width, height) {
-	return { type: "MultiPolygon", 
-		coordinates: [
-			[x, y],
-			[x, y + height],
-			[x + width, y + height],
-			[x + width, y],
-			[x, y]
-		]
-	};
-
-}
-
-
-
-/**
- * Listing Panel
- * 
- * To display a matrix of information with flexible rendering rules.
- * headers/content/footers : 
- * 		A matrix of values ( 0...n rows/arrays with 0...n values ) to display
- * headersTypes/contentTypes/footerTypes : 
- * 		A matching matrix of rendering types. Either predefined of functions. Either one array for all rows, or a matrix. Missing rows in a matrix use defaultTypes instead
- * defaultHeadersTypes/defaultContentTypes/defaultFootersTypes : 
- * 		A single renderer definition (or array of multiple matching one row) to render with if no list of renderers is provided
- * tableMode : 
- * 		Whether to render as an HTML table. If not, will use divs instead, per cell, per row, and one for the full container 
- * flipXY : 
- * 		If true, the rows in the data will be layed out as columns, and vice versa.
- */
-
-class ListingPanelController {
-	
-	constructor(domTarget, args = {}) {
-		this.args = Object.assign( {
-				'content' : [],
-				'contentTypes' : [],
-				'defaultContentTypes' : 'label',
-				
-				'headers': [],
-				'headersTypes' : [],
-				'defaultHeaderTypes' : 'label',
-				
-				'footers':[],
-				'footersTypes': [],
-				'defaultFootersTypes': 'label',
-				
-				'tableMode': true,
-				'flipXY' : false,
-			}, args );
-		
-		this.parent = null;
-		this.domElement = null;
-		
-		try {
-			this.parent = ensureDomElement(domTarget);
-		} catch( err ) {
-		}
-	}
-
-	addContent(content, renderTypes = null) {
-		this.args['content'].push(content);
-		if (renderTypes) {
-			let index = this.args['content'].length -1;
-			this.args['contentTypes'][index] = renderTypes;
-		}
-	}
-	addHeader(content, renderTypes = null) {
-		this.args['headers'].push(content);
-		if (renderTypes) {
-			let index = this.args['content'].length -1;
-			this.args['footersTypes'][index] = renderTypes;
-		}
-	}
-	addFooter(content, renderTypes = null) {
-		this.args['footers'].push(content);
-		if (renderTypes) {
-			let index = this.args['content'].length -1;
-			this.args['headersTypes'][index] = renderTypes;
-		}
-	}
-
-	clearContent() {
-		this.args['content'] = [];
-		this.args['contentTypes'] = [];
-	}
-	clearHeader() {
-		this.args['headers'] = [];
-		this.args['footersTypes'] = [];
-	}
-	clearFooter() {
-		this.args['footers'] = [];
-		this.args['headersTypes'] = [];
-	}
-	
-	setDefaultContentRenderTypes(renderTypes) {
-			this.args['defaultContentTypes'] = renderTypes;
-	}
-	setDefaultHeaderRenderTypes(renderTypes) {
-			this.args['defaultHeadersTypes'] = renderTypes;
-	}
-	setDefaultFootersRenderTypes(renderTypes) {
-			this.args['defaultFootersTypes'] = renderTypes;
-	}
-	
-	/* Based on the configuration and content, create the actual dom elements. */
-	render( rerender = true ) {
-		if (this.domElement && ! rerender) {
-			return this.domElement;
-		}
-		
-		let renderRules = this._createRenderRules(this.args)
-		if (this.args['flipXY']) {
-			renderRules = ArrayUtils.flipMatrix(renderRules);
-		}
-		let domElement = this._createDomElement(renderRules, this.args['tableMode']);
-		
-		if (this.parent) {
-			if (this.domElement) {
-				this.parent.removeChild(this.domElement);
-			}
-			this.parent.appendChild(domElement);
-		}
-		
-		this.domElement = domElement;
-	}
-	
-	getValues(section='content') {
-		let selector = 'entry'+  (section ? ' '+section : '');
-		let entries = this.domElement.getElementsByClassName(selector);
-		
-		let values = [];
-		for (let entry of entries) {
-			let entryValues = [];
-			let inputs = entry.getElementsByClassName('input');
-			for (let input of inputs) {
-				entryValues.push(this._getValueFromInput(input));
-			}
-			values.push(entryValues);
-		}
-		return values;
-	}
-	
-	getRenderer(type, args) {
-		type = type ?? 'label';
-		if (typeof type === 'function') {
-			return type;
-		}
-		
-		let renderer = null;
-		try {
-			renderer = ListingPanelController.getRenderer(type, args);
-		} catch (err) {
-			console.error('Failed to get renderer type '+type+', reason: '+err);
-			renderer = ListingPanelController.getRenderer('label');
-		}
-		return renderer;
-	}
-	
-	
-	static DEFAULT_CLASS = 'listingPanel';
-	
-	
-	/* Turn the content and provided render types into prepared render rules for each individual cell of the listing */
-	_createRenderRules( args = {} ) {
-		
-		let renderRules = [];
-		for ( let i=0 ; i<args['headers'].length ; i++ ) {
-			let types = this._getRenderTypesFromMatrix( args['headersTypes'], i, args['defaultHeaderTypes']);
-			let prepared = this._createCellRenderRules(args['headers'][i], types, {'special':'header'});
-			if (prepared) {
-				renderRules.push(prepared);
-			}
-		}
-		for ( let i=0 ; i<args['content'].length ; i++ ) {
-			let types = this._getRenderTypesFromMatrix( args['contentTypes'], i, args['defaultContentTypes']);
-			let prepared = this._createCellRenderRules(args['content'][i], types, {'special':'content'});
-			if (prepared) {
-				renderRules.push(prepared);
-			}
-		}
-		for ( let i=0 ; i<args['footers'].length ; i++ ) {
-			let types = this._getRenderTypesFromMatrix( args['footersTypes'], i, args['defaultFootersTypes']);
-			let prepared = this._createCellRenderRules(args['footers'][i], types, {'special':'footer'});
-			if (prepared) {
-				renderRules.push(prepared);
-			}
-		}
-		return renderRules;
-	}
-	
-	/* From a matrix of renderttpes, get the appropriate row if possible. Otherwise, use the default Types. */
-	_getRenderTypesFromMatrix(matrix, index, defaultTypes = []) {
-		if ( Array.isArray(matrix) ) {
-			if ( matrix.length == 0 ) {
-				return defaultTypes;
-			}
-			if ( !ArrayUtils.isMatrix(matrix) ) {
-				return matrix;
-			}
-			return matrix[index] ?? defaultTypes;
-		}
-		return matrix ?? defaultTypes;
-	}
-	
-	/* Create the render rule for an array of individual cells. */
-	_createCellRenderRules(contents = null, renderers = [], defaultRules = {}) {
-		defaultRules = Object.assign( {
-				'content' 	: null, // Default data, overwritten by the actual data
-				'rendering' : null, // Default type to use if "types" does not extend as far as datas
-				'special' 	: null, // Whether the rules are for headers, footers, or other special contents
-			}, defaultRules );
-		if ( contents===null ) {
-			return [];
-		}
-		if ( !Array.isArray(contents) ) {
-			contents = [contents];
-		}
-		if ( !Array.isArray(renderers) ) {
-			renderers = Array(contents.length).fill(renderers);
-		}
-		let cellRenderRules = [];
-		for (let i=0;i<contents.length;i++) {
-			let renderType = renderers[i];
-			let renderOptions = null;
-			if (renderType && renderType['type']) {
-				renderOptions = renderType ?? null;
-				renderType = renderType['type'];
-			}
-			cellRenderRules.push( Object.assign( {}, defaultRules, {
-				'content'	: contents[i],
-				'rendering'	: renderType ?? defaultRules['rendering'],
-				'options'	: renderOptions,
-			} ) );
-		}
-		return cellRenderRules;
-	}
-	
-	_createDomElement(renderRules, tableMode) {
-		
-		let domElement;
-		let domInnerElement;
-		
-		if (tableMode) {
-			domElement = document.createElement('table');
-			domInnerElement = document.createElement('tbody');
-			domElement.appendChild(domInnerElement);
-		} else {
-			domElement = document.createElement('div');
-			domInnerElement = domElement;
-		}
-		
-		for ( let i = 0 ; i < renderRules.length ; i++ ) {
-			let rowElement = this._createDomElementsRow(renderRules[i], tableMode);
-			domInnerElement.appendChild(rowElement);
-		}
-		domElement.classList.add(ListingPanelController.DEFAULT_CLASS);
-		
-		return domElement;	
-	}
-	
-	/* Generate */
-	_createDomElementsRow(rowRenderRules, tablemode) {
-		
-		let rowElementType = tablemode ? 'tr' : 'div';
-		let rowElement = document.createElement(rowElementType);
-		rowElement.classList.add('entry');
-		
-		let specialRow = null;
-		
-		for ( let i = 0 ; i < rowRenderRules.length ; i++ ) {
-			let cellRule = rowRenderRules[i];
-			let contentRenderer = this.getRenderer(cellRule['rendering'], cellRule['options']);
-			
-			let cellElement = contentRenderer(cellRule['content']);
-			if (cellRule['special']) {
-				cellElement.classList.add(cellRule['special']);
-			}
-			
-			if (tablemode) {
-				let wrappingCell = null;
-				if (cellRule['special'] === 'header') {
-					wrappingCell = document.createElement('th');
-				} else {
-					wrappingCell = document.createElement('td');
-				}
-				wrappingCell.appendChild(cellElement);
-				cellElement = wrappingCell;
-			}
-			
-			rowElement.appendChild(cellElement);
-			
-			specialRow = specialRow ?? cellRule['special'];
-			if (specialRow !== cellRule['special']) {
-				specialRow = false;	
-			}
-		}
-		
-		if (specialRow) {
-			rowElement.classList.add(specialRow);
-		}
-		
-		return rowElement;
-	}
-	
-	_getValueFromInput(input) {
-		if (typeof input.getValue === 'function') {
-			return input.getValue();
-		}
-		let selecteds = input.getElementsByClassName('selected');
-		if (selecteds.length>0) {
-			return selecteds[0].value;
-		}
-	}
-	
-	//Cache to prevent recreating renderers when many values are displayed the same
-	static cachedRenderers = {};
-	static getRenderer(type, args) {
-		if ( typeof type === 'function') {
-			return type;
-		}
-		
-		let cacheKey = JSON.stringify([type,args]);
-		let renderer = this.cachedRenderers[cacheKey] ?? null;
-		if ( renderer ) {
-			return renderer;
-		}
-	
-		switch(type) {
-			case 'label':
-				renderer = this._getRendererLabel(args);
-				break;
-			case 'buttons':
-				renderer = this._getRendererButtons(args);
-				break;
-			default:
-				throw 'Could not find renderer type '+type;
-		}
-		
-		if (renderer === false) {
-			throw 'Rendering type '+type+' requires arguments. Use getRenderer(type, args) to prepare this renderer instance.';
-		}
-		
-		this.cachedRenderers[cacheKey] = renderer;
-		return renderer;
-	}
-
-	static _applyGenericRendererOptions(element, options) {
-		
-		for (let key in options) {
-			let value = options[key];
-			if (key === 'style') {
-				for (let subKey in value ) element.style[subKey] = value[subKey];
-			}
-			if (key === 'class') {
-				for (let subKey in value ) element.classList.add( value[subKey] );
-			}
-		}
-		return element;
-	}
-	
-	static _getRendererLabel(options) {
-		let opt = options;
-		return function(content) {
-			let element = document.createElement('div');
-			element.classList.add('label');
-			let labelElement = document.createElement('span');
-			labelElement.innerHTML = content;
-			element.appendChild(labelElement);
-			
-			ListingPanelController._applyGenericRendererOptions(element, opt);
-			
-			return element;
-		}
-	}
-	
-	static _getRendererButtons(options) {
-		let opt = options;
-		if ( !opt || !opt['inputs'] ) {
-		throw 'Options required for buttons renderer';
-		}
-		
-		if ( !Array.isArray(opt['inputs'])) {
-			throw 'Option "inputs" required for buttons renderer';
-		}
-		let inputs = opt['inputs'];
-		return function(content) {
-			let element = document.createElement('div');
-			element.classList.add('input');
-			element.classList.add('buttons')
-			
-			for (let i = 0; i < inputs.length ; i++) {
-				let inputElement = document.createElement('input');
-				inputElement.type = 'button';
-				inputElement.value = inputs[i];
-				if (inputElement.value == content) {
-					inputElement.classList.add('selected');
-				}
-				element.appendChild(inputElement);
-			}
-			attachHandler(element, 'click', 'input[type="button"]', function(event){
-				let oldElement = this.closest('.buttons').getElementsByClassName('selected');
-				if (oldElement.length>0) {
-					for( let el of oldElement) {
-						el.classList.remove('selected');
-					}
-					oldElement = oldElement[0] ?? null;
-				}
-				this.classList.add('selected');
-				if (this != oldElement) {
-					this.closest('.'+ListingPanelController.DEFAULT_CLASS).dispatchEvent(new Event('change'));
-				}
-			});
-			
-			ListingPanelController._applyGenericRendererOptions(element, opt);
-			
-			return element;
-		}
-	}
-}
-class NumberUtils {
-
-	static isNumeric(value) {
-		return !isNaN(value*1);
-	}
-
-}
-
-
-function isGridOverlay(overlay) {
-	if (overlay == null || overlay.type == null) {
-		return false;
-	}
-
-	return isGridType(overlay.type);
-
-}
-
-function isGridType(type) {
-	if (type == null || typeof type !== 'string') {
-		return false;
-	}
-
-	switch (type) {
-		case "AVG":
-		case "COMBO":
-		case "DISTANCE":
-		case "DISTURBANCE_DISTANCE":
-		case "FLOODING":
-		case "GEO_TIFF":
-		case "GROUNDWATER":
-		case "HEAT_STRESS":
-		case "HEIGHTMAP":
-		case "INFERENCE":
-		case "ITERATION":
-		case "LIVABILITY":
-		case "NETWORK_DISTANCE":
-		case "OWNERSHIP_GRID":
-		case "RAINFALL":
-		case "RESULT_CHILD":
-		case "SAFETY_DISTANCE":
-		case "SATELLITE":
-		case "SHADOW":
-		case "SIGHT_DISTANCE":
-		case "SUBSIDENCE":
-		case "TEST":
-		case "TRAFFIC_NO2":
-		case "TRAFFIC_NOISE":
-		case "TRAVEL_DISTANCE":
-		case "WATERSHED":
-		case "WCS":
-		case "WMS":
-			return true;
-		default:
-			return false
-	}
-}
-
-function getResultType(gridOverlay, type) {
-	if (gridOverlay == null || gridOverlay.type == null) {
-		return null;
-	}
-
-
-	if (gridOverlay.resultType != null) {
-		return gridOverlay.resultType;
-	}
-
-	switch (type) {
-		case "AVG":
-		case "LIVABILITY":
-		case "OWNERSHIP_GRID":
-			return "AVG";
-		case "COMBO":
-		case "ITERATION":
-		case "NETWORK_DISTANCE":
-		case "SATELLITE":
-		case "TEST":
-			return "DEFAULT";
-		case "DISTANCE":
-		case "DISTURBANCE_DISTANCE":
-		case "SAFETY_DISTANCE":
-			return "ZONE"
-		case "FLOODING":
-		case "RAINFALL":
-		case "GROUNDWATER":
-			return "SURFACE_LAST_VALUE";
-		case "GEO_TIFF":
-			return "NEAREST";
-		case "HEAT_STRESS":
-			return "PET";
-		case "HEIGHTMAP":
-			return "DSM";
-		case "INFERENCE":
-			return "LABELS";
-		case "RESULT_CHILD":
-			return "";
-		case "SHADOW":
-			return "SHADE";
-		case "SIGHT_DISTANCE":
-			return "SIGHT";
-		case "SUBSIDENCE":
-			return "SUBSIDENCE";
-		case "TRAFFIC_NO2":
-			return "CONCENTRATION";
-		case "TRAFFIC_NOISE":
-			return "NOISE_DB";
-		case "TRAVEL_DISTANCE":
-			return "DESTINATIONS";
-		case "WATERSHED":
-			return "WATERSHEDS";
-		case "WCS":
-			return "NEAREST";
-		case "WMS":
-			return "COLOR";
-		default:
-			return "";
-	}
-}
-
-function getResultParentID(gridOverlay) {
-	if (gridOverlay == null || gridOverlay.parentID == null) {
-		return null;
-	}
-	return gridOverlay.parentID;
-}
-
-function getOverlay(overlays, id) {
-	for (let i = 0; i < overlays.length; i++) {
-		if (overlays[i] != null && overlays[i].id == id) {
-			return overlays[i];
-		}
-	}
-	return null;
-}
-
-
-function isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes) {
-	if (overlay == null) {
-		return false;
-	}
-
-	if (type != null && type != overlay.type) {
-		return false;
-	}
-
-	if (resultType != null && resultType != getResultType(overlay)) {
-		return false;
-	}
-
-	if (resultParentID != null && (resultParentID != getResultParentID(overlay) && overlay.id != resultParentID)) {
-		return false;
-	}
-
-	if (!hasRequiredAttributes(overlay, requiredAttributes)) {
-		return false;
-	}
-
-
-	return true;
-}
-
-function getGridOverlay(overlays, type, resultType, resultParentID, requiredAttributes) {
-
-	for (let i = 0; i < overlays.length; i++) {
-		let overlay = overlays[i];
-
-		if (isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes)) {
-			return overlay;
-		}
-	}
-
-	return null;
-
-
-}
-
-function getGridOverlays(overlays, type, resultType, resultParentID, requiredAttributes) {
-
-	let gridOverlays = [];
-
-	if (!Array.isArray(overlays)) {
-		return gridOverlays;
-	}
-
-	for (let i = 0; i < overlays.length; i++) {
-		let overlay = overlays[i];
-		if (isGridOverlay(overlay) && isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes)) {
-			gridOverlays.push(overlay);
-		}
-	}
-
-	return gridOverlays;
-}
-
 
 function barPlot(plotDivName, data, timeframe, properties, colors, titles, layout) {
 
@@ -2514,6 +1250,988 @@ class QueryDataManager {
 	}
 
 }
+function connector(token, baseUrl, basePath,) {
+	
+	return {
+		token : token ?? null,
+		basePath : basePath ?? '/api/session/',
+		baseUrl : baseUrl ?? null,
+		protocol: 'https',
+		
+		start(funcToRun) {
+			return (typeof funcToRun === 'function') ? Promise.resolve(funcToRun()) : Promise.resolve(funcToRun ?? null);
+		},
+		
+		get(url, queryParams, preparationFunction) {
+			let self = this;
+			return function(data) {
+				return self._call( 'GET', url, queryParams, null, preparationFunction )();
+			}
+		},
+		post(url, queryParams, params, preparationFunction) {
+			let self = this;
+			return function(data) {
+				return self._call( 'POST', url, queryParams, params, preparationFunction )();
+			}
+		},
+		
+		recalculate( xqueries ) {
+			let self = this;
+			return function(data) {
+				return self.post('/api/session/event/editorindicator/reset_indicators/',null,[!!xqueries])(data);
+			}
+		},
+
+		consoleLog: function(message) {
+			return function(data) {
+				if (message) {
+					console.log(message);
+				}
+				console.log(data);
+				return data;
+			}
+		},
+		
+		_prepareQueryString: function(queryParams, url) {
+			queryParams = queryParams ?? {};
+			let queryString = new URLSearchParams(queryParams).toString();
+			if ( queryString.length > 0 ) {
+				if ( url.indexOf('?')===-1 ) {
+					queryString = '?'+ queryString;
+				} else {
+					queryString = '&'+ queryString;
+				}
+			}
+			return queryString;
+		},
+		
+		_prepareQueryParams: function(queryParams) {
+			queryParams = queryParams ?? {};
+			if ( !(typeof queryParams === 'object') ) {
+				queryParams = {};
+			}
+			return queryParams;
+		},
+		
+		_prepareParams: function(params) {
+			params = params ?? [];
+			if (!Array.isArray(params)) {
+				params = [params];
+			}
+			return params;
+		},
+		
+		_call: function (method, url, queryParams, params, preparationFunction) {
+			let self = this;
+			return function(data) {
+				params = method.toUpperCase() == 'GET' ? null : self._prepareParams(params);
+				queryParams = self._prepareQueryParams(queryParams);
+				queryParams['token'] = queryParams['token'] ?? self.token;
+				queryParams['f'] = queryParams['f'] ?? 'JSON';
+				
+				if (typeof preparationFunction == 'function') {
+					url = preparationFunction(data, url, queryParams, params) ?? url;
+				}
+				
+				let queryString = self._prepareQueryString(queryParams, url);
+				if ( self.basePath && !(url.indexOf('/')==0) ) {
+					url = self.basePath + url;
+				}
+				if (self.baseUrl) {
+					url = self.protocol + self.baseUrl + url;
+				}
+				url = url + queryString;
+				
+				let promise = Promise.resolve(
+					$.ajax({
+						url: url,
+						method: method.toUpperCase(),
+						contentType: 'application/json',
+						dataType: 'json',
+						data: JSON.stringify(params),
+					})
+				);
+				return promise;
+			};
+		},
+
+		//To use a single argument which is an array itself, wrap the arguments in an array.
+		chain: function(func, args) {
+			if ( typeof args === 'undefined' ) {
+				return function(data) {
+					return func(data);
+				}
+			}
+			if ( Array.isArray(args) ) {
+				return function(data) {
+					return func.apply(this, args.slice().unshift(data));
+				}
+			}
+			return function(data) {
+				return func.apply(this, [data, args]);
+			}
+		},
+	};
+}
+
+function addDownloadHandler(element, fileName, contentFunction) {
+	
+	element.addEventListener('click', () => {
+		
+		let content = contentFunction();
+		let blob = new Blob([content], { type: 'text/plain' });
+
+		// temp link 
+		const link = document.createElement('a');
+		link.href = URL.createObjectURL(blob);
+		link.download = fileName;
+		link.click();
+
+		// cleanup
+		URL.revokeObjectURL(link.href);
+	});
+}
+
+function toCSVContent(data, properties, titles, timeframes) {
+	
+	let csvContent = "data:text/csv;charset=utf-8,";
+
+	for (let i = 0; i < properties.length; i++) {
+		csvContent += titles[properties[i]];
+		csvContent += i < properties.length - 1 ? "," : "\r\n";
+	}
+	
+	for (let t = 0; t < timeframes; t++) {
+		for (let i = 0; i < properties.length; i++) {
+			csvContent += data[properties[i]][t];
+			csvContent += i < properties.length - 1 ? "," : "\r\n";
+		}
+	}
+
+	return csvContent;
+
+}
+
+function hasRequiredAttributesAndValues(item, requiredAttributes) {
+
+	for (const key of requiredAttributes.keys()) {
+
+		if (item.attributes == null) {
+			return false;
+		}
+
+		let value = requiredAttributes[key];
+
+		if (value == null && !(key in item.attributes)) {
+
+			return false;
+
+		} else if (value != null && item.attributes[key] != value) {
+
+			return false;
+		}
+	}
+	return true;
+}
+
+function hasRequiredAttribute(item, requiredAttribute) {
+	return item.attributes != null && item.attributes[requiredAttribute] != null;
+}
+
+function hasRequiredAttributes(item, requiredAttributes) {
+
+	if (requiredAttributes instanceof Map) {
+		return hasRequiredAttributesAndValues(item, requiredAttributes);
+
+	} else if (Array.isArray(requiredAttributes)) {
+		
+		for (let i = 0; i < requiredAttributes.length; i++) {
+			if (!hasRequiredAttribute(item, requiredAttributes[i])) {
+				return false;
+			}
+		}
+		return true;
+
+	} else if (typeof requiredAttributes == "string") {
+		return hasRequiredAttribute(item,requiredAttributes);
+
+	} else if (requiredAttributes != null) {
+
+		throw new Exception("Unhandled requiredAttribute type: " + requiredAttributes);
+	}
+
+	return true;
+
+
+
+}
+
+
+function isGridOverlay(overlay) {
+	if (overlay == null || overlay.type == null) {
+		return false;
+	}
+
+	return isGridType(overlay.type);
+
+}
+
+function isGridType(type) {
+	if (type == null || typeof type !== 'string') {
+		return false;
+	}
+
+	switch (type) {
+		case "AVG":
+		case "COMBO":
+		case "DISTANCE":
+		case "DISTURBANCE_DISTANCE":
+		case "FLOODING":
+		case "GEO_TIFF":
+		case "GROUNDWATER":
+		case "HEAT_STRESS":
+		case "HEIGHTMAP":
+		case "INFERENCE":
+		case "ITERATION":
+		case "LIVABILITY":
+		case "NETWORK_DISTANCE":
+		case "OWNERSHIP_GRID":
+		case "RAINFALL":
+		case "RESULT_CHILD":
+		case "SAFETY_DISTANCE":
+		case "SATELLITE":
+		case "SHADOW":
+		case "SIGHT_DISTANCE":
+		case "SUBSIDENCE":
+		case "TEST":
+		case "TRAFFIC_NO2":
+		case "TRAFFIC_NOISE":
+		case "TRAVEL_DISTANCE":
+		case "WATERSHED":
+		case "WCS":
+		case "WMS":
+			return true;
+		default:
+			return false
+	}
+}
+
+function getResultType(gridOverlay, type) {
+	if (gridOverlay == null || gridOverlay.type == null) {
+		return null;
+	}
+
+
+	if (gridOverlay.resultType != null) {
+		return gridOverlay.resultType;
+	}
+
+	switch (type) {
+		case "AVG":
+		case "LIVABILITY":
+		case "OWNERSHIP_GRID":
+			return "AVG";
+		case "COMBO":
+		case "ITERATION":
+		case "NETWORK_DISTANCE":
+		case "SATELLITE":
+		case "TEST":
+			return "DEFAULT";
+		case "DISTANCE":
+		case "DISTURBANCE_DISTANCE":
+		case "SAFETY_DISTANCE":
+			return "ZONE"
+		case "FLOODING":
+		case "RAINFALL":
+		case "GROUNDWATER":
+			return "SURFACE_LAST_VALUE";
+		case "GEO_TIFF":
+			return "NEAREST";
+		case "HEAT_STRESS":
+			return "PET";
+		case "HEIGHTMAP":
+			return "DSM";
+		case "INFERENCE":
+			return "LABELS";
+		case "RESULT_CHILD":
+			return "";
+		case "SHADOW":
+			return "SHADE";
+		case "SIGHT_DISTANCE":
+			return "SIGHT";
+		case "SUBSIDENCE":
+			return "SUBSIDENCE";
+		case "TRAFFIC_NO2":
+			return "CONCENTRATION";
+		case "TRAFFIC_NOISE":
+			return "NOISE_DB";
+		case "TRAVEL_DISTANCE":
+			return "DESTINATIONS";
+		case "WATERSHED":
+			return "WATERSHEDS";
+		case "WCS":
+			return "NEAREST";
+		case "WMS":
+			return "COLOR";
+		default:
+			return "";
+	}
+}
+
+function getResultParentID(gridOverlay) {
+	if (gridOverlay == null || gridOverlay.parentID == null) {
+		return null;
+	}
+	return gridOverlay.parentID;
+}
+
+function getOverlay(overlays, id) {
+	for (let i = 0; i < overlays.length; i++) {
+		if (overlays[i] != null && overlays[i].id == id) {
+			return overlays[i];
+		}
+	}
+	return null;
+}
+
+
+function isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes) {
+	if (overlay == null) {
+		return false;
+	}
+
+	if (type != null && type != overlay.type) {
+		return false;
+	}
+
+	if (resultType != null && resultType != getResultType(overlay)) {
+		return false;
+	}
+
+	if (resultParentID != null && (resultParentID != getResultParentID(overlay) && overlay.id != resultParentID)) {
+		return false;
+	}
+
+	if (!hasRequiredAttributes(overlay, requiredAttributes)) {
+		return false;
+	}
+
+
+	return true;
+}
+
+function getGridOverlay(overlays, type, resultType, resultParentID, requiredAttributes) {
+
+	for (let i = 0; i < overlays.length; i++) {
+		let overlay = overlays[i];
+
+		if (isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes)) {
+			return overlay;
+		}
+	}
+
+	return null;
+
+
+}
+
+function getGridOverlays(overlays, type, resultType, resultParentID, requiredAttributes) {
+
+	let gridOverlays = [];
+
+	if (!Array.isArray(overlays)) {
+		return gridOverlays;
+	}
+
+	for (let i = 0; i < overlays.length; i++) {
+		let overlay = overlays[i];
+		if (isGridOverlay(overlay) && isOverlayOf(overlay, type, resultType, resultParentID, requiredAttributes)) {
+			gridOverlays.push(overlay);
+		}
+	}
+
+	return gridOverlays;
+}
+
+
+
+function isTemplateTextPanel(panel, templateMapLink, templateAttribute, requiredAttributes) {
+	// Is non template?	
+	if (panel == null || panel.autoApplied == null) {
+		return false;
+	}
+
+	// Check template panel type
+	if (panel.excelID != null) {
+		return false;
+	}
+
+	if (templateMapLink != null && panel.mapLink != templateMapLink) {
+		return false;
+	}
+
+	if (templateAttribute != null && panel.attribute != templateAttribute) {
+		return false;
+	}
+
+	if (hasRequiredAttributes != null && !hasRequiredAttributes(panel, requiredAttributes)) {
+		return false;
+	}
+
+	return true;
+
+}
+
+function getTemplateTextPanel(panels, templateMapLink, templateAttribute, requiredAttributes) {
+
+	if (!Array.isArray(panels)) {
+		return panels;
+	}
+
+	for (let i = 0; i < panels.length; i++) {
+
+		if (isTemplateTextPanel(panels[i], templateMapLink, templateAttribute, requiredAttributes)) {
+			return panels[i];
+		}
+	}
+
+	return null;
+
+
+}
+
+function getTemplateTextPanels(panels, templateMapLink, templateAttribute, requiredAttributes) {
+
+	let templateTextPanels = [];
+
+	if (!Array.isArray(panels)) {
+		return templateTextPanels;
+	}
+
+	for (let i = 0; i < panels.length; i++) {
+
+		if (isTemplateTextPanel(panels[i], templateMapLink, templateAttribute, requiredAttributes)) {
+			templateTextPanels.push(panels[i]);
+		}
+	}
+
+	return templateTextPanels;
+}
+
+function initCollapsibles() {
+
+	let collapsible = document.getElementsByClassName("collapsible");
+	
+	for (let i = 0; i < collapsible.length; i++) {
+		
+		collapsible[i].addEventListener("click", function() {
+
+			this.classList.toggle("active");
+			let content = this.nextElementSibling;
+			let style = content.style;
+
+			if (content.classList.contains("delayed")) {
+				
+				if (style.maxHeight) {
+					style.maxHeight = null;
+				} else {
+					style.maxHeight = content.scrollHeight + "px";
+				}
+			
+			} else {
+				style.display = style.display === "block" ? "none" : "block";
+			}
+
+
+		});
+	}
+}
+
+function openCollapsibles() {
+	
+	let  collapsible = document.getElementsByClassName("collapsible");
+	for (i = 0; i < collapsible.length; i++) {
+		
+		const collapsible = collapsible[i];
+		setTimeout(function() {
+			collapsible.click();
+		}, i * 100);
+	}
+}
+function ensureDomElement(domElementId) {
+	
+	let domElement = domElementId;
+	if (!(domElement instanceof HTMLElement)) {
+		domElement = document.getElementById(domElementId);
+	}
+	
+	if (!(domElement instanceof HTMLElement)) {
+		throw 'No element found matching ' + domElementId;
+	}
+	
+	return domElement;
+}
+
+function attachHandler(parentElement, eventType, selector, handler, referenceClass) {
+	
+	let checkHandler = function(event) {
+		event = event || window.event;
+		event.target = event.target || event.srcElement;
+
+		let foundElement = selector ? event.target.closest(selector) : parentElement;
+		if (foundElement) {
+			handler.call(foundElement, event);
+		}
+	};
+
+	if (parentElement.addEventListener) {
+		parentElement.addEventListener(eventType, checkHandler, false);
+	}
+	
+	if (referenceClass) {
+		parentElement.classList.add(referenceClass);
+	}
+}
+
+function popupPanel(parent, panelID, webPath) {
+
+	let popupPanel = document.createElement('div');
+	popupPanel.classList.add('popup');
+
+	let panelCloser = document.createElement('div');
+	panelCloser.classList.add('closer');
+	attachHandler(panelCloser, 'click', null, function() { clearPopupPanel(parent); });
+
+	let panelFrame = document.createElement('iframe');
+	panelFrame.classList.add('popupFrame');
+
+	popupPanel.appendChild(panelCloser);
+	popupPanel.appendChild(panelFrame);
+
+	webPath = webPath ?? '/web/panel.html';
+	let queryString = 'token=$TOKEN&id=' + panelID;
+	let webTarget = webPath + (webPath.indexOf('?') < 0 ? '?' : '&') + queryString;
+	panelFrame.src = webTarget;
+
+	clearPopupPanel(parent);
+	parent.appendChild(popupPanel);
+}
+
+function clearPopupPanel(element) {
+	let popups = element.getElementsByClassName('popup');
+	for (let i = 0; i < popups.length; i++) {
+		popups[i].remove();
+	}
+	return element;
+}
+
+
+
+/**
+ * Listing Panel
+ * 
+ * To display a matrix of information with flexible rendering rules.
+ * headers/content/footers : 
+ * 		A matrix of values ( 0...n rows/arrays with 0...n values ) to display
+ * headersTypes/contentTypes/footerTypes : 
+ * 		A matching matrix of rendering types. Either predefined of functions. Either one array for all rows, or a matrix. Missing rows in a matrix use defaultTypes instead
+ * defaultHeadersTypes/defaultContentTypes/defaultFootersTypes : 
+ * 		A single renderer definition (or array of multiple matching one row) to render with if no list of renderers is provided
+ * tableMode : 
+ * 		Whether to render as an HTML table. If not, will use divs instead, per cell, per row, and one for the full container 
+ * flipXY : 
+ * 		If true, the rows in the data will be layed out as columns, and vice versa.
+ */
+
+class ListingPanelController {
+	
+	constructor(domTarget, args = {}) {
+		this.args = Object.assign( {
+				'content' : [],
+				'contentTypes' : [],
+				'defaultContentTypes' : 'label',
+				
+				'headers': [],
+				'headersTypes' : [],
+				'defaultHeaderTypes' : 'label',
+				
+				'footers':[],
+				'footersTypes': [],
+				'defaultFootersTypes': 'label',
+				
+				'tableMode': true,
+				'flipXY' : false,
+			}, args );
+		
+		this.parent = null;
+		this.domElement = null;
+		
+		try {
+			this.parent = ensureDomElement(domTarget);
+		} catch( err ) {
+		}
+	}
+
+	addContent(content, renderTypes = null) {
+		this.args['content'].push(content);
+		if (renderTypes) {
+			let index = this.args['content'].length -1;
+			this.args['contentTypes'][index] = renderTypes;
+		}
+	}
+	addHeader(content, renderTypes = null) {
+		this.args['headers'].push(content);
+		if (renderTypes) {
+			let index = this.args['content'].length -1;
+			this.args['footersTypes'][index] = renderTypes;
+		}
+	}
+	addFooter(content, renderTypes = null) {
+		this.args['footers'].push(content);
+		if (renderTypes) {
+			let index = this.args['content'].length -1;
+			this.args['headersTypes'][index] = renderTypes;
+		}
+	}
+
+	clearContent() {
+		this.args['content'] = [];
+		this.args['contentTypes'] = [];
+	}
+	clearHeader() {
+		this.args['headers'] = [];
+		this.args['footersTypes'] = [];
+	}
+	clearFooter() {
+		this.args['footers'] = [];
+		this.args['headersTypes'] = [];
+	}
+	
+	setDefaultContentRenderTypes(renderTypes) {
+			this.args['defaultContentTypes'] = renderTypes;
+	}
+	setDefaultHeaderRenderTypes(renderTypes) {
+			this.args['defaultHeadersTypes'] = renderTypes;
+	}
+	setDefaultFootersRenderTypes(renderTypes) {
+			this.args['defaultFootersTypes'] = renderTypes;
+	}
+	
+	/* Based on the configuration and content, create the actual dom elements. */
+	render( rerender = true ) {
+		if (this.domElement && ! rerender) {
+			return this.domElement;
+		}
+		
+		let renderRules = this._createRenderRules(this.args)
+		if (this.args['flipXY']) {
+			renderRules = ArrayUtils.flipMatrix(renderRules);
+		}
+		let domElement = this._createDomElement(renderRules, this.args['tableMode']);
+		
+		if (this.parent) {
+			if (this.domElement) {
+				this.parent.removeChild(this.domElement);
+			}
+			this.parent.appendChild(domElement);
+		}
+		
+		this.domElement = domElement;
+	}
+	
+	getValues(section='content') {
+		let selector = 'entry'+  (section ? ' '+section : '');
+		let entries = this.domElement.getElementsByClassName(selector);
+		
+		let values = [];
+		for (let entry of entries) {
+			let entryValues = [];
+			let inputs = entry.getElementsByClassName('input');
+			for (let input of inputs) {
+				entryValues.push(this._getValueFromInput(input));
+			}
+			values.push(entryValues);
+		}
+		return values;
+	}
+	
+	getRenderer(type, args) {
+		type = type ?? 'label';
+		if (typeof type === 'function') {
+			return type;
+		}
+		
+		let renderer = null;
+		try {
+			renderer = ListingPanelController.getRenderer(type, args);
+		} catch (err) {
+			console.error('Failed to get renderer type '+type+', reason: '+err);
+			renderer = ListingPanelController.getRenderer('label');
+		}
+		return renderer;
+	}
+	
+	
+	static DEFAULT_CLASS = 'listingPanel';
+	
+	
+	/* Turn the content and provided render types into prepared render rules for each individual cell of the listing */
+	_createRenderRules( args = {} ) {
+		
+		let renderRules = [];
+		for ( let i=0 ; i<args['headers'].length ; i++ ) {
+			let types = this._getRenderTypesFromMatrix( args['headersTypes'], i, args['defaultHeaderTypes']);
+			let prepared = this._createCellRenderRules(args['headers'][i], types, {'special':'header'});
+			if (prepared) {
+				renderRules.push(prepared);
+			}
+		}
+		for ( let i=0 ; i<args['content'].length ; i++ ) {
+			let types = this._getRenderTypesFromMatrix( args['contentTypes'], i, args['defaultContentTypes']);
+			let prepared = this._createCellRenderRules(args['content'][i], types, {'special':'content'});
+			if (prepared) {
+				renderRules.push(prepared);
+			}
+		}
+		for ( let i=0 ; i<args['footers'].length ; i++ ) {
+			let types = this._getRenderTypesFromMatrix( args['footersTypes'], i, args['defaultFootersTypes']);
+			let prepared = this._createCellRenderRules(args['footers'][i], types, {'special':'footer'});
+			if (prepared) {
+				renderRules.push(prepared);
+			}
+		}
+		return renderRules;
+	}
+	
+	/* From a matrix of renderttpes, get the appropriate row if possible. Otherwise, use the default Types. */
+	_getRenderTypesFromMatrix(matrix, index, defaultTypes = []) {
+		if ( Array.isArray(matrix) ) {
+			if ( matrix.length == 0 ) {
+				return defaultTypes;
+			}
+			if ( !ArrayUtils.isMatrix(matrix) ) {
+				return matrix;
+			}
+			return matrix[index] ?? defaultTypes;
+		}
+		return matrix ?? defaultTypes;
+	}
+	
+	/* Create the render rule for an array of individual cells. */
+	_createCellRenderRules(contents = null, renderers = [], defaultRules = {}) {
+		defaultRules = Object.assign( {
+				'content' 	: null, // Default data, overwritten by the actual data
+				'rendering' : null, // Default type to use if "types" does not extend as far as datas
+				'special' 	: null, // Whether the rules are for headers, footers, or other special contents
+			}, defaultRules );
+		if ( contents===null ) {
+			return [];
+		}
+		if ( !Array.isArray(contents) ) {
+			contents = [contents];
+		}
+		if ( !Array.isArray(renderers) ) {
+			renderers = Array(contents.length).fill(renderers);
+		}
+		let cellRenderRules = [];
+		for (let i=0;i<contents.length;i++) {
+			let renderType = renderers[i];
+			let renderOptions = null;
+			if (renderType && renderType['type']) {
+				renderOptions = renderType ?? null;
+				renderType = renderType['type'];
+			}
+			cellRenderRules.push( Object.assign( {}, defaultRules, {
+				'content'	: contents[i],
+				'rendering'	: renderType ?? defaultRules['rendering'],
+				'options'	: renderOptions,
+			} ) );
+		}
+		return cellRenderRules;
+	}
+	
+	_createDomElement(renderRules, tableMode) {
+		
+		let domElement;
+		let domInnerElement;
+		
+		if (tableMode) {
+			domElement = document.createElement('table');
+			domInnerElement = document.createElement('tbody');
+			domElement.appendChild(domInnerElement);
+		} else {
+			domElement = document.createElement('div');
+			domInnerElement = domElement;
+		}
+		
+		for ( let i = 0 ; i < renderRules.length ; i++ ) {
+			let rowElement = this._createDomElementsRow(renderRules[i], tableMode);
+			domInnerElement.appendChild(rowElement);
+		}
+		domElement.classList.add(ListingPanelController.DEFAULT_CLASS);
+		
+		return domElement;	
+	}
+	
+	/* Generate */
+	_createDomElementsRow(rowRenderRules, tablemode) {
+		
+		let rowElementType = tablemode ? 'tr' : 'div';
+		let rowElement = document.createElement(rowElementType);
+		rowElement.classList.add('entry');
+		
+		let specialRow = null;
+		
+		for ( let i = 0 ; i < rowRenderRules.length ; i++ ) {
+			let cellRule = rowRenderRules[i];
+			let contentRenderer = this.getRenderer(cellRule['rendering'], cellRule['options']);
+			
+			let cellElement = contentRenderer(cellRule['content']);
+			if (cellRule['special']) {
+				cellElement.classList.add(cellRule['special']);
+			}
+			
+			if (tablemode) {
+				let wrappingCell = null;
+				if (cellRule['special'] === 'header') {
+					wrappingCell = document.createElement('th');
+				} else {
+					wrappingCell = document.createElement('td');
+				}
+				wrappingCell.appendChild(cellElement);
+				cellElement = wrappingCell;
+			}
+			
+			rowElement.appendChild(cellElement);
+			
+			specialRow = specialRow ?? cellRule['special'];
+			if (specialRow !== cellRule['special']) {
+				specialRow = false;	
+			}
+		}
+		
+		if (specialRow) {
+			rowElement.classList.add(specialRow);
+		}
+		
+		return rowElement;
+	}
+	
+	_getValueFromInput(input) {
+		if (typeof input.getValue === 'function') {
+			return input.getValue();
+		}
+		let selecteds = input.getElementsByClassName('selected');
+		if (selecteds.length>0) {
+			return selecteds[0].value;
+		}
+	}
+	
+	//Cache to prevent recreating renderers when many values are displayed the same
+	static cachedRenderers = {};
+	static getRenderer(type, args) {
+		if ( typeof type === 'function') {
+			return type;
+		}
+		
+		let cacheKey = JSON.stringify([type,args]);
+		let renderer = this.cachedRenderers[cacheKey] ?? null;
+		if ( renderer ) {
+			return renderer;
+		}
+	
+		switch(type) {
+			case 'label':
+				renderer = this._getRendererLabel(args);
+				break;
+			case 'buttons':
+				renderer = this._getRendererButtons(args);
+				break;
+			default:
+				throw 'Could not find renderer type '+type;
+		}
+		
+		if (renderer === false) {
+			throw 'Rendering type '+type+' requires arguments. Use getRenderer(type, args) to prepare this renderer instance.';
+		}
+		
+		this.cachedRenderers[cacheKey] = renderer;
+		return renderer;
+	}
+
+	static _applyGenericRendererOptions(element, options) {
+		
+		for (let key in options) {
+			let value = options[key];
+			if (key === 'style') {
+				for (let subKey in value ) element.style[subKey] = value[subKey];
+			}
+			if (key === 'class') {
+				for (let subKey in value ) element.classList.add( value[subKey] );
+			}
+		}
+		return element;
+	}
+	
+	static _getRendererLabel(options) {
+		let opt = options;
+		return function(content) {
+			let element = document.createElement('div');
+			element.classList.add('label');
+			let labelElement = document.createElement('span');
+			labelElement.innerHTML = content;
+			element.appendChild(labelElement);
+			
+			ListingPanelController._applyGenericRendererOptions(element, opt);
+			
+			return element;
+		}
+	}
+	
+	static _getRendererButtons(options) {
+		let opt = options;
+		if ( !opt || !opt['inputs'] ) {
+		throw 'Options required for buttons renderer';
+		}
+		
+		if ( !Array.isArray(opt['inputs'])) {
+			throw 'Option "inputs" required for buttons renderer';
+		}
+		let inputs = opt['inputs'];
+		return function(content) {
+			let element = document.createElement('div');
+			element.classList.add('input');
+			element.classList.add('buttons')
+			
+			for (let i = 0; i < inputs.length ; i++) {
+				let inputElement = document.createElement('input');
+				inputElement.type = 'button';
+				inputElement.value = inputs[i];
+				if (inputElement.value == content) {
+					inputElement.classList.add('selected');
+				}
+				element.appendChild(inputElement);
+			}
+			attachHandler(element, 'click', 'input[type="button"]', function(event){
+				let oldElement = this.closest('.buttons').getElementsByClassName('selected');
+				if (oldElement.length>0) {
+					for( let el of oldElement) {
+						el.classList.remove('selected');
+					}
+					oldElement = oldElement[0] ?? null;
+				}
+				this.classList.add('selected');
+				if (this != oldElement) {
+					this.closest('.'+ListingPanelController.DEFAULT_CLASS).dispatchEvent(new Event('change'));
+				}
+			});
+			
+			ListingPanelController._applyGenericRendererOptions(element, opt);
+			
+			return element;
+		}
+	}
+}
 
 function getRGBAInterpolated(value, min, max, maxColor, baseColor) {
 
@@ -2660,6 +2378,288 @@ function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput) {
 }
 
 
+
+
+class ArrayUtils {
+
+	/** 
+	 * 	Rescale a value to desired range. 
+	 * 		E.g. Turn fraction into neat percentage: scaleValue(fraction, [0,1], [0,100], true)
+	 * 		Non-numeric value input is ignored and returned as-is.
+	 * 		originalRange and targetRange must be an array of exactly 2 different numbers
+	*/
+	static scaleValue(value, originalRange, targetRange, round = false) {
+		if (!NumberUtils.isNumeric(value)) {
+			return value;
+		}
+		if ((!this.isRange(originalRange)) || (!this.isRange(targetRange))) {
+			throw 'Both the original and target range must be array of 2 different numeric values';
+		}
+		value = ((value - originalRange[0]) / (originalRange[1] - originalRange[0]));
+		value = (value * (targetRange[1] - targetRange[0])) + targetRange[0];
+
+		return round ? Math.round(value) : value;
+	}
+
+	/** 
+	 *	Array-wrapper for scaleValue
+	*/
+	static scaleValues(values, originalRange, targetRange, round = false) {
+		if (!(Array.isArray(values)|| this.isMap(values)) ) {
+			return this.scaleValue(values, originalRange, targetRange, round);
+		}
+
+		let arr = this.isMap(values) ? {} : [];
+		for (let i in values) {
+			arr[i] = (this.scaleValues(values[i], originalRange, targetRange, round));
+		}
+		return arr;
+	}
+
+	/**
+	 *	Convenience function wrapping an array's ForEach, to return the array for in-lining'.
+	 *	Operates in-place
+	 */
+	static forEach(array, func) {
+		if ( !Array.isArray(array) ) {
+			throw 'Not an array to iterate on';
+		}
+		if ( typeof func !== 'function' ) {
+			throw 'Not a function to apply';
+		}
+		for( let i in array ) {
+			let output = func(array[i],i,array);
+			if (typeof output !== 'undefined') {
+				array[i] = output;
+			}	
+		}
+		return array;
+	}
+	
+	static isRange(value, allowEqual = false) {
+		if (!Array.isArray(value) || value.length != 2) {
+			return false;
+		}
+		if ((!NumberUtils.isNumeric(value[0])) || (!NumberUtils.isNumeric(value[1]))) {
+			return false;
+		}
+		return ((value[0] != value[1]) || allowEqual);
+	}
+
+	static coerceToArray(value) {
+		return (!Array.isArray(value)) ? [value] : value;
+	}
+	static unArrayIfSingleElement(value, nullIfEmpty = true) {
+		if (!Array.isArray(value)) {
+			return value;
+		}
+		if (value.length === 1) {
+			return value[0];
+		}
+		if (value.length === 0) {
+			return nullIfEmpty ? null : value;
+		}
+		return value
+	}
+	
+	static filterByArray(data, filter, func = null) {
+		if ( !Array.isArray(data) ) { 
+			throw new TypeError('Data must be an array');
+		}
+		if ( !Array.isArray(filter) ) {
+			throw new TypeError('Filter must be an array');
+		}
+		
+		if (typeof func !== 'function') {
+			func = (d,f) => {return !!f};
+		}
+		
+		let values = [];
+		for ( let i=0 ; i < Math.min(data.length, filter.length) ; i++ ) {
+			if (typeof func === 'function') {
+				if ( func( data[i], filter[i] ) ) {
+					values.push( data[i] );
+				}
+			}
+		}
+		return values;
+	}
+	
+	/* Simple check to see if value is mapping, rather than array or primitive. For simplicity, objects are maps */
+	static isMap(obj) 	{
+		if (!obj) {
+			// Not null or undefined
+			return false;
+		}
+		if ( Array.isArray(obj) ) {
+			// Not an array
+			return false;
+		}
+		if ( ({}).constructor == Object(obj).constructor ) {
+			// Has a generic object constructor
+			return true;
+		}
+		return false;
+	}
+
+	static mapFromKeyValueArray(array) {
+		if (this.isMatrix(array)) {
+			return this.mapFromKeyValueMatrix(array);
+		}
+
+		let map = {};
+		for(let i = 0 ; i < array.length ; i+=2) {
+			map[array[i]] = array[i+1];
+		}
+		return map;
+	}
+	
+	static mapFromKeyValueMatrix(matrix) {
+		if (!this.isMatrix(matrix)) {
+			return this.mapFromKeyValueArray(matrix);
+		}
+		
+		let list = [];
+		for (let i=0;i<matrix.length;i++) {
+			list.push(this.mapFromKeyValueArray(matrix[i]));
+		}
+		
+		return list;
+	}
+	
+	static mergeMaps(concat, ...maps) {
+		let newMap = {};
+		
+		if (maps.length === 0 ) {
+			return newMap;
+		}
+		
+		for (let key in maps[0]) {
+			newMap[key] = [];
+		}
+		
+		for (let i=0;i<maps.length;i++) {
+			for (let key in newMap) {
+				if (concat) {
+					newMap[key] = newMap[key].concat(maps[i][key] ?? []);
+				} else {
+					newMap[key] = newMap[key].push(maps[i][key] ?? null);
+				}
+			}
+		}
+		return newMap;
+	}
+	
+	static changeMapKeys(map, remapping) {
+		let newMap = {};
+		for (let oldKey in map) {
+			newMap[remapping[oldKey]] = map[oldKey];
+		}
+		return newMap;
+	}
+	
+	static flipMatrix(matrix) {
+		let newMatrix = [];
+		let ySize = null;
+		
+		for (let i = 0; i < matrix.length; i++) {
+			
+			ySize = ySize ?? matrix[i].length;
+			
+			if (matrix[i].length != ySize) {
+				throw 'Matrix lengths inconsistent, could not flip';
+			}
+			
+			for (let j = 0; j < matrix[i].length; j++) {
+				
+				newMatrix[j] = newMatrix[j] ?? [];
+				newMatrix[j][i] = matrix[i][j];
+			}
+		}
+		
+		return newMatrix;
+	}
+
+	static clampMatrixSize(matrix, defaultValue, minSizeOuter, maxSizeOuter, minSizeInner, maxSizeInner) {
+		
+		let newMatrix = [];
+		if (!this.isMatrix(matrix)) {
+			throw new TypeError('Not a matrix');
+		}
+		
+		for (let i = 0; i < Math.min(matrix.length, maxSizeOuter ?? matrix.length); i++) {
+			
+			if ((maxSizeInner ?? -1) < 0) {				
+				newMatrix[i] = matrix[i];
+			
+			} else {				
+				newMatrix[i] = matrix[i].slice(0, maxSizeInner);	
+			}
+			
+			if (minSizeInner) {				
+				newMatrix[i] = newMatrix[i].concat(Array(Math.max(0,minSizeInner - matrix[i].length)).fill(defaultValue));
+			}
+		}
+		
+		if (minSizeOuter) {
+			
+			for (let i = newMatrix.length; i < minSizeOuter; i++) {
+				
+				newMatrix[i] = new Array(minSizeInner ?? 0).fill(defaultValue);
+			}
+		}
+		return newMatrix;
+	}
+
+	static clampMatrixSizeOuter(matrix, defaultValue, minSize, maxSize) {
+		
+		return this.clampMatrixSize(matrix, defaultValue, minSize, maxSize, null, null);
+	}	
+
+	static clampMatrixSizeInner(matrix, defaultValue, minSize, maxSize) {
+		
+		return this.clampMatrixSize(matrix, defaultValue, null, null, minSize, maxSize);
+	}
+
+	static isMatrix(matrix) {
+		
+		if (!Array.isArray(matrix)) {
+			return false;
+		}
+		
+		for (let inner of matrix) {
+			if (!Array.isArray(inner)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+}
+
+/**
+* Create a rectangular MultiPolygon object
+*/
+function createRectangleMP(x, y, width, height) {
+	return { type: "MultiPolygon", 
+		coordinates: [
+			[x, y],
+			[x, y + height],
+			[x + width, y + height],
+			[x + width, y],
+			[x, y]
+		]
+	};
+
+}
+class NumberUtils {
+
+	static isNumeric(value) {
+		return !isNaN(value*1);
+	}
+
+}
 
 
 function getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight) {
