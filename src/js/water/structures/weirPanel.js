@@ -119,7 +119,7 @@ export class WeirPanel {
 		this.weirSliderContainer = document.createElement("div");
 		parent.appendChild(this.weirSliderContainer);
 
-		this.timeframeSlider = addTimeframeSlider(this.weirSliderContainer, "weirSlider");
+		this.timeframeSlider = addTimeframeSlider(this.weirSliderContainer);
 
 		this.weirPlotsContainer = document.createElement("div");
 		this.weirPlotRow = document.createElement("div");
