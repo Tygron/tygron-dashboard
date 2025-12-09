@@ -75,11 +75,14 @@ barPlotLayout.title.text = "Berging per component";
 barPlotLayout.yaxis.title.text = "Volume [m³]";
 barPlotLayout.xaxis.title.text = "Component";
 
+function updateBarPlot(){
+barPlot("balancePlot", data, barSlider.value, plotProperties, volumeColors, volumeTitles, barPlotLayout);	
+}
+
+updateBarPlot();
+
 const barSlider = document.getElementById("barSlider");
-barPlot("balancePlot", data, barSlider.value, plotProperties, volumeColors, volumeTitles, barPlotLayout);
-setupTimeframeSlider(barSlider, timeframe, timeframes, function() {
-	barPlot("balancePlot", data, barSlider.value, plotProperties, volumeColors, volumeTitles, barPlotLayout);
-});
+setupTimeframeSlider(barSlider, timeframe, timeframes, updateBarPlot);
 
 const MODEL_IN = 'MODEL_IN';
 const MODEL_OUT = 'MODEL_OUT';
@@ -89,7 +92,6 @@ const RAINM3WATER = 'RAINM3WATER';
 const RAINM3STORAGE = 'RAINM3STORAGE';
 
 const LANDSEWER = 'LANDSEWER';
-
 
 const EVAPOTRANSPIRATION = 'EVAPOTRANSPIRATION';
 const GROUND_TRANSPIRATION = 'GROUND_TRANSPIRATION';
@@ -712,7 +714,7 @@ function plotSankey(){
 	);
 }
 
-setupTimeframeSlider(sankeySlider, timeframe, timeframes, ()=>plotSankey());
+setupTimeframeSlider(sankeySlider, timeframe, timeframes, plotSankey);
 
 plotSankey();
 
