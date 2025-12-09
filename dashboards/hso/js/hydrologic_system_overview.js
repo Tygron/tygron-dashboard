@@ -25,7 +25,7 @@ data[M3SEWER] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIM
 data[M3UNSATURATED] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_LAST_UNSATURATED_STORAGE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
 
 data[M3SATURATED] = data[M3GROUND].map((value, index) => value - data[M3UNSATURATED][index]);
-data[M3LAND] = data[M3TOTAL].map((value, index) => value -data[M3WATER][index]);
+data[M3LAND] = data[M3TOTAL].map((value, index) => value - data[M3WATER][index]);
 data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
 
 const timeframes = data[TIMEFRAMES].length;
@@ -34,9 +34,9 @@ var timeframe = timeframes - 1;
 const properties = [TIMEFRAMES, TIMEFRAMETIMES, M3LAND, M3WATER, M3SATURATED, M3UNSATURATED, M3SEWER, M3STORAGE];
 const plotProperties = [TIMEFRAMES, M3LAND, M3WATER, M3SATURATED, M3UNSATURATED, M3SEWER, M3STORAGE];
 
-function initVolumeTitles(){
+function initVolumeTitles() {
 	let titles = {};
-	
+
 	titles[TIMEFRAMES] = "Timeframes";
 	titles[TIMEFRAMETIMES] = "Tijdstap";
 	titles[M3LAND] = "Water op land [m³]";
@@ -46,13 +46,13 @@ function initVolumeTitles(){
 	titles[M3SEWER] = "Rioolwater [m³]";
 	titles[M3UNSATURATED] = "Berging onverzadidge zone [m³]";
 	titles[M3SATURATED] = "Berging verzadidge zone [m³]";
-	
+
 	return titles;
 }
 
-function initVolumeColors(){
+function initVolumeColors() {
 	let colors = {};
-	
+
 	colors[M3WATER] = [10, 10, 218, 0.5];
 	colors[M3LAND] = [10, 218, 10, 0.5];
 	colors[M3GROUND] = [165, 42, 42, 0.5];
@@ -60,7 +60,7 @@ function initVolumeColors(){
 	colors[M3SEWER] = [128, 128, 128, 0.5];
 	colors[M3UNSATURATED] = [218, 165, 10, 0.5];
 	colors[M3SATURATED] = [10, 165, 165, 0.5];
-	
+
 	return colors;
 }
 
@@ -75,13 +75,13 @@ barPlotLayout.title.text = "Berging per component";
 barPlotLayout.yaxis.title.text = "Volume [m³]";
 barPlotLayout.xaxis.title.text = "Component";
 
-function updateBarPlot(){
-barPlot("balancePlot", data, barSlider.value, plotProperties, volumeColors, volumeTitles, barPlotLayout);	
+const barSlider = document.getElementById("barSlider");
+
+function updateBarPlot() {
+	barPlot("balancePlot", data, barSlider.value, plotProperties, volumeColors, volumeTitles, barPlotLayout);
 }
 
 updateBarPlot();
-
-const barSlider = document.getElementById("barSlider");
 setupTimeframeSlider(barSlider, timeframe, timeframes, updateBarPlot);
 
 const MODEL_IN = 'MODEL_IN';
@@ -701,7 +701,7 @@ const sankeyLayout = createSankeyPlotLayout();
 
 const sankeySlider = document.getElementById("sankeySlider");
 
-function plotSankey(){
+function plotSankey() {
 	sankeyPlot(
 		"sankeyPlot",         // plotDivName
 		links,                // links
