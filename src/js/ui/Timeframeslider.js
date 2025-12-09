@@ -1,3 +1,6 @@
+/**
+ * @param {Element} parent 
+ */
 export function addTimeframeSlider(parent) {
 	let sliderDiv = document.createElement("div");
 	sliderDiv.className = "timeframe-slider range--ticks slider-background";
