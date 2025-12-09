@@ -970,7 +970,7 @@ function setHsoTemplatePanel() {
 			params.push(attribute);
 		}),
 
-		updatePanels(() => setDashboardContent(installer[vars.HSO_TEMPLATE_PANEL]))
+		() => updatePanels(setDashboardContent)
 	);
 }
 
@@ -996,7 +996,7 @@ function addAndSetNewTemplateTextPanel() {
 }
 
 
-function setDashboardContent(panel) {
+function setDashboardContent() {
 	appendChains(
 
 		getDashboardContent(),
@@ -1007,7 +1007,7 @@ function setDashboardContent(panel) {
 		},
 
 		installer.connector.post("event/editorpanel/set_text", null, [], (_d, _u, _qp, params) => {
-			params.push(panel.id);
+			params.push(installer[vars.DASHBOARD_PANEL_ID]);
 			params.push(installer[vars.DASHBOARD_CONTENT]);
 			// remove dashboard data
 			installer[vars.DASHBOARD_CONTENT] = "";
@@ -1040,7 +1040,7 @@ function getDashboardContent() {
 	return (_data) => {
 		let promise = Promise.resolve(
 			$.ajax({
-				url: "https://devshare.tygron.com/share/public/dashboards/polderapp.txt",
+				url: "https://devshare.tygron.com/share/tygronrd/dashboards/hydrologic_system_overview.txt",
 				method: "GET",
 				contentType: 'text/plain;charset=utf-8'
 			})
