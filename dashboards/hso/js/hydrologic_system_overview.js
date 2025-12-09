@@ -1,6 +1,6 @@
 import { createTable } from "../../../src/js/ui/Table.js";
 import { barPlot, createBarPlotLayout, } from "../../../src/js/util/Plot.js";
-import { setupTimeframeSlider } from "../../../src/js/ui/Timeframeslider.js";
+import { addTimeframeSlider, setupTimeframeSlider } from "../../../src/js/ui/Timeframeslider.js";
 import { addFlowValues, createLinks } from "../../../src/js/data/Data.js";
 import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
 
@@ -75,7 +75,7 @@ barPlotLayout.title.text = "Berging per component";
 barPlotLayout.yaxis.title.text = "Volume [m³]";
 barPlotLayout.xaxis.title.text = "Component";
 
-const barSlider = document.getElementById("barSlider");
+const barSlider = addTimeframeSlider(document.getElementById("balanceSliderDiv"));
 
 function updateBarPlot() {
 	barPlot("balancePlot", data, barSlider.value, plotProperties, volumeColors, volumeTitles, barPlotLayout);
@@ -699,7 +699,7 @@ for (let i = 0; i < timeframes; i++) {
 const nodeColors = initNodeColors();
 const sankeyLayout = createSankeyPlotLayout();
 
-const sankeySlider = document.getElementById("sankeySlider");
+const sankeySlider = addTimeframeSlider(document.getElementById("sankeySliderDiv"));
 
 function plotSankey() {
 	sankeyPlot(
@@ -713,6 +713,7 @@ function plotSankey() {
 
 	);
 }
+
 
 setupTimeframeSlider(sankeySlider, timeframe, timeframes, plotSankey);
 
