@@ -9,6 +9,7 @@ export class QueryDataObject {
 			y: null,
 		}, args);
 
+		this.query = args['query'];
 		this.setQueryData(args['query']);
 		this.setFallbackData(args['fallbackData']);
 
@@ -16,6 +17,7 @@ export class QueryDataObject {
 		this.setDimensionY(args['y']);
 	}
 
+	query = null;
 	queryData = null;
 	fallbackData = null;
 	x = null;
@@ -26,13 +28,13 @@ export class QueryDataObject {
 			return this.getQueryData();
 		}
 		if (!allowFallbackData) {
-			throw 'Query not resolved and no fallback data allowed';
+			throw 'Query not resolved and no fallback data allowed: ' + this.query;
 		}
 
 		if (this.hasResolvedFallbackData()) {
 			return this.getFallbackData();
 		}
-		throw 'Query not resolved and no fallback data available';
+		throw 'Query not resolved and no fallback data available: ' + this.query;
 	}
 
 	getQueryData() {
