@@ -237,7 +237,7 @@ function initFlowColors() {
 	flowColors[BREACH_IN] = [255, 127, 14, 0.5];
 	flowColors[BREACH_OUT] = [255, 127, 14, 0.5];
 
-	return flowColors();
+	return flowColors;
 }
 
 function initNodeColors() {
