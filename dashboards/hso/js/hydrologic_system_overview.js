@@ -118,116 +118,173 @@ const BREACH = "BREACH";
 const BREACH_IN = "BREACH_IN";
 const BREACH_OUT = "BREACH_OUT";
 
-const flowTitles = {};
-flowTitles[TIMEFRAMES] = "Timeframes";
+function initFlowTitles() {
 
-flowTitles[RAINM3] = 'Neerslag [m³/tijdstap]';
-flowTitles[RAINM3LAND] = 'Neerslag op land [m³/tijdstap]';
-flowTitles[RAINM3WATER] = 'Neerslag op water [m³/tijdstap]';
-flowTitles[RAINM3STORAGE] = 'Neerslag op bergende voorzieningen [m³/tijdstap]';
-flowTitles[LANDSEWER] = 'Toestroom naar riool [m³/tijdstap]';
+	let flowTitles = {};
+	flowTitles[TIMEFRAMES] = "Timeframes";
 
-flowTitles[EVAPOTRANSPIRATION] = 'Verdamping [m³/tijdstap]';
-flowTitles[GROUND_TRANSPIRATION] = 'Plant transpiratie [m³/tijdstap]';
-flowTitles[SURFACE_EVAPORATIONLAND] = 'Verdamping Land [m³/tijdstap]';
-flowTitles[SURFACE_EVAPORATIONWATER] = 'Verdamping Water [m³/tijdstap]';
+	flowTitles[RAINM3] = 'Neerslag [m³/tijdstap]';
+	flowTitles[RAINM3LAND] = 'Neerslag op land [m³/tijdstap]';
+	flowTitles[RAINM3WATER] = 'Neerslag op water [m³/tijdstap]';
+	flowTitles[RAINM3STORAGE] = 'Neerslag op bergende voorzieningen [m³/tijdstap]';
+	flowTitles[LANDSEWER] = 'Toestroom naar riool [m³/tijdstap]';
 
-
-flowTitles[SEWER_POC] = 'POCRiool [m³/tijdstap]';
-
-flowTitles[SEWER_OVERFLOW_OUT] = 'Riooloverstort [m³/tijdstap]';
-
-flowTitles[INLET_SURFACE] = 'Inlaat bovengronds [m³/tijdstap]';
-flowTitles[INLET_GROUND] = 'Inlaat ondergronds [m³/tijdstap]';
-flowTitles[OUTLET_SURFACE] = "Uitlaat bovengronds [m³/tijdstap]";
-flowTitles[OUTLET_GROUND] = "Uitlaat ondergronds [m³/tijdstap]";
-flowTitles[BOTTOM_FLOW_IN] = "Kwel [m³/tijdstap]";
-flowTitles[BOTTOM_FLOW_OUT] = "Uitzijging [m³/tijdstap]";
-flowTitles[CULVERT] = "Duiker [m³/tijdstap]";
-flowTitles[CULVERT_IN] = "Duiker in waterbeheergebied [m³/tijdstap]";
-flowTitles[CULVERT_OUT] = "Duiker uit waterbeheergebied [m³/tijdstap]";
-flowTitles[CULVERT_INNER] = "Duiker binnen waterbeheergebied [m³/tijdstap]";
-flowTitles[PUMP] = "Pomp";
-flowTitles[PUMP_IN] = "Pomp in waterbeheergebied [m³/tijdstap]";
-flowTitles[PUMP_OUT] = "Pomp uit waterbeheergebied [m³/tijdstap]";
-flowTitles[PUMP_INNER] = "Pomp binnen waterbeheergebied [m³/tijdstap]";
-flowTitles[WEIR] = "Stuw";
-flowTitles[WEIR_IN] = "Stuw in [m³/tijdstap]";
-flowTitles[WEIR_OUT] = "Stuw uit [m³/tijdstap]";
-flowTitles[WEIR_INNER] = "Stuw binnen waterbeheergebied [m³/tijdstap]";
-flowTitles[MODEL_IN] = "Waterbeheergebied in [m³/tijdstap]";
-flowTitles[MODEL_OUT] = "Waterbeheergebied uit [m³/tijdstap]";
-
-flowTitles[M3GROUND] = "Grondwater [m³]";
-flowTitles[M3UNSATURATED] = "Onverzadigde zone [m³]";
-flowTitles[M3SATURATED] = "Verzadigde zone [m³]";
-flowTitles[M3LAND] = "Land [m³]";
-flowTitles[M3WATER] = "Oppervlaktewater [m³]";
-flowTitles[M3STORAGE] = "Berging voorzieningen [m³]";
-flowTitles[M3TOTAL] = "Surface [m³]";
-flowTitles[M3SEWER] = "Riolering [m³]";
-flowTitles[BREACH] = "Bres";
-flowTitles[BREACH_IN] = "Bres in [m³/tijdstap]";
-flowTitles[BREACH_OUT] = "Bres uit [m³/tijdstap]";
+	flowTitles[EVAPOTRANSPIRATION] = 'Verdamping [m³/tijdstap]';
+	flowTitles[GROUND_TRANSPIRATION] = 'Plant transpiratie [m³/tijdstap]';
+	flowTitles[SURFACE_EVAPORATIONLAND] = 'Verdamping Land [m³/tijdstap]';
+	flowTitles[SURFACE_EVAPORATIONWATER] = 'Verdamping Water [m³/tijdstap]';
 
 
-const flowColors = {};
-// Model In/Out
-flowColors[MODEL_IN] = [44, 160, 44, 0.5];           // Groen
-flowColors[MODEL_OUT] = [214, 39, 40, 0.5];          // Rood
+	flowTitles[SEWER_POC] = 'POCRiool [m³/tijdstap]';
 
-//Natuurlijlke processen
-flowColors[RAINM3] = [31, 119, 180, 0.5];          // Donkerblauw - Neerslag
-flowColors[RAINM3LAND] = [31, 119, 180, 0.5];          // Donkerblauw - Neerslag
-flowColors[RAINM3WATER] = [31, 119, 180, 0.5];
-flowColors[RAINM3STORAGE] = [31, 119, 180, 0.5];
+	flowTitles[SEWER_OVERFLOW_OUT] = 'Riooloverstort [m³/tijdstap]';
 
-flowColors[LANDSEWER] = [31, 119, 180, 0.5];
+	flowTitles[INLET_SURFACE] = 'Inlaat bovengronds [m³/tijdstap]';
+	flowTitles[INLET_GROUND] = 'Inlaat ondergronds [m³/tijdstap]';
+	flowTitles[OUTLET_SURFACE] = "Uitlaat bovengronds [m³/tijdstap]";
+	flowTitles[OUTLET_GROUND] = "Uitlaat ondergronds [m³/tijdstap]";
+	flowTitles[BOTTOM_FLOW_IN] = "Kwel [m³/tijdstap]";
+	flowTitles[BOTTOM_FLOW_OUT] = "Uitzijging [m³/tijdstap]";
+	flowTitles[CULVERT] = "Duiker [m³/tijdstap]";
+	flowTitles[CULVERT_IN] = "Duiker in waterbeheergebied [m³/tijdstap]";
+	flowTitles[CULVERT_OUT] = "Duiker uit waterbeheergebied [m³/tijdstap]";
+	flowTitles[CULVERT_INNER] = "Duiker binnen waterbeheergebied [m³/tijdstap]";
+	flowTitles[PUMP] = "Pomp";
+	flowTitles[PUMP_IN] = "Pomp in waterbeheergebied [m³/tijdstap]";
+	flowTitles[PUMP_OUT] = "Pomp uit waterbeheergebied [m³/tijdstap]";
+	flowTitles[PUMP_INNER] = "Pomp binnen waterbeheergebied [m³/tijdstap]";
+	flowTitles[WEIR] = "Stuw";
+	flowTitles[WEIR_IN] = "Stuw in [m³/tijdstap]";
+	flowTitles[WEIR_OUT] = "Stuw uit [m³/tijdstap]";
+	flowTitles[WEIR_INNER] = "Stuw binnen waterbeheergebied [m³/tijdstap]";
+	flowTitles[MODEL_IN] = "Waterbeheergebied in [m³/tijdstap]";
+	flowTitles[MODEL_OUT] = "Waterbeheergebied uit [m³/tijdstap]";
 
+	flowTitles[M3GROUND] = "Grondwater [m³]";
+	flowTitles[M3UNSATURATED] = "Onverzadigde zone [m³]";
+	flowTitles[M3SATURATED] = "Verzadigde zone [m³]";
+	flowTitles[M3LAND] = "Land [m³]";
+	flowTitles[M3WATER] = "Oppervlaktewater [m³]";
+	flowTitles[M3STORAGE] = "Berging voorzieningen [m³]";
+	flowTitles[M3TOTAL] = "Surface [m³]";
+	flowTitles[M3SEWER] = "Riolering [m³]";
+	flowTitles[BREACH] = "Bres";
+	flowTitles[BREACH_IN] = "Bres in [m³/tijdstap]";
+	flowTitles[BREACH_OUT] = "Bres uit [m³/tijdstap]";
 
+	return flowTitles;
+}
 
-flowColors[EVAPOTRANSPIRATION] = [31, 119, 180, 0.5];
-flowColors[GROUND_TRANSPIRATION] = [31, 119, 180, 0.5];
-flowColors[SURFACE_EVAPORATIONLAND] = [31, 119, 180, 0.5];
-flowColors[SURFACE_EVAPORATIONWATER] = [31, 119, 180, 0.5];
+function initFlowColors() {
+	let flowColors = {};
+	// Model In/Out
+	flowColors[MODEL_IN] = [44, 160, 44, 0.5];           // Groen
+	flowColors[MODEL_OUT] = [214, 39, 40, 0.5];          // Rood
 
+	//Natuurlijlke processen
+	flowColors[RAINM3] = [31, 119, 180, 0.5];          // Donkerblauw - Neerslag
+	flowColors[RAINM3LAND] = [31, 119, 180, 0.5];          // Donkerblauw - Neerslag
+	flowColors[RAINM3WATER] = [31, 119, 180, 0.5];
+	flowColors[RAINM3STORAGE] = [31, 119, 180, 0.5];
 
-flowColors[BOTTOM_FLOW_IN] = [31, 119, 180, 0.5];
-flowColors[BOTTOM_FLOW_OUT] = [31, 119, 180, 0.5];
-
-// Berging - Lichtblauw
-flowColors[M3LAND] = [196, 196, 220, 0.5];         // Berging land
-flowColors[M3WATER] = [196, 196, 220, 0.5];        // Oppervlaktewater
-flowColors[M3GROUND] = [196, 196, 220, 0.5];       // Bodem
-flowColors[M3STORAGE] = [196, 196, 220, 0.5];      // Gebouwen
-flowColors[M3UNSATURATED] = [196, 196, 220, 0.5];      // Onverzadidge zone
-flowColors[M3SATURATED] = [196, 196, 220, 0.5];      // Verzadidge zone
-flowColors[M3TOTAL] = [196, 196, 220, 0.5];        // Totale berging (optioneel)
-
-// Kunstwerken - Oranje
-flowColors[INLET_SURFACE] = [255, 127, 14, 0.5];
-flowColors[INLET_GROUND] = [255, 127, 14, 0.5];
-flowColors[OUTLET_SURFACE] = [255, 127, 14, 0.5];
-flowColors[OUTLET_GROUND] = [255, 127, 14, 0.5];
-flowColors[PUMP] = [255, 127, 14, 0.5];
-flowColors[PUMP_IN] = [255, 127, 14, 0.5];
-flowColors[PUMP_OUT] = [255, 127, 14, 0.5];
-flowColors[PUMP_INNER] = [255, 127, 14, 0.5];
-flowColors[SEWER_OVERFLOW_OUT] = [255, 127, 14, 0.5]; // Overstort
-flowColors[SEWER_POC] = [255, 127, 14, 0.5];           // POC
-flowColors[CULVERT] = [255, 127, 14, 0.5];
-flowColors[CULVERT_IN] = [255, 127, 14, 0.5];
-flowColors[CULVERT_OUT] = [255, 127, 14, 0.5];
-flowColors[CULVERT_INNER] = [255, 127, 14, 0.5];
-flowColors[WEIR] = [255, 127, 14, 0.5];
-flowColors[WEIR_IN] = [255, 127, 14, 0.5];
-flowColors[WEIR_OUT] = [255, 127, 14, 0.5];
-flowColors[WEIR_INNER] = [255, 127, 14, 0.5];
-flowColors[BREACH] = [255, 127, 14, 0.5];
-flowColors[BREACH_IN] = [255, 127, 14, 0.5];
-flowColors[BREACH_OUT] = [255, 127, 14, 0.5];
+	flowColors[LANDSEWER] = [31, 119, 180, 0.5];
 
 
+
+	flowColors[EVAPOTRANSPIRATION] = [31, 119, 180, 0.5];
+	flowColors[GROUND_TRANSPIRATION] = [31, 119, 180, 0.5];
+	flowColors[SURFACE_EVAPORATIONLAND] = [31, 119, 180, 0.5];
+	flowColors[SURFACE_EVAPORATIONWATER] = [31, 119, 180, 0.5];
+
+
+	flowColors[BOTTOM_FLOW_IN] = [31, 119, 180, 0.5];
+	flowColors[BOTTOM_FLOW_OUT] = [31, 119, 180, 0.5];
+
+	// Berging - Lichtblauw
+	flowColors[M3LAND] = [196, 196, 220, 0.5];         // Berging land
+	flowColors[M3WATER] = [196, 196, 220, 0.5];        // Oppervlaktewater
+	flowColors[M3GROUND] = [196, 196, 220, 0.5];       // Bodem
+	flowColors[M3STORAGE] = [196, 196, 220, 0.5];      // Gebouwen
+	flowColors[M3UNSATURATED] = [196, 196, 220, 0.5];      // Onverzadidge zone
+	flowColors[M3SATURATED] = [196, 196, 220, 0.5];      // Verzadidge zone
+	flowColors[M3TOTAL] = [196, 196, 220, 0.5];        // Totale berging (optioneel)
+
+	// Kunstwerken - Oranje
+	flowColors[INLET_SURFACE] = [255, 127, 14, 0.5];
+	flowColors[INLET_GROUND] = [255, 127, 14, 0.5];
+	flowColors[OUTLET_SURFACE] = [255, 127, 14, 0.5];
+	flowColors[OUTLET_GROUND] = [255, 127, 14, 0.5];
+	flowColors[PUMP] = [255, 127, 14, 0.5];
+	flowColors[PUMP_IN] = [255, 127, 14, 0.5];
+	flowColors[PUMP_OUT] = [255, 127, 14, 0.5];
+	flowColors[PUMP_INNER] = [255, 127, 14, 0.5];
+	flowColors[SEWER_OVERFLOW_OUT] = [255, 127, 14, 0.5]; // Overstort
+	flowColors[SEWER_POC] = [255, 127, 14, 0.5];           // POC
+	flowColors[CULVERT] = [255, 127, 14, 0.5];
+	flowColors[CULVERT_IN] = [255, 127, 14, 0.5];
+	flowColors[CULVERT_OUT] = [255, 127, 14, 0.5];
+	flowColors[CULVERT_INNER] = [255, 127, 14, 0.5];
+	flowColors[WEIR] = [255, 127, 14, 0.5];
+	flowColors[WEIR_IN] = [255, 127, 14, 0.5];
+	flowColors[WEIR_OUT] = [255, 127, 14, 0.5];
+	flowColors[WEIR_INNER] = [255, 127, 14, 0.5];
+	flowColors[BREACH] = [255, 127, 14, 0.5];
+	flowColors[BREACH_IN] = [255, 127, 14, 0.5];
+	flowColors[BREACH_OUT] = [255, 127, 14, 0.5];
+
+	return flowColors();
+}
+
+function initNodeColors() {
+	let nodeColors = {};
+
+	nodeColors[MODEL_IN] = "#2ca02c";
+	nodeColors[MODEL_OUT] = "#d62728";
+	nodeColors[M3LAND] = "#6699cc";
+	nodeColors[M3WATER] = "#6699cc";
+	nodeColors[M3GROUND] = "#6699cc";
+	nodeColors[M3STORAGE] = "#6699cc";
+	nodeColors[M3SEWER] = "#6699cc";
+	nodeColors[M3UNSATURATED] = "#6699cc";
+	nodeColors[M3SATURATED] = "#6699cc";
+	nodeColors[RAINM3] = "#1f77b4";
+	nodeColors[RAINM3LAND] = "#c5b0d5";
+	nodeColors[RAINM3WATER] = "#8c564b";
+	nodeColors[RAINM3STORAGE] = "#c49c94";
+	nodeColors[GROUND_TRANSPIRATION] = "#1f77b4";
+	nodeColors[EVAPOTRANSPIRATION] = "#1f77b4";
+	nodeColors[SURFACE_EVAPORATIONLAND] = "#1f77b4";
+	nodeColors[SURFACE_EVAPORATIONWATER] = "#1f77b4";
+	nodeColors[BOTTOM_FLOW_IN] = "#1f77b4";
+	nodeColors[BOTTOM_FLOW_OUT] = "#1f77b4";
+	nodeColors[LANDSEWER] = "#17becf";
+	nodeColors[SEWER_POC] = "#ff7f0e";
+	nodeColors[SEWER_OVERFLOW_OUT] = "#ff7f0e";
+	nodeColors[CULVERT] = "#ff7f0e";
+	nodeColors[CULVERT_IN] = "#ff7f0e";
+	nodeColors[CULVERT_OUT] = "#ff7f0e";
+	nodeColors[CULVERT_INNER] = "#ff7f0e";
+	nodeColors[INLET_SURFACE] = "#ff7f0e";
+	nodeColors[OUTLET_SURFACE] = "#ff7f0e";
+	nodeColors[INLET_GROUND] = "#ff7f0e";
+	nodeColors[OUTLET_GROUND] = "#ff7f0e";
+	nodeColors[PUMP] = "#ff7f0e";
+	nodeColors[PUMP_IN] = "#ff7f0e";
+	nodeColors[PUMP_OUT] = "#ff7f0e";
+	nodeColors[PUMP_INNER] = "#ff7f0e";
+	nodeColors[WEIR] = "#ff7f0e";
+	nodeColors[WEIR_IN] = "#ff7f0e";
+	nodeColors[WEIR_OUT] = "#ff7f0e";
+	nodeColors[WEIR_INNER] = "#ff7f0e";
+	nodeColors[BREACH] = "#ff7f0e";
+	nodeColors[BREACH_IN] = "#ff7f0e";
+	nodeColors[BREACH_OUT] = "#ff7f0e";
+
+	return nodeColors;
+}
+
+const flowTitles = initFlowTitles();
+const flowColors = initFlowColors();
 
 const flowProperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, M3LAND, M3WATER, M3GROUND, M3SATURATED, M3UNSATURATED, M3STORAGE, M3SEWER, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR_IN, WEIR_OUT, WEIR_INNER, BREACH_IN, BREACH_OUT];
 const flowData = createTimeframeData(timeframes, $ID, flowProperties);
@@ -634,71 +691,12 @@ for (let i = 0; i < timeframes; i++) {
 
 }
 
-
-
-const nodeColors = {
-	MODEL_IN: "#2ca02c",
-	MODEL_OUT: "#d62728",
-	M3LAND: "#6699cc",
-	M3WATER: "#6699cc",
-	M3GROUND: "#6699cc",
-	M3STORAGE: "#6699cc",
-	M3SEWER: "#6699cc",
-	M3UNSATURATED: "#6699cc",
-	M3SATURATED: "#6699cc",
-	RAINM3: "#1f77b4",
-	RAINM3LAND: "#c5b0d5",
-	RAINM3WATER: "#8c564b",
-	RAINM3STORAGE: "#c49c94",
-	GROUND_TRANSPIRATION: "#1f77b4",
-	EVAPOTRANSPIRATION: "#1f77b4",
-	SURFACE_EVAPORATIONLAND: "#1f77b4",
-	SURFACE_EVAPORATIONWATER: "#1f77b4",
-	BOTTOM_FLOW_IN: "#1f77b4",
-	BOTTOM_FLOW_OUT: "#1f77b4",
-	LANDSEWER: "#17becf",
-	SEWER_POC: "#ff7f0e",
-	SEWER_OVERFLOW_OUT: "#ff7f0e",
-	CULVERT: "#ff7f0e",
-	CULVERT_IN: "#ff7f0e",
-	CULVERT_OUT: "#ff7f0e",
-	CULVERT_INNER: "#ff7f0e",
-	INLET_SURFACE: "#ff7f0e",
-	OUTLET_SURFACE: "#ff7f0e",
-	INLET_GROUND: "#ff7f0e",
-	OUTLET_GROUND: "#ff7f0e",
-	PUMP: "#ff7f0e",
-	PUMP_IN: "#ff7f0e",
-	PUMP_OUT: "#ff7f0e",
-	PUMP_INNER: "#ff7f0e",
-	WEIR: "#ff7f0e",
-	WEIR_IN: "#ff7f0e",
-	WEIR_OUT: "#ff7f0e",
-	WEIR_INNER: "#ff7f0e",
-	BREACH: "#ff7f0e",
-	BREACH_IN: "#ff7f0e",
-	BREACH_OUT: "#ff7f0e"
-};
-
-
-
-
+const nodeColors = initNodeColors();
 const sankeyLayout = createSankeyPlotLayout();
 
 const sankeySlider = document.getElementById("sankeySlider");
 
-sankeyPlot(
-	"sankeyPlot",         // plotDivName
-	links,                // links
-	sankeySlider.value,   // timeframe
-	sankeyproperties,     // properties
-	flowTitles,           // titles
-	sankeyLayout,         // layout
-	nodeColors           // kleuren als object
-
-);
-
-setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
+function plotSankey(){
 	sankeyPlot(
 		"sankeyPlot",         // plotDivName
 		links,                // links
@@ -706,10 +704,14 @@ setupTimeframeSlider(sankeySlider, timeframe, timeframes, function() {
 		sankeyproperties,     // properties
 		flowTitles,           // titles
 		sankeyLayout,         // layout
-		nodeColors            // kleuren als object
+		nodeColors           // kleuren als object
 
 	);
-});
+}
+
+setupTimeframeSlider(sankeySlider, timeframe, timeframes, ()=>plotSankey());
+
+plotSankey();
 
 let balanceCSVButton = document.getElementById("balanceCSVButton");
 let flowCSVButton = document.getElementById("flowCSVButton");
