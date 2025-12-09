@@ -23,49 +23,52 @@ data[M3GROUND] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_LAST_STORAGE_AND
 data[M3STORAGE] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_BUILDING_LAST_STORAGE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
 data[M3SEWER] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_SEWER_LAST_VALUE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
 data[M3UNSATURATED] = [$SELECT_GRIDVOLUME_WHERE_RESULTTYPE_IS_GROUND_LAST_UNSATURATED_STORAGE_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID];
-data[M3SATURATED] = data[M3GROUND].map((value, index) => {
-	return value - data[M3UNSATURATED][index];
-});
-data[M3LAND] = [];
-data[TIMEFRAMES] = [];
 
-const timeframes = data[TIMEFRAMETIMES].length;
+data[M3SATURATED] = data[M3GROUND].map((value, index) => value - data[M3UNSATURATED][index]);
+data[M3LAND] = data[M3TOTAL].map((value, index) => value -data[M3WATER][index]);
+data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
+
+const timeframes = data[TIMEFRAMES].length;
 var timeframe = timeframes - 1;
 
-for (var i = 0; i < data[M3TOTAL].length && i < data[M3WATER].length; i++)
-	data[M3LAND].push(data[M3TOTAL][i] - data[M3WATER][i]);
-
-for (var i = 0; i < timeframes; i++)
-	data[TIMEFRAMES].push(i);
-
-let timeLabels = data[TIMEFRAMETIMES];
 const properties = [TIMEFRAMES, TIMEFRAMETIMES, M3LAND, M3WATER, M3SATURATED, M3UNSATURATED, M3SEWER, M3STORAGE];
 const plotProperties = [TIMEFRAMES, M3LAND, M3WATER, M3SATURATED, M3UNSATURATED, M3SEWER, M3STORAGE];
 
+function initVolumeTitles(){
+	let titles = {};
+	
+	titles[TIMEFRAMES] = "Timeframes";
+	titles[TIMEFRAMETIMES] = "Tijdstap";
+	titles[M3LAND] = "Water op land [m³]";
+	titles[M3WATER] = "Oppervlaktewater [m³]";
+	titles[M3GROUND] = "Grondwater [m³]";
+	titles[M3STORAGE] = "Waterbergende voorzieningen [m³]";
+	titles[M3SEWER] = "Rioolwater [m³]";
+	titles[M3UNSATURATED] = "Berging onverzadidge zone [m³]";
+	titles[M3SATURATED] = "Berging verzadidge zone [m³]";
+	
+	return titles;
+}
 
-const titles = {};
-titles[TIMEFRAMES] = "Timeframes";
-titles[TIMEFRAMETIMES] = "Tijdstap";
-titles[M3LAND] = "Water op land [m³]";
-titles[M3WATER] = "Oppervlaktewater [m³]";
-titles[M3GROUND] = "Grondwater [m³]";
-titles[M3STORAGE] = "Waterbergende voorzieningen [m³]";
-titles[M3SEWER] = "Rioolwater [m³]";
-titles[M3UNSATURATED] = "Berging onverzadidge zone [m³]"
-titles[M3SATURATED] = "Berging verzadidge zone [m³]"
-
-const colors = {};
-colors[M3WATER] = [10, 10, 218, 0.5];
-colors[M3LAND] = [10, 218, 10, 0.5];
-colors[M3GROUND] = [165, 42, 42, 0.5];
-colors[M3STORAGE] = [218, 10, 10, 0.5];
-colors[M3SEWER] = [128, 128, 128, 0.5];
-colors[M3UNSATURATED] = [218, 165, 10, 0.5];
-colors[M3SATURATED] = [10, 165, 165, 0.5];
+function initVolumeColors(){
+	let colors = {};
+	
+	colors[M3WATER] = [10, 10, 218, 0.5];
+	colors[M3LAND] = [10, 218, 10, 0.5];
+	colors[M3GROUND] = [165, 42, 42, 0.5];
+	colors[M3STORAGE] = [218, 10, 10, 0.5];
+	colors[M3SEWER] = [128, 128, 128, 0.5];
+	colors[M3UNSATURATED] = [218, 165, 10, 0.5];
+	colors[M3SATURATED] = [10, 165, 165, 0.5];
+	
+	return colors;
+}
 
 
+const volumeTitles = initVolumeTitles();
+const volumeColors = initVolumeColors();
 
-createTable("waterBalanceTable", data, properties, colors, titles, timeLabels);
+createTable("waterBalanceTable", data, properties, volumeColors, volumeTitles, data[TIMEFRAMETIMES]);
 
 const barPlotLayout = createBarPlotLayout();
 barPlotLayout.title.text = "Berging per component";
@@ -73,9 +76,9 @@ barPlotLayout.yaxis.title.text = "Volume [m³]";
 barPlotLayout.xaxis.title.text = "Component";
 
 const barSlider = document.getElementById("barSlider");
-barPlot("balancePlot", data, barSlider.value, plotProperties, colors, titles, barPlotLayout);
+barPlot("balancePlot", data, barSlider.value, plotProperties, volumeColors, volumeTitles, barPlotLayout);
 setupTimeframeSlider(barSlider, timeframe, timeframes, function() {
-	barPlot("balancePlot", data, barSlider.value, plotProperties, colors, titles, barPlotLayout);
+	barPlot("balancePlot", data, barSlider.value, plotProperties, volumeColors, volumeTitles, barPlotLayout);
 });
 
 const MODEL_IN = 'MODEL_IN';
@@ -716,5 +719,5 @@ plotSankey();
 let balanceCSVButton = document.getElementById("balanceCSVButton");
 let flowCSVButton = document.getElementById("flowCSVButton");
 
-addDownloadHandler(balanceCSVButton, "waterbalance.csv", () => toCSVContent(data, properties, titles, timeframes));
+addDownloadHandler(balanceCSVButton, "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
 addDownloadHandler(flowCSVButton, "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
