@@ -3527,7 +3527,15 @@ function addNewWaterLevelArea() {
 }
 
 function setOverlayKey(overlay, key, value) {
-	appendFeedback("Implement set Overlay Key");
+	appendChains(
+			(_data) => appendFeedback("Setting HSO Overlay key "+key  + " to " + value),
+
+			installer.connector.post("event/editoroverlay/set_key_value", null, [], (_d, _u, _qp, params) => {
+				params.push(overlay.id);
+				params.push(key);
+				params.push(value);
+			})
+		);
 }
 
 
@@ -3554,7 +3562,7 @@ function comboPrequelEquals(combo, prequelName, prequelOverlay, iteration, timef
 function setResultType(resultType, idVar) {
 
 	appendChains(
-		(_data) => appendFeedback("Setting RainOverlay resultType to " + resultType),
+		(_data) => appendFeedback("Setting HSO Overlay resultType to " + resultType),
 
 		installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
 			params.push(installer[idVar]);
@@ -4159,11 +4167,14 @@ function requestAreaSetup() {
 				typeOption.innerHTML += '<option value=' + key + ' >Select Areas with attribute: ' + key + ' (' + areaMap.get(key) + ' area(s))</option>';
 
 			}
-			typeOption.innerHTML += '<option value="_">Add new Water Level Area</option>';
+			
+			let newValueChar = "_";
+			
+			typeOption.innerHTML += '<option value="'+newValueChar+'">Add new Water Level Area</option>';
 
 			const addButton = document.createElement('input');
 			addButton.type = 'button';
-			addButton.value = 'Add';
+			addButton.value = 'Select';
 			addButton.disabled = true;
 
 			selectionParent.appendChild(typeOption);
@@ -4171,15 +4182,18 @@ function requestAreaSetup() {
 
 			appendFeedbackLine(selectionParent);
 
-			attachHandler(selectionParent, 'change', 'select', () => addButton.disabled = (typeOption.value == ''));
+			attachHandler(selectionParent, 'change', 'select', () => {
+				addButton.disabled = (typeOption.value == '');
+				addButton.value = TypeOption.value == newValueChar ? 'Add' : 'Select';
+			});
 			attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
 				addButton.disabled = true;
 				typeOption.disabled = true;
 
-				if (typeOption.value == "_") {
+				if (typeOption.value == newValueChar) {
 					addNewWaterLevelArea();
 				} else {
-					setOverlayKey(hsoOverlay, WATER_LEVEL, key);
+					setOverlayKey(installer[vars.HSO_OVERLAY], WATER_LEVEL, key);
 				}
 				setupDashboardTemplatePanel();
 			});
