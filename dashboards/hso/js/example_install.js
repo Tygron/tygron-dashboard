@@ -687,18 +687,18 @@ function setupHsoComboOverlays() {
 
 		{
 
-			name: 'HSO Evapotranspiration on water',
-			attribute: 'HSO_EVAPOTRANSPIRATIONWATER',
-			resultChildTypeA: 'EVAPOTRANSPIRATION',
+			name: 'HSO Evaporation on water',
+			attribute: 'HSO_EVAPORATIONWATER',
+			resultChildTypeA: 'EVAPORATION',
 			resultChildTypeB: 'BASE_TYPES',
 			formula: 'SWITCH(BT, 0, 0, 0, 1, 0, 2, AT, 3, AT, 4, 0, 5, AT, 6, AT, 7, AT, 8, 0, 9, AT, 10, 0, 11, AT, 12, AT, 13, 0, 14, 0, 15, AT, 16, AT, 17, 0, 18, 0)'
 
 		},
 		{
 
-			name: 'HSO Evapotranspiration on land',
-			attribute: 'HSO_EVAPOTRANSPIRATIONLAND',
-			resultChildTypeA: 'EVAPOTRANSPIRATION',
+			name: 'HSO Evaporation on land',
+			attribute: 'HSO_EVAPORATIONLAND',
+			resultChildTypeA: 'EVAPORATION',
 			resultChildTypeB: 'BASE_TYPES',
 			formula: 'SWITCH(BT, 0, 0, AT, 1, AT, 2, 0, 3, 0, 4, AT, 5, 0, 6, 0, 7, 0, 8, AT, 9, 0, 10, AT, 11, 0, 12, 0, 13, AT, 14, AT, 15, 0, 16, 0, 17, AT, 18, AT)',
 
