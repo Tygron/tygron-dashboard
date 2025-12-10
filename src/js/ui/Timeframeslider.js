@@ -35,6 +35,9 @@ export function addTimeframeSlider(parent) {
 	if (parent != null) {
 		parent.appendChild(sliderDiv);
 	}
+
+	sliderDiv.getValue = () => {return sliderDiv.style.getPropertyValue("--value")};
+
 	return sliderDiv;
 }
 
