@@ -91,7 +91,7 @@ barPlotLayout.xaxis.title.text = "Component";
 const barSlider = addTimeframeSlider(document.getElementById("balanceSliderDiv"));
 
 function updateBarPlot() {
-	barPlot("balancePlot", data, barSlider.value, plotProperties, volumeColors, volumeTitles, barPlotLayout);
+	barPlot("balancePlot", data, barSlider.getValue(), plotProperties, volumeColors, volumeTitles, barPlotLayout);
 }
 
 updateBarPlot();
@@ -404,6 +404,7 @@ const CULVERT_FLOW = "CULVERT_FLOW";
 const PUMP_FLOW = "PUMP_FLOW";
 const DRAINAGE_FLOW = "DRAINAGE_FLOW";
 const SEWER_FLOW = "SEWER_FLOW";
+const SERVER_OVERFLOW = "SERVER_OVERFLOW";
 
 queries.addQuery(BREACH_FLOW, '$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_AREA_IS_XA_BREACH_HEIGHT_AND_TIMEFRAME_IS_Y');
 queries.addQuery(INLET_FLOW, '$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_INLET_Q_AND_TIMEFRAME_IS_Y');
@@ -412,16 +413,17 @@ queries.addQuery(CULVERT_FLOW, '$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTP
 queries.addQuery(PUMP_FLOW, '$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_PUMP_Q_AND_TIMEFRAME_IS_Y');
 queries.addQuery(DRAINAGE_FLOW, '$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_DRAINAGE_Q_AND_TIMEFRAME_IS_Y');
 queries.addQuery(SEWER_FLOW, '$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_AREA_IS_XA_SEWER_STORAGE_AND_TIMEFRAME_IS_Y');
+queries.addQuery(SERVER_OVERFLOW, '$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_TIMEFRAME_IS_Y');
 
 queries.getData(BREACH_FLOW, false).map((values, index, _array) =>
 	addFlowValues(flowData, index, BREACH_IN, BREACH_OUT, BREACH_AREA_FROM, BREACH_AREA_TO, values));
 
 queries.getData(INLET_FLOW, false).map((values, index, _array) =>
-	addFlowValues(flowData, index, INLET_SURFACE, OUTLET_SURFACE, INLET_AREA_FROM, INLET_AREA_TO, values, condition = inletSurface));
+	addFlowValues(flowData, index, INLET_SURFACE, OUTLET_SURFACE, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_SURFACE));
 
 
 queries.getData(INLET_FLOW, false).map((values, index, _array) =>
-	addFlowValues(flowData, index, INLET_GROUND, OUTLET_GROUND, INLET_AREA_FROM, INLET_AREA_TO, values, condition = inletUnderground));
+	addFlowValues(flowData, index, INLET_GROUND, OUTLET_GROUND, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_UNDERGROUND));
 
 
 queries.getData(WEIR_FLOW, false).map((values, index, _array) =>
@@ -451,9 +453,7 @@ for (let areaKey = 0; areaKey < sewerPOC.length; areaKey++) {
 
 flowData[SEWER_POC] = sewerPOCSums;
 
-
-//Berging Riool - Berging Land
-const sewerOverflow = [$SELECT_ATTRIBUTE_WHERE_NAME_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XA_SEWER_OVERFLOW_AND_TIMEFRAME_IS_Y];
+const sewerOverflow = queries.getData(SERVER_OVERFLOW, false);
 
 let sewerOverflowSums = [];
 
@@ -467,9 +467,7 @@ for (let buildingKey = 0; buildingKey < sewerOverflow.length; buildingKey++) {
 
 flowData[SEWER_OVERFLOW_OUT] = sewerOverflowSums;
 
-
 createTable("waterFlowTable", flowData, flowProperties, flowColors, flowTitles);
-
 
 const sankeyproperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, M3LAND, M3WATER, M3GROUND, M3SATURATED, M3UNSATURATED, M3STORAGE, M3SEWER, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR, WEIR_IN, WEIR_OUT, WEIR_INNER, BREACH, BREACH_IN, BREACH_OUT];
 
@@ -580,7 +578,7 @@ function plotSankey() {
 	sankeyPlot(
 		"sankeyPlot",         // plotDivName
 		links,                // links
-		sankeySlider.value,   // timeframe
+		sankeySlider.getValue(),   // timeframe
 		sankeyproperties,     // properties
 		flowTitles,           // titles
 		sankeyLayout,         // layout
