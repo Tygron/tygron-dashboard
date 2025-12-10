@@ -815,11 +815,14 @@ function requestAreaSetup() {
 				typeOption.innerHTML += '<option value=' + key + ' >Select Areas with attribute: ' + key + ' (' + areaMap.get(key) + ' area(s))</option>';
 
 			}
-			typeOption.innerHTML += '<option value="_">Add new Water Level Area</option>';
+			
+			let newValueChar = "_";
+			
+			typeOption.innerHTML += '<option value="'+newValueChar+'">Add new Water Level Area</option>';
 
 			const addButton = document.createElement('input');
 			addButton.type = 'button';
-			addButton.value = 'Add';
+			addButton.value = 'Select';
 			addButton.disabled = true;
 
 			selectionParent.appendChild(typeOption);
@@ -827,12 +830,15 @@ function requestAreaSetup() {
 
 			appendFeedbackLine(selectionParent);
 
-			attachHandler(selectionParent, 'change', 'select', () => addButton.disabled = (typeOption.value == ''));
+			attachHandler(selectionParent, 'change', 'select', () => {
+				addButton.disabled = (typeOption.value == '');
+				addButton.value = TypeOption.value == newValueChar ? 'Add' : 'Select';
+			});
 			attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
 				addButton.disabled = true;
 				typeOption.disabled = true;
 
-				if (typeOption.value == "_") {
+				if (typeOption.value == newValueChar) {
 					addNewWaterLevelArea();
 				} else {
 					setOverlayKey(hsoOverlay, WATER_LEVEL, key);
