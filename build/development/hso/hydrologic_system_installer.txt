@@ -283,15 +283,6 @@ html, body {
 	grid-template-columns: minmax(80px, auto) 1fr;
 	column-gap: 1em;
 }
-.feedback{
-	display:flex;
-	flex-direction:column;
-	padding:10px;
-}
-
-.feedback-line{
-	
-}
 
 		body{}
 	</style><div id="feedback"></div>
@@ -4442,5 +4433,12 @@ $(window).on("load", function() {
 	}
 	requestInstallation();
 });
+
+
+
+let app = {
+	token: function() { return "6c3554a1GW86BaYYxwTFUN8AdowvbMvb" },
+	info: function(info) { console.log(info) },
+};
 
 </script>

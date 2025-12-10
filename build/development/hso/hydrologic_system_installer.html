@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>example_install</title>
+	<title>hydrologic_system_installer</title>
 	<link rel='stylesheet' >
 	<script  charset="utf-8"></script>
 	<script src='https://cdn.plot.ly/plotly-3.0.1.min.js' charset="utf-8"></script>
@@ -294,15 +294,6 @@ html, body {
 	display: grid;
 	grid-template-columns: minmax(80px, auto) 1fr;
 	column-gap: 1em;
-}
-.feedback{
-	display:flex;
-	flex-direction:column;
-	padding:10px;
-}
-
-.feedback-line{
-	
 }
 
 		body{}
@@ -4454,6 +4445,13 @@ $(window).on("load", function() {
 	}
 	requestInstallation();
 });
+
+
+
+let app = {
+	token: function() { return "6c3554a1GW86BaYYxwTFUN8AdowvbMvb" },
+	info: function(info) { console.log(info) },
+};
 
 </script>
 </body>
