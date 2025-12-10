@@ -4,6 +4,8 @@ import { attachHandler } from "../../../src/js/util/Dom.js";
 import { createRectangleMP } from "../../../src/js/util/GeometryUtils.js";
 import { getTemplateTextPanels, getTemplateTextPanel } from "../../../src/js/item/PanelUtils.js";
 
+const DASHBOARD_URL = "https://devshare.tygron.com/share/tygronrd/dashboards/hydrologic_system_overview.txt";
+
 const HSO_OVERLAY_ATTRIBUTE = "HSO_WATER_OVERLAY";
 const HSO_PANEL_ATTRIBUTE = "HSO_PANEL";
 const RAINFALL_OVERLAY_TYPE = "RAINFALL";
@@ -1055,7 +1057,7 @@ function getDashboardContent() {
 	return (_data) => {
 		let promise = Promise.resolve(
 			$.ajax({
-				url: "https://devshare.tygron.com/share/tygronrd/dashboards/hydrologic_system_overview.txt",
+				url: DASHBOARD_URL,
 				method: "GET",
 				contentType: 'text/plain;charset=utf-8'
 			})
