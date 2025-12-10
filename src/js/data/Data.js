@@ -84,11 +84,11 @@ export function setTimeframeValue(data, property, value) {
 	}
 }
 
-export function addFlowValues(data, timeframe, propertyFrom, propertyTo, areaIDFrom, areaIDTo, values, condition = undefined) {
-	addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, undefined, areaIDFrom, areaIDTo, values, condition);
+export function addFlowValues(data, timeframe, propertyFrom, propertyTo, propertyAreaIDFrom, propertAreaIDTo, values, condition = undefined) {
+	addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, undefined, propertyAreaIDFrom, propertAreaIDTo, values, condition);
 }
 
-export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, propertyInner, areaIDFrom, areaIDTo, values, condition = undefined) {
+export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, propertyInner, propertyAreaIDFrom, propertAreaIDTo, values, condition = undefined) {
 
 	if (data[propertyFrom][timeframe] == undefined) {
 		data[propertyFrom][timeframe] = 0;
@@ -104,9 +104,9 @@ export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo
 		}
 	}
 
-	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
+	for (let i = 0; i < values.length && i < data[propertyAreaIDFrom].length && i < data[propertAreaIDTo].length; i++) {
 
-		if ((areaIDTo[i] == data.itemID) && (areaIDFrom[i] == data.itemID) && (condition == undefined || condition[i])) {
+		if ((data[propertAreaIDTo][i] == data.itemID) && (data[propertyAreaIDFrom][i] == data.itemID) && (condition == undefined || condition[i])) {
 
 			if (propertyInner != undefined) {
 
@@ -118,7 +118,7 @@ export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo
 				}
 			}
 
-		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
+		} else if (data[propertAreaIDTo][i] == data.itemID && (condition == undefined || condition[i])) {
 
 			if (values[i] > 0) {
 				data[propertyFrom][timeframe] += values[i];
@@ -127,7 +127,7 @@ export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo
 				data[propertyTo][timeframe] -= values[i];
 			}
 
-		} else if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
+		} else if (data[propertyAreaIDFrom][i] == data.itemID && (condition == undefined || condition[i])) {
 
 			if (values[i] > 0) {
 				data[propertyTo][timeframe] += values[i];
