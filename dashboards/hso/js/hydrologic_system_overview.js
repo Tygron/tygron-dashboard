@@ -1,5 +1,5 @@
 import { createTable } from "../../../src/js/ui/Table.js";
-import { barPlot, createBarPlotLayout, } from "../../../src/js/util/Plot.js";
+import { barPlot, createBarPlotLayout, sankeyPlot } from "../../../src/js/data/Plot.js";
 import { addTimeframeSlider, setupTimeframeSlider } from "../../../src/js/ui/Timeframeslider.js";
 import { addFlowValues, createLinks, createTimeframeData, addLink } from "../../../src/js/data/Data.js";
 import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
