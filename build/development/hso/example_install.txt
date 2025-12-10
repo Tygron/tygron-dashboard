@@ -4417,11 +4417,4 @@ $(window).on("load", function() {
 	requestInstallation();
 });
 
-
-
-let app = {
-	token: function() { return "5facca7c3rBCIES2ChYBux6fwSIckn0X" },
-	info: function(info) { console.log(info) },
-};
-
 </script>
