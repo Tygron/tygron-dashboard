@@ -495,7 +495,7 @@ function setupMainHsoOverlay() {
  */
 function requestUseCurrentHsoOverlay(hsoOverlay) {
 
-	appendFeedback("Do you want to install the dashboard on the current HSO Overlay " + hsoOverlay.name);
+	appendFeedback("Do you want to install the Hydrologic System Overview on the currently configured Overlay " + hsoOverlay.name);
 
 	const selectParent = document.createElement("div");
 	const yesButton = document.createElement("input");
@@ -772,7 +772,7 @@ function setupHsoWaterLevelAreas() {
 			}
 
 			if (areas.length > 0) {
-				appendFeedback("HSO Water Level Areas: All setup");
+				appendFeedback("Water Level Areas: All setup");
 				setupDashboardTemplatePanel();
 			} else {
 				requestAreaSetup();
@@ -1047,7 +1047,7 @@ function requestUpdateIndicators() {
 	appendChains(
 		installer.connector.post("event/editor/update", null, [true]),
 
-		() => appendFeedback("Installation of HSO Dashboard finished succesfully!")
+		() => appendFeedback("Installation of Hydrologic System Overview finished succesfully!")
 
 	);
 
@@ -1068,7 +1068,7 @@ function getDashboardContent() {
 
 $(window).on("load", function() {
 
-	appendFeedback("Welcome to the installer for the HSO Dasboard.");
+	appendFeedback("Welcome to the installer for the Hydrologic System Overview.");
 	if (typeof app === "undefined") {
 		appendFeedback("This installer can only be run within the Tygron Client Application!");
 		return;
