@@ -840,7 +840,7 @@ function requestAreaSetup() {
 
 			attachHandler(selectionParent, 'change', 'select', () => {
 				addButton.disabled = (typeOption.value == '');
-				addButton.value = TypeOption.value == newValueChar ? 'Add' : 'Select';
+				addButton.value = typeOption.value == newValueChar ? 'Add' : 'Select';
 			});
 			attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
 				addButton.disabled = true;
@@ -849,7 +849,7 @@ function requestAreaSetup() {
 				if (typeOption.value == newValueChar) {
 					addNewWaterLevelArea();
 				} else {
-					setOverlayKey(installer[vars.HSO_OVERLAY], WATER_LEVEL, key);
+					setOverlayKey(installer[vars.HSO_OVERLAY], "WATER_LEVEL", key);
 				}
 				setupDashboardTemplatePanel();
 			});
