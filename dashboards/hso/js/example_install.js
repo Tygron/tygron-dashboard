@@ -849,7 +849,7 @@ function requestAreaSetup() {
 				if (typeOption.value == newValueChar) {
 					addNewWaterLevelArea();
 				} else {
-					setOverlayKey(installer[vars.HSO_OVERLAY], "WATER_LEVEL", key);
+					setOverlayKey(installer[vars.HSO_OVERLAY], "WATER_LEVEL", typeOption.value);
 				}
 				setupDashboardTemplatePanel();
 			});
