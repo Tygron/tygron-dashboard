@@ -184,14 +184,15 @@ function addNewWaterLevelArea() {
 
 function setOverlayKey(overlay, key, value) {
 	appendChains(
-			(_data) => appendFeedback("Setting HSO Overlay key "+key  + " to " + value),
+		(_data) => appendFeedback("Setting HSO Overlay key " + key + " to " + value),
 
-			installer.connector.post("event/editoroverlay/set_key_value", null, [], (_d, _u, _qp, params) => {
-				params.push(overlay.id);
-				params.push(key);
-				params.push(value);
-			})
-		);
+		installer.connector.post("event/editoroverlay/set_key_value", null, [], (_d, _u, _qp, params) => {
+			params.push(overlay.id);
+			params.push(key);
+			params.push(value);
+		})
+	);
+	updateOverlays();
 }
 
 
@@ -823,10 +824,10 @@ function requestAreaSetup() {
 				typeOption.innerHTML += '<option value=' + key + ' >Select Areas with attribute: ' + key + ' (' + areaMap.get(key) + ' area(s))</option>';
 
 			}
-			
+
 			let newValueChar = "_";
-			
-			typeOption.innerHTML += '<option value="'+newValueChar+'">Add new Water Level Area</option>';
+
+			typeOption.innerHTML += '<option value="' + newValueChar + '">Add new Water Level Area</option>';
 
 			const addButton = document.createElement('input');
 			addButton.type = 'button';
@@ -1054,7 +1055,7 @@ function getDashboardContent() {
 	return (_data) => {
 		let promise = Promise.resolve(
 			$.ajax({
-				url: "https://raw.githubusercontent.com/Tygron/tygron-dashboard/refs/heads/main/build/development/hso/hydrologic_system_overview.txt",
+				url: "https://devshare.tygron.com/share/tygronrd/dashboards/hydrologic_system_overview.txt",
 				method: "GET",
 				contentType: 'text/plain;charset=utf-8'
 			})
