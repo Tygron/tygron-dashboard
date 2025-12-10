@@ -4375,6 +4375,11 @@ function addAndSetNewTemplateTextPanel() {
 			params.push(PANEL_HEIGHT);
 		}),
 
+		installer.connector.post("event/editorpanel/set_name", null, [], (_d, _u, _qp, params) => {
+			params.push(installer[vars.DASHBOARD_PANEL_ID]);
+			params.push("Hydrological System Overview");
+		}),
+
 		() => {
 			setHsoTemplatePanel();
 		}
