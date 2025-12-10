@@ -1035,7 +1035,7 @@ function setDashboardContent() {
 		}),
 
 		() => {
-			appendFeedback("Updated Template panel " + installer[vars.HSO_TEMPLATE_PANEL].name + "'s content with most recent HSO Dashboard from Public Share.");
+			appendFeedback("Updated Template panel " + installer[vars.HSO_TEMPLATE_PANEL].name + "'s content with most recent Hydrologic System Overview from Github.");
 			requestUpdateIndicators();
 		}
 	);
