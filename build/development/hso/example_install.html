@@ -4021,42 +4021,42 @@ function setupHsoComboOverlays() {
 	let requiredCombos = [
 		{
 			name: 'HSO M3 in water',
-			attribute: 'M3WATER',
-			resultChildTypeA: 'BASE_TYPES',
-			resultChildTypeB: 'SURFACE_LAST_VALUE',
-			formula: 'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'
+			attribute: 'HSO_M3WATER',
+			resultChildTypeA: 'SURFACE_LAST_VALUE',
+			resultChildTypeB: 'BASE_TYPES',
+			formula: 'SWITCH(BT, 0, 0, 0, 1, 0, 2, BT, 3, AT, 4, 0, 5, AT, 6, AT, 7, AT, 8, 0, 9, AT, 10, 0, 11, AT, 12, AT, 13, 0, 14, 0, 15, AT, 16, AT, 17, 0, 18, 0)'
 		},
 		{
 			name: 'HSO Rain on water',
-			attribute: 'RAIN_WATER',
-			resultChildTypeA: 'BASE_TYPES',
-			resultChildTypeB: 'RAIN',
-			formula: 'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'
+			attribute: 'HSO_RAIN_WATER',
+			resultChildTypeA: 'RAIN',
+			resultChildTypeB: 'BASE_TYPES',
+			formula: 'SWITCH(BT, 0, 0, 0, 1, 0, 2, AT, 3, AT, 4, 0, 5, AT, 6, AT, 7, AT, 8, 0, 9, AT, 10, 0, 11, AT, 12, AT, 13, 0, 14, 0, 15, AT, 16, AT, 17, 0, 18, 0)'
 		},
 		{
 			name: 'HSO Rain on land',
-			attribute: 'RAIN_LAND',
-			resultChildTypeA: 'BASE_TYPES',
-			resultChildTypeB: 'RAIN',
-			formula: 'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)'
+			attribute: 'HSO_RAIN_LAND',
+			resultChildTypeA: 'RAIN',
+			resultChildTypeB: 'BASE_TYPES',
+			formula: 'SWITCH(BT, 0, 0, AT, 1, AT, 2, 0, 3, 0, 4, AT, 5, 0, 6, 0, 7, 0, 8, AT, 9, 0, 10, AT, 11, 0, 12, 0, 13, AT, 14, AT, 15, 0, 16, 0, 17, AT, 18, AT)'
 		},
 
 		{
 
 			name: 'HSO Evapotranspiration on water',
-			attribute: 'EVAPOTRANSPIRATIONWATER',
-			resultChildTypeA: 'BASE_TYPES',
-			resultChildTypeB: 'EVAPOTRANSPIRATION',
-			formula: 'SWITCH(AT, 0, 0, 0, 1, 0, 2, BT, 3, BT, 4, 0, 5, BT, 6, BT, 7, BT, 8, 0, 9, BT, 10, 0, 11, BT, 12, BT, 13, 0, 14, 0, 15, BT, 16, BT, 17, 0, 18, 0)'
+			attribute: 'HSO_EVAPOTRANSPIRATIONWATER',
+			resultChildTypeA: 'EVAPOTRANSPIRATION',
+			resultChildTypeB: 'BASE_TYPES',
+			formula: 'SWITCH(BT, 0, 0, 0, 1, 0, 2, AT, 3, AT, 4, 0, 5, AT, 6, AT, 7, AT, 8, 0, 9, AT, 10, 0, 11, AT, 12, AT, 13, 0, 14, 0, 15, AT, 16, AT, 17, 0, 18, 0)'
 
 		},
 		{
 
 			name: 'HSO Evapotranspiration on land',
-			attribute: 'EVAPOTRANSPIRATIONLAND',
-			resultChildTypeA: 'BASE_TYPES',
-			resultChildTypeB: 'EVAPOTRANSPIRATION',
-			formula: 'SWITCH(AT, 0, 0, BT, 1, BT, 2, 0, 3, 0, 4, BT, 5, 0, 6, 0, 7, 0, 8, BT, 9, 0, 10, BT, 11, 0, 12, 0, 13, BT, 14, BT, 15, 0, 16, 0, 17, BT, 18, BT)',
+			attribute: 'HSO_EVAPOTRANSPIRATIONLAND',
+			resultChildTypeA: 'EVAPOTRANSPIRATION',
+			resultChildTypeB: 'BASE_TYPES',
+			formula: 'SWITCH(BT, 0, 0, AT, 1, AT, 2, 0, 3, 0, 4, AT, 5, 0, 6, 0, 7, 0, 8, AT, 9, 0, 10, AT, 11, 0, 12, 0, 13, AT, 14, AT, 15, 0, 16, 0, 17, AT, 18, AT)',
 
 		}
 
