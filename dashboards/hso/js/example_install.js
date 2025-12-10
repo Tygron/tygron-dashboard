@@ -1054,7 +1054,7 @@ function getDashboardContent() {
 	return (_data) => {
 		let promise = Promise.resolve(
 			$.ajax({
-				url: "https://devshare.tygron.com/share/tygronrd/dashboards/hydrologic_system_overview.txt",
+				url: "https://raw.githubusercontent.com/Tygron/tygron-dashboard/refs/heads/main/build/development/hso/hydrologic_system_overview.txt",
 				method: "GET",
 				contentType: 'text/plain;charset=utf-8'
 			})
