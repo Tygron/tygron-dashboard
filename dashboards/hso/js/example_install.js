@@ -183,7 +183,15 @@ function addNewWaterLevelArea() {
 }
 
 function setOverlayKey(overlay, key, value) {
-	appendFeedback("Implement set Overlay Key");
+	appendChains(
+			(_data) => appendFeedback("Setting HSO Overlay key "+key  + " to " + value),
+
+			installer.connector.post("event/editoroverlay/set_key_value", null, [], (_d, _u, _qp, params) => {
+				params.push(overlay.id);
+				params.push(key);
+				params.push(value);
+			})
+		);
 }
 
 
@@ -210,7 +218,7 @@ function comboPrequelEquals(combo, prequelName, prequelOverlay, iteration, timef
 function setResultType(resultType, idVar) {
 
 	appendChains(
-		(_data) => appendFeedback("Setting RainOverlay resultType to " + resultType),
+		(_data) => appendFeedback("Setting HSO Overlay resultType to " + resultType),
 
 		installer.connector.post("event/editoroverlay/set_result_type", null, [], (_d, _u, _qp, params) => {
 			params.push(installer[idVar]);
@@ -841,7 +849,7 @@ function requestAreaSetup() {
 				if (typeOption.value == newValueChar) {
 					addNewWaterLevelArea();
 				} else {
-					setOverlayKey(hsoOverlay, WATER_LEVEL, key);
+					setOverlayKey(installer[vars.HSO_OVERLAY], WATER_LEVEL, key);
 				}
 				setupDashboardTemplatePanel();
 			});
