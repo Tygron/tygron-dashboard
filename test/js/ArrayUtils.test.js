@@ -1,4 +1,4 @@
-import { ArrayUtils } from "./../../src/js/util/ArrayUtils.js";
+import { ArrayUtils } from "../../src/js/util/ArrayUtils.js";
 
 describe('ArrayUtils', () => {
 
