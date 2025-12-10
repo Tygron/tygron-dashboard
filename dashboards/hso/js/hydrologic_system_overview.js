@@ -453,25 +453,25 @@ queries.addQuery(SEWER_FLOW,
 queries.addQuery(SERVER_OVERFLOW,
 	'$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_SEWER_OVERFLOW_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 
-queries.getData(BREACH_FLOW, false).map((values, index, _array) =>
-	addFlowValues(flowData, index, BREACH_IN, BREACH_OUT, BREACH_AREA_FROM, BREACH_AREA_TO, values));
+queries.getData(BREACH_FLOW, false).map((values, timeframe, _array) =>
+	addFlowValues(flowData, timeframe, BREACH_IN, BREACH_OUT, BREACH_AREA_FROM, BREACH_AREA_TO, values));
 
-queries.getData(INLET_FLOW, false).map((values, index, _array) =>
-	addFlowValues(flowData, index, INLET_SURFACE, OUTLET_SURFACE, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_SURFACE));
-
-
-queries.getData(INLET_FLOW, false).map((values, index, _array) =>
-	addFlowValues(flowData, index, INLET_GROUND, OUTLET_GROUND, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_UNDERGROUND));
+queries.getData(INLET_FLOW, false).map((values, timeframe, _array) =>
+	addFlowValues(flowData, timeframe, INLET_SURFACE, OUTLET_SURFACE, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_SURFACE));
 
 
-queries.getData(WEIR_FLOW, false).map((values, index, _array) =>
-	addFlowValues(flowData, index, WEIR_IN, WEIR_OUT, WEIR_AREA_FROM, WEIR_AREA_TO, values));
+queries.getData(INLET_FLOW, false).map((values, timeframe, _array) =>
+	addFlowValues(flowData, timeframe, INLET_GROUND, OUTLET_GROUND, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_UNDERGROUND));
 
-queries.getData(CULVERT_FLOW, false).map((values, index, _array) =>
-	addFlowValues(flowData, index, CULVERT_IN, CULVERT_OUT, CULVERT_AREA_FROM, CULVERT_AREA_TO, values));
 
-queries.getData(PUMP_FLOW, false).map((values, index, _array) =>
-	addFlowValues(flowData, index, PUMP_IN, PUMP_OUT, PUMP_AREA_FROM, PUMP_AREA_TO, values));
+queries.getData(WEIR_FLOW, false).map((values, timeframe, _array) =>
+	addFlowValues(flowData, timeframe, WEIR_IN, WEIR_OUT, WEIR_AREA_FROM, WEIR_AREA_TO, values));
+
+queries.getData(CULVERT_FLOW, false).map((values, timeframe, _array) =>
+	addFlowValues(flowData, timeframe, CULVERT_IN, CULVERT_OUT, CULVERT_AREA_FROM, CULVERT_AREA_TO, values));
+
+queries.getData(PUMP_FLOW, false).map((values, timeframe, _array) =>
+	addFlowValues(flowData, timeframe, PUMP_IN, PUMP_OUT, PUMP_AREA_FROM, PUMP_AREA_TO, values));
 
 //queries.getData(DRAINAGE_FLOW, false).map((values, index, _array) =>
 //	addFlowValues(flowData, index, DRAINGE_IN, DRAINAGE_OUT, DRAINAGE_AREA_FROM, DRAINAGE_AREA_TO, values));
