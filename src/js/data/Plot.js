@@ -1,7 +1,7 @@
 
-export function barPlot(plotDivName, data, timeframe, properties, colors, titles, layout) {
+export function barPlot(plotElementID, data, timeframe, properties, colors, titles, layout) {
 
-	var bardata = [];
+	var traces = [];
 
 	for (let i = 1; i < properties.length; i++) {
 
@@ -23,7 +23,7 @@ export function barPlot(plotDivName, data, timeframe, properties, colors, titles
 		trace.marker.color.push("rgba(" + colors[property].join(",") + ")");
 		trace.name = titles[property];
 
-		bardata.push(trace);
+		traces.push(trace);
 	}
 
 
@@ -32,12 +32,35 @@ export function barPlot(plotDivName, data, timeframe, properties, colors, titles
 		showlegend: true,
 	};
 
-	Plotly.newPlot(plotDivName, bardata, layout);
+	copyAndStorePreviousTraceVisibility(plotElementID, traces);
+
+	Plotly.newPlot(plotElementID, traces, layout);
 }
+
+function copyAndStorePreviousTraceVisibility(elementName, traceData) {
+	let divElement = document.getElementById(elementName);
+	if (divElement != null) {
+
+		if (divElement.traceData != null) {
+
+			for (oldTrace of divElement.traceData) {
+
+				for (newTrace of traceData) {
+					if (newTrace.name == oldTrace.name) {
+						newTrace.visible = oldTrace.visible;
+					}
+				}
+			}
+		}
+
+		divElement.traceData = traceData;
+	}
+}
+
 /**
  * Function assumes 
  */
-export function xyPlot(plotDivName, type, data, properties, colors, titles, layout) {
+export function xyPlot(plotElementID, type, data, properties, colors, titles, layout) {
 
 	var traces = [];
 	let timeframeProperty = properties[0];
@@ -66,11 +89,13 @@ export function xyPlot(plotDivName, type, data, properties, colors, titles, layo
 		layout = createLayout();
 		layout.showLegend = true;
 	}
+	
+	copyAndStorePreviousTraceVisibility(plotElementID, traces);
 
-	Plotly.newPlot(plotDivName, traces, layout);
+	Plotly.newPlot(plotElementID, traces, layout);
 }
 
-export function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout, percentual = false) {
+export function volumeStackedPlot(plotElementID, data, properties, colors, titles, layout, percentual = false) {
 
 	var traces = [];
 	for (let i = 1; i < properties.length; i++) {
@@ -104,8 +129,9 @@ export function volumeStackedPlot(plotDivName, data, properties, colors, titles,
 			text: percentual ? 'Percentual Volume Stack' : 'Volume Stack'
 		}
 	}
+	copyAndStorePreviousTraceVisibility(plotElementID, traces);
 
-	Plotly.newPlot(plotDivName, traces, layout)
+	Plotly.newPlot(plotElementID, traces, layout)
 }
 
 
@@ -158,8 +184,6 @@ export function sankeyPlot(
 		node: node,
 		link: link
 	};
-
-
 
 	Plotly.newPlot(plotDivName, [data], layout);
 }
