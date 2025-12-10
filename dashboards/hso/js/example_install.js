@@ -668,7 +668,7 @@ function setupHsoComboOverlays() {
 			attribute: 'HSO_M3WATER',
 			resultChildTypeA: 'SURFACE_LAST_VALUE',
 			resultChildTypeB: 'BASE_TYPES',
-			formula: 'SWITCH(BT, 0, 0, 0, 1, 0, 2, BT, 3, AT, 4, 0, 5, AT, 6, AT, 7, AT, 8, 0, 9, AT, 10, 0, 11, AT, 12, AT, 13, 0, 14, 0, 15, AT, 16, AT, 17, 0, 18, 0)'
+			formula: 'SWITCH(BT, 0, 0, 0, 1, 0, 2, AT, 3, AT, 4, 0, 5, AT, 6, AT, 7, AT, 8, 0, 9, AT, 10, 0, 11, AT, 12, AT, 13, 0, 14, 0, 15, AT, 16, AT, 17, 0, 18, 0)'
 		},
 		{
 			name: 'HSO Rain on water',
