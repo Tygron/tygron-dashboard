@@ -2,17 +2,324 @@
 <html lang="en-US">
 
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>DASHBOARD_NAME</title>
-	<link rel='stylesheet' DASHBOARD_CSS>
-	<script DASHBOARD_LIBS charset="utf-8"></script>
-	<script DASHBOARD_PLOTLY charset="utf-8"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DASHBOARD_NAME</title>
+<link rel='stylesheet' DASHBOARD_CSS>
+<script DASHBOARD_LIBS charset="utf-8"></script>
+<script DASHBOARD_PLOTLY charset="utf-8"></script>
 </head>
 <body>
 	<style>
-		BODYSTYLE
-	</style>
+BODYSTYLE
+</style>
+	<header>
+		<h2>Hydrologic System Overview</h2>
+		<div id="waterAreaName" class="sub"
+			style="font-size: 14px; margin-top: 6px;">Water Management Area
+			Name Here</div>
+		<div class="sub">Overview of water balance, culverts, weirs,
+			results and formulas.</div>
+	</header>
+	<div class="layout">
+
+		<!-- SIDEBAR -->
+		<aside class="sidebar">
+
+			<h3>Water Balance</h3>
+			<div class="nav-group">
+				<div class="nav-item" data-target="wb-group">
+					Water Balance <span>▸</span>
+				</div>
+				<div class="subnav" id="wb-group">
+					<div class="sub-item active" data-section="wb-tabel">Water
+						Balance Table</div>
+					<div class="sub-item" data-section="wb-sankey">HSO Water
+						Management Area</div>
+					<div class="sub-item" data-section="wb-hso">HSO Tygron</div>
+				</div>
+			</div>
+
+			<h3>Structures</h3>
+
+			<!-- Culverts -->
+			<div class="nav-group">
+				<div class="nav-item" data-target="duikers-group">
+					Culverts <span>▸</span>
+				</div>
+				<div class="subnav" id="duikers-group">
+					<div class="sub-item" data-section="kw-duikers-parameters">Parameters</div>
+					<div class="sub-item" data-section="kw-duikers-uitkomsten">Results</div>
+					<div class="sub-item" data-section="kw-duikers-detail">Detail</div>
+					<div class="sub-item" data-section="kw-duikers-formule">Formula</div>
+				</div>
+			</div>
+
+			<!-- Weirs -->
+			<div class="nav-group">
+				<div class="nav-item" data-target="stuwen-group">
+					Weirs <span>▸</span>
+				</div>
+				<div class="subnav" id="stuwen-group">
+					<div class="sub-item" data-section="kw-stuwen-parameters">Parameters</div>
+					<div class="sub-item" data-section="kw-stuwen-uitkomsten">Results</div>
+					<div class="sub-item" data-section="kw-stuwen-detail">Detail</div>
+					<div class="sub-item" data-section="kw-stuwen-formule">Formula</div>
+				</div>
+			</div>
+
+		</aside>
+
+		<!-- MAIN CONTENT -->
+		<main>
+
+			<!-- WATER BALANCE TABLE -->
+			<section class="section active" id="wb-tabel">
+				<div class="card">
+					<h2>Water Balance Table</h2>
+					<div class="muted" id="wma-name-wb1">Water Management Area
+						Name Here</div>
+
+					<button class="btn"
+						onclick="downloadTableAsCSV('wbTable','water_balance.csv')">
+						Download CSV</button>
+
+					<table id="wbTable">
+						<thead>
+							<tr>
+								<th>Component</th>
+								<th>In (m³)</th>
+								<th>Out (m³)</th>
+								<th>Balance (m³)</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Surface water</td>
+								<td>1200</td>
+								<td>950</td>
+								<td>250</td>
+							</tr>
+							<tr>
+								<td>Groundwater</td>
+								<td>800</td>
+								<td>820</td>
+								<td>-20</td>
+							</tr>
+							<tr>
+								<td>Soil moisture</td>
+								<td>300</td>
+								<td>280</td>
+								<td>20</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<div class="muted" style="margin-top: 6px;">Example water
+						balance data. Replace or connect to model output as needed.</div>
+				</div>
+			</section>
+
+			<!-- HSO WATER MANAGEMENT AREA (placeholder) -->
+			<section class="section" id="wb-sankey">
+				<div class="card">
+					<h2>HSO Water Management Area</h2>
+					<div class="muted" id="wma-name-wb2">Water Management Area
+						Name Here</div>
+					<div class="muted" style="margin-top: 6px;">Placeholder for a
+						water management area level diagram or map.</div>
+				</div>
+			</section>
+
+			<!-- HSO TYGRON SANKY -->
+			<section class="section" id="wb-hso">
+				<div class="card">
+					<h2>HSO Tygron (Sankey)</h2>
+					<div class="muted" id="wma-name-wb3">Water Management Area
+						Name Here</div>
+
+					<div id="sankey-diagram" style="width: 100%; height: 1500px;"></div>
+				</div>
+			</section>
+
+			<!-- CULVERT PAGES -->
+			<section class="section" id="kw-duikers-parameters">
+				<div class="card">
+					<h2>Culvert Parameters</h2>
+					<div class="muted" id="wma-name-kw1">Water Management Area
+						Name Here</div>
+
+					<button class="btn"
+						onclick="downloadTableAsCSV('culvertParamTable','culvert_parameters.csv')">
+						Download CSV</button>
+
+					<table id="culvertParamTable">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Name</th>
+								<th>Diameter (m)</th>
+								<th>Invert (m+NAP)</th>
+								<th>Material</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+
+					<div class="muted" style="margin-top: 6px;">Placeholder for
+						culvert parameter data.</div>
+				</div>
+			</section>
+
+			<section class="section" id="kw-duikers-uitkomsten">
+				<div class="card">
+					<h2>Culvert Results</h2>
+					<div class="muted" id="wma-name-kw2">Water Management Area
+						Name Here</div>
+
+					<button class="btn"
+						onclick="downloadTableAsCSV('culvertResultsTable','culvert_results.csv')">
+						Download CSV</button>
+
+					<table id="culvertResultsTable">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Name</th>
+								<th>Q max (m³/s)</th>
+								<th>H max (m+NAP)</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+
+					<div class="muted" style="margin-top: 6px;">Placeholder for
+						culvert model results.</div>
+				</div>
+			</section>
+
+			<section class="section" id="kw-duikers-detail">
+				<div class="card">
+					<h2>Culvert Detail</h2>
+					<div class="muted" id="wma-name-kw3">Water Management Area
+						Name Here</div>
+
+					<div class="muted" style="margin-top: 6px;">Placeholder for
+						detailed culvert view, graphs, time series, etc.</div>
+				</div>
+			</section>
+
+			<section class="section" id="kw-duikers-formule">
+				<div class="card">
+					<h2>Culvert Formula</h2>
+					<div class="muted" id="wma-name-kw4">Water Management Area
+						Name Here</div>
+
+					<iframe
+						src="https://support.tygron.com/wiki/Drainage_formula_(Water_Overlay)"
+						style="width: 100%; min-height: 600px; border: 1px solid #1d2a39; border-radius: 12px; background: #0a1118;">
+					</iframe>
+
+					<div class="muted" style="margin-top: 6px;">This page is
+						directly loaded from the Tygron wiki.</div>
+				</div>
+			</section>
+
+			<!-- WEIR PAGES -->
+			<section class="section" id="kw-stuwen-parameters">
+				<div class="card">
+					<h2>Weir Parameters</h2>
+					<div class="muted" id="wma-name-kw5">Water Management Area
+						Name Here</div>
+
+					<!-- CSV DOWNLOAD BUTTON -->
+					<button class="btn"
+						onclick="downloadTableAsCSV('weirParamTable','weir_parameters.csv')">
+						Download CSV</button>
+
+					<!-- WEIR PARAMETERS TABLE -->
+					<table id="weirParamTable">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Name</th>
+								<th>Coefficient</th>
+								<th>Height (m)</th>
+								<th>Width (m)</th>
+								<th>Angle (°)</th>
+								<th>Target Level (m)</th>
+								<th>Warnings</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+
+				</div>
+			</section>
+
+
+			<section class="section" id="kw-stuwen-uitkomsten">
+				<div class="card">
+					<h2>Weir Results</h2>
+					<div class="muted" id="wma-name-kw6">Water Management Area
+						Name Here</div>
+
+					<!-- CSV DOWNLOAD BUTTON -->
+					<button class="btn"
+						onclick="downloadTableAsCSV('weirResultsTable','weir_results.csv')">
+						Download CSV</button>
+
+					<!-- WEIR RESULTS TABLE -->
+					<table id="weirResultsTable">
+						<thead>
+							<tr>
+								<th>Scenario</th>
+								<th>Name</th>
+								<th>ID</th>
+								<th>Flow</th>
+								<th>Height</th>
+								<th>Datum A</th>
+								<th>Datum B</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+
+				</div>
+			</section>
+
+
+			<section class="section" id="kw-stuwen-detail">
+				<div class="card">
+					<h2>Weir Detail</h2>
+					<div class="muted" id="wma-name-kw7">Water Management Area
+						Name Here</div>
+
+					<div class="muted" style="margin-top: 6px;">Placeholder for
+						detailed weir view, graphs, time series, etc.</div>
+				</div>
+			</section>
+
+			<section class="section" id="kw-stuwen-formule">
+				<div class="card">
+					<h2>Weir Formula</h2>
+					<div class="muted" id="wma-name-kw8">Water Management Area
+						Name Here</div>
+
+					<iframe
+						src="https://support.tygron.com/wiki/Weir_formula_(Water_Overlay)"
+						style="width: 100%; min-height: 600px; border: 1px solid #1d2a39; border-radius: 12px; background: #0a1118;">
+					</iframe>
+
+					<div class="muted" style="margin-top: 6px;">This page is
+						directly loaded from the Tygron wiki.</div>
+				</div>
+			</section>
+
+		</main>
+
+	</div>
 	<div class=".flex-container ">
 		<div class="column">
 			<div id="balanceSliderDiv"></div>
@@ -20,7 +327,8 @@
 		</div>
 	</div>
 	<div class="column">
-		<label>Download: </label><button id="balanceCSVButton">CSV</button>
+		<label>Download: </label>
+		<button id="balanceCSVButton">CSV</button>
 		<table id="waterBalanceTable" class="datatable"></table>
 	</div>
 
@@ -29,7 +337,8 @@
 		<div id="sankeyPlot"></div>
 	</div>
 	<div class="column">
-		<label>Download: </label><button id="flowCSVButton">CSV</button>
+		<label>Download: </label>
+		<button id="flowCSVButton">CSV</button>
 		<table id="waterFlowTable" class="datatable"></table>
 	</div>
 	<script>

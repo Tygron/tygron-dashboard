@@ -5,6 +5,36 @@ import { addFlowValues, createLinks, createTimeframeData, addLink } from "../../
 import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
 import { QueryDataManager } from "../../../src/js/data/QueryDataManager.js";
 
+// Sidebar toggles
+document.querySelectorAll(".nav-item").forEach(item=>{
+  item.addEventListener("click", ()=>{
+    const target = document.getElementById(item.dataset.target);
+    if(!target) return;
+    target.classList.toggle("open");
+  });
+});
+
+// Section switching
+const allSections = document.querySelectorAll(".section");
+const subItems = document.querySelectorAll(".sub-item");
+
+subItems.forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    subItems.forEach(s => s.classList.remove("active"));
+    btn.classList.add("active");
+
+    const id = btn.dataset.section;
+    allSections.forEach(sec => sec.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  });
+});
+
+// Default open
+document.querySelector("[data-section='wb-tabel']").click();
+
+document.getElementById("waterAreaName").innerHTML = '$NAME';
+
+
 const queries = new QueryDataManager();
 const stepwise = (value, index, array) => index === 0 ? value : value - array[index - 1];
 const countPositive = value => Math.max(0, value);
@@ -23,6 +53,7 @@ const M3STORAGE = 'm3Storage';
 const M3GROUND = 'm3Ground';
 const TIMEFRAMES = 'timeframes';
 const TIMEFRAMETIMES = 'timeframetimes';
+
 
 queries.addQuery(TIMEFRAMETIMES,
 	'$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
@@ -635,3 +666,5 @@ let flowCSVButton = document.getElementById("flowCSVButton");
 
 addDownloadHandler(balanceCSVButton, "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
 addDownloadHandler(flowCSVButton, "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
+
+
