@@ -1039,7 +1039,7 @@ function setDashboardContent() {
 }
 
 function requestUpdateIndicators() {
-	appendFeedback("Implement request Overlay recalculation. Currently updating forcefully!");
+	appendFeedback("Recalculating project forcefully! (Implement request Overlay recalculation.)");
 
 	appendChains(
 		installer.connector.post("event/editor/update", null, [true]),
