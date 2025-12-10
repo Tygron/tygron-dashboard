@@ -36,17 +36,6 @@ html, body {
 	font-size: 15px;
 }
 
-.active, .collapsible {
-	font-weight: bold;
-	font-size: 1.5em;
-}
-
-/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.active, .collapsible:hover {
-	background-color: cornflowerblue;
-	color: white;
-}
-
 /* Style the collapsible content. Note: hidden by default */
 .content {
 	padding: 0 0.25em;
@@ -72,11 +61,20 @@ html, body {
 	margin-left: 5px;
 }
 
-.active:after {
-	content: "\2796";
-	/* Unicode character for "minus" sign (-) */
+/**
+.active .collapsible {
+	font-weight: bold;
+	font-size: 1.5em;
 }
 
+.active .collapsible:hover {
+	background-color: cornflowerblue;
+	color: white;
+}
+.active:after {
+	content: "\2796";	
+}
+*/
 .datatable thead {
 	font-weight: bold;
 }
@@ -125,13 +123,17 @@ html, body {
 	--ticks-height: 5px;
 	--ticks-color: silver;
 	--step: 1;
-  --ticks-count: (var(--max) - var(--min)) / var(--step);
+	--ticks-count: (var(--max)- var(--min))/var(--step);
 	--maxTicksAllowed: 30;
-	--too-many-ticks: Min(1, Max(var(--ticks-count) - var(--maxTicksAllowed), 0));
-	--x-step: Max( var(--step), var(--too-many-ticks) * (var(--max) - var(--min)) ); /* manipulate the number of steps if too many ticks exist, so there would only be 2*/
-	--tickInterval: 100/((var(--max) - var(--min)) / var(--step)) * var(--tickEvery, 1);
-	--tickIntervalPerc: calc((100% - var(--thumb-size))/( (var(--max) - var(--min)) / var(--x-step) ) * var(--tickEvery, 1));
-	--completed: calc((var(--value) - var(--min) ) / (var(--max) - var(--min)) * 100);
+	--too-many-ticks: Min(1, Max(var(--ticks-count)- var(--maxTicksAllowed),
+		0));
+	--x-step: Max(var(--step), var(--too-many-ticks)* (var(--max)- var(--min)));
+	/* manipulate the number of steps if too many ticks exist, so there would only be 2*/
+	--tickInterval: 100/((var(--max)- var(--min))/var(--step))* var(--tickEvery, 1);
+	--tickIntervalPerc: calc(( 100% - var(--thumb-size))/( (var(--max)- var(--min))/var(--x-step))*
+		 var(--tickEvery, 1));
+	--completed: calc(( var(--value)- var(--min))/(var(--max)- var(--min))*
+		 100);
 }
 
 .timeframe-slider {
@@ -240,20 +242,20 @@ html, body {
 	/*box-shadow: var(--inner-shadow, 0 0), var(--thumb-shadow);*/
 }
 
-.timeframe-slider > input:active {
+.timeframe-slider>input:active {
 	cursor: grabbing;
 }
 
-.timeframe-slider > input:active + output {
+.timeframe-slider>input:active+output {
 	transition: 0s;
 }
 
-.timeframe-slider > input:hover + output {
+.timeframe-slider>input:hover+output {
 	background: transparent;
 	transform: translate(var(--x-offset), 3px);
 }
 
-.timeframe-slider > output {
+.timeframe-slider>output {
 	--x-offset: calc(var(--completed)* -1%);
 	pointer-events: none;
 	position: absolute;
@@ -271,25 +273,23 @@ html, body {
 	font: var(--value-font);
 }
 
-.water-structure-info-row,
-.water-structure-info-row-spread{
-	display:flex;
+.water-structure-info-row, .water-structure-info-row-spread {
+	display: flex;
 	flex-wrap: wrap;
 	flex-direction: row;
 }
 
-.water-structure-info-row-spread{
+.water-structure-info-row-spread {
 	justify-content: space-between;
 }
 
-.water-structure-info-column{
-	display:flex;
+.water-structure-info-column {
+	display: flex;
 	flex-wrap: wrap;
 	flex-direction: column;
 }
 
-
-.water-structure-info-grid{
+.water-structure-info-grid {
 	display: grid;
 	grid-template-columns: minmax(80px, auto) 1fr;
 	column-gap: 1em;
