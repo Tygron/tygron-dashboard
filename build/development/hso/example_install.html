@@ -4196,7 +4196,7 @@ function requestAreaSetup() {
 
 			attachHandler(selectionParent, 'change', 'select', () => {
 				addButton.disabled = (typeOption.value == '');
-				addButton.value = TypeOption.value == newValueChar ? 'Add' : 'Select';
+				addButton.value = typeOption.value == newValueChar ? 'Add' : 'Select';
 			});
 			attachHandler(selectionParent, 'click', 'input[type="button"]', () => {
 				addButton.disabled = true;
@@ -4205,7 +4205,7 @@ function requestAreaSetup() {
 				if (typeOption.value == newValueChar) {
 					addNewWaterLevelArea();
 				} else {
-					setOverlayKey(installer[vars.HSO_OVERLAY], WATER_LEVEL, key);
+					setOverlayKey(installer[vars.HSO_OVERLAY], "WATER_LEVEL", typeOption.value);
 				}
 				setupDashboardTemplatePanel();
 			});
@@ -4395,7 +4395,7 @@ function setDashboardContent() {
 }
 
 function requestUpdateIndicators() {
-	appendFeedback("Implement request Overlay recalculation. Currently updating forcefully!");
+	appendFeedback("Recalculating project forcefully! (Implement request Overlay recalculation.)");
 
 	appendChains(
 		installer.connector.post("event/editor/update", null, [true]),
