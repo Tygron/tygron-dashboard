@@ -396,11 +396,11 @@ function setTimeframeValue(data, property, value) {
 	}
 }
 
-function addFlowValues(data, timeframe, propertyFrom, propertyTo, areaIDFrom, areaIDTo, values, condition = undefined) {
-	addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, undefined, areaIDFrom, areaIDTo, values, condition);
+function addFlowValues(data, timeframe, propertyFrom, propertyTo, propertyAreaIDFrom, propertAreaIDTo, values, condition = undefined) {
+	addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, undefined, propertyAreaIDFrom, propertAreaIDTo, values, condition);
 }
 
-function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, propertyInner, areaIDFrom, areaIDTo, values, condition = undefined) {
+function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, propertyInner, propertyAreaIDFrom, propertAreaIDTo, values, condition = undefined) {
 
 	if (data[propertyFrom][timeframe] == undefined) {
 		data[propertyFrom][timeframe] = 0;
@@ -416,9 +416,9 @@ function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, prope
 		}
 	}
 
-	for (let i = 0; i < values.length && i < areaIDFrom.length && i < areaIDTo.length; i++) {
+	for (let i = 0; i < values.length && i < data[propertyAreaIDFrom].length && i < data[propertAreaIDTo].length; i++) {
 
-		if ((areaIDTo[i] == data.itemID) && (areaIDFrom[i] == data.itemID) && (condition == undefined || condition[i])) {
+		if ((data[propertAreaIDTo][i] == data.itemID) && (data[propertyAreaIDFrom][i] == data.itemID) && (condition == undefined || condition[i])) {
 
 			if (propertyInner != undefined) {
 
@@ -430,7 +430,7 @@ function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, prope
 				}
 			}
 
-		} else if (areaIDTo[i] == data.itemID && (condition == undefined || condition[i])) {
+		} else if (data[propertAreaIDTo][i] == data.itemID && (condition == undefined || condition[i])) {
 
 			if (values[i] > 0) {
 				data[propertyFrom][timeframe] += values[i];
@@ -439,7 +439,7 @@ function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, prope
 				data[propertyTo][timeframe] -= values[i];
 			}
 
-		} else if (areaIDFrom[i] == data.itemID && (condition == undefined || condition[i])) {
+		} else if (data[propertyAreaIDFrom][i] == data.itemID && (condition == undefined || condition[i])) {
 
 			if (values[i] > 0) {
 				data[propertyTo][timeframe] += values[i];
@@ -462,9 +462,9 @@ function addValuesForTimeframeAndID(data, timeframe, property, idValues, values)
 
 }
 
-function barPlot(plotDivName, data, timeframe, properties, colors, titles, layout) {
+function barPlot(plotElementID, data, timeframe, properties, colors, titles, layout) {
 
-	var bardata = [];
+	var traces = [];
 
 	for (let i = 1; i < properties.length; i++) {
 
@@ -486,7 +486,7 @@ function barPlot(plotDivName, data, timeframe, properties, colors, titles, layou
 		trace.marker.color.push("rgba(" + colors[property].join(",") + ")");
 		trace.name = titles[property];
 
-		bardata.push(trace);
+		traces.push(trace);
 	}
 
 
@@ -495,12 +495,35 @@ function barPlot(plotDivName, data, timeframe, properties, colors, titles, layou
 		showlegend: true,
 	};
 
-	Plotly.newPlot(plotDivName, bardata, layout);
+	copyAndStorePreviousTraceVisibility(plotElementID, traces);
+
+	Plotly.newPlot(plotElementID, traces, layout);
 }
+
+function copyAndStorePreviousTraceVisibility(elementName, traceData) {
+	let divElement = document.getElementById(elementName);
+	if (divElement != null) {
+
+		if (divElement.traceData != null) {
+
+			for (oldTrace of divElement.traceData) {
+
+				for (newTrace of traceData) {
+					if (newTrace.name == oldTrace.name) {
+						newTrace.visible = oldTrace.visible;
+					}
+				}
+			}
+		}
+
+		divElement.traceData = traceData;
+	}
+}
+
 /**
  * Function assumes 
  */
-function xyPlot(plotDivName, type, data, properties, colors, titles, layout) {
+function xyPlot(plotElementID, type, data, properties, colors, titles, layout) {
 
 	var traces = [];
 	let timeframeProperty = properties[0];
@@ -529,11 +552,13 @@ function xyPlot(plotDivName, type, data, properties, colors, titles, layout) {
 		layout = createLayout();
 		layout.showLegend = true;
 	}
+	
+	copyAndStorePreviousTraceVisibility(plotElementID, traces);
 
-	Plotly.newPlot(plotDivName, traces, layout);
+	Plotly.newPlot(plotElementID, traces, layout);
 }
 
-function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout, percentual = false) {
+function volumeStackedPlot(plotElementID, data, properties, colors, titles, layout, percentual = false) {
 
 	var traces = [];
 	for (let i = 1; i < properties.length; i++) {
@@ -567,8 +592,9 @@ function volumeStackedPlot(plotDivName, data, properties, colors, titles, layout
 			text: percentual ? 'Percentual Volume Stack' : 'Volume Stack'
 		}
 	}
+	copyAndStorePreviousTraceVisibility(plotElementID, traces);
 
-	Plotly.newPlot(plotDivName, traces, layout)
+	Plotly.newPlot(plotElementID, traces, layout)
 }
 
 
@@ -621,8 +647,6 @@ function sankeyPlot(
 		node: node,
 		link: link
 	};
-
-
 
 	Plotly.newPlot(plotDivName, [data], layout);
 }
