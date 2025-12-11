@@ -330,7 +330,8 @@ html, body {
 
 header {
 	padding: 14px 18px;
-	border-bottom: 1px solid var(--border);
+	border-bottom: 1px solid black;
+	background: red;
 }
 
 header h1 {
@@ -340,7 +341,7 @@ header h1 {
 }
 
 header .sub {
-	color: var(--muted);
+	color: blue;
 	font-size: 12px;
 	margin-top: 4px
 }
@@ -352,6 +353,7 @@ header .sub {
 }
 
 .sidebar {
+	background: green;
 	border-right: 1px solid #1a2836;
 	padding: 10px 0;
 	overflow-y: auto;
@@ -360,7 +362,7 @@ header .sub {
 .sidebar h3 {
 	font-size: 13px;
 	margin: 10px 16px 4px;
-	color: var(--muted);
+	color: black;
 	text-transform: uppercase;
 }
 
@@ -371,7 +373,7 @@ header .sub {
 .nav-item {
 	cursor: pointer;
 	padding: 8px 16px;
-	color: black;
+	color: cyan;
 	font-size: 13px;
 	display: flex;
 	justify-content: space-between;
@@ -380,7 +382,7 @@ header .sub {
 }
 
 .nav-item:hover {
-	
+	background: lightcyan;
 }
 
 .subnav {
@@ -396,18 +398,18 @@ header .sub {
 	padding: 7px 28px;
 	font-size: 13px;
 	cursor: pointer;
-	color: #b9c7d8;
+	color: crimson;
 	transition: background .15s;
 }
 
 .sub-item:hover {
-	background: #16222d;
+	background: orange;
 }
 
 .sub-item.active {
-	background: linear-gradient(180deg, #1a2b3a, #142230);
-	color: #fff;
-	border-left: 3px solid var(--accent);
+	background: yellow;
+	color: darkviolet;
+	border-left: 3px solid black;
 }
 
 main {
@@ -415,7 +417,7 @@ main {
 }
 
 .card {
-	background: var(--panel);
+	background: goldenrod;
 	border: 1px solid #1c2a38;
 	border-radius: 14px;
 	padding: 12px 14px;
@@ -436,14 +438,6 @@ h2 {
 	display: block;
 }
 
-.section>iframe {
-	width: 100%;
-	min-height: 600px;
-	border: 1px solid #1d2a39;
-	border-radius: 12px;
-	background: #0a1118;
-}
-
 table {
 	width: 100%;
 	border-collapse: collapse;
@@ -453,35 +447,31 @@ table {
 
 th, td {
 	padding: 6px 8px;
-	border-bottom: 1px solid;
+	border-bottom: 1px solid black;
 	text-align: left;
 }
 
 tr:hover td {
-	background: #131f2a
+	background: magenta
 }
 
 tr.selected td {
-	background: #162436
-}
-
-.muted {
-	color: var(--muted);
-	font-size: 12px
+	background: sandybrown
 }
 
 canvas {
-	background: #0a1118;
+	background: lavender;
 	border-radius: 12px;
-	border: 1px solid #1d2a39;
+	border: 1px solid black;
 	width: 100%;
 	height: 220px;
 }
 
 .btn {
 	appearance: none;
-	border: 1px solid #223345;
-	color: var(--text);
+	border: 1px solid black;
+	background: pink;
+	color: black;
 	padding: 6px 10px;
 	border-radius: 8px;
 	cursor: pointer;
@@ -490,7 +480,7 @@ canvas {
 }
 
 .btn:hover {
-	border-color: #34516d;
+	border-color: hotpink;
 }
 
 .btn:active {
