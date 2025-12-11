@@ -497,11 +497,11 @@ canvas {
 					Water Balance <span>▸</span>
 				</div>
 				<div class="subnav" id="wb-group">
-					<div class="sub-item active" data-section="wb-tabel">Water
+					<div class="sub-item active" data-section="wb-volumetabel">Water
 						Balance Table</div>
-					<div class="sub-item" data-section="wb-sankey">HSO Water
-						Management Area</div>
-					<div class="sub-item" data-section="wb-hso">HSO Tygron</div>
+					<div class="sub-item" data-section="wb-volumeplot">Volume Plot</div>
+					<div class="sub-item" data-section="wb-flowtabel">Flow Table</div>
+					<div class="sub-item" data-section="wb-sankeyplot">Sankey Diagram</div>
 				</div>
 			</div>
 
@@ -539,71 +539,37 @@ canvas {
 		<main>
 
 			<!-- WATER BALANCE TABLE -->
-			<section class="section active" id="wb-tabel">
+			<section class="section active" id="wb-volumetabel">
 				<div class="card">
 					<h2>Water Balance Table</h2>
-					<div class="muted" id="wma-name-wb1">Water Management Area
-						Name Here</div>
-
-					<button class="btn"
-						onclick="downloadTableAsCSV('wbTable','water_balance.csv')">
-						Download CSV</button>
-
-					<table id="wbTable">
-						<thead>
-							<tr>
-								<th>Component</th>
-								<th>In (m³)</th>
-								<th>Out (m³)</th>
-								<th>Balance (m³)</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Surface water</td>
-								<td>1200</td>
-								<td>950</td>
-								<td>250</td>
-							</tr>
-							<tr>
-								<td>Groundwater</td>
-								<td>800</td>
-								<td>820</td>
-								<td>-20</td>
-							</tr>
-							<tr>
-								<td>Soil moisture</td>
-								<td>300</td>
-								<td>280</td>
-								<td>20</td>
-							</tr>
-						</tbody>
-					</table>
-
-					<div class="muted" style="margin-top: 6px;">Example water
-						balance data. Replace or connect to model output as needed.</div>
+					<button class="btn"  id="balanceCSVButton">Download CSV</button>		
+					<table id="waterBalanceTable" class="datatable"></table>
 				</div>
 			</section>
 
-			<!-- HSO WATER MANAGEMENT AREA (placeholder) -->
-			<section class="section" id="wb-sankey">
+			<!-- WATER VOLUME PLOT -->
+			<section class="section" id="wb-volumeplot">
 				<div class="card">
-					<h2>HSO Water Management Area</h2>
-					<div class="muted" id="wma-name-wb2">Water Management Area
-						Name Here</div>
-					<div class="muted" style="margin-top: 6px;">Placeholder for a
-						water management area level diagram or map.</div>
+					<h2>Water Balance Plot</h2>
+					<div id="balanceSliderDiv"></div>
+					<div id="balancePlot" /></div>
+				</div>
+			</section>
+			<!-- WATER FLOW TABLE -->
+			<section class="section active" id="wb-flowtabel">
+				<div class="card">
+					<h2>Water Flow Table</h2>
+					<button class="btn"  id="flowCSVButton">Download CSV</button>		
+					<table id="waterFlowTable" class="datatable"></table>
 				</div>
 			</section>
 
-			<!-- HSO TYGRON SANKY -->
-			<section class="section" id="wb-hso">
+			<!-- WATER SANKEY PLOT -->
+			<section class="section" id="wb-sankeyplot">
 				<div class="card">
-					<h2>HSO Tygron (Sankey)</h2>
-					<div class="muted" id="wma-name-wb3">Water Management Area
-						Name Here</div>
-
-					<div id="sankey-diagram" style="width: 100%; height: 1500px;"></div>
+					<h2>Water Flow Table</h2>
+					<div id="sankeySliderDiv"></div>
+					<div id="sankeyPlot"></div>
 				</div>
 			</section>
 
@@ -682,7 +648,7 @@ canvas {
 						Name Here</div>
 
 					<iframe
-						src="https://support.tygron.com/wiki/Drainage_formula_(Water_Overlay)"
+						src="https://support.tygron.com/wiki/Culvert_formula_(Water_Overlay)"
 						style="width: 100%; min-height: 600px; border: 1px solid #1d2a39; border-radius: 12px; background: #0a1118;">
 					</iframe>
 
@@ -783,28 +749,6 @@ canvas {
 			</section>
 
 		</main>
-
-	</div>
-	<div class=".flex-container ">
-		<div class="column">
-			<div id="balanceSliderDiv"></div>
-			<div id="balancePlot" /></div>
-		</div>
-	</div>
-	<div class="column">
-		<label>Download: </label>
-		<button id="balanceCSVButton">CSV</button>
-		<table id="waterBalanceTable" class="datatable"></table>
-	</div>
-
-	<div class="column">
-		<div id="sankeySliderDiv"></div>
-		<div id="sankeyPlot"></div>
-	</div>
-	<div class="column">
-		<label>Download: </label>
-		<button id="flowCSVButton">CSV</button>
-		<table id="waterFlowTable" class="datatable"></table>
 	</div>
 	<script>
 		
@@ -3910,7 +3854,7 @@ subItems.forEach(btn=>{
 });
 
 // Default open
-document.querySelector("[data-section='wb-tabel']").click();
+document.querySelector("[data-section='wb-volumetabel']").click();
 
 document.getElementById("waterAreaName").innerHTML = '$NAME';
 
