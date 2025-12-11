@@ -369,6 +369,7 @@ header .sub {
 }
 
 .nav-item:hover {
+	
 }
 
 .subnav {
@@ -422,6 +423,14 @@ h2 {
 
 .section.active {
 	display: block;
+}
+
+.section>iframe {
+	width: 100%;
+	min-height: 600px;
+	border: 1px solid #1d2a39;
+	border-radius: 12px;
+	background: #0a1118;
 }
 
 table {
@@ -499,9 +508,11 @@ canvas {
 				<div class="subnav" id="wb-group">
 					<div class="sub-item active" data-section="wb-volumetabel">Water
 						Balance Table</div>
-					<div class="sub-item" data-section="wb-volumeplot">Volume Plot</div>
+					<div class="sub-item" data-section="wb-volumeplot">Volume
+						Plot</div>
 					<div class="sub-item" data-section="wb-flowtabel">Flow Table</div>
-					<div class="sub-item" data-section="wb-sankeyplot">Sankey Diagram</div>
+					<div class="sub-item" data-section="wb-sankeyplot">Sankey
+						Diagram</div>
 				</div>
 			</div>
 
@@ -542,7 +553,7 @@ canvas {
 			<section class="section active" id="wb-volumetabel">
 				<div class="card">
 					<h2>Water Balance Table</h2>
-					<button class="btn"  id="balanceCSVButton">Download CSV</button>		
+					<button class="btn" id="balanceCSVButton">Download CSV</button>
 					<table id="waterBalanceTable" class="datatable"></table>
 				</div>
 			</section>
@@ -559,7 +570,7 @@ canvas {
 			<section class="section active" id="wb-flowtabel">
 				<div class="card">
 					<h2>Water Flow Table</h2>
-					<button class="btn"  id="flowCSVButton">Download CSV</button>		
+					<button class="btn" id="flowCSVButton">Download CSV</button>
 					<table id="waterFlowTable" class="datatable"></table>
 				</div>
 			</section>
@@ -577,9 +588,6 @@ canvas {
 			<section class="section" id="kw-duikers-parameters">
 				<div class="card">
 					<h2>Culvert Parameters</h2>
-					<div class="muted" id="wma-name-kw1">Water Management Area
-						Name Here</div>
-
 					<button class="btn"
 						onclick="downloadTableAsCSV('culvertParamTable','culvert_parameters.csv')">
 						Download CSV</button>
@@ -596,18 +604,12 @@ canvas {
 						</thead>
 						<tbody></tbody>
 					</table>
-
-					<div class="muted" style="margin-top: 6px;">Placeholder for
-						culvert parameter data.</div>
 				</div>
 			</section>
 
 			<section class="section" id="kw-duikers-uitkomsten">
 				<div class="card">
 					<h2>Culvert Results</h2>
-					<div class="muted" id="wma-name-kw2">Water Management Area
-						Name Here</div>
-
 					<button class="btn"
 						onclick="downloadTableAsCSV('culvertResultsTable','culvert_results.csv')">
 						Download CSV</button>
@@ -624,46 +626,23 @@ canvas {
 						</thead>
 						<tbody></tbody>
 					</table>
-
-					<div class="muted" style="margin-top: 6px;">Placeholder for
-						culvert model results.</div>
 				</div>
 			</section>
 
 			<section class="section" id="kw-duikers-detail">
 				<div class="card">
 					<h2>Culvert Detail</h2>
-					<div class="muted" id="wma-name-kw3">Water Management Area
-						Name Here</div>
-
-					<div class="muted" style="margin-top: 6px;">Placeholder for
-						detailed culvert view, graphs, time series, etc.</div>
 				</div>
 			</section>
 
 			<section class="section" id="kw-duikers-formule">
-				<div class="card">
-					<h2>Culvert Formula</h2>
-					<div class="muted" id="wma-name-kw4">Water Management Area
-						Name Here</div>
-
-					<iframe
-						src="https://support.tygron.com/wiki/Culvert_formula_(Water_Overlay)"
-						style="width: 100%; min-height: 600px; border: 1px solid #1d2a39; border-radius: 12px; background: #0a1118;">
-					</iframe>
-
-					<div class="muted" style="margin-top: 6px;">This page is
-						directly loaded from the Tygron wiki.</div>
-				</div>
+				<iframe	src="https://support.tygron.com/wiki/Culvert_formula_(Water_Overlay)"></iframe>
 			</section>
 
 			<!-- WEIR PAGES -->
 			<section class="section" id="kw-stuwen-parameters">
 				<div class="card">
 					<h2>Weir Parameters</h2>
-					<div class="muted" id="wma-name-kw5">Water Management Area
-						Name Here</div>
-
 					<!-- CSV DOWNLOAD BUTTON -->
 					<button class="btn"
 						onclick="downloadTableAsCSV('weirParamTable','weir_parameters.csv')">
@@ -693,9 +672,6 @@ canvas {
 			<section class="section" id="kw-stuwen-uitkomsten">
 				<div class="card">
 					<h2>Weir Results</h2>
-					<div class="muted" id="wma-name-kw6">Water Management Area
-						Name Here</div>
-
 					<!-- CSV DOWNLOAD BUTTON -->
 					<button class="btn"
 						onclick="downloadTableAsCSV('weirResultsTable','weir_results.csv')">
@@ -724,28 +700,11 @@ canvas {
 			<section class="section" id="kw-stuwen-detail">
 				<div class="card">
 					<h2>Weir Detail</h2>
-					<div class="muted" id="wma-name-kw7">Water Management Area
-						Name Here</div>
-
-					<div class="muted" style="margin-top: 6px;">Placeholder for
-						detailed weir view, graphs, time series, etc.</div>
 				</div>
 			</section>
 
 			<section class="section" id="kw-stuwen-formule">
-				<div class="card">
-					<h2>Weir Formula</h2>
-					<div class="muted" id="wma-name-kw8">Water Management Area
-						Name Here</div>
-
-					<iframe
-						src="https://support.tygron.com/wiki/Weir_formula_(Water_Overlay)"
-						style="width: 100%; min-height: 600px; border: 1px solid #1d2a39; border-radius: 12px; background: #0a1118;">
-					</iframe>
-
-					<div class="muted" style="margin-top: 6px;">This page is
-						directly loaded from the Tygron wiki.</div>
-				</div>
+				<iframe	src="https://support.tygron.com/wiki/Weir_formula_(Water_Overlay)"></iframe>
 			</section>
 
 		</main>
