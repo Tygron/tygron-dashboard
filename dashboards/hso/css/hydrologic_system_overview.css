@@ -84,6 +84,7 @@ header .sub {
 }
 
 .nav-item:hover {
+	
 }
 
 .subnav {
@@ -137,6 +138,14 @@ h2 {
 
 .section.active {
 	display: block;
+}
+
+.section>iframe {
+	width: 100%;
+	min-height: 600px;
+	border: 1px solid #1d2a39;
+	border-radius: 12px;
+	background: #0a1118;
 }
 
 table {
