@@ -30,7 +30,7 @@ subItems.forEach(btn=>{
 });
 
 // Default open
-document.querySelector("[data-section='wb-tabel']").click();
+document.querySelector("[data-section='wb-volumetabel']").click();
 
 document.getElementById("waterAreaName").innerHTML = '$NAME';
 
