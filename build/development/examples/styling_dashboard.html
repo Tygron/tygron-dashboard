@@ -273,6 +273,34 @@ html, body {
 	font: var(--value-font);
 }
 
+.water-structure-sidebar {
+	flex: 1;
+}
+
+.water-structure-sidebar > .vertical-menu {
+	width: 200px;
+	height: 90vh;
+	overflow-y: auto;
+}
+
+.water-structure-sidebar > .vertical-menu a {
+	background-color: #eee;
+	color: black;
+	display: block;
+	padding: 12px;
+	text-decoration: none;
+	cursor: default;
+}
+
+.water-structure-sidebar > .vertical-menu a:hover {
+	background-color: #ccc;
+}
+
+.water-structure-sidebar > .vertical-menu a.selected {
+	background-color: rgba(79, 185, 207, 1.0);
+	color: white;
+}
+
 .water-structure-info-row, .water-structure-info-row-spread {
 	display: flex;
 	flex-wrap: wrap;
@@ -293,6 +321,10 @@ html, body {
 	display: grid;
 	grid-template-columns: minmax(80px, auto) 1fr;
 	column-gap: 1em;
+}
+
+.water-structure-plot{
+	max-width: fit-content;
 }
 
 </style>
