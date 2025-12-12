@@ -924,7 +924,7 @@ function fillWeirParamTable(weirs) {
 
 function fillWeirResultTable(weirs) {
 
-	let resultTable = document.getElementById("weirParamTable");
+	let resultTable = document.getElementById("weirResultsTable");
 	let resultProperties = ["name", "flows", "heights", "areaOutputA", "areaOutputB"];
 	let resultTitles = {
 		"name": "Name",
