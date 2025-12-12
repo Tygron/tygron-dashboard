@@ -6,27 +6,27 @@ import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
 import { QueryDataManager } from "../../../src/js/data/QueryDataManager.js";
 
 // Sidebar toggles
-document.querySelectorAll(".nav-item").forEach(item=>{
-  item.addEventListener("click", ()=>{
-    const target = document.getElementById(item.dataset.target);
-    if(!target) return;
-    target.classList.toggle("open");
-  });
+document.querySelectorAll(".nav-item").forEach(item => {
+	item.addEventListener("click", () => {
+		const target = document.getElementById(item.dataset.target);
+		if (!target) return;
+		target.classList.toggle("open");
+	});
 });
 
 // Section switching
 const allSections = document.querySelectorAll(".section");
 const subItems = document.querySelectorAll(".sub-item");
 
-subItems.forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    subItems.forEach(s => s.classList.remove("active"));
-    btn.classList.add("active");
+subItems.forEach(btn => {
+	btn.addEventListener("click", () => {
+		subItems.forEach(s => s.classList.remove("active"));
+		btn.classList.add("active");
 
-    const id = btn.dataset.section;
-    allSections.forEach(sec => sec.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-  });
+		const id = btn.dataset.section;
+		allSections.forEach(sec => sec.classList.remove("active"));
+		document.getElementById(id).classList.add("active");
+	});
 });
 
 // Default open
@@ -119,7 +119,7 @@ const plotProperties = [TIMEFRAMES, M3LAND, M3WATER, M3SATURATED, M3UNSATURATED,
 const volumeTitles = initVolumeTitles();
 const volumeColors = initVolumeColors();
 
-createTable("waterBalanceTable", data, properties, volumeColors, volumeTitles, data[TIMEFRAMETIMES]);
+createTable("waterBalanceTable", data, properties, volumeColors, volumeTitles);
 
 const barPlotLayout = createBarPlotLayout();
 barPlotLayout.title.text = "Berging per component";
@@ -381,8 +381,8 @@ queries.addQuery(INLET_AREA_FROM,
 	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queries.addQuery(INLET_AREA_TO,
 	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
-	queries.addQuery(INLET_UNDERGROUND,
-		'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_UNDERGROUND_AND_INDEX_IS_0');
+queries.addQuery(INLET_UNDERGROUND,
+	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_UNDERGROUND_AND_INDEX_IS_0');
 queries.addQuery(WEIR_AREA_FROM,
 	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queries.addQuery(WEIR_AREA_TO,
@@ -667,7 +667,9 @@ let flowCSVButton = document.getElementById("flowCSVButton");
 addDownloadHandler(balanceCSVButton, "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
 addDownloadHandler(flowCSVButton, "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
 
-let weirs = [];
+/**
+ * WEIRS
+ */
 
 function updateWeirDetails(weir) {
 
@@ -682,13 +684,13 @@ function updateWeirDetails(weir) {
 	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
 	drawWeirFront(weirPanel.weirFrontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
 
-	updateFlowPlot(weir);
+	updateWeirFlowPlot(weir);
 
-	updateHeightPlot(weir);
+	updateWeirHeightPlot(weir);
 
 }
 
-function updateFlowPlot(weir) {
+function updateWeirFlowPlot(weir) {
 
 	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
 	let colors = {};
@@ -722,7 +724,7 @@ function createWeirPlotLayout() {
 	return layout;
 }
 
-function updateHeightPlot(weir) {
+function updateWeirHeightPlot(weir) {
 
 	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
 	let colors = {};
@@ -832,7 +834,9 @@ queries.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND
 
 let weirTimeframe = 0;
 
-function fillWeirs() {
+function createWeirs() {
+	
+	let weirs = [];
 
 	let names = queries.getData(WEIR_NAMES, true);
 	let width = queries.getData(WEIR_WIDTH, true);
@@ -872,10 +876,11 @@ function fillWeirs() {
 		weirs.push(weir);
 
 	}
+
+	return weirs;
 }
 
-
-function updateWeirList() {
+function updateWeirList(weirs) {
 	for (let i = 0; i < weirs.length; i++) {
 		addWeirListItem(i);
 	}
@@ -885,12 +890,68 @@ function updateWeirList() {
 	}
 }
 
+function fillWeirTables(weirs){
+	fillWeirParamTable(weirs);
+	fillWeirResultTable(weirs);
+}
+
+function fillWeirParamTable(weirs) {
+
+	let paramTable = document.getElementById("weirParamTable");
+	let paramProperties = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
+	let paramTitles = {
+		"name": "Name",
+		"coefficient": "Coefficient",
+		"weirN": "Weir N",
+		"heights": "Height (m)",
+		"width": "Width (m)",
+		"angle": "Angle (°)",
+		"damWidth": "Dam Width (m)",
+		"damHeight": "Dam Height (m)"
+
+	}
+
+	while (paramTable.children.length > 0) {
+		paramTable.removeChild(paramTable.children[paramTable.children.length - 1]);
+	}
+
+	addHeaderRow(paramTable, paramProperties, paramTitles);
+	let timeframe = 0; //TODO: (Frank ) Replace with slider
+	for (let weir of weirs) {
+		addTimeframeRow(paramTable, timeframe, weir, paramProperties, {});
+	}
+}
+
+function fillWeirResultTable(weirs) {
+
+	let resultTable = document.getElementById("weirParamTable");
+	let resultProperties = ["name", "flows", "heights", "areaOutputA", "areaOutputB"];
+	let resultTitles = {
+		"name": "Name",
+		"flows": "Flow (M3/s)",
+		"heights": "Height (m)",
+		"areaOutputA": "Datum A (m)",
+		"areaOutputB": "Datum B (m)",
+
+	}
+
+	while (resultTable.children.length > 0) {
+		resultTable.removeChild(resultTable.children[resultTable.children.length - 1]);
+	}
+
+	addHeaderRow(resultTable, resultProperties, resultTitles);
+	let timeframe = 0; //TODO: (Frank ) Replace with slider
+	for (let weir of weirs) {
+		addTimeframeRow(resultTable, timeframe, weir, resultProperties, {});
+	}
+}
+
 const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));
 setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, function() {
 	weirTimeframe = weirPanel.timeframeSlider.style.getPropertyValue("--value");
 	selectWeir(getSelectedWeirIndex());
 });
 
-fillWeirs();
-updateWeirList();
-
+const weirs = createWeirs();
+fillWeirTables(weirs);
+updateWeirList(weirs);
