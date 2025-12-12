@@ -692,8 +692,9 @@ canvas {
 			<!-- WEIR PAGES -->
 			<section class="section" id="kw-stuwen-parameters">
 				<div class="card">
-					<h2>Weir Parameters</h2>					
-					<button class="btn" id="weirDownloadParamCsvButton">Download CSV</button>
+					<h2>Weir Parameters</h2>
+					<button class="btn" id="weirDownloadParamCsvButton">Download
+						CSV</button>
 
 					<!-- WEIR PARAMETERS TABLE -->
 					<table id="weirParamTable">
@@ -719,7 +720,8 @@ canvas {
 			<section class="section" id="kw-stuwen-uitkomsten">
 				<div class="card">
 					<h2>Weir Results</h2>
-					<button class="btn" id="weirDownloadResultCsvButton">Download CSV</button>
+					<button class="btn" id="weirDownloadResultCsvButton">Download
+						CSV</button>
 					<table id="weirResultsTable">
 						<thead>
 							<tr>
@@ -764,7 +766,9 @@ canvas {
 					<div class="water-structure-main">
 						<aside class="water-structure-sidebar">
 							<h3>Weirs list:</h3>
-							<div id="weirList" class="vertical-menu"></div>
+							<div id="weirList" class="vertical-menu">
+								<a class="selected">Stuw 1</a> <a>Stuw 2</a><a>Nieuwe stuw</a>
+							</div>
 						</aside>
 						<section id="weirDetailParent" class="water-structure-detail"></section>
 					</div>
