@@ -4450,11 +4450,4 @@ $(window).on("load", function() {
 	requestInstallation();
 });
 
-
-
-let app = {
-	token: function() { return "6c3554a1GW86BaYYxwTFUN8AdowvbMvb" },
-	info: function(info) { console.log(info) },
-};
-
 </script>
