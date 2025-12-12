@@ -8,6 +8,7 @@
 html, body {
 	padding: 5px;
 	background-color: white;
+	font-family: sans-serif;
 }
 
 /* Style the button that is used to open and close the collapsible content */
@@ -278,6 +279,9 @@ html, body {
 	padding: 12px;
 	text-decoration: none;
 	cursor: default;
+	border-radius: 5px;
+	margin-bottom: 3px;
+	font-size:12px;
 }
 
 .water-structure-sidebar>.vertical-menu a:hover {
@@ -285,8 +289,8 @@ html, body {
 }
 
 .water-structure-sidebar>.vertical-menu a.selected {
-	background-color: rgba(79, 185, 207, 1.0);
-	color: white;
+	background-color: orange;
+	color: black;
 }
 
 .water-structure-main {
