@@ -136,6 +136,12 @@ main {
 	margin-bottom: 12px;
 }
 
+.structure-main {
+	display: flex;
+	flex-direction: row;
+}
+
+
 h2 {
 	margin: 0 0 8px;
 	font-size: 15px;
@@ -206,4 +212,3 @@ canvas {
 .btn:active {
 	transform: translateY(1px);
 }
-
