@@ -10,6 +10,8 @@ The goal of the HSO is to simplify the process of test-running and calibrating a
 
 When the base model meets expectations and scenario simulations begin, it once again becomes crucial to understand what the results represent. At this stage as well, the HSO supports the modeller in interpreting the outcomes.
 
+The HSO is explicitly not intended for adjusting values. It functions as a thermometer that reflects what is currently present in the model.
+
 # The HSO compared to the Waterbalance in the Client
 In the client, a water balance is also available. This panel also presents a water balance, but it is primarily focused on visualizing the error that has occurred in the calculation. It does show total quantities, but these are not available per time step, for example. For this reason, users expressed the need for a more detailed overview.
 
@@ -30,9 +32,8 @@ The water balance consists of the following components:
 - Sankey Diagram
 
 ### Water Balance Table
-The Water Balance Table shows the volume of water per time step for the area to which the HSO is linked. This represents the amount of water in cubic meters, or the water volume, present in the different water storage compartments of the model.
-
-These values represent the amount of water present at the end of a given time frame or time step.
+The Water Balance Table shows the volume of water present in the different water storage compartments of the model per time step for the area to which the HSO is linked.
+These values represent the amount of water present at the end of a given time step.
 
 ### Volume Plot
 The Volume Plot is a bar chart representation of the Water Balance Table. Using the slider, different time steps can be explored.
@@ -43,6 +44,7 @@ The Flow Table is a more detailed table than the Water Balance Table. It shows t
 ### Sankey Diagram
 The Sankey Diagram visualizes how water flows through the system. It shows from which water storage compartments the water flows to the next storage component. 
 This also includes Area In and Area Out, representing the aggregated inflow to and outflow from the area associated with the HSO.
+Using the slider, different time steps can be explored.
 
 For a complete overview of all possible flows in Tygron, see this HTML reference: [placeholder].
 
@@ -61,15 +63,23 @@ For each structure, the following sections are available:
 This table displays the parameters configured in the model for the selected structure type. 
 Only the parameters of structures located within the area to which the HSO is linked are displayed.
 
+### Results
+This table presents the calculated results for the selected structure type. These results are derived from the model simulation and reflect the hydraulic behaviour of the structures during the selected time step.
+
+Only results for structures within the area linked to the HSO are shown.
+
+### Details
+The Details section provides additional contextual and descriptive information about each structure, such as identification attributes.
+In addition, a front view and side view of the structure are displayed. Using a time-step slider, water levels can be inspected for each time step in relation to the structure.
+
+### Formula
+The Formula section embeds the corresponding Tygron Wiki page, which serves as the authoritative reference for the equations and calculation logic used to determine the results for the selected structure type.
 
 ### Available Structure Types
 
 - Culverts  
 - Weirs  
 
-The HSO is explicitly not intended for adjusting values. It functions as a thermometer that reflects what is currently present in the model.
-
-To achieve this, several components have been set up. At a high level, these can be divided into the water balance and the hydrological objects, also referred to as structures.
 
 
 
