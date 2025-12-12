@@ -25,8 +25,8 @@ function addHeaderRow(table, properties, titles) {
 	}
 }
 
-function addTimeframeRow(tableBody, timeframe, data, properties, colors, timeLabels) {
-	
+function addTimeframeRow(tableBody, timeframe, data, properties, colors) {
+
 	let row = tableBody.insertRow(-1);
 
 	for (let n = 0; n < properties.length; n++) {
@@ -36,37 +36,39 @@ function addTimeframeRow(tableBody, timeframe, data, properties, colors, timeLab
 		let labelDiv = document.createElement('div');
 		let label = document.createElement('label');
 
-		if (n === 1 && timeLabels) {
-			label.innerHTML = timeLabels[timeframe];
-
-		} else {
+		if (typeof data[properties[n]][timeframe] == "string") {
+			label.innerHTML =data[properties[n]][timeframe];
+		} else if (data[properties[n]][timeframe] instanceof Number || typeof data[properties[n]][timeframe]== "number") {
 
 			let value = data[properties[n]][timeframe];
 			let min = Math.min.apply(Math, data[properties[n]]);
 			let max = Math.max.apply(Math, data[properties[n]]);
 			let color = colors[properties[n]];
 
-			if (typeof value == 'undefined') {
-				label.innerHTML = '-';
-			} else if (n === 0) {
+
+			if (n === 0) {
 				label.innerHTML = value.toFixed();
 			} else {
 				label.innerHTML = value.toFixed(2);
 			}
+
 
 			if (min === max || color === undefined) {
 				labelDiv.style.backgroundColor = 'transparent';
 			} else {
 				labelDiv.style.backgroundColor = getRGBAInterpolated(value, min, max, color);
 			}
+		} else {
+			label.innerHTML = "-";
 		}
 
 		labelDiv.appendChild(label);
 		cell.appendChild(labelDiv);
+
 	}
 }
 
-export function createTable(divName, data, properties, colors, titles, timeLabels) {
+export function createTable(divName, data, properties, colors, titles) {
 
 	let table = document.getElementById(divName);
 	if (table == undefined) {
@@ -80,6 +82,6 @@ export function createTable(divName, data, properties, colors, titles, timeLabel
 
 	for (let t = 0; t < timeframes; t++) {
 
-		addTimeframeRow(tableBody, t, data, properties, colors, timeLabels);
+		addTimeframeRow(tableBody, t, data, properties, colors);
 	}
 }
