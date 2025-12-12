@@ -61,7 +61,10 @@ function appendChains(...functions) {
 
 function appendFeedbackLine(element) {
 	element.classList.add("feedback-line");
-	document.getElementById("feedback").appendChild(element);
+	let parent = document.getElementById("feedback");
+	parent.appendChild(element);
+	parent = parent.parentElement;
+	parent.scroll({ top: parent.scrollHeight, behavior: 'smooth' });
 }
 
 function appendFeedback(feedback) {
@@ -1052,11 +1055,31 @@ function requestUpdateIndicators() {
 	appendChains(
 		installer.connector.post("event/editor/update", null, [true]),
 
-		() => appendFeedback("Installation of Hydrologic System Overview finished succesfully!")
+		() => addFinishButton()
 
 	);
 
 }
+function addFinishButton() {
+
+	appendFeedback("Installation of Hydrologic System Overview was successful. Click on finish to close this panel.");
+
+	const selectParent = document.createElement("div");
+	const finishButton = document.createElement("input");
+	finishButton.type = 'button';
+	finishButton.value = 'Finish';
+
+	finishButton.onclick = () => {
+		finishButton.disabled = true;
+		app.panel("PANELS");
+		setTimeout(() => app.selectItem("PANELS", Number(installer[vars.DASHBOARD_PANEL_ID])), 500);
+	};
+
+	selectParent.appendChild(finishButton);
+	appendFeedbackLine(selectParent);
+
+}
+
 
 function getDashboardContent() {
 	return (_data) => {
