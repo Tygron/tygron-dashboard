@@ -5,5 +5,9 @@
 }
 
 .feedback-line{
-	
+	padding-bottom: 0.5em;
+}
+
+.feedback-line input{
+	margin-right: 0.5em;
 }
