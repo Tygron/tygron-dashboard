@@ -1,4 +1,5 @@
 import { clearTable, createTable } from "../../../src/js/ui/Table.js";
+import { removeAllChildren } from "../../../src/js/ui/Dom.js";
 import { barPlot, createBarPlotLayout, sankeyPlot } from "../../../src/js/data/Plot.js";
 import { addTimeframeSlider, setupTimeframeSlider } from "../../../src/js/ui/Timeframeslider.js";
 import { addFlowValues, createLinks, createTimeframeData, addLink } from "../../../src/js/data/Data.js";
@@ -801,16 +802,16 @@ function addWeirListItem(index) {
 
 const HSO_OVERLAY_TIMEFRAMES = "hso_overlay_timeframes";
 const WEIR_NAMES = 'weir_name';
-const WEIR_HEIGHTS = 'weir_height';
+const WEIR_HEIGHTS = 'weir_heights';
 const WEIR_WIDTH = 'weir_width';
-const WEIR_FLOW_OUTPUT = 'flow_output';
-const WEIR_HEIGHT_OUTPUT = 'height_output';
-const WEIR_DATUM_OUTPUT_A = 'datum_output_a';
-const WEIR_DATUM_OUTPUT_B = 'datum_output_b';
+const WEIR_FLOW_OUTPUT = 'weir_flow_output';
+const WEIR_HEIGHT_OUTPUT = 'weir_height_output';
+const WEIR_DATUM_OUTPUT_A = 'weir_datum_output_a';
+const WEIR_DATUM_OUTPUT_B = 'weir_datum_output_b';
 const WEIR_DAM_WIDTH = 'weir_dam_width';
 const WEIR_DAM_HEIGHT = 'weir_dam_height';
-const WEIR_AREA_OUTPUT_A = 'water_area_output_a';
-const WEIR_AREA_OUTPUT_B = 'water_area_output_b';
+const WEIR_AREA_OUTPUT_A = 'weir_water_area_output_a';
+const WEIR_AREA_OUTPUT_B = 'weir_water_area_output_b';
 const WEIR_ANGLE = 'weir_angle';
 const WEIR_COEFFICIENT = 'weir_coefficient';
 const WEIR_N = 'weir_n';
@@ -842,13 +843,15 @@ const WEIR_PARAM_TITLES = {
 	"damHeight": "Dam Height (m)"
 }
 
-const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "areaOutputA", "areaOutputB"];
+const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights","datumsA","datumsB","areaOutputA", "areaOutputB"];
 const WEIR_RESULT_TITLES = {
 		"name": WEIR_PARAM_TITLES["name"],
 		"flows": "Flow (M3/s)",
 		"heights": "Height (m)",
-		"areaOutputA": "Datum A (m)",
-		"areaOutputB": "Datum B (m)",
+		"datumsA": "Datum A (m)",
+		"datumsB": "Datum B (m)",
+		"areaOutputA": "Area ID A",
+		"areaOutputB": "Area ID B",
 
 	}
 let weirTimeframe = 0;
@@ -900,6 +903,8 @@ function createWeirs() {
 }
 
 function updateWeirList(weirs) {
+	removeAllChildren(document.getElementById("weirList"));
+
 	for (let i = 0; i < weirs.length; i++) {
 		addWeirListItem(i);
 	}
@@ -917,10 +922,10 @@ function fillWeirTables(weirs, timeframe) {
 function fillWeirParamTable(weirs, timeframe) {
 
 	let paramTable = document.getElementById("weirParamTable");
-	
+
 	clearTable(paramTable);
 
-	addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);	
+	addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);
 	for (let weir of weirs) {
 		addTimeframeRow(paramTable, timeframe, weir, WEIR_PARAM_PROPERTIES, {});
 	}
@@ -929,7 +934,7 @@ function fillWeirParamTable(weirs, timeframe) {
 function fillWeirResultTable(weirs, timeframe) {
 
 	let resultTable = document.getElementById("weirResultsTable");
-	
+
 	clearTable(resultTable);
 
 	addHeaderRow(resultTable, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES);
@@ -945,7 +950,7 @@ setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, funct
 });
 
 const weirs = createWeirs();
-fillWeirTables(weirs,weirTimeframe);
+fillWeirTables(weirs, weirTimeframe);
 updateWeirList(weirs);
 
 const weirResultSlider = addTimeframeSlider(document.getElementById("weirResultSliderDiv"));
@@ -953,12 +958,12 @@ const weirParamSlider = addTimeframeSlider(document.getElementById("weirParamSli
 setupTimeframeSlider(weirParamSlider, weirTimeframe, timeframes, function() {
 	let timeframe = weirParamSlider.style.getPropertyValue("--value");
 	weirResultSlider.style.setProperty("--value", timeframe);
-	fillWeirTables(weirs,timeframe);
+	fillWeirTables(weirs, timeframe);
 });
 setupTimeframeSlider(weirResultSlider, weirTimeframe, timeframes, function() {
 	let timeframe = weirResultSlider.style.getPropertyValue("--value");
 	weirParamSlider.style.setProperty("--value", timeframe);
-	fillWeirTables(weirs,timeframe);
+	fillWeirTables(weirs, timeframe);
 });
 
 addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
