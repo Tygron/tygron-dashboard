@@ -12,10 +12,7 @@ When the base model meets expectations and scenario simulations begin, it once a
 
 The HSO is explicitly not intended for adjusting values. It functions as a thermometer that reflects what is currently present in the model.
 
-# The HSO compared to the Waterbalance in the Client
-In the client, a water balance is also available. This panel also presents a water balance, but it is primarily focused on visualizing the error that has occurred in the calculation. It does show total quantities, but these are not available per time step, for example. For this reason, users expressed the need for a more detailed overview.
 
-[placeholder afbeelding Show Water Balance] 
 
 # What is the HSO?
 
@@ -102,17 +99,11 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
    - Read and accept the disclaimer
   
 4. Now you can open the text panel, and the installer for the HSO will start.
-
-The primary purpose of the installer is to create the required overlays and to link the dashboard to an area. The installer is designed to be idempotent: regardless of whether the required overlays already exist, it ensures that all overlays needed for the HSO are present and correctly configured.
-
-Each HSO is always linked to a single area. A project may contain multiple HSO dashboards, but each dashboard has a one-to-one relationship with an area. The installer assists in selecting and linking the correct area, ensuring that the HSO is always connected to the intended area.
-
-If no areas are present in the project, the installer can create a dummy area. This area has no geometry.
-
-To obtain meaningful results, geometry must be assigned to this area before the HSO will display relevant data.
-
-
-Once the installation of the HSO is complete, you can close the installer by clicking the **Finish** button.
+   The primary purpose of the installer is to create the required overlays and to link the dashboard to an area. The installer is designed to be idempotent: regardless of whether the required overlays already exist, it ensures that all overlays needed for the HSO are present and correctly configured.
+   Each HSO is always linked to a single area. A project may contain multiple HSO dashboards, but each dashboard has a one-to-one relationship with an area. The installer assists in selecting and linking the correct area, ensuring that the HSO is always connected to the intended area.
+   If no areas are present in the project, the installer can create a dummy area. This area has no geometry.
+   To obtain meaningful results, geometry must be assigned to this area before the HSO will display relevant data.
+   Once the installation of the HSO is complete, you can close the installer by clicking the **Finish** button.
 
 
 5. To inspect the HSO, navigate to  
@@ -123,63 +114,13 @@ Once the installation of the HSO is complete, you can close the installer by cli
    Optionally, click the browser icon next to the close button to open the panel in your web browser.
 
    The Hydrological System Overview will now be displayed.
+   
+# The HSO compared to the Waterbalance in the Client
+In the client, a water balance is also available. This panel also presents a water balance, but it is primarily focused on visualizing the error that has occurred in the calculation. It does show total quantities, but these are not available per time step, for example. For this reason, users expressed the need for a more detailed overview.
 
+[placeholder afbeelding Show Water Balance] 
  
-
-7. Go to **Template** (next to *General*).  
-   - At the bottom, choose which objects to link this template to  
-   - Select the water management areas (areas)
-
-8. Return to **General** and click **Apply Template**.  
-   - Confirm that you want to apply the template to the detected areas
-
-9. Open the template using the icon in the project.  
-   - Recalculate the project  
-   - Open the template again
-
-10. Select the desired water module and click **Install**.  
-    *Note: this must be the only water module in your project.*
-
-11. After installation, several overlays are created.  
-    You can find them here:  
-    `Current Situation > Overlays`
-
-12. Set the correct water level.  
-    - Select the newly created Water Overlay (Rainfall, Groundwater, or Flooding)  
-    - Open the **Configuration Wizard** on the right
-
-13. Go directly to **Step 3.1.1: Water Areas**.  
-    - An automatically created area is listed here  
-    - We will replace it
-
-14. Click:  
-    - **Reset all**  
-    - **Select different Attributes for existing Water Areas**  
-    - Select the attribute: `WaterLevelArea`
-
-    This sets the water level in the watercourses to `-1 m NAP`.
-
-15. Close the wizard and recalculate the project.
-
-16. Open the text panel again.  
-    - Click the browser icon (next to the close button) to open the panel in your browser  
-    - The Hydrological System Overview will now be displayed
-
-
-# How to use the HSO?
-By installing the HSO, a Water Overlay is created. During installation, you can choose to create a **Groundwater**, **Rainfall**, or **Flooding** overlay. Several child overlays and combo overlays are generated as well. These overlays make it possible to build and visualize the Hydrological System Overview.
-
-## Water level areas
-The HSO is linked to a water level area. All information and insights shown in the HSO apply only to this selected area.
-
-## HSO interface
-After installing the HSO, several tabs become available.
-
-### Hydrological System Overview
-This tab provides an overview of all hydrological processes taking place. For example, it shows how much water is present after the first simulation timestep.
-
-
-## Licensing
+# Licensing
 The overview is released under the MIT License. This means that you are free to use, modify, and distribute the software, provided that the original copyright notice and license text are included in any copies or substantial portions of the software.
 
 MIT License
