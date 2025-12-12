@@ -41,16 +41,31 @@ The Volume Plot is a bar chart representation of the Water Balance Table. Using 
 The Flow Table is a more detailed table than the Water Balance Table. It shows the different flows that occurred during a time step between the different water storage compartments. These are volumes per time step.
 
 ### Sankey Diagram
-The Sankey Diagram visualizes how water flows through the system. It shows from which water storage compartments the water flows to the next component. 
+The Sankey Diagram visualizes how water flows through the system. It shows from which water storage compartments the water flows to the next storage component. 
+This also includes Area In and Area Out, representing the aggregated inflow to and outflow from the area associated with the HSO.
 
 For a complete overview of all possible flows in Tygron, see this HTML reference: [placeholder].
 
 ## Structures
+The HSO provides access to different types of hydrological structures present in the area to which it is linked.  
+All structure types follow the same information layout.
 
-Under Structures, the different hydraulic structures present in the area to which the HSO is linked are shown.
+For each structure, the following sections are available:
+
+- Parameters  
+- Results  
+- Details  
+- Formula  
+
+### Parameters
+This table displays the parameters configured in the model for the selected structure type. 
+Only the parameters of structures located within the area to which the HSO is linked are displayed.
 
 
+### Available Structure Types
 
+- Culverts  
+- Weirs  
 
 The HSO is explicitly not intended for adjusting values. It functions as a thermometer that reflects what is currently present in the model.
 
