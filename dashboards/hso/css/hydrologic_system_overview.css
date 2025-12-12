@@ -34,8 +34,9 @@
 
 header {
 	padding: 14px 18px;
-	border-bottom: 1px solid black;
-	background: red;
+	border-radius: 15px;
+	background: rgb(177, 199, 201);
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
 }
 
 header h1 {
@@ -45,7 +46,7 @@ header h1 {
 }
 
 header .sub {
-	color: blue;
+	color: black;
 	font-size: 12px;
 	margin-top: 4px
 }
@@ -57,14 +58,17 @@ header .sub {
 }
 
 .sidebar {
-	background: green;
-	border-right: 1px solid #1a2836;
-	padding: 10px 0;
+	background: white;
+	border-radius: 15px;
+	padding: 10px 0px ;
+	margin-top: 10px;
 	overflow-y: auto;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
 }
 
 .sidebar h3 {
 	font-size: 13px;
+	font-family: sans-serif;
 	margin: 10px 16px 4px;
 	color: black;
 	text-transform: uppercase;
@@ -77,8 +81,9 @@ header .sub {
 .nav-item {
 	cursor: pointer;
 	padding: 8px 16px;
-	color: cyan;
+	color: black;
 	font-size: 13px;
+	font-family: sans-serif;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -100,9 +105,10 @@ header .sub {
 
 .sub-item {
 	padding: 7px 28px;
-	font-size: 13px;
+	font-size: 12px;
+	font-family: sans-serif;
 	cursor: pointer;
-	color: crimson;
+	color: rgb(40,40,40);
 	transition: background .15s;
 }
 
@@ -111,9 +117,11 @@ header .sub {
 }
 
 .sub-item.active {
-	background: yellow;
-	color: darkviolet;
+	background:rgb(222, 222, 222);
+	color: black;
 	border-left: 3px solid black;
+	font-family: sans-serif;
+	font-size:12px;
 }
 
 main {
@@ -121,17 +129,17 @@ main {
 }
 
 .card {
-	background: goldenrod;
-	border: 1px solid #1c2a38;
+	background: white;
 	border-radius: 14px;
 	padding: 12px 14px;
-	box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
 	margin-bottom: 12px;
 }
 
 h2 {
 	margin: 0 0 8px;
-	font-size: 15px
+	font-size: 15px;
+	font-family: sans-serif;
 }
 
 .section {
@@ -198,3 +206,4 @@ canvas {
 .btn:active {
 	transform: translateY(1px);
 }
+
