@@ -667,4 +667,230 @@ let flowCSVButton = document.getElementById("flowCSVButton");
 addDownloadHandler(balanceCSVButton, "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
 addDownloadHandler(flowCSVButton, "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
 
+let weirs = [];
+
+function updateWeirDetails(weir) {
+
+	if (weir == null) {
+		weir = getDummyWeir();
+	}
+
+	weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
+
+
+
+	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
+	drawWeirFront(weirPanel.weirFrontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
+
+	updateFlowPlot(weir);
+
+	updateHeightPlot(weir);
+
+}
+
+function updateFlowPlot(weir) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
+	let colors = {};
+	colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
+
+	let titles = {};
+	titles[WEIR_FLOW_OUTPUT] = "Flow";
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[WEIR_FLOW_OUTPUT] = weir.flows;
+
+	let layout = createWeirPlotLayout();
+	layout.title = {
+		text: "Flow (m³/s)"
+	};
+	xyPlot(weirPanel.weirFlowPlot, "scatter", data, properties, colors, titles, layout);
+}
+
+function createWeirPlotLayout() {
+
+	layout = createLayout();
+	layout.showLegend = true;
+	layout.width = 300;
+	layout.height = 200;
+	layout.margin = { l: 40, r: 40, t: 40, b: 40 };
+	return layout;
+}
+
+function updateHeightPlot(weir) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
+	let colors = {};
+	colors[WEIR_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
+	colors[WEIR_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
+	colors[WEIR_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+
+	let titles = {};
+	titles[WEIR_HEIGHT_OUTPUT] = "Height";
+	titles[WEIR_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
+	titles[WEIR_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[WEIR_HEIGHT_OUTPUT] = weir.heights;
+	data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
+	data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
+
+	let layout = createWeirPlotLayout();
+	layout.title = {
+		text: "Height and Datum (m)"
+	};
+	xyPlot(weirPanel.weirHeightPlot, "scatter", data, properties, colors, titles, layout);
+}
+
+function selectWeir(index) {
+	let weirInfoTitle = weirPanel.weirInfoTitle;
+
+	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
+
+	if (weir == null) {
+		weirInfoTitle.innerHTML = "-";
+		updateWeirDetails(weir);
+		return;
+	}
+
+
+	weirInfoTitle.innerHTML = weir.name;
+	updateWeirDetails(weir);
+
+	let weirList = document.getElementById("weirList");
+	for (item of weirList.children) {
+		if (item.myIndex == index) {
+			item.classList.add('selected');
+		} else {
+			item.classList.remove('selected');
+		}
+	}
+}
+
+function getSelectedWeirIndex() {
+	for (item of document.getElementById("weirList").children) {
+		if (item.classList.contains('selected')) {
+			return item.myIndex;
+		}
+	}
+	return 0;
+}
+
+function addWeirListItem(index) {
+	let weirList = document.getElementById("weirList");
+
+
+	let listItem = document.createElement("a");
+	listItem.onclick = () => selectWeir(index);
+	listItem.innerHTML = weirs[index].name;
+	listItem.myIndex = index;
+
+	weirList.appendChild(listItem);
+
+};
+
+const HSO_OVERLAY_TIMEFRAMES = "hso_overlay_timeframes";
+const WEIR_NAMES = 'weir_name';
+const WEIR_HEIGHTS = 'weir_height';
+const WEIR_WIDTH = 'weir_width';
+const WEIR_FLOW_OUTPUT = 'flow_output';
+const WEIR_HEIGHT_OUTPUT = 'height_output';
+const WEIR_DATUM_OUTPUT_A = 'datum_output_a';
+const WEIR_DATUM_OUTPUT_B = 'datum_output_b';
+const WEIR_DAM_WIDTH = 'weir_dam_width';
+const WEIR_DAM_HEIGHT = 'weir_dam_height';
+const WEIR_AREA_OUTPUT_A = 'water_area_output_a';
+const WEIR_AREA_OUTPUT_B = 'water_area_output_b';
+const WEIR_ANGLE = 'weir_angle';
+const WEIR_COEFFICIENT = 'weir_coefficient';
+const WEIR_N = 'weir_n';
+
+queries.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY');
+queries.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
+queries.addQuery(WEIR_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_FLOW_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_FLOW_OUTPUT_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_A_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_DAM_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_0');
+queries.addQuery(WEIR_DAM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_1');
+queries.addQuery(WEIR_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
+queries.addQuery(WEIR_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
+queries.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_ANGLE');
+queries.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
+queries.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_OVERLAY_AND_KEY_IS_WEIR_N');
+
+let weirTimeframe = 0;
+
+function fillWeirs() {
+
+	let names = queries.getData(WEIR_NAMES, true);
+	let width = queries.getData(WEIR_WIDTH, true);
+	let heights = queries.getData(WEIR_HEIGHT_OUTPUT, true);
+	let flow = queries.getData(WEIR_FLOW_OUTPUT, true);
+	let datumA = queries.getData(WEIR_DATUM_OUTPUT_A, true);
+	let datumB = queries.getData(WEIR_DATUM_OUTPUT_B, true);
+	let damWidth = queries.getData(WEIR_DAM_WIDTH, true);
+	let damHeight = queries.getData(WEIR_DAM_HEIGHT, true);
+	let areaOutputA = queries.getData(WEIR_AREA_OUTPUT_A, true);
+	let areaOutputB = queries.getData(WEIR_AREA_OUTPUT_B, true);
+	let angle = queries.getData(WEIR_ANGLE, true);
+	let coefficient = queries.getData(WEIR_COEFFICIENT, true);
+	let weirN = queries.getData(WEIR_N, true);
+
+	for (let i = 0; i < names.length; i++) {
+
+		let weir = {
+			name: i < names.length ? names[i] : "Weir " + i,
+
+			// array values
+			heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
+			flows: i < flow.length ? flow[i] : Array(timeframes).fill(0),
+			datumsA: i < datumA.length ? datumA[i] : Array(timeframes).fill(-10000),
+			datumsB: i < datumB.length ? datumB[i] : Array(timeframes).fill(-10000),
+
+			// single value
+			width: i < width.length ? width[i] : Array(timeframes).fill(0),
+			damWidth: i < damWidth.length ? damWidth[i] : 0,
+			damHeight: i < damHeight.length ? damHeight[i] : -1,
+			areaOutputA: i < areaOutputA.length ? areaOutputA[i] : -1,
+			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
+			angle: i < angle.length ? angle[i] : -10000,
+			coefficient: i < coefficient.length && coefficient[i] > 0 ? coefficient[i] : 1.1,
+			weirN: i < weirN.length && weirN[i] > 0 ? weirN[i] : 3 / 2,
+		};
+		weirs.push(weir);
+
+	}
+}
+
+
+function updateWeirList() {
+	for (let i = 0; i < weirs.length; i++) {
+		addWeirListItem(i);
+	}
+
+	if (weirs.length > 0) {
+		selectWeir(0, weirTimeframe);
+	}
+}
+
+const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));
+setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, function() {
+	weirTimeframe = weirPanel.timeframeSlider.style.getPropertyValue("--value");
+	selectWeir(getSelectedWeirIndex());
+});
+
+fillWeirs();
+updateWeirList();
 
