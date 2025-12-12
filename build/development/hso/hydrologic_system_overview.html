@@ -703,11 +703,8 @@ canvas {
 			<!-- WEIR PAGES -->
 			<section class="section" id="kw-stuwen-parameters">
 				<div class="card">
-					<h2>Weir Parameters</h2>
-					<!-- CSV DOWNLOAD BUTTON -->
-					<button class="btn"
-						onclick="downloadTableAsCSV('weirParamTable','weir_parameters.csv')">
-						Download CSV</button>
+					<h2>Weir Parameters</h2>					
+					<button class="btn" id="weirDownloadParamCsvButton">Download CSV</button>
 
 					<!-- WEIR PARAMETERS TABLE -->
 					<table id="weirParamTable">
@@ -733,12 +730,7 @@ canvas {
 			<section class="section" id="kw-stuwen-uitkomsten">
 				<div class="card">
 					<h2>Weir Results</h2>
-					<!-- CSV DOWNLOAD BUTTON -->
-					<button class="btn"
-						onclick="downloadTableAsCSV('weirResultsTable','weir_results.csv')">
-						Download CSV</button>
-
-					<!-- WEIR RESULTS TABLE -->
+					<button class="btn" id="weirDownloadResultCsvButton">Download CSV</button>
 					<table id="weirResultsTable">
 						<thead>
 							<tr>
@@ -751,7 +743,26 @@ canvas {
 								<th>Datum B</th>
 							</tr>
 						</thead>
-						<tbody></tbody>
+						<tbody>
+							<tr>
+								<td>Scenario</td>
+								<td>Weir 1</td>
+								<td>1</td>
+								<td>0.1</td>
+								<td>0.5</td>
+								<td>0.6</td>
+								<td>0.35</td>
+							</tr>
+							<tr>
+								<td>Scenario</td>
+								<td>Weir 2</td>
+								<td>2</td>
+								<td>-0.2</td>
+								<td>0.4</td>
+								<td>0.3</td>
+								<td>0.75</td>
+							</tr>
+						</tbody>
 					</table>
 
 				</div>
@@ -1808,9 +1819,9 @@ function connector(token, baseUrl, basePath,) {
 }
 
 function addDownloadHandler(element, fileName, contentFunction) {
-	
+
 	element.addEventListener('click', () => {
-		
+
 		let content = contentFunction();
 		let blob = new Blob([content], { type: 'text/plain' });
 
@@ -1826,23 +1837,57 @@ function addDownloadHandler(element, fileName, contentFunction) {
 }
 
 function toCSVContent(data, properties, titles, timeframes) {
-	
-	let csvContent = "data:text/csv;charset=utf-8,";
+	if (Array.isArray(data)) {
+		return _toCSVContentArray(data, properties, titles, timeframes);
+	} else {
+		return _toCSVContentObject(data, properties, titles, timeframes);
+	}
+}
+
+function _toCSVContentObject(data, properties, titles, timeframes) {
+
+	let csvContent = "";
 
 	for (let i = 0; i < properties.length; i++) {
 		csvContent += titles[properties[i]];
 		csvContent += i < properties.length - 1 ? "," : "\r\n";
 	}
-	
+
 	for (let t = 0; t < timeframes; t++) {
 		for (let i = 0; i < properties.length; i++) {
 			csvContent += data[properties[i]][t];
 			csvContent += i < properties.length - 1 ? "," : "\r\n";
 		}
 	}
-
 	return csvContent;
+}
 
+function _toCSVContentArray(data, properties, titles, timeframes) {
+
+	let csvContent = "";
+
+	for (let e = 0; e < data.length; e++) {
+		let entry = data[e];
+		for (let i = 0; i < properties.length; i++) {
+			csvContent += entry[properties[0]] + " " + titles[properties[i]];
+			csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
+		}
+	}
+
+	for (let t = 0; t < timeframes; t++) {
+		for (let e = 0; e < data.length; e++) {
+			let entry = data[e];
+			for (let i = 0; i < properties.length; i++) {
+
+				csvContent += t < entry[properties[i]].length ?
+					entry[properties[i]][t] :
+					entry[properties[i]][entry[properties[i]].length - 1];
+
+				csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
+			}
+		}
+	}
+	return csvContent;
 }
 
 function hasRequiredAttributesAndValues(item, requiredAttributes) {
@@ -4517,11 +4562,8 @@ setupTimeframeSlider(sankeySlider, timeframe, timeframes, plotSankey);
 
 plotSankey();
 
-let balanceCSVButton = document.getElementById("balanceCSVButton");
-let flowCSVButton = document.getElementById("flowCSVButton");
-
-addDownloadHandler(balanceCSVButton, "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
-addDownloadHandler(flowCSVButton, "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
+addDownloadHandler(document.getElementById("balanceCSVButton"), "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
+addDownloadHandler(document.getElementById("flowCSVButton"), "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
 
 /**
  * WEIRS
@@ -4688,10 +4730,31 @@ queries.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT
 queries.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
 queries.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_N');
 
+const WEIR_PARAM_PROPERTIES = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
+const WEIR_PARAM_TITLES = {
+	"name": "Name",
+	"coefficient": "Coefficient",
+	"weirN": "Weir N",
+	"heights": "Height (m)",
+	"width": "Width (m)",
+	"angle": "Angle (°)",
+	"damWidth": "Dam Width (m)",
+	"damHeight": "Dam Height (m)"
+}
+
+const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "areaOutputA", "areaOutputB"];
+const WEIR_RESULT_TITLES = {
+		"name": WEIR_PARAM_TITLES["name"],
+		"flows": "Flow (M3/s)",
+		"heights": "Height (m)",
+		"areaOutputA": "Datum A (m)",
+		"areaOutputB": "Datum B (m)",
+
+	}
 let weirTimeframe = 0;
 
 function createWeirs() {
-	
+
 	let weirs = [];
 
 	let names = queries.getData(WEIR_NAMES, true);
@@ -4746,7 +4809,7 @@ function updateWeirList(weirs) {
 	}
 }
 
-function fillWeirTables(weirs){
+function fillWeirTables(weirs) {
 	fillWeirParamTable(weirs);
 	fillWeirResultTable(weirs);
 }
@@ -4754,51 +4817,33 @@ function fillWeirTables(weirs){
 function fillWeirParamTable(weirs) {
 
 	let paramTable = document.getElementById("weirParamTable");
-	let paramProperties = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
-	let paramTitles = {
-		"name": "Name",
-		"coefficient": "Coefficient",
-		"weirN": "Weir N",
-		"heights": "Height (m)",
-		"width": "Width (m)",
-		"angle": "Angle (°)",
-		"damWidth": "Dam Width (m)",
-		"damHeight": "Dam Height (m)"
 
-	}
+
 
 	while (paramTable.children.length > 0) {
 		paramTable.removeChild(paramTable.children[paramTable.children.length - 1]);
 	}
 
-	addHeaderRow(paramTable, paramProperties, paramTitles);
+	addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);
 	let timeframe = 0; //TODO: (Frank ) Replace with slider
 	for (let weir of weirs) {
-		addTimeframeRow(paramTable, timeframe, weir, paramProperties, {});
+		addTimeframeRow(paramTable, timeframe, weir, WEIR_PARAM_PROPERTIES, {});
 	}
 }
 
 function fillWeirResultTable(weirs) {
 
 	let resultTable = document.getElementById("weirResultsTable");
-	let resultProperties = ["name", "flows", "heights", "areaOutputA", "areaOutputB"];
-	let resultTitles = {
-		"name": "Name",
-		"flows": "Flow (M3/s)",
-		"heights": "Height (m)",
-		"areaOutputA": "Datum A (m)",
-		"areaOutputB": "Datum B (m)",
-
-	}
+	
 
 	while (resultTable.children.length > 0) {
 		resultTable.removeChild(resultTable.children[resultTable.children.length - 1]);
 	}
 
-	addHeaderRow(resultTable, resultProperties, resultTitles);
+	addHeaderRow(resultTable, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES);
 	let timeframe = 0; //TODO: (Frank ) Replace with slider
 	for (let weir of weirs) {
-		addTimeframeRow(resultTable, timeframe, weir, resultProperties, {});
+		addTimeframeRow(resultTable, timeframe, weir, WEIR_RESULT_PROPERTIES, {});
 	}
 }
 
@@ -4811,6 +4856,10 @@ setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, funct
 const weirs = createWeirs();
 fillWeirTables(weirs);
 updateWeirList(weirs);
+
+
+addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
+addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir_results.csv", () => toCSVContent(weirs, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES, timeframes));
 
 	</script>
 </body>
