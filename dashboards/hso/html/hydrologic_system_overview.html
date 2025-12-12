@@ -169,11 +169,8 @@ BODYSTYLE
 			<!-- WEIR PAGES -->
 			<section class="section" id="kw-stuwen-parameters">
 				<div class="card">
-					<h2>Weir Parameters</h2>
-					<!-- CSV DOWNLOAD BUTTON -->
-					<button class="btn"
-						onclick="downloadTableAsCSV('weirParamTable','weir_parameters.csv')">
-						Download CSV</button>
+					<h2>Weir Parameters</h2>					
+					<button class="btn" id="weirDownloadParamCsvButton">Download CSV</button>
 
 					<!-- WEIR PARAMETERS TABLE -->
 					<table id="weirParamTable">
@@ -199,12 +196,7 @@ BODYSTYLE
 			<section class="section" id="kw-stuwen-uitkomsten">
 				<div class="card">
 					<h2>Weir Results</h2>
-					<!-- CSV DOWNLOAD BUTTON -->
-					<button class="btn"
-						onclick="downloadTableAsCSV('weirResultsTable','weir_results.csv')">
-						Download CSV</button>
-
-					<!-- WEIR RESULTS TABLE -->
+					<button class="btn" id="weirDownloadResultCsvButton">Download CSV</button>
 					<table id="weirResultsTable">
 						<thead>
 							<tr>
@@ -217,7 +209,26 @@ BODYSTYLE
 								<th>Datum B</th>
 							</tr>
 						</thead>
-						<tbody></tbody>
+						<tbody>
+							<tr>
+								<td>Scenario</td>
+								<td>Weir 1</td>
+								<td>1</td>
+								<td>0.1</td>
+								<td>0.5</td>
+								<td>0.6</td>
+								<td>0.35</td>
+							</tr>
+							<tr>
+								<td>Scenario</td>
+								<td>Weir 2</td>
+								<td>2</td>
+								<td>-0.2</td>
+								<td>0.4</td>
+								<td>0.3</td>
+								<td>0.75</td>
+							</tr>
+						</tbody>
 					</table>
 
 				</div>

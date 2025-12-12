@@ -661,11 +661,8 @@ setupTimeframeSlider(sankeySlider, timeframe, timeframes, plotSankey);
 
 plotSankey();
 
-let balanceCSVButton = document.getElementById("balanceCSVButton");
-let flowCSVButton = document.getElementById("flowCSVButton");
-
-addDownloadHandler(balanceCSVButton, "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
-addDownloadHandler(flowCSVButton, "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
+addDownloadHandler(document.getElementById("balanceCSVButton"), "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
+addDownloadHandler(document.getElementById("flowCSVButton"), "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
 
 /**
  * WEIRS
@@ -832,10 +829,31 @@ queries.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT
 queries.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
 queries.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_N');
 
+const WEIR_PARAM_PROPERTIES = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
+const WEIR_PARAM_TITLES = {
+	"name": "Name",
+	"coefficient": "Coefficient",
+	"weirN": "Weir N",
+	"heights": "Height (m)",
+	"width": "Width (m)",
+	"angle": "Angle (°)",
+	"damWidth": "Dam Width (m)",
+	"damHeight": "Dam Height (m)"
+}
+
+const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "areaOutputA", "areaOutputB"];
+const WEIR_RESULT_TITLES = {
+		"name": WEIR_PARAM_TITLES["name"],
+		"flows": "Flow (M3/s)",
+		"heights": "Height (m)",
+		"areaOutputA": "Datum A (m)",
+		"areaOutputB": "Datum B (m)",
+
+	}
 let weirTimeframe = 0;
 
 function createWeirs() {
-	
+
 	let weirs = [];
 
 	let names = queries.getData(WEIR_NAMES, true);
@@ -890,7 +908,7 @@ function updateWeirList(weirs) {
 	}
 }
 
-function fillWeirTables(weirs){
+function fillWeirTables(weirs) {
 	fillWeirParamTable(weirs);
 	fillWeirResultTable(weirs);
 }
@@ -898,51 +916,33 @@ function fillWeirTables(weirs){
 function fillWeirParamTable(weirs) {
 
 	let paramTable = document.getElementById("weirParamTable");
-	let paramProperties = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
-	let paramTitles = {
-		"name": "Name",
-		"coefficient": "Coefficient",
-		"weirN": "Weir N",
-		"heights": "Height (m)",
-		"width": "Width (m)",
-		"angle": "Angle (°)",
-		"damWidth": "Dam Width (m)",
-		"damHeight": "Dam Height (m)"
 
-	}
+
 
 	while (paramTable.children.length > 0) {
 		paramTable.removeChild(paramTable.children[paramTable.children.length - 1]);
 	}
 
-	addHeaderRow(paramTable, paramProperties, paramTitles);
+	addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);
 	let timeframe = 0; //TODO: (Frank ) Replace with slider
 	for (let weir of weirs) {
-		addTimeframeRow(paramTable, timeframe, weir, paramProperties, {});
+		addTimeframeRow(paramTable, timeframe, weir, WEIR_PARAM_PROPERTIES, {});
 	}
 }
 
 function fillWeirResultTable(weirs) {
 
 	let resultTable = document.getElementById("weirResultsTable");
-	let resultProperties = ["name", "flows", "heights", "areaOutputA", "areaOutputB"];
-	let resultTitles = {
-		"name": "Name",
-		"flows": "Flow (M3/s)",
-		"heights": "Height (m)",
-		"areaOutputA": "Datum A (m)",
-		"areaOutputB": "Datum B (m)",
-
-	}
+	
 
 	while (resultTable.children.length > 0) {
 		resultTable.removeChild(resultTable.children[resultTable.children.length - 1]);
 	}
 
-	addHeaderRow(resultTable, resultProperties, resultTitles);
+	addHeaderRow(resultTable, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES);
 	let timeframe = 0; //TODO: (Frank ) Replace with slider
 	for (let weir of weirs) {
-		addTimeframeRow(resultTable, timeframe, weir, resultProperties, {});
+		addTimeframeRow(resultTable, timeframe, weir, WEIR_RESULT_PROPERTIES, {});
 	}
 }
 
@@ -955,3 +955,7 @@ setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, funct
 const weirs = createWeirs();
 fillWeirTables(weirs);
 updateWeirList(weirs);
+
+
+addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
+addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir_results.csv", () => toCSVContent(weirs, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES, timeframes));
