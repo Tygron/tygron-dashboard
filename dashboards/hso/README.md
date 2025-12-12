@@ -5,15 +5,57 @@ The development of hydrological models typically follows several steps. First, t
 
 The goal of the HSO is to simplify the process of test-running and calibrating a model. In any model, and especially in a raster-based model with many adjustable parameters, it is essential to maintain a clear understanding of what is happening internally. The HSO provides insight into the hydrological system itself, the water balance, and the functioning of all hydraulic structures. This contributes to better control and a deeper understanding of the model.
 
-[placeholder afbeelding profdraaine en kalibreren]
+[placeholder afbeelding profdraaine en kalibreren] (dashboards/hso/readmeimages/ModelCalibrationTygron.png)
+
 
 When the base model meets expectations and scenario simulations begin, it once again becomes crucial to understand what the results represent. At this stage as well, the HSO supports the modeller in interpreting the outcomes.
 
-# The HSO compared to the 
+# The HSO compared to the Waterbalance in the Client
+In the client, a water balance is also available. This panel also presents a water balance, but it is primarily focused on visualizing the error that has occurred in the calculation. It does show total quantities, but these are not available per time step, for example. For this reason, users expressed the need for a more detailed overview.
 
+[placeholder afbeelding Show Water Balance] 
 
 # What is the HSO?
-bla bla
+
+The HSO consists of two main components:
+- Water balance
+- Structures
+
+## Water Balance
+The water balance consists of the following components:
+
+- Water Balance Table
+- Volume Plot
+- Flow Table
+- Sankey Diagram
+
+### Water Balance Table
+The Water Balance Table shows the volume of water per time step for the area to which the HSO is linked. This represents the amount of water in cubic meters, or the water volume, present in the different water storage compartments of the model.
+
+These values represent the amount of water present at the end of a given time frame or time step.
+
+### Volume Plot
+The Volume Plot is a bar chart representation of the Water Balance Table. Using the slider, different time steps can be explored.
+
+### Flow Table
+The Flow Table is a more detailed table than the Water Balance Table. It shows the different flows that occurred during a time step between the different water storage compartments. These are volumes per time step.
+
+### Sankey Diagram
+The Sankey Diagram visualizes how water flows through the system. It shows from which water storage compartments the water flows to the next component. 
+
+For a complete overview of all possible flows in Tygron, see this HTML reference: [placeholder].
+
+## Structures
+
+Under Structures, the different hydraulic structures present in the area to which the HSO is linked are shown.
+
+
+
+
+The HSO is explicitly not intended for adjusting values. It functions as a thermometer that reflects what is currently present in the model.
+
+To achieve this, several components have been set up. At a high level, these can be divided into the water balance and the hydrological objects, also referred to as structures.
+
 
 
 # How to install the HSO
