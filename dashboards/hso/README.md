@@ -87,6 +87,23 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
 
 1. Start the Preview, log in, and create a new project or load an existing project.
 
+2. Add a Text Panel:
+   `Current Situation > Panels > Add Text Panel`  
+   - Give the panel a name, for example `Installer HSO`  
+   - Click **Enlarge** on the *Panel Body*
+
+[placeholder add text panel]
+
+3. At the bottom of the enlarged panel, click **Insert GeoShare File**.  
+   - In the top-right, switch to **Public Share**  
+   - Open the folder **dashboards**  
+   - Select `installer.txt`  
+   - Click **Select**  
+   - Read and accept the disclaimer
+  
+4. 
+
+
 2. Create several water level areas:  
    `Current Situation > Areas > Add Empty Area`
 
