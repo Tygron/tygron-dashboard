@@ -1,9 +1,10 @@
-import { createTable } from "../../../src/js/ui/Table.js";
+import { clearTable, createTable } from "../../../src/js/ui/Table.js";
 import { barPlot, createBarPlotLayout, sankeyPlot } from "../../../src/js/data/Plot.js";
 import { addTimeframeSlider, setupTimeframeSlider } from "../../../src/js/ui/Timeframeslider.js";
 import { addFlowValues, createLinks, createTimeframeData, addLink } from "../../../src/js/data/Data.js";
 import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
 import { QueryDataManager } from "../../../src/js/data/QueryDataManager.js";
+import { WeirPanel } from "../../../src/js/water/structures/weirPanel.js";
 
 // Sidebar toggles
 document.querySelectorAll(".nav-item").forEach(item => {
@@ -908,39 +909,30 @@ function updateWeirList(weirs) {
 	}
 }
 
-function fillWeirTables(weirs) {
-	fillWeirParamTable(weirs);
-	fillWeirResultTable(weirs);
+function fillWeirTables(weirs, timeframe) {
+	fillWeirParamTable(weirs, timeframe);
+	fillWeirResultTable(weirs, timeframe);
 }
 
-function fillWeirParamTable(weirs) {
+function fillWeirParamTable(weirs, timeframe) {
 
 	let paramTable = document.getElementById("weirParamTable");
+	
+	clearTable(paramTable);
 
-
-
-	while (paramTable.children.length > 0) {
-		paramTable.removeChild(paramTable.children[paramTable.children.length - 1]);
-	}
-
-	addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);
-	let timeframe = 0; //TODO: (Frank ) Replace with slider
+	addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);	
 	for (let weir of weirs) {
 		addTimeframeRow(paramTable, timeframe, weir, WEIR_PARAM_PROPERTIES, {});
 	}
 }
 
-function fillWeirResultTable(weirs) {
+function fillWeirResultTable(weirs, timeframe) {
 
 	let resultTable = document.getElementById("weirResultsTable");
 	
-
-	while (resultTable.children.length > 0) {
-		resultTable.removeChild(resultTable.children[resultTable.children.length - 1]);
-	}
+	clearTable(resultTable);
 
 	addHeaderRow(resultTable, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES);
-	let timeframe = 0; //TODO: (Frank ) Replace with slider
 	for (let weir of weirs) {
 		addTimeframeRow(resultTable, timeframe, weir, WEIR_RESULT_PROPERTIES, {});
 	}
@@ -953,9 +945,21 @@ setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, funct
 });
 
 const weirs = createWeirs();
-fillWeirTables(weirs);
+fillWeirTables(weirs,weirTimeframe);
 updateWeirList(weirs);
 
+const weirResultSlider = addTimeframeSlider(document.getElementById("weirResultSliderDiv"));
+const weirParamSlider = addTimeframeSlider(document.getElementById("weirParamSliderDiv"));
+setupTimeframeSlider(weirParamSlider, weirTimeframe, timeframes, function() {
+	let timeframe = weirParamSlider.style.getPropertyValue("--value");
+	weirResultSlider.style.setProperty("--value", timeframe);
+	fillWeirTables(weirs,timeframe);
+});
+setupTimeframeSlider(weirResultSlider, weirTimeframe, timeframes, function() {
+	let timeframe = weirResultSlider.style.getPropertyValue("--value");
+	weirParamSlider.style.setProperty("--value", timeframe);
+	fillWeirTables(weirs,timeframe);
+});
 
 addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir_results.csv", () => toCSVContent(weirs, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES, timeframes));
