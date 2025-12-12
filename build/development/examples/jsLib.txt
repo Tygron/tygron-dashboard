@@ -1956,11 +1956,15 @@ function addTimeframeRow(tableBody, timeframe, data, properties, colors) {
 		let labelDiv = document.createElement('div');
 		let label = document.createElement('label');
 
-		if (typeof data[properties[n]][timeframe] == "string") {
-			label.innerHTML =data[properties[n]][timeframe];
-		} else if (data[properties[n]][timeframe] instanceof Number || typeof data[properties[n]][timeframe]== "number") {
+		let value = data[properties[n]] == null ? null :
+			timeframe < data[properties[n]].length ?
+				data[properties[n]][timeframe] :
+				data[properties[n]][data[properties[n]].length - 1];
 
-			let value = data[properties[n]][timeframe];
+		if (typeof value == "string") {
+			label.innerHTML = value;
+		} else if (value instanceof Number || typeof value == "number") {
+
 			let min = Math.min.apply(Math, data[properties[n]]);
 			let max = Math.max.apply(Math, data[properties[n]]);
 			let color = colors[properties[n]];
@@ -1985,6 +1989,12 @@ function addTimeframeRow(tableBody, timeframe, data, properties, colors) {
 		labelDiv.appendChild(label);
 		cell.appendChild(labelDiv);
 
+	}
+}
+
+function clearTable(table) {
+	while (table.children.length > 0) {
+		table.removeChild(table.children[table.children.length - 1]);
 	}
 }
 
