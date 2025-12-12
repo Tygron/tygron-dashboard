@@ -129,10 +129,12 @@ export class WeirPanel {
 
 		this.weirFlowPlot = document.createElement("div");
 		this.weirFlowPlot.id = "weirFlowPlot";
+		this.weirFlowPlot.className = "water-structure-plot";
 		this.weirPlotRow.appendChild(this.weirFlowPlot);
 
 		this.weirHeightPlot = document.createElement("div");
 		this.weirHeightPlot.id = "weirHeightPlot";
+		this.weirHeightPlot.className = "water-structure-plot";
 		this.weirPlotRow.appendChild(this.weirHeightPlot);
 
 	}
