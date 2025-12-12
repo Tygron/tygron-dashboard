@@ -132,6 +132,7 @@ html, body {
 	/* manipulate the number of steps if too many ticks exist, so there would only be 2*/
 	--tickInterval: 100/((var(--max)- var(--min))/var(--step))* var(--tickEvery, 1);
 	--tickIntervalPerc: calc(( 100% - var(--thumb-size))/( (var(--max)- var(--min))/var(--x-step))*
+		
 		 var(--tickEvery, 1));
 	--completed: calc(( var(--value)- var(--min))/(var(--max)- var(--min))*
 		 100);
@@ -278,13 +279,13 @@ html, body {
 	flex: 1;
 }
 
-.water-structure-sidebar > .vertical-menu {
+.water-structure-sidebar>.vertical-menu {
 	width: 200px;
 	height: 90vh;
 	overflow-y: auto;
 }
 
-.water-structure-sidebar > .vertical-menu a {
+.water-structure-sidebar>.vertical-menu a {
 	background-color: #eee;
 	color: black;
 	display: block;
@@ -293,13 +294,18 @@ html, body {
 	cursor: default;
 }
 
-.water-structure-sidebar > .vertical-menu a:hover {
+.water-structure-sidebar>.vertical-menu a:hover {
 	background-color: #ccc;
 }
 
-.water-structure-sidebar > .vertical-menu a.selected {
+.water-structure-sidebar>.vertical-menu a.selected {
 	background-color: rgba(79, 185, 207, 1.0);
 	color: white;
+}
+
+.water-structure-main {
+	display: flex;
+	flex-direction: row;
 }
 
 .water-structure-info-row, .water-structure-info-row-spread {
@@ -324,8 +330,12 @@ html, body {
 	column-gap: 1em;
 }
 
-.water-structure-plot{
+.water-structure-plot {
 	max-width: fit-content;
+}
+
+.water-structure-detail{	
+	flex: 3;
 }
 
 		body {
@@ -2247,8 +2257,8 @@ function addHeaderRow(table, properties, titles) {
 	}
 }
 
-function addTimeframeRow(tableBody, timeframe, data, properties, colors, timeLabels) {
-	
+function addTimeframeRow(tableBody, timeframe, data, properties, colors) {
+
 	let row = tableBody.insertRow(-1);
 
 	for (let n = 0; n < properties.length; n++) {
@@ -2258,37 +2268,39 @@ function addTimeframeRow(tableBody, timeframe, data, properties, colors, timeLab
 		let labelDiv = document.createElement('div');
 		let label = document.createElement('label');
 
-		if (n === 1 && timeLabels) {
-			label.innerHTML = timeLabels[timeframe];
-
-		} else {
+		if (typeof data[properties[n]][timeframe] == "string") {
+			label.innerHTML =data[properties[n]][timeframe];
+		} else if (data[properties[n]][timeframe] instanceof Number || typeof data[properties[n]][timeframe]== "number") {
 
 			let value = data[properties[n]][timeframe];
 			let min = Math.min.apply(Math, data[properties[n]]);
 			let max = Math.max.apply(Math, data[properties[n]]);
 			let color = colors[properties[n]];
 
-			if (typeof value == 'undefined') {
-				label.innerHTML = '-';
-			} else if (n === 0) {
+
+			if (n === 0) {
 				label.innerHTML = value.toFixed();
 			} else {
 				label.innerHTML = value.toFixed(2);
 			}
+
 
 			if (min === max || color === undefined) {
 				labelDiv.style.backgroundColor = 'transparent';
 			} else {
 				labelDiv.style.backgroundColor = getRGBAInterpolated(value, min, max, color);
 			}
+		} else {
+			label.innerHTML = "-";
 		}
 
 		labelDiv.appendChild(label);
 		cell.appendChild(labelDiv);
+
 	}
 }
 
-function createTable(divName, data, properties, colors, titles, timeLabels) {
+function createTable(divName, data, properties, colors, titles) {
 
 	let table = document.getElementById(divName);
 	if (table == undefined) {
@@ -2302,7 +2314,7 @@ function createTable(divName, data, properties, colors, titles, timeLabels) {
 
 	for (let t = 0; t < timeframes; t++) {
 
-		addTimeframeRow(tableBody, t, data, properties, colors, timeLabels);
+		addTimeframeRow(tableBody, t, data, properties, colors);
 	}
 }
 /**
