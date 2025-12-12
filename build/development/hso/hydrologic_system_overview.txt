@@ -361,8 +361,9 @@ html, body {
 
 header {
 	padding: 14px 18px;
+	border: 2px black;
 	border-radius: 15px;
-	background: rgb(177, 199, 201);
+	background: rgb(45, 45, 45);
 	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
 }
 
@@ -373,7 +374,7 @@ header h1 {
 }
 
 header .sub {
-	color: black;
+	color: white;
 	font-size: 12px;
 	margin-top: 4px
 }
@@ -388,7 +389,7 @@ header .sub {
 	background: white;
 	border-radius: 15px;
 	padding: 10px 0px ;
-	margin-top: 10px;
+	margin-top: 15px;
 	overflow-y: auto;
 	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
 }
@@ -418,7 +419,7 @@ header .sub {
 }
 
 .nav-item:hover {
-	background: lightcyan;
+	background: rgb(222, 222, 222);
 }
 
 .subnav {
@@ -440,11 +441,11 @@ header .sub {
 }
 
 .sub-item:hover {
-	background: orange;
+	background: rgb(222, 222, 222);
 }
 
 .sub-item.active {
-	background:rgb(222, 222, 222);
+	background:orange;
 	color: black;
 	border-left: 3px solid black;
 	font-family: sans-serif;
@@ -467,6 +468,7 @@ h2 {
 	margin: 0 0 8px;
 	font-size: 15px;
 	font-family: sans-serif;
+	color: white;
 }
 
 .section {
@@ -499,7 +501,7 @@ th, td {
 }
 
 tr:hover td {
-	background: magenta
+	background:rgb(192, 205, 219);
 }
 
 tr.selected td {
@@ -516,7 +518,7 @@ canvas {
 .btn {
 	appearance: none;
 	border: 1px solid black;
-	background: pink;
+	background: rgb(222, 222, 222);
 	color: black;
 	padding: 6px 10px;
 	border-radius: 8px;
@@ -526,7 +528,7 @@ canvas {
 }
 
 .btn:hover {
-	border-color: red;
+	border-color: black;
 }
 
 .btn:active {
