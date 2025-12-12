@@ -101,35 +101,30 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
    - Click **Select**  
    - Read and accept the disclaimer
   
-4. 
+4. Now you can open the text panel, and the installer for the HSO will start.
+
+The primary purpose of the installer is to create the required overlays and to link the dashboard to an area. The installer is designed to be idempotent: regardless of whether the required overlays already exist, it ensures that all overlays needed for the HSO are present and correctly configured.
+
+Each HSO is always linked to a single area. A project may contain multiple HSO dashboards, but each dashboard has a one-to-one relationship with an area. The installer assists in selecting and linking the correct area, ensuring that the HSO is always connected to the intended area.
+
+If no areas are present in the project, the installer can create a dummy area. This area has no geometry.
+
+To obtain meaningful results, geometry must be assigned to this area before the HSO will display relevant data.
 
 
-2. Create several water level areas:  
-   `Current Situation > Areas > Add Empty Area`
+Once the installation of the HSO is complete, you can close the installer by clicking the **Finish** button.
 
-3. Add an attribute to the area.  
-   - Select the area  
-   - Go to **Attributes** (next to *General*)  
-   - Add an attribute in the bottom-right corner  
 
-   **Name:** `WaterLevelArea`  
-   **Value:** `-1`
+5. To inspect the HSO, navigate to  
+   `Current Situation > Panels` and select **Hydrological System Overview**.
 
-   Click **Save New Attribute**.
+   For each area linked to the HSO, a separate panel is created. Select a panel and click **Open Panel** to open the HSO in the client.
 
-4. Add a Text Template Panel:  
-   `Current Situation > Panels > Add Text Template`  
-   - Give the template a name, for example `Hydrological System Overview`  
-   - Click **Enlarge** on the *Panel Body*
+   Optionally, click the browser icon next to the close button to open the panel in your web browser.
 
-5. At the bottom of the enlarged panel, click **Insert GeoShare File**.  
-   - In the top-right, switch to **Public Share**  
-   - Open the folder **dashboards**  
-   - Select `hydrologisch systeem overzicht.txt`  
-   - Click **Select**  
-   - Read and accept the disclaimer
+   The Hydrological System Overview will now be displayed.
 
-6. Click **Close**.
+ 
 
 7. Go to **Template** (next to *General*).  
    - At the bottom, choose which objects to link this template to  
