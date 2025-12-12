@@ -1,19 +1,19 @@
 export function ensureDomElement(domElementId) {
-	
+
 	let domElement = domElementId;
 	if (!(domElement instanceof HTMLElement)) {
 		domElement = document.getElementById(domElementId);
 	}
-	
+
 	if (!(domElement instanceof HTMLElement)) {
 		throw 'No element found matching ' + domElementId;
 	}
-	
+
 	return domElement;
 }
 
 export function attachHandler(parentElement, eventType, selector, handler, referenceClass) {
-	
+
 	let checkHandler = function(event) {
 		event = event || window.event;
 		event.target = event.target || event.srcElement;
@@ -27,7 +27,7 @@ export function attachHandler(parentElement, eventType, selector, handler, refer
 	if (parentElement.addEventListener) {
 		parentElement.addEventListener(eventType, checkHandler, false);
 	}
-	
+
 	if (referenceClass) {
 		parentElement.classList.add(referenceClass);
 	}
@@ -63,4 +63,10 @@ export function clearPopupPanel(element) {
 		popups[i].remove();
 	}
 	return element;
+}
+
+export function removeAllChildren(element) {
+	while (element.children.length > 0) {
+		element.removeChild(element.children[element.children.length - 1]);
+	}
 }
