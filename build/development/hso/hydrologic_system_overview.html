@@ -24,10 +24,6 @@ html, body {
 	font-family: sans-serif;
 }
 
-iframe{
-	height: 90vh;
-}
-
 /* Style the button that is used to open and close the collapsible content */
 .collapsible {
 	background-color: #eee;
@@ -503,8 +499,8 @@ header h2 {
 }
 
 .section>iframe {
-	width: 100%;
-	min-height: 600px;
+	width: 100%;	
+	height: calc(100vh - 130px);	
 	border: 1px solid black;
 	border-radius: 12px;
 	background: salmon;
@@ -2780,19 +2776,27 @@ function addTimeframeRow(tableBody, timeframe, data, properties, colors) {
 		let labelDiv = document.createElement('div');
 		let label = document.createElement('label');
 
-		let value = data[properties[n]] == null ? null :
-			timeframe < data[properties[n]].length ?
-				data[properties[n]][timeframe] :
-				data[properties[n]][data[properties[n]].length - 1];
+		let propData = data[properties[n]];
+
+		let value = Array.isArray(propData) ?
+			timeframe < propData.length ?
+				propData[timeframe] :
+				propData[propData.length - 1]
+			: propData == null ? null : propData;
 
 		if (typeof value == "string") {
 			label.innerHTML = value;
 		} else if (value instanceof Number || typeof value == "number") {
 
-			let min = Math.min.apply(Math, data[properties[n]]);
-			let max = Math.max.apply(Math, data[properties[n]]);
+			let min = 0;
+			let max = 0;
 			let color = colors[properties[n]];
 
+			if (Array.isArray(propData)) {
+				min = Math.min.apply(Math, data[properties[n]]);
+				max = Math.max.apply(Math, data[properties[n]]);
+				
+			}
 
 			if (n === 0) {
 				label.innerHTML = value.toFixed();
@@ -3197,19 +3201,21 @@ class CulvertPanel {
 		return {
 			name: "-",
 
-			datumHeight: [-10000.0],
+			datumHeight: -10000.0,
 			diameter: 0,
-			rectangularHeight: [-10000.0],
-			
+			rectangularHeight: -10000.0,
+
 			heights: [-10000],
 			flows: [0.0],
 			datumsA: [-10000.0],
 			datumsB: [-10000.0],
-			areaOutputA: -1,
-			areaOutputB: -1,
+			areaIDA: -1,
+			areaIDB: -1,
 			datumHeightOutputA: -10000,
 			datumHeightOutputB: -10000,
 			culvertN: 3 / 2,
+			elevationA: -10000,
+			elevationB: -10000,
 		};
 	}
 
@@ -3239,12 +3245,12 @@ class CulvertPanel {
 
 		addStructureInfoLabel(parent, "Datum B:");
 		this.culvertInfoDatumB = addStructureInfoValue(parent, "culvertInfoDatumB");
+	
+		addStructureInfoLabel(parent, "Elevation A:");
+		this.culvertInfoElevationA = addStructureInfoValue(parent, "culvertInfoElevationA");
 
-		addStructureInfoLabel(parent, "Area id A:");
-		this.culvertInfoAreaA = addStructureInfoValue(parent, "culvertInfoAreaA");
-
-		addStructureInfoLabel(parent, "Area id B:");
-		this.culvertInfoAreaB = addStructureInfoValue(parent, "culvertInfoAreaB");
+		addStructureInfoLabel(parent, "Elevation B:");
+		this.culvertInfoElevationB = addStructureInfoValue(parent, "culvertInfoElevationB");
 
 	}
 
@@ -3343,11 +3349,10 @@ class CulvertPanel {
 		this.culvertInfoFlow.innerHTML = culvert.flows[culvertTimeframe] + " m³/s";
 
 		this.culvertInfoDatumA.innerHTML = culvert.datumsA[culvertTimeframe] + " m";
-
 		this.culvertInfoDatumB.innerHTML = culvert.datumsB[culvertTimeframe] + " m";
 
-		this.culvertInfoAreaA.innerHTML = culvert.areaOutputA;
-		this.culvertInfoAreaB.innerHTML = culvert.areaOutputB;
+		this.culvertInfoElevationA.innerHTML = culvert.elevationA + " m";
+		this.culvertInfoElevationB.innerHTML = culvert.elevationB + " m";
 
 		this.culvertInfoN.innerHTML = culvert.culvertN;
 
@@ -3377,10 +3382,10 @@ function getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeigh
 
 function leftWaterBody(ctx, waterWidth, baseHeight, multiplier, datumLeft, minDatum) {
 
-	
+
 	let leftX = 0;
 	let topY = ctx.canvas.height - (baseHeight + multiplier * (datumLeft - minDatum));
-	
+
 	ctx.fillStyle = getWaterGradient(ctx, topY);
 	ctx.fillRect(leftX, topY, waterWidth, ctx.canvas.height);
 }
@@ -3395,16 +3400,22 @@ function rightWaterBody(ctx, waterWidth, baseHeight, multiplier, datumRight, min
 	ctx.fillRect(leftX, topY, waterWidth, ctx.canvas.height);
 }
 
-function drawLeftCulvert(ctx, culvertGradient) {
+function drawCulvert(ctx, baseHeight, multiplier, culvertHeight) {
+
+	let length = ctx.canvas.width * 4 / 6;
+	let leftX = ctx.canvas.width / 6;
+	let height = multiplier * culvertHeight;
+
+	let topY = ctx.canvas.height - baseHeight - height;
+
+	let culvertGradient = ctx.createLinearGradient(0, topY, 0, topY + 40);
+	culvertGradient.addColorStop(0, "#dedede");
+	culvertGradient.addColorStop(1, "#4a4a4a");
+
 	ctx.beginPath();
-	ctx.moveTo(40, 100);
-	ctx.lineTo(140, 100);
-	ctx.lineTo(130, 110);
-	ctx.lineTo(140, 120);
-	ctx.lineTo(130, 130);
-	ctx.lineTo(140, 140);
-	ctx.lineTo(40, 140);
-	ctx.lineTo(40, 100);
+	ctx.rect(leftX, topY, length, height);
+	ctx.closePath();
+
 	ctx.fillStyle = culvertGradient;
 	ctx.fill();
 	ctx.lineWidth = 1;
@@ -3412,56 +3423,74 @@ function drawLeftCulvert(ctx, culvertGradient) {
 	ctx.stroke();
 }
 
-function drawRightCulvert(ctx, culvertGradient) {
-	ctx.beginPath();
-	ctx.moveTo(150, 100);
-	ctx.lineTo(240, 100);
-	ctx.lineTo(240, 140);
-	ctx.lineTo(150, 140);
-	ctx.lineTo(140, 130);
-	ctx.lineTo(150, 120);
-	ctx.lineTo(140, 110);
-	ctx.lineTo(150, 100);
-	ctx.fillStyle = culvertGradient;
-	ctx.fill();
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = "black";
-	ctx.stroke();
+
+function drawBreakSectionDashed(ctx, midX, topY, terrainGradient) {
+
+	let stepX = 10;
+	let marginY = 10;	
+	ctx.fillStyle = terrainGradient;
+	for(let x = midX-stepX; x <= midX+stepX; x++){
+		if(x%4==0){
+			ctx.fillRect(x, topY-marginY, 2, ctx.canvas.height-marginY);
+		}
+	}
+	
 }
 
-function drawLeftBreakLine(ctx) {
-	ctx.beginPath();
-	ctx.moveTo(130, 90);
-	ctx.lineTo(140, 100);
-	ctx.lineTo(130, 110);
-	ctx.lineTo(140, 120);
-	ctx.lineTo(130, 130);
-	ctx.lineTo(140, 140);
-	ctx.lineTo(130, 150);
-	ctx.lineWidth = 1;
-	ctx.stroke();
+function drawBreakSection(ctx, midX, topY, terrainGradient) {
+
+	let stepX = 10;
+	let stepY = 10;
+	topY-=stepY;
+	let leftX = midX - stepX;
+	let rightX = leftX + 2 * stepX;
+	for (let fill of [true, false]) {
+		let x = leftX;
+		let y = topY-10/2;
+		ctx.beginPath();
+		ctx.moveTo(x, y);
+
+		while (y < ctx.canvas.height - stepY) {
+			x = x == leftX ? x + stepX : x - stepX;
+			y += stepY;
+			ctx.lineTo(x, y);
+		}
+
+
+		x = x == leftX ? rightX : rightX + stepX;
+		if (fill) {
+			ctx.lineTo(x, y);
+		} else {
+			ctx.moveTo(x, y);
+		}
+
+		while (y > topY) {
+			x = x == rightX ? x + stepX : x - stepX;
+			y -= stepY;
+			ctx.lineTo(x, y);
+		}
+		if (fill) {
+			ctx.closePath();
+			ctx.fillStyle = terrainGradient;
+			ctx.fill();
+		} else {
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = "black";
+			ctx.stroke();
+		}
+	}
 }
 
-function drawRightBreakLine(ctx) {
-	ctx.beginPath();
-	ctx.moveTo(140, 90);
-	ctx.lineTo(150, 100);
-	ctx.lineTo(140, 110);
-	ctx.lineTo(150, 120);
-	ctx.lineTo(140, 130);
-	ctx.lineTo(150, 140);
-	ctx.lineTo(140, 150);
-	ctx.lineWidth = 1;
-	ctx.stroke();
-}
-
-
-function drawTerrainBox(ctx, x, y, width, height) {
-
+function getTerrainGradient(ctx, y) {
 	let envelopeGradient = ctx.createLinearGradient(0, y, 0, y + 150);
 	envelopeGradient.addColorStop(0, "#b3aba1");
 	envelopeGradient.addColorStop(1, "#59493c");
-	ctx.fillStyle = envelopeGradient;
+	return envelopeGradient;
+}
+
+function drawTerrainBox(ctx, x, y, width, height) {
+
+	ctx.fillStyle = getTerrainGradient(ctx, y);
 	ctx.fillRect(x, y, width, height);
 	ctx.lineWidth = 1;
 	ctx.strokeRect(x, y, width, height);
@@ -3529,7 +3558,7 @@ function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight,
 
 }
 
-function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
+function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertDiameter, culvertRectangleHeight, elevationLeft, elevationRight) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
 	}
@@ -3537,29 +3566,26 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
 
+	let culvertHeight = culvertRectangleHeight > 0 ? culvertRectangleHeight : culvertDiameter;
 
-	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
-	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeight);
-
-	let range = maxDatum - minDatum;
 
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
 	let culvertDatum = Array.isArray(culvertDatums) ? culvertDatums[index] : culvertDatums;
 
+
+	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
+	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertDatum + culvertHeight);
+
+	let range = maxDatum - minDatum;
+	
+	
 	let baseHeight = canvas.height / 8;
 	let heightMultiplier = (canvas.height - baseHeight) / range;
 
-
-	//TODO: @Artist Please add draw functions
-	let waterHeight = 50;
 	let waterWidth = canvas.width / 4;
 	let terrainWidth = canvas.width - 2 * waterWidth;
 	let terrainTopY = baseHeight;
-	let culvertGradient = ctx.createLinearGradient(0, 100, 0, 140);
-	culvertGradient.addColorStop(0, "#dedede");
-	culvertGradient.addColorStop(1, "#4a4a4a");
-
 
 	leftWaterBody(ctx, waterWidth, baseHeight, heightMultiplier, datumLeft, minDatum);
 
@@ -3567,13 +3593,11 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 
 	drawTerrainBox(ctx, waterWidth, terrainTopY, terrainWidth, canvas.height);
 
-	drawLeftCulvert(ctx, culvertGradient);
+	drawCulvert(ctx, baseHeight, heightMultiplier, culvertHeight);
 
-	drawRightCulvert(ctx, culvertGradient);
-
-	drawLeftBreakLine(ctx);
-
-	drawRightBreakLine(ctx);
+	let culvertTopY = ctx.canvas.height - baseHeight - heightMultiplier * culvertHeight;
+	
+	drawBreakSection(ctx, ctx.canvas.width / 2, culvertTopY, getTerrainGradient(ctx, terrainTopY));
 
 
 }
@@ -5012,14 +5036,14 @@ function createWeirs() {
 			datumsB: i < datumB.length ? datumB[i] : Array(timeframes).fill(-10000),
 
 			// single value
-			width: i < width.length ? width[i] : Array(timeframes).fill(0),
-			damWidth: i < damWidth.length ? damWidth[i] : 0,
-			damHeight: i < damHeight.length ? damHeight[i] : -1,
-			areaOutputA: i < areaOutputA.length ? areaOutputA[i] : -1,
-			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
-			angle: i < angle.length ? angle[i] : -10000,
-			coefficient: i < coefficient.length && coefficient[i] > 0 ? coefficient[i] : 1.1,
-			weirN: i < weirN.length && weirN[i] > 0 ? weirN[i] : 3 / 2,
+			width: i < width.length ? width[i][0] : 0,
+			damWidth: i < damWidth.length ? damWidth[i][0] : 0,
+			damHeight: i < damHeight.length ? damHeight[i][0] : -1,
+			areaOutputA: i < areaOutputA.length ? areaOutputA[i][0] : -1,
+			areaOutputB: i < areaOutputB.length ? areaOutputB[i][0] : -1,
+			angle: i < angle.length ? angle[i][0] : -10000,
+			coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
+			weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
 		};
 		weirs.push(weir);
 
@@ -5106,7 +5130,8 @@ function updateCulvertDetails(culvert) {
 
 	culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
 
-	drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, 1, culvert.culvertN);
+	drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB,
+		culvert.diameter, culvert.rectangularHeight, culvert.datumHeightOutputA, culvert.datumHeightOutputB);
 	drawCulvertFront(culvertPanel.culvertFrontCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, 1, culvert.culvertN);
 
 	updateCulvertFlowPlot(culvert);
@@ -5240,8 +5265,8 @@ queries.addQuery(CULVERT_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK
 queries.addQuery(CULVERT_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B_AND_TIMEFRAME_IS_X');
 queries.addQuery(CULVERT_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queries.addQuery(CULVERT_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
-queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_2');
-queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_3');
+queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_4');
+queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_5');
 
 const CULVERT_PARAM_PROPERTIES = ["name", "diameter", "rectangularHeight", "datumHeight", "culvertN"];
 const CULVERT_PARAM_TITLES = {
@@ -5252,15 +5277,15 @@ const CULVERT_PARAM_TITLES = {
 	"culvertN": "Culvert N",
 }
 
-const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB", "datumHeightOutputA", "datumHeightOutputB"];
+const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB"];
 const CULVERT_RESULT_TITLES = {
 	"name": CULVERT_PARAM_TITLES["name"],
 	"flows": "Flow (M³/s)",
 	"heights": "Height (m)",
 	"datumsA": "Water Level Datum A (m)",
 	"datumsB": "Water Level Datum B (m)",
-	"areaOutputA": "Area ID A",
-	"areaOutputB": "Area ID B",
+	"areaIDA": "Area ID A",
+	"areaIDB": "Area ID B",
 	"datumHeightOutputA": "Datum Elevation A (m)",
 	"datumHeightOutputB": "Datum Elevation B (m)",
 
@@ -5276,19 +5301,19 @@ function createCulverts() {
 	let datumHeights = queries.getData(CULVERT_DATUM_HEIGHT, true);
 	let rectangularHeights = queries.getData(CULVERT_RECTANGULAR_HEIGHT, true);
 	let culvertNs = queries.getData(CULVERT_N, true);
-	let heights = queries.getData(CULVERT_HEIGHT_OUTPUT, true);	
+	let heights = queries.getData(CULVERT_HEIGHT_OUTPUT, true);
 	let flows = queries.getData(CULVERT_FLOW_OUTPUT, true);
 	let datumsA = queries.getData(CULVERT_DATUM_OUTPUT_A, true);
 	let datumsB = queries.getData(CULVERT_DATUM_OUTPUT_B, true);
-	let areaOutputA = queries.getData(CULVERT_AREA_OUTPUT_A, true);
-	let areaOutputB = queries.getData(CULVERT_AREA_OUTPUT_B, true);
-	let datumHeightOutputsA = queries.getData(CULVERT_AREA_OUTPUT_A, true);
-	let datumHeightOutputsB = queries.getData(CULVERT_AREA_OUTPUT_B, true);
+	let areaIDA = queries.getData(CULVERT_AREA_OUTPUT_A, true);
+	let areaIDB = queries.getData(CULVERT_AREA_OUTPUT_B, true);
+	let elevationA = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_A, true);
+	let elevationB = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_B, true);
 
 	for (let i = 0; i < names.length; i++) {
 
 		let culvert = {
-			
+
 			name: i < names.length ? names[i] : "Culvert " + i,
 
 			// array values
@@ -5298,15 +5323,15 @@ function createCulverts() {
 			datumsB: i < datumsB.length ? datumsB[i] : Array(timeframes).fill(-10000),
 
 			// single value
-			datumHeight: i < datumHeights.length ? datumHeights[i] : -10000.0,
-			diameter: i < diameters.length ? diameters[i] : 0,
-			rectangularHeight: i < rectangularHeights.length ? rectangularHeights[i] : -10000.0,
-			culvertN: i < culvertNs.length && culvertNs[i] > 0 ? culvertNs[i] : 3 / 2,
-						
-			areaOutputA: i < areaOutputA.length ? areaOutputA[i] : -1,
-			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
-			datumHeightOutputA: i < datumHeightOutputsA.length ? datumHeightOutputsA[i] : -10000,
-			datumHeightOutputB: i < datumHeightOutputsB.length ? datumHeightOutputsA[i] : -10000,
+			datumHeight: i < datumHeights.length ? datumHeights[i][0] : -10000.0,
+			diameter: i < diameters.length ? diameters[i][0] : 0,
+			rectangularHeight: i < rectangularHeights.length ? rectangularHeights[i][0] : -10000.0,
+			culvertN: i < culvertNs.length && culvertNs[i][0] > 0 ? culvertNs[i][0] : 3 / 2,
+
+			areaIDA: i < areaIDA.length ? areaIDA[i][0] : -1,
+			areaIDB: i < areaIDB.length ? areaIDB[i][0] : -1,
+			elevationA: i < elevationA.length ? elevationA[i][0] : -10000, 
+			elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
 		};
 		culverts.push(culvert);
 
