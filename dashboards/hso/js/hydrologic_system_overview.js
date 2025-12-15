@@ -889,14 +889,14 @@ function createWeirs() {
 			datumsB: i < datumB.length ? datumB[i] : Array(timeframes).fill(-10000),
 
 			// single value
-			width: i < width.length ? width[i] : Array(timeframes).fill(0),
-			damWidth: i < damWidth.length ? damWidth[i] : 0,
-			damHeight: i < damHeight.length ? damHeight[i] : -1,
-			areaOutputA: i < areaOutputA.length ? areaOutputA[i] : -1,
-			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
-			angle: i < angle.length ? angle[i] : -10000,
-			coefficient: i < coefficient.length && coefficient[i] > 0 ? coefficient[i] : 1.1,
-			weirN: i < weirN.length && weirN[i] > 0 ? weirN[i] : 3 / 2,
+			width: i < width.length ? width[i][0] : 0,
+			damWidth: i < damWidth.length ? damWidth[i][0] : 0,
+			damHeight: i < damHeight.length ? damHeight[i][0] : -1,
+			areaOutputA: i < areaOutputA.length ? areaOutputA[i][0] : -1,
+			areaOutputB: i < areaOutputB.length ? areaOutputB[i][0] : -1,
+			angle: i < angle.length ? angle[i][0] : -10000,
+			coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
+			weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
 		};
 		weirs.push(weir);
 
@@ -1175,15 +1175,15 @@ function createCulverts() {
 			datumsB: i < datumsB.length ? datumsB[i] : Array(timeframes).fill(-10000),
 
 			// single value
-			datumHeight: i < datumHeights.length ? datumHeights[i] : -10000.0,
-			diameter: i < diameters.length ? diameters[i] : 0,
-			rectangularHeight: i < rectangularHeights.length ? rectangularHeights[i] : -10000.0,
-			culvertN: i < culvertNs.length && culvertNs[i] > 0 ? culvertNs[i] : 3 / 2,
+			datumHeight: i < datumHeights.length ? datumHeights[i][0] : -10000.0,
+			diameter: i < diameters.length ? diameters[i][0] : 0,
+			rectangularHeight: i < rectangularHeights.length ? rectangularHeights[i][0] : -10000.0,
+			culvertN: i < culvertNs.length && culvertNs[i][0] > 0 ? culvertNs[i][0] : 3 / 2,
 						
-			areaOutputA: i < areaOutputA.length ? areaOutputA[i] : -1,
-			areaOutputB: i < areaOutputB.length ? areaOutputB[i] : -1,
-			datumHeightOutputA: i < datumHeightOutputsA.length ? datumHeightOutputsA[i] : -10000,
-			datumHeightOutputB: i < datumHeightOutputsB.length ? datumHeightOutputsA[i] : -10000,
+			areaOutputA: i < areaOutputA.length ? areaOutputA[i][0] : -1,
+			areaOutputB: i < areaOutputB.length ? areaOutputB[i][0] : -1,
+			datumHeightOutputA: i < datumHeightOutputsA.length ? datumHeightOutputsA[i][0] : -10000,
+			datumHeightOutputB: i < datumHeightOutputsB.length ? datumHeightOutputsA[i][0] : -10000,
 		};
 		culverts.push(culvert);
 
