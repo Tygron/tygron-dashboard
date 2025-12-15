@@ -36,19 +36,27 @@ function addTimeframeRow(tableBody, timeframe, data, properties, colors) {
 		let labelDiv = document.createElement('div');
 		let label = document.createElement('label');
 
-		let value = data[properties[n]] == null ? null :
-			timeframe < data[properties[n]].length ?
-				data[properties[n]][timeframe] :
-				data[properties[n]][data[properties[n]].length - 1];
+		let propData = data[properties[n]];
+
+		let value = Array.isArray(propData) ?
+			timeframe < propData.length ?
+				propData[timeframe] :
+				propData[propData.length - 1]
+			: propData == null ? null : propData;
 
 		if (typeof value == "string") {
 			label.innerHTML = value;
 		} else if (value instanceof Number || typeof value == "number") {
 
-			let min = Math.min.apply(Math, data[properties[n]]);
-			let max = Math.max.apply(Math, data[properties[n]]);
+			let min = 0;
+			let max = 0;
 			let color = colors[properties[n]];
 
+			if (Array.isArray(propData)) {
+				min = Math.min.apply(Math, data[properties[n]]);
+				max = Math.max.apply(Math, data[properties[n]]);
+				
+			}
 
 			if (n === 0) {
 				label.innerHTML = value.toFixed();
