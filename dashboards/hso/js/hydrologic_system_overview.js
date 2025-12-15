@@ -984,7 +984,7 @@ function updateCulvertDetails(culvert) {
 	culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
 
 	drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB,
-		culvert.diameter, culvert.rectangularHeight, culvert.datumHeightOutputA, culvert.datumHeightOutputB);
+		culvert.diameter, culvert.rectangularHeight, culvert.elevationA, culvert.elevationB);
 	drawCulvertFront(culvertPanel.culvertFrontCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, 1, culvert.culvertN);
 
 	updateCulvertFlowPlot(culvert);
