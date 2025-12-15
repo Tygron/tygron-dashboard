@@ -40,9 +40,8 @@ function rightWaterBody(ctx, waterWidth, baseHeight, multiplier, datumRight, min
 	ctx.fillRect(leftX, topY, waterWidth, ctx.canvas.height);
 }
 
-function drawCulvert(ctx, baseHeight, multiplier, culvertDiameter, culvertRectangleHeight) {
+function drawCulvert(ctx, baseHeight, multiplier, culvertHeight) {
 
-	let culvertHeight = culvertRectangleHeight > 0 ? culvertRectangleHeight : culvertDiameter;
 	let length = ctx.canvas.width * 4 / 6;
 	let leftX = ctx.canvas.width / 6;
 	let height = multiplier * culvertHeight;
@@ -53,7 +52,9 @@ function drawCulvert(ctx, baseHeight, multiplier, culvertDiameter, culvertRectan
 	culvertGradient.addColorStop(0, "#dedede");
 	culvertGradient.addColorStop(1, "#4a4a4a");
 
+	ctx.beginPath();
 	ctx.rect(leftX, topY, length, height);
+	ctx.closePath();
 
 	ctx.fillStyle = culvertGradient;
 	ctx.fill();
@@ -80,6 +81,7 @@ function drawBreakSection(ctx, midX, topY, terrainGradient) {
 
 	let stepX = 10;
 	let stepY = 10;
+	topY-=stepY;
 	let leftX = midX - stepX;
 	let rightX = leftX + 2 * stepX;
 	for (let fill of [true, false]) {
@@ -196,7 +198,7 @@ export function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datum
 
 }
 
-export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertDiameter, culvertRectangleHeight, culvertLength, culvertN) {
+export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertDiameter, culvertRectangleHeight, elevationLeft, elevationRight) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
 	}
@@ -231,9 +233,11 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 
 	drawTerrainBox(ctx, waterWidth, terrainTopY, terrainWidth, canvas.height);
 
-	drawCulvert(ctx, baseHeight, heightMultiplier, culvertDiameter, culvertRectangleHeight);
+	drawCulvert(ctx, baseHeight, heightMultiplier, culvertHeight);
 
-	drawBreakSection(ctx, ctx.canvas.width / 2, ctx.canvas.height / 2, getTerrainGradient(ctx, terrainTopY));
+	let culvertTopY = ctx.canvas.height - baseHeight - heightMultiplier * culvertHeight;
+	
+	drawBreakSection(ctx, ctx.canvas.width / 2, culvertTopY, getTerrainGradient(ctx, terrainTopY));
 
 
 }
