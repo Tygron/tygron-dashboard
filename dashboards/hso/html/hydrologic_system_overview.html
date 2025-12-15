@@ -114,10 +114,9 @@ BODYSTYLE
 			<section class="section" id="kw-duikers-parameters">
 				<div class="card">
 					<h2>Culvert Parameters</h2>
-					<div id="culvertParamSliderDiv"></div>	
-					<button class="btn"
-						onclick="downloadTableAsCSV('culvertParamTable','culvert_parameters.csv')">
-						Download CSV</button>
+					<div id="culvertParamSliderDiv"></div>
+					<button class="btn" id="culvertDownloadParamCsvButton">Download
+						CSV</button>
 
 					<table id="culvertParamTable">
 						<thead>
@@ -135,11 +134,10 @@ BODYSTYLE
 			</section>
 			<section class="section" id="kw-duikers-uitkomsten">
 				<div class="card">
-					<h2>Culvert Results</h2>					
-					<div id="culvertResultSliderDiv"></div>					
-					<button class="btn"
-						onclick="downloadTableAsCSV('culvertResultsTable','culvert_results.csv')">
-						Download CSV</button>
+					<h2>Culvert Results</h2>
+					<div id="culvertResultSliderDiv"></div>
+					<button class="btn" id="culvertDownloadResultCsvButton">Download
+						CSV</button>
 
 					<table id="culvertResultsTable">
 						<thead>
@@ -159,6 +157,16 @@ BODYSTYLE
 			<section class="section" id="kw-duikers-detail">
 				<div class="card">
 					<h2>Culvert Detail</h2>
+					<div class="water-structure-main">
+						<aside class="water-structure-sidebar">
+							<h3>Culverts list:</h3>
+							<div id="culvertList" class="vertical-menu">
+								<a class="selected">Duiker 1</a> <a>Duiker 2</a><a>Nieuwe
+									Duiker</a>
+							</div>
+						</aside>
+						<section id="culvertDetailParent" class="water-structure-detail"></section>
+					</div>
 				</div>
 			</section>
 
@@ -171,7 +179,7 @@ BODYSTYLE
 			<section class="section" id="kw-stuwen-parameters">
 				<div class="card">
 					<h2>Weir Parameters</h2>
-					<div id="weirParamSliderDiv"></div>	
+					<div id="weirParamSliderDiv"></div>
 					<button class="btn" id="weirDownloadParamCsvButton">Download
 						CSV</button>
 
@@ -199,7 +207,7 @@ BODYSTYLE
 			<section class="section" id="kw-stuwen-uitkomsten">
 				<div class="card">
 					<h2>Weir Results</h2>
-					<div id="weirResultSliderDiv"></div>	
+					<div id="weirResultSliderDiv"></div>
 					<button class="btn" id="weirDownloadResultCsvButton">Download
 						CSV</button>
 					<table id="weirResultsTable">
