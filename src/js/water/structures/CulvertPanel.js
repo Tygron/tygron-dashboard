@@ -7,9 +7,9 @@ export class CulvertPanel {
 		return {
 			name: "-",
 
-			datumHeight: [-10000.0],
+			datumHeight: -10000.0,
 			diameter: 0,
-			rectangularHeight: [-10000.0],
+			rectangularHeight: -10000.0,
 			
 			heights: [-10000],
 			flows: [0.0],
