@@ -10,11 +10,15 @@ export class CulvertPanel {
 			datumHeight: [-10000.0],
 			diameter: 0,
 			rectangularHeight: [-10000.0],
-			flow: [0.0],
-			datumA: [-10000.0],
-			datumB: [-10000.0],
+			
+			heights: [-10000],
+			flows: [0.0],
+			datumsA: [-10000.0],
+			datumsB: [-10000.0],
 			areaOutputA: -1,
 			areaOutputB: -1,
+			datumHeightOutputA: -10000,
+			datumHeightOutputB: -10000,
 			culvertN: 3 / 2,
 		};
 	}
@@ -140,7 +144,7 @@ export class CulvertPanel {
 		this.culvertInfoDatumHeight.innerHTML = culvert.datumHeight + " m";
 
 		this.culvertInfoWidth.innerHTML = culvert.diameter + " m";
-		
+
 		this.culvertInfoRectangularHeight.innerHTML = culvert.rectangularHeight + " m";
 
 		this.culvertInfoFlow.innerHTML = culvert.flows[culvertTimeframe] + " m³/s";
@@ -151,8 +155,7 @@ export class CulvertPanel {
 
 		this.culvertInfoAreaA.innerHTML = culvert.areaOutputA;
 		this.culvertInfoAreaB.innerHTML = culvert.areaOutputB;
-	
-		this.culvertInfoCoefficient.innerHTML = culvert.coefficient;
+
 		this.culvertInfoN.innerHTML = culvert.culvertN;
 
 	}
