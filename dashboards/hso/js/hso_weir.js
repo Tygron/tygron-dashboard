@@ -1,4 +1,4 @@
-import { drawWeirSide, drawWeirFront } from "../../../src/js/water/structures/Weir.js";
+import { drawWeirSide, drawWeirFront } from "../../../src/js/water/structures/WeirPlot.js";
 import { WeirPanel } from "../../../src/js/water/structures/WeirPanel.js";
 
 let weirName = "My Weir 123";

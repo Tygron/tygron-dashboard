@@ -7,6 +7,8 @@ import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
 import { QueryDataManager } from "../../../src/js/data/QueryDataManager.js";
 import { WeirPanel } from "../../../src/js/water/structures/WeirPanel.js";
 import { CulvertPanel } from "../../../src/js/water/structures/CulvertPanel.js";
+import { drawWeirFront, drawWeirSide} from "../../../src/js/water/structures/WeirPlot.js";
+import { drawCulvertFront, drawCulvertSide} from "../../../src/js/water/structures/CulvertPlot.js";
 
 // Sidebar toggles
 document.querySelectorAll(".nav-item").forEach(item => {
@@ -973,8 +975,6 @@ addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir
 /**
  * CULVERTS
  */
-//TODO( Frank) Fix culverts
-
 function updateCulvertDetails(culvert) {
 
 	if (culvert == null) {
@@ -983,8 +983,6 @@ function updateCulvertDetails(culvert) {
 
 	culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
 
-
-	//TODO: (Frank ) Fix params
 	drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, 1, culvert.culvertN);
 	drawCulvertFront(culvertPanel.culvertFrontCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, 1, culvert.culvertN);
 

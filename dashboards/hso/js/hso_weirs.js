@@ -1,5 +1,5 @@
 import { QueryDataManager } from "../../../src/js/util/QueryDataManager.js";
-import { drawWeirSide, drawWeirFront } from "../../../src/js/water/structures/Weir.js";
+import { drawWeirSide, drawWeirFront } from "../../../src/js/water/structures/WeirPlot.js";
 import { setupTimeframeSlider } from "../../../src/js/ui/Timeframeslider.js";
 import { createLayout, xyPlot } from "../../../src/js/util/Plot.js";
 import { WeirPanel } from "../../../src/js/water/structures/WeirPanel.js";
