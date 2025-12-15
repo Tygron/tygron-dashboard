@@ -5,7 +5,7 @@ import { addTimeframeSlider, setupTimeframeSlider } from "../../../src/js/ui/Tim
 import { addFlowValues, createLinks, createTimeframeData, addLink } from "../../../src/js/data/Data.js";
 import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
 import { QueryDataManager } from "../../../src/js/data/QueryDataManager.js";
-import { WeirPanel } from "../../../src/js/water/structures/weirPanel.js";
+import { WeirPanel } from "../../../src/js/water/structures/WeirPanel.js";
 
 // Sidebar toggles
 document.querySelectorAll(".nav-item").forEach(item => {

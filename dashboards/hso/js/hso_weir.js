@@ -1,5 +1,5 @@
-import { drawWeirSide, drawWeirFront } from "../../../src/js/water/structures/weir.js";
-import { WeirPanel } from "../../../src/js/water/structures/weirPanel.js";
+import { drawWeirSide, drawWeirFront } from "../../../src/js/water/structures/Weir.js";
+import { WeirPanel } from "../../../src/js/water/structures/WeirPanel.js";
 
 let weirName = "My Weir 123";
 let weirHeight = 1.5;
