@@ -2899,19 +2899,17 @@ function getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight) {
 	let minDatumLeft = Array.isArray(datumsLeft) ? Math.min.apply(Math, datumsLeft) : datumsLeft;
 	let minDatumRight = Array.isArray(datumsRight) ? Math.min.apply(Math, datumsRight) : datumsRight;
 
-	let minDatum = Math.min(minDatumLeft, minDatumRight, minCulvertDatum);
-	return minDatum;
+	return Math.min(minDatumLeft, minDatumRight, minCulvertDatum);
 }
 
 
-function getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeight) {
+function getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight) {
 
 	let maxCulvertDatum = Array.isArray(culvertDatums) ? Math.max.apply(Math, culvertDatums) : culvertDatums;
 	let maxDatumLeft = Array.isArray(datumsLeft) ? Math.max.apply(Math, datumsLeft) : datumsLeft;
 	let maxDatumRight = Array.isArray(datumsRight) ? Math.max.apply(Math, datumsRight) : datumsRight;
 
-	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxCulvertDatum + culvertHeight);
-	return maxDatum;
+	return Math.max(maxDatumLeft, maxDatumRight, maxCulvertDatum);
 }
 
 function leftWaterBody(ctx, waterWidth, baseHeight, multiplier, datumLeft, minDatum) {
@@ -2961,26 +2959,26 @@ function drawCulvert(ctx, baseHeight, multiplier, culvertHeight) {
 function drawBreakSectionDashed(ctx, midX, topY, terrainGradient) {
 
 	let stepX = 10;
-	let marginY = 10;	
+	let marginY = 10;
 	ctx.fillStyle = terrainGradient;
-	for(let x = midX-stepX; x <= midX+stepX; x++){
-		if(x%4==0){
-			ctx.fillRect(x, topY-marginY, 2, ctx.canvas.height-marginY);
+	for (let x = midX - stepX; x <= midX + stepX; x++) {
+		if (x % 4 == 0) {
+			ctx.fillRect(x, topY - marginY, 2, ctx.canvas.height - marginY);
 		}
 	}
-	
+
 }
 
 function drawBreakSection(ctx, midX, topY, terrainGradient) {
 
 	let stepX = 10;
 	let stepY = 10;
-	topY-=stepY;
+	topY -= stepY;
 	let leftX = midX - stepX;
 	let rightX = leftX + 2 * stepX;
 	for (let fill of [true, false]) {
 		let x = leftX;
-		let y = topY-10/2;
+		let y = topY - 10 / 2;
 		ctx.beginPath();
 		ctx.moveTo(x, y);
 
@@ -3106,31 +3104,39 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
 	let culvertDatum = Array.isArray(culvertDatums) ? culvertDatums[index] : culvertDatums;
+	culvertDatum = culvertDatums == 0 || culvertDatum == -10000 ? Math.min(elevationLeft, elevationRight) : culvertDatums;
 
 
-	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
-	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertDatum + culvertHeight);
+	let minDatum = getMinDatumCulvert(culvertDatum, elevationLeft, elevationRight);
+	let maxDatum = getMaxDatumCulvert(culvertDatum + culvertHeight, datumsLeft, datumsRight);
 
 	let range = maxDatum - minDatum;
-	
-	
+
+
 	let baseHeight = canvas.height / 8;
-	let heightMultiplier = (canvas.height - baseHeight) / range;
+	let heightMultiplier = (canvas.height - 3 * baseHeight) / range;
 
 	let waterWidth = canvas.width / 4;
 	let terrainWidth = canvas.width - 2 * waterWidth;
-	let terrainTopY = baseHeight;
+	let terrainTopY = baseHeight / 2;
 
 	leftWaterBody(ctx, waterWidth, baseHeight, heightMultiplier, datumLeft, minDatum);
 
 	rightWaterBody(ctx, waterWidth, baseHeight, heightMultiplier, datumRight, minDatum);
 
-	drawTerrainBox(ctx, waterWidth, terrainTopY, terrainWidth, canvas.height);
+	let terrainLeftTop = canvas.height-((elevationLeft - Math.min(elevationLeft, elevationRight))*heightMultiplier + baseHeight);
+	let terrainRightTop = canvas.height-((elevationRight - Math.min(elevationLeft, elevationRight))*heightMultiplier + baseHeight);
+	
+	drawTerrainBox(ctx, 0, terrainLeftTop, waterWidth, canvas.height);
+	drawTerrainBox(ctx, waterWidth, terrainTopY, terrainWidth, canvas.height); 
+	drawTerrainBox(ctx, canvas.width - waterWidth, terrainRightTop, waterWidth, canvas.height);
+
+
 
 	drawCulvert(ctx, baseHeight, heightMultiplier, culvertHeight);
 
 	let culvertTopY = ctx.canvas.height - baseHeight - heightMultiplier * culvertHeight;
-	
+
 	drawBreakSection(ctx, ctx.canvas.width / 2, culvertTopY, getTerrainGradient(ctx, terrainTopY));
 
 
