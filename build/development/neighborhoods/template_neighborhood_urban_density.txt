@@ -2774,213 +2774,165 @@ class NumberUtils {
 }
 
 
-function getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight) {
-	let minCulvertDatum = Array.isArray(culvertDatums) ? Math.min.apply(Math, culvertDatums) : culvertDatums;
-	let minDatumLeft = Array.isArray(datumsLeft) ? Math.min.apply(Math, datumsLeft) : datumsLeft;
-	let minDatumRight = Array.isArray(datumsRight) ? Math.min.apply(Math, datumsRight) : datumsRight;
 
-	let minDatum = Math.min(minDatumLeft, minDatumRight, minCulvertDatum);
-	return minDatum;
-}
+class CulvertPanel {
 
+	static getDummyCulvert() {
+		return {
+			name: "-",
 
-function getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeight) {
-
-	let maxCulvertDatum = Array.isArray(culvertDatums) ? Math.max.apply(Math, culvertDatums) : culvertDatums;
-	let maxDatumLeft = Array.isArray(datumsLeft) ? Math.max.apply(Math, datumsLeft) : datumsLeft;
-	let maxDatumRight = Array.isArray(datumsRight) ? Math.max.apply(Math, datumsRight) : datumsRight;
-
-	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxCulvertDatum + culvertHeight);
-	return maxDatum;
-}
-
-function leftWaterBody(ctx, waterHeight, waterWidth){
-		ctx.fillStyle = getWaterGradient(ctx, waterHeight);
-		ctx.fillRect(0, waterHeight, waterWidth, ctx.canvas.height);
-}
-
-function rightWaterBody(ctx, waterHeight, waterWidth){
-		ctx.fillStyle = getWaterGradient(ctx, waterHeight);
-		ctx.fillRect(200, waterHeight, waterWidth, ctx.canvas.height);
-}
-
-function drawLeftCulvert(ctx, culvertGradient){
-		ctx.beginPath();
-		ctx.moveTo(40,100);
-		ctx.lineTo(140,100);
-		ctx.lineTo(130,110);
-		ctx.lineTo(140,120);
-		ctx.lineTo(130,130);
-		ctx.lineTo(140,140);
-		ctx.lineTo(40,140);
-		ctx.lineTo(40,100);
-		ctx.fillStyle = culvertGradient;
-		ctx.fill();
-		ctx.strokeStyle = "black";
-		ctx.stroke();
-}
-
-function drawRightCulvert(ctx, culvertGradient){
-		ctx.beginPath();
-		ctx.moveTo(150,100);
-		ctx.lineTo(240,100);
-		ctx.lineTo(240,140);
-		ctx.lineTo(150,140);
-		ctx.lineTo(140,130);
-		ctx.lineTo(150,120);
-		ctx.lineTo(140,110);
-		ctx.lineTo(150,100);
-		ctx.fillStyle = culvertGradient;
-		ctx.fill();
-		ctx.strokeStyle = "black";
-		ctx.stroke();	
-}
-
-function drawLeftBreakLine(ctx){
-		ctx.beginPath();
-		ctx.moveTo(130,90);
-		ctx.lineTo(140,100);
-		ctx.lineTo(130,110);
-		ctx.lineTo(140,120);
-		ctx.lineTo(130,130);
-		ctx.lineTo(140,140);
-		ctx.lineTo(130,150);
-		ctx.stroke();
-}
-
-function drawRightBreakLine(ctx){
-		ctx.beginPath();
-		ctx.moveTo(140,90);
-		ctx.lineTo(150,100);
-		ctx.lineTo(140,110);
-		ctx.lineTo(150,120);
-		ctx.lineTo(140,130);
-		ctx.lineTo(150,140);
-		ctx.lineTo(140,150);
-		ctx.stroke();
-}
-
-
-function drawTerrainBox(ctx,x,y,width,height){
-
-	let envelopeGradient = ctx.createLinearGradient(0,y, 0,y+150);
-	envelopeGradient.addColorStop(0, "#b3aba1");
-	envelopeGradient.addColorStop(1, "#59493c");
-	ctx.fillStyle = envelopeGradient;
-	ctx.fillRect(x,y,width,height);
-	ctx.strokeRect(x,y,width,height);
-}
-
-function drawCulvertCircle(ctx, CentrePointX, CentrePointY, Radius, Circle){
-	ctx.beginPath();
-	ctx.arc(CentrePointX, CentrePointY, Radius, 0,Circle );
-	ctx.fillStyle = "grey";
-	ctx.fill();
-	ctx.lineWidth = 6;
-	ctx.stroke();	
-}
-
-function drawHighWaterLevel(ctx, y, width, height){
-	ctx.rect(0,y, width,height);
-	ctx.fillStyle = getWaterGradient(ctx, height); 
-	ctx.fill();
-}
-
-function drawLowWaterLevel(ctx, y, width, height){
-	ctx.fillStyle = getWaterGradient(ctx, height ); 
-	ctx.fillRect(0,y, width,height);	
-}
-
-function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
-	if (!canvas || canvas.nodeName != "CANVAS") {
-		return;
+			datumHeight: [-10000.0],
+			diameter: 0,
+			rectangularHeight: [-10000.0],
+			
+			heights: [-10000],
+			flows: [0.0],
+			datumsA: [-10000.0],
+			datumsB: [-10000.0],
+			areaOutputA: -1,
+			areaOutputB: -1,
+			datumHeightOutputA: -10000,
+			datumHeightOutputB: -10000,
+			culvertN: 3 / 2,
+		};
 	}
 
-	const ctx = canvas.getContext("2d");
-	clearWeirContext(ctx);
 
-	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
-	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight,culvertHeight);
+	_addCulvertInfoElements(parent) {
 
-	let range = maxDatum - minDatum;
+		addStructureInfoLabel(parent, "Name:");
+		this.culvertInfoName = addStructureInfoValue(parent, "culvertInfoName");
 
-	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
-	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
-	let culvertDatum = Array.isArray(culvertDatums) ? culvertDatums[index] : culvertDatums;
+		addStructureInfoLabel(parent, "Threshold:");
+		this.culvertInfoDatumHeight = addStructureInfoValue(parent, "culvertInfoDatumHeight");
 
-	let baseHeight = canvas.height / 8;
-	let heightMultiplier = (canvas.height - baseHeight) / range;
-	
-	//TODO: @Artist Please add draw functions
-	let culvertFrontCentrePointX = ctx.canvas.width / 2;
-	let culvertFrontCentrePointY = 120;
-	let culvertFrontCircle = 2 * Math.PI;
-	let culvertFrontRadius = 20;
-	let terrainHeight = 40;
-	let terrainWidth = canvas.width / 3;
-	let waterWidth = canvas.width;
-	let highWaterHeight = canvas.height / 2;			
-	let waterLevelLow = canvas.height / 1.2;	
-	let waterLevelHigh = canvas.height - 90	
-	
-	drawHighWaterLevel(ctx, highWaterHeight, waterWidth, highWaterHeight);
-	
-	drawTerrainBox(ctx, terrainWidth,terrainHeight , terrainWidth, ctx.canvas.height);
-	
-	drawCulvertCircle(ctx, culvertFrontCentrePointX, culvertFrontCentrePointY, culvertFrontRadius, culvertFrontCircle);
+		addStructureInfoLabel(parent, "Height:");
+		this.culvertInfoRectangularHeight = addStructureInfoValue(parent, "culvertInfoRectangularHeight");
 
-	drawLowWaterLevel(ctx, waterLevelLow, waterWidth, waterLevelLow);
-		
-}
+		addStructureInfoLabel(parent, "Diameter:");
+		this.culvertInfoWidth = addStructureInfoValue(parent, "culvertInfoDiameter");
 
-function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
-	if (!canvas || canvas.nodeName != "CANVAS") {
-		return;
+		addStructureInfoLabel(parent, "N:");
+		this.culvertInfoN = addStructureInfoValue(parent, "culvertInfoN");
+
+		addStructureInfoLabel(parent, "Flow:");
+		this.culvertInfoFlow = addStructureInfoValue(parent, "culvertInfoFlow");
+
+		addStructureInfoLabel(parent, "Datum A:");
+		this.culvertInfoDatumA = addStructureInfoValue(parent, "culvertInfoDatumA");
+
+		addStructureInfoLabel(parent, "Datum B:");
+		this.culvertInfoDatumB = addStructureInfoValue(parent, "culvertInfoDatumB");
+
+		addStructureInfoLabel(parent, "Area id A:");
+		this.culvertInfoAreaA = addStructureInfoValue(parent, "culvertInfoAreaA");
+
+		addStructureInfoLabel(parent, "Area id B:");
+		this.culvertInfoAreaB = addStructureInfoValue(parent, "culvertInfoAreaB");
+
 	}
-	
-	const ctx = canvas.getContext("2d");
-	clearWeirContext(ctx);
-	
-	
-	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
-	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight,culvertHeight);
 
-	let range = maxDatum - minDatum;
+	constructor(parent) {
 
-	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
-	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
-	let culvertDatum = Array.isArray(culvertDatums) ? culvertDatums[index] : culvertDatums;
+		this.culvertDetailContainer = document.createElement("div");
+		parent.appendChild(this.culvertDetailContainer);
 
-	let baseHeight = canvas.height / 8;
-	let heightMultiplier = (canvas.height - baseHeight) / range;
-	
+		this.culvertInfoTitle = document.createElement("h2");
+		this.culvertDetailContainer.appendChild(this.culvertInfoTitle);
 
-	//TODO: @Artist Please add draw functions
-	let waterHeight = 50;
-	let waterWidth = canvas.width / 4;
-	let envelopeHeight = 40;
-	let culvertGradient = ctx.createLinearGradient(0,100, 0,140);
-		culvertGradient.addColorStop(0, "#dedede");
-		culvertGradient.addColorStop(1, "#4a4a4a");
-	let envelopeGradient = ctx.createLinearGradient(0,envelopeHeight, 0,150);
-		envelopeGradient.addColorStop(0, "#b3aba1");
-		envelopeGradient.addColorStop(1, "#59493c");
-	
-	leftWaterBody(ctx, waterHeight, waterWidth);
+		this.culvertInfoRow = document.createElement("div");
+		this.culvertInfoRow.className = "water-structure-info-row-spread";
 
-	rightWaterBody(ctx, waterHeight, waterWidth);
-		
-	drawTerrainBox(ctx, waterWidth, envelopeHeight, waterWidth*2, canvas.height);
-		
-	drawLeftCulvert(ctx, culvertGradient);
-	
-	drawRightCulvert(ctx, culvertGradient);
-	
-	drawLeftBreakLine(ctx);
-	
-	drawRightBreakLine(ctx);
-	
-	
+		this.culvertDetailContainer.appendChild(this.culvertInfoRow);
+
+		this.culvertInfoDiv = document.createElement("div");
+		this.culvertInfoRow.appendChild(this.culvertInfoDiv);
+
+
+		this.culvertInfoColumn = document.createElement("div");
+		this.culvertInfoColumn.className = "water-structure-info-grid";
+
+		this.culvertInfoDiv.appendChild(this.culvertInfoColumn);
+
+		this._addCulvertInfoElements(this.culvertInfoColumn);
+
+		this.culvertCanvasColumn = document.createElement("div");
+		this.culvertCanvasColumn.className = "water-structure-info-column";
+		this.culvertInfoRow.appendChild(this.culvertCanvasColumn);
+
+		this.culvertFrontCanvasDiv = document.createElement("div");
+		this.culvertCanvasColumn.appendChild(this.culvertFrontCanvasDiv);
+
+		this.culvertSideCanvasDiv = document.createElement("div");
+		this.culvertCanvasColumn.appendChild(this.culvertSideCanvasDiv);
+
+		this.culvertFrontCanvasTitle = document.createElement("h2");
+		this.culvertFrontCanvasTitle.innerHTML = "Front View:";
+		this.culvertFrontCanvasDiv.appendChild(this.culvertFrontCanvasTitle);
+
+		this.culvertSideCanvasTitle = document.createElement("h2");
+		this.culvertSideCanvasTitle.innerHTML = "Side View:";
+		this.culvertSideCanvasDiv.appendChild(this.culvertSideCanvasTitle);
+
+		this.culvertFrontCanvas = document.createElement("canvas");
+		this.culvertFrontCanvas.width = 300;
+		this.culvertFrontCanvas.height = 100;
+		this.culvertFrontCanvasDiv.appendChild(this.culvertFrontCanvas);
+
+		this.culvertSideCanvas = document.createElement("canvas");
+		this.culvertSideCanvas.width = 300;
+		this.culvertSideCanvas.height = 150;
+		this.culvertSideCanvasDiv.appendChild(this.culvertSideCanvas);
+
+		this.culvertSliderContainer = document.createElement("div");
+		parent.appendChild(this.culvertSliderContainer);
+
+		this.timeframeSlider = addTimeframeSlider(this.culvertSliderContainer);
+
+		this.culvertPlotsContainer = document.createElement("div");
+		this.culvertPlotRow = document.createElement("div");
+		this.culvertPlotRow.className = "water-structure-info-row";
+
+		this.culvertPlotsContainer.appendChild(this.culvertPlotRow);
+
+		this.culvertFlowPlot = document.createElement("div");
+		this.culvertFlowPlot.id = "culvertFlowPlot";
+		this.culvertFlowPlot.className = "water-structure-plot";
+		this.culvertPlotRow.appendChild(this.culvertFlowPlot);
+
+		this.culvertHeightPlot = document.createElement("div");
+		this.culvertHeightPlot.id = "culvertHeightPlot";
+		this.culvertHeightPlot.className = "water-structure-plot";
+		this.culvertPlotRow.appendChild(this.culvertHeightPlot);
+
+	}
+
+	updateCulvertDetailInfoPanel(culvert, culvertTimeframe) {
+
+		if (culvert == null) {
+			culvert = CulvertPanel.getDummyCulvert();
+		}
+
+		this.culvertInfoName.innerHTML = culvert.name;
+
+		this.culvertInfoDatumHeight.innerHTML = culvert.datumHeight + " m";
+
+		this.culvertInfoWidth.innerHTML = culvert.diameter + " m";
+
+		this.culvertInfoRectangularHeight.innerHTML = culvert.rectangularHeight + " m";
+
+		this.culvertInfoFlow.innerHTML = culvert.flows[culvertTimeframe] + " m³/s";
+
+		this.culvertInfoDatumA.innerHTML = culvert.datumsA[culvertTimeframe] + " m";
+
+		this.culvertInfoDatumB.innerHTML = culvert.datumsB[culvertTimeframe] + " m";
+
+		this.culvertInfoAreaA.innerHTML = culvert.areaOutputA;
+		this.culvertInfoAreaB.innerHTML = culvert.areaOutputB;
+
+		this.culvertInfoN.innerHTML = culvert.culvertN;
+
+	}
 }
 
 
@@ -3524,6 +3476,216 @@ class WeirPanel {
 		this.weirInfoN.innerHTML = weir.weirN;
 
 	}
+}
+
+
+function getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight) {
+	let minCulvertDatum = Array.isArray(culvertDatums) ? Math.min.apply(Math, culvertDatums) : culvertDatums;
+	let minDatumLeft = Array.isArray(datumsLeft) ? Math.min.apply(Math, datumsLeft) : datumsLeft;
+	let minDatumRight = Array.isArray(datumsRight) ? Math.min.apply(Math, datumsRight) : datumsRight;
+
+	let minDatum = Math.min(minDatumLeft, minDatumRight, minCulvertDatum);
+	return minDatum;
+}
+
+
+function getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeight) {
+
+	let maxCulvertDatum = Array.isArray(culvertDatums) ? Math.max.apply(Math, culvertDatums) : culvertDatums;
+	let maxDatumLeft = Array.isArray(datumsLeft) ? Math.max.apply(Math, datumsLeft) : datumsLeft;
+	let maxDatumRight = Array.isArray(datumsRight) ? Math.max.apply(Math, datumsRight) : datumsRight;
+
+	let maxDatum = Math.max(maxDatumLeft, maxDatumRight, maxCulvertDatum + culvertHeight);
+	return maxDatum;
+}
+
+function leftWaterBody(ctx, waterHeight, waterWidth){
+		ctx.fillStyle = getWaterGradient(ctx, waterHeight);
+		ctx.fillRect(0, waterHeight, waterWidth, ctx.canvas.height);
+}
+
+function rightWaterBody(ctx, waterHeight, waterWidth){
+		ctx.fillStyle = getWaterGradient(ctx, waterHeight);
+		ctx.fillRect(200, waterHeight, waterWidth, ctx.canvas.height);
+}
+
+function drawLeftCulvert(ctx, culvertGradient){
+		ctx.beginPath();
+		ctx.moveTo(40,100);
+		ctx.lineTo(140,100);
+		ctx.lineTo(130,110);
+		ctx.lineTo(140,120);
+		ctx.lineTo(130,130);
+		ctx.lineTo(140,140);
+		ctx.lineTo(40,140);
+		ctx.lineTo(40,100);
+		ctx.fillStyle = culvertGradient;
+		ctx.fill();
+		ctx.strokeStyle = "black";
+		ctx.stroke();
+}
+
+function drawRightCulvert(ctx, culvertGradient){
+		ctx.beginPath();
+		ctx.moveTo(150,100);
+		ctx.lineTo(240,100);
+		ctx.lineTo(240,140);
+		ctx.lineTo(150,140);
+		ctx.lineTo(140,130);
+		ctx.lineTo(150,120);
+		ctx.lineTo(140,110);
+		ctx.lineTo(150,100);
+		ctx.fillStyle = culvertGradient;
+		ctx.fill();
+		ctx.strokeStyle = "black";
+		ctx.stroke();	
+}
+
+function drawLeftBreakLine(ctx){
+		ctx.beginPath();
+		ctx.moveTo(130,90);
+		ctx.lineTo(140,100);
+		ctx.lineTo(130,110);
+		ctx.lineTo(140,120);
+		ctx.lineTo(130,130);
+		ctx.lineTo(140,140);
+		ctx.lineTo(130,150);
+		ctx.stroke();
+}
+
+function drawRightBreakLine(ctx){
+		ctx.beginPath();
+		ctx.moveTo(140,90);
+		ctx.lineTo(150,100);
+		ctx.lineTo(140,110);
+		ctx.lineTo(150,120);
+		ctx.lineTo(140,130);
+		ctx.lineTo(150,140);
+		ctx.lineTo(140,150);
+		ctx.stroke();
+}
+
+
+function drawTerrainBox(ctx,x,y,width,height){
+
+	let envelopeGradient = ctx.createLinearGradient(0,y, 0,y+150);
+	envelopeGradient.addColorStop(0, "#b3aba1");
+	envelopeGradient.addColorStop(1, "#59493c");
+	ctx.fillStyle = envelopeGradient;
+	ctx.fillRect(x,y,width,height);
+	ctx.strokeRect(x,y,width,height);
+}
+
+function drawCulvertCircle(ctx, CentrePointX, CentrePointY, Radius, Circle){
+	ctx.beginPath();
+	ctx.arc(CentrePointX, CentrePointY, Radius, 0,Circle );
+	ctx.fillStyle = "grey";
+	ctx.fill();
+	ctx.lineWidth = 6;
+	ctx.stroke();	
+}
+
+function drawHighWaterLevel(ctx, y, width, height){
+	ctx.rect(0,y, width,height);
+	ctx.fillStyle = getWaterGradient(ctx, height); 
+	ctx.fill();
+}
+
+function drawLowWaterLevel(ctx, y, width, height){
+	ctx.fillStyle = getWaterGradient(ctx, height ); 
+	ctx.fillRect(0,y, width,height);	
+}
+
+function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
+	if (!canvas || canvas.nodeName != "CANVAS") {
+		return;
+	}
+
+	const ctx = canvas.getContext("2d");
+	clearWeirContext(ctx);
+
+	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
+	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight,culvertHeight);
+
+	let range = maxDatum - minDatum;
+
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let culvertDatum = Array.isArray(culvertDatums) ? culvertDatums[index] : culvertDatums;
+
+	let baseHeight = canvas.height / 8;
+	let heightMultiplier = (canvas.height - baseHeight) / range;
+	
+	//TODO: @Artist Please add draw functions
+	let culvertFrontCentrePointX = ctx.canvas.width / 2;
+	let culvertFrontCentrePointY = 120;
+	let culvertFrontCircle = 2 * Math.PI;
+	let culvertFrontRadius = 20;
+	let terrainHeight = 40;
+	let terrainWidth = canvas.width / 3;
+	let waterWidth = canvas.width;
+	let highWaterHeight = canvas.height / 2;			
+	let waterLevelLow = canvas.height / 1.2;	
+	let waterLevelHigh = canvas.height - 90	
+	
+	drawHighWaterLevel(ctx, highWaterHeight, waterWidth, highWaterHeight);
+	
+	drawTerrainBox(ctx, terrainWidth,terrainHeight , terrainWidth, ctx.canvas.height);
+	
+	drawCulvertCircle(ctx, culvertFrontCentrePointX, culvertFrontCentrePointY, culvertFrontRadius, culvertFrontCircle);
+
+	drawLowWaterLevel(ctx, waterLevelLow, waterWidth, waterLevelLow);
+		
+}
+
+function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
+	if (!canvas || canvas.nodeName != "CANVAS") {
+		return;
+	}
+	
+	const ctx = canvas.getContext("2d");
+	clearWeirContext(ctx);
+	
+	
+	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
+	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight,culvertHeight);
+
+	let range = maxDatum - minDatum;
+
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let culvertDatum = Array.isArray(culvertDatums) ? culvertDatums[index] : culvertDatums;
+
+	let baseHeight = canvas.height / 8;
+	let heightMultiplier = (canvas.height - baseHeight) / range;
+	
+
+	//TODO: @Artist Please add draw functions
+	let waterHeight = 50;
+	let waterWidth = canvas.width / 4;
+	let envelopeHeight = 40;
+	let culvertGradient = ctx.createLinearGradient(0,100, 0,140);
+		culvertGradient.addColorStop(0, "#dedede");
+		culvertGradient.addColorStop(1, "#4a4a4a");
+	let envelopeGradient = ctx.createLinearGradient(0,envelopeHeight, 0,150);
+		envelopeGradient.addColorStop(0, "#b3aba1");
+		envelopeGradient.addColorStop(1, "#59493c");
+	
+	leftWaterBody(ctx, waterHeight, waterWidth);
+
+	rightWaterBody(ctx, waterHeight, waterWidth);
+		
+	drawTerrainBox(ctx, waterWidth, envelopeHeight, waterWidth*2, canvas.height);
+		
+	drawLeftCulvert(ctx, culvertGradient);
+	
+	drawRightCulvert(ctx, culvertGradient);
+	
+	drawLeftBreakLine(ctx);
+	
+	drawRightBreakLine(ctx);
+	
+	
 }
 
 
