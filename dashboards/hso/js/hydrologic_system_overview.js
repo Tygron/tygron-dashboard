@@ -7,8 +7,8 @@ import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
 import { QueryDataManager } from "../../../src/js/data/QueryDataManager.js";
 import { WeirPanel } from "../../../src/js/water/structures/WeirPanel.js";
 import { CulvertPanel } from "../../../src/js/water/structures/CulvertPanel.js";
-import { drawWeirFront, drawWeirSide} from "../../../src/js/water/structures/WeirPlot.js";
-import { drawCulvertFront, drawCulvertSide} from "../../../src/js/water/structures/CulvertPlot.js";
+import { drawWeirFront, drawWeirSide } from "../../../src/js/water/structures/WeirPlot.js";
+import { drawCulvertFront, drawCulvertSide } from "../../../src/js/water/structures/CulvertPlot.js";
 
 // Sidebar toggles
 document.querySelectorAll(".nav-item").forEach(item => {
@@ -983,7 +983,8 @@ function updateCulvertDetails(culvert) {
 
 	culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
 
-	drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, 1, culvert.culvertN);
+	drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB,
+		culvert.diameter, culvert.rectangularHeight, culvert.datumHeightOutputA, culvert.datumHeightOutputB);
 	drawCulvertFront(culvertPanel.culvertFrontCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, 1, culvert.culvertN);
 
 	updateCulvertFlowPlot(culvert);
@@ -1117,8 +1118,8 @@ queries.addQuery(CULVERT_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK
 queries.addQuery(CULVERT_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B_AND_TIMEFRAME_IS_X');
 queries.addQuery(CULVERT_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queries.addQuery(CULVERT_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
-queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_2');
-queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_3');
+queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_4');
+queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_5');
 
 const CULVERT_PARAM_PROPERTIES = ["name", "diameter", "rectangularHeight", "datumHeight", "culvertN"];
 const CULVERT_PARAM_TITLES = {
@@ -1129,15 +1130,15 @@ const CULVERT_PARAM_TITLES = {
 	"culvertN": "Culvert N",
 }
 
-const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB", "datumHeightOutputA", "datumHeightOutputB"];
+const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB"];
 const CULVERT_RESULT_TITLES = {
 	"name": CULVERT_PARAM_TITLES["name"],
 	"flows": "Flow (M³/s)",
 	"heights": "Height (m)",
 	"datumsA": "Water Level Datum A (m)",
 	"datumsB": "Water Level Datum B (m)",
-	"areaOutputA": "Area ID A",
-	"areaOutputB": "Area ID B",
+	"areaIDA": "Area ID A",
+	"areaIDB": "Area ID B",
 	"datumHeightOutputA": "Datum Elevation A (m)",
 	"datumHeightOutputB": "Datum Elevation B (m)",
 
@@ -1153,19 +1154,19 @@ function createCulverts() {
 	let datumHeights = queries.getData(CULVERT_DATUM_HEIGHT, true);
 	let rectangularHeights = queries.getData(CULVERT_RECTANGULAR_HEIGHT, true);
 	let culvertNs = queries.getData(CULVERT_N, true);
-	let heights = queries.getData(CULVERT_HEIGHT_OUTPUT, true);	
+	let heights = queries.getData(CULVERT_HEIGHT_OUTPUT, true);
 	let flows = queries.getData(CULVERT_FLOW_OUTPUT, true);
 	let datumsA = queries.getData(CULVERT_DATUM_OUTPUT_A, true);
 	let datumsB = queries.getData(CULVERT_DATUM_OUTPUT_B, true);
-	let areaOutputA = queries.getData(CULVERT_AREA_OUTPUT_A, true);
-	let areaOutputB = queries.getData(CULVERT_AREA_OUTPUT_B, true);
-	let datumHeightOutputsA = queries.getData(CULVERT_AREA_OUTPUT_A, true);
-	let datumHeightOutputsB = queries.getData(CULVERT_AREA_OUTPUT_B, true);
+	let areaIDA = queries.getData(CULVERT_AREA_OUTPUT_A, true);
+	let areaIDB = queries.getData(CULVERT_AREA_OUTPUT_B, true);
+	let elevationA = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_A, true);
+	let elevationB = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_B, true);
 
 	for (let i = 0; i < names.length; i++) {
 
 		let culvert = {
-			
+
 			name: i < names.length ? names[i] : "Culvert " + i,
 
 			// array values
@@ -1179,11 +1180,11 @@ function createCulverts() {
 			diameter: i < diameters.length ? diameters[i][0] : 0,
 			rectangularHeight: i < rectangularHeights.length ? rectangularHeights[i][0] : -10000.0,
 			culvertN: i < culvertNs.length && culvertNs[i][0] > 0 ? culvertNs[i][0] : 3 / 2,
-						
-			areaOutputA: i < areaOutputA.length ? areaOutputA[i][0] : -1,
-			areaOutputB: i < areaOutputB.length ? areaOutputB[i][0] : -1,
-			datumHeightOutputA: i < datumHeightOutputsA.length ? datumHeightOutputsA[i][0] : -10000,
-			datumHeightOutputB: i < datumHeightOutputsB.length ? datumHeightOutputsA[i][0] : -10000,
+
+			areaIDA: i < areaIDA.length ? areaIDA[i][0] : -1,
+			areaIDB: i < areaIDB.length ? areaIDB[i][0] : -1,
+			elevationA: i < elevationA.length ? elevationA[i][0] : -10000, 
+			elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
 		};
 		culverts.push(culvert);
 

@@ -10,16 +10,18 @@ export class CulvertPanel {
 			datumHeight: -10000.0,
 			diameter: 0,
 			rectangularHeight: -10000.0,
-			
+
 			heights: [-10000],
 			flows: [0.0],
 			datumsA: [-10000.0],
 			datumsB: [-10000.0],
-			areaOutputA: -1,
-			areaOutputB: -1,
+			areaIDA: -1,
+			areaIDB: -1,
 			datumHeightOutputA: -10000,
 			datumHeightOutputB: -10000,
 			culvertN: 3 / 2,
+			elevationA: -10000,
+			elevationB: -10000,
 		};
 	}
 
@@ -49,12 +51,12 @@ export class CulvertPanel {
 
 		addStructureInfoLabel(parent, "Datum B:");
 		this.culvertInfoDatumB = addStructureInfoValue(parent, "culvertInfoDatumB");
+	
+		addStructureInfoLabel(parent, "Elevation A:");
+		this.culvertInfoElevationA = addStructureInfoValue(parent, "culvertInfoElevationA");
 
-		addStructureInfoLabel(parent, "Area id A:");
-		this.culvertInfoAreaA = addStructureInfoValue(parent, "culvertInfoAreaA");
-
-		addStructureInfoLabel(parent, "Area id B:");
-		this.culvertInfoAreaB = addStructureInfoValue(parent, "culvertInfoAreaB");
+		addStructureInfoLabel(parent, "Elevation B:");
+		this.culvertInfoElevationB = addStructureInfoValue(parent, "culvertInfoElevationB");
 
 	}
 
@@ -153,11 +155,10 @@ export class CulvertPanel {
 		this.culvertInfoFlow.innerHTML = culvert.flows[culvertTimeframe] + " m³/s";
 
 		this.culvertInfoDatumA.innerHTML = culvert.datumsA[culvertTimeframe] + " m";
-
 		this.culvertInfoDatumB.innerHTML = culvert.datumsB[culvertTimeframe] + " m";
 
-		this.culvertInfoAreaA.innerHTML = culvert.areaOutputA;
-		this.culvertInfoAreaB.innerHTML = culvert.areaOutputB;
+		this.culvertInfoElevationA.innerHTML = culvert.elevationA + " m";
+		this.culvertInfoElevationB.innerHTML = culvert.elevationB + " m";
 
 		this.culvertInfoN.innerHTML = culvert.culvertN;
 
