@@ -206,6 +206,8 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 
 	let culvertHeight = culvertRectangleHeight > 0 ? culvertRectangleHeight : culvertDiameter;
 
+	
+	//TODO: (Frank) Draw at an angle when threshold is not defined, straight at height of threshold otherwise!
 
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
