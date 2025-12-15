@@ -230,11 +230,11 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 
 	rightWaterBody(ctx, waterWidth, baseHeight, heightMultiplier, datumRight, minDatum);
 
-	let terrainLeftTop = canvas.height-((elevationLeft - Math.min(elevationLeft, elevationRight))*heightMultiplier + baseHeight);
-	let terrainRightTop = canvas.height-((elevationRight - Math.min(elevationLeft, elevationRight))*heightMultiplier + baseHeight);
-	
+	let terrainLeftTop = canvas.height - ((elevationLeft - Math.min(elevationLeft, elevationRight)) * heightMultiplier + baseHeight);
+	let terrainRightTop = canvas.height - ((elevationRight - Math.min(elevationLeft, elevationRight)) * heightMultiplier + baseHeight);
+
 	drawTerrainBox(ctx, 0, terrainLeftTop, waterWidth, canvas.height);
-	drawTerrainBox(ctx, waterWidth, terrainTopY, terrainWidth, canvas.height); 
+	drawTerrainBox(ctx, waterWidth, terrainTopY, terrainWidth, canvas.height);
 	drawTerrainBox(ctx, canvas.width - waterWidth, terrainRightTop, waterWidth, canvas.height);
 
 
