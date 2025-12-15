@@ -74,32 +74,21 @@ function drawRightCulvert(ctx, culvertGradient) {
 	ctx.stroke();
 }
 
-function drawLeftBreakLine(ctx) {
+function drawBreakLine(ctx, leftX, topY) {
 	ctx.beginPath();
-	ctx.moveTo(130, 90);
-	ctx.lineTo(140, 100);
-	ctx.lineTo(130, 110);
-	ctx.lineTo(140, 120);
-	ctx.lineTo(130, 130);
-	ctx.lineTo(140, 140);
-	ctx.lineTo(130, 150);
+	ctx.moveTo(leftX, topY);
+	let x = leftX;
+	let stepX = 10;
+	let stepY = 10;
+	ctx.moveTo(x, topY);
+	while(topY < ctx.canvas.height){
+		x = x == leftX? x+stepX : x - stepX;		
+		topY+= stepY;
+		ctx.lineTo(x, topY);
+	}
 	ctx.lineWidth = 1;
 	ctx.stroke();
 }
-
-function drawRightBreakLine(ctx) {
-	ctx.beginPath();
-	ctx.moveTo(140, 90);
-	ctx.lineTo(150, 100);
-	ctx.lineTo(140, 110);
-	ctx.lineTo(150, 120);
-	ctx.lineTo(140, 130);
-	ctx.lineTo(150, 140);
-	ctx.lineTo(140, 150);
-	ctx.lineWidth = 1;
-	ctx.stroke();
-}
-
 
 function drawTerrainBox(ctx, x, y, width, height) {
 
@@ -197,7 +186,6 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 
 
 	//TODO: @Artist Please add draw functions
-	let waterHeight = 50;
 	let waterWidth = canvas.width / 4;
 	let terrainWidth = canvas.width - 2 * waterWidth;
 	let terrainTopY = baseHeight;
@@ -216,9 +204,8 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 
 	drawRightCulvert(ctx, culvertGradient);
 
-	drawLeftBreakLine(ctx);
-
-	drawRightBreakLine(ctx);
+	drawBreakLine(ctx, ctx.canvas.width/2-20, terrainTopY-10);
+	drawBreakLine(ctx, ctx.canvas.width/2-10, terrainTopY-10);
 
 
 }
