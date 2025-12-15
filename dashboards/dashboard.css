@@ -11,6 +11,10 @@ html, body {
 	font-family: sans-serif;
 }
 
+iframe{
+	height: 90vh;
+}
+
 /* Style the button that is used to open and close the collapsible content */
 .collapsible {
 	background-color: #eee;
