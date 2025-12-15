@@ -52,6 +52,7 @@ function drawLeftCulvert(ctx, culvertGradient) {
 	ctx.lineTo(40, 100);
 	ctx.fillStyle = culvertGradient;
 	ctx.fill();
+	ctx.lineWidth = 1;
 	ctx.strokeStyle = "black";
 	ctx.stroke();
 }
@@ -68,6 +69,7 @@ function drawRightCulvert(ctx, culvertGradient) {
 	ctx.lineTo(150, 100);
 	ctx.fillStyle = culvertGradient;
 	ctx.fill();
+	ctx.lineWidth = 1;
 	ctx.strokeStyle = "black";
 	ctx.stroke();
 }
@@ -81,6 +83,7 @@ function drawLeftBreakLine(ctx) {
 	ctx.lineTo(130, 130);
 	ctx.lineTo(140, 140);
 	ctx.lineTo(130, 150);
+	ctx.lineWidth = 1;
 	ctx.stroke();
 }
 
@@ -93,6 +96,7 @@ function drawRightBreakLine(ctx) {
 	ctx.lineTo(140, 130);
 	ctx.lineTo(150, 140);
 	ctx.lineTo(140, 150);
+	ctx.lineWidth = 1;
 	ctx.stroke();
 }
 
@@ -104,6 +108,7 @@ function drawTerrainBox(ctx, x, y, width, height) {
 	envelopeGradient.addColorStop(1, "#59493c");
 	ctx.fillStyle = envelopeGradient;
 	ctx.fillRect(x, y, width, height);
+	ctx.lineWidth = 1;
 	ctx.strokeRect(x, y, width, height);
 }
 
