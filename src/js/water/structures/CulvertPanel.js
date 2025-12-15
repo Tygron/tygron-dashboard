@@ -131,6 +131,9 @@ export class CulvertPanel {
 		this.culvertHeightPlot.className = "water-structure-plot";
 		this.culvertPlotRow.appendChild(this.culvertHeightPlot);
 
+
+		this.culvertDetailContainer.appendChild(this.culvertPlotsContainer);
+
 	}
 
 	updateCulvertDetailInfoPanel(culvert, culvertTimeframe) {

@@ -137,6 +137,7 @@ export class WeirPanel {
 		this.weirHeightPlot.className = "water-structure-plot";
 		this.weirPlotRow.appendChild(this.weirHeightPlot);
 
+		this.weirDetailContainer.appendChild(this.weirPlotsContainer);
 	}
 
 	updateWeirDetailInfoPanel(weir, weirTimeframe) {
