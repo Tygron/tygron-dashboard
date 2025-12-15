@@ -157,8 +157,8 @@ header h2 {
 }
 
 .section>iframe {
-	width: 100%;
-	min-height: 600px;
+	width: 100%;	
+	height: calc(100vh - 130px);	
 	border: 1px solid black;
 	border-radius: 12px;
 	background: salmon;
