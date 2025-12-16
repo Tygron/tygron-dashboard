@@ -451,34 +451,29 @@ function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, prope
 
 	for (let i = 0; i < values.length && i < data[propertyAreaIDFrom].length && i < data[propertAreaIDTo].length; i++) {
 
-		if ((data[propertAreaIDTo][i] == data.itemID) && (data[propertyAreaIDFrom][i] == data.itemID) && (condition == undefined || condition[i])) {
+		if (propertyInner != undefined && (data[propertAreaIDTo][i] == data.itemID) && (data[propertyAreaIDFrom][i] == data.itemID) && (condition == undefined || condition[i])) {
+			data[propertyInner][timeframe] += Math.abs(values[i]);
+		}
 
-			if (propertyInner != undefined) {
+		else {
+			if (data[propertAreaIDTo][i] == data.itemID && (condition == undefined || condition[i])) {
 
 				if (values[i] > 0) {
-					data[propertyInner][timeframe] += values[i];
+					data[propertyFrom][timeframe] += values[i];
 
 				} else {
-					data[propertyInner][timeframe] -= values[i];
+					data[propertyTo][timeframe] -= values[i];
 				}
-			}
 
-		} else if (data[propertAreaIDTo][i] == data.itemID && (condition == undefined || condition[i])) {
+				if (data[propertyAreaIDFrom][i] == data.itemID && (condition == undefined || condition[i])) {
 
-			if (values[i] > 0) {
-				data[propertyFrom][timeframe] += values[i];
+					if (values[i] > 0) {
+						data[propertyTo][timeframe] += values[i];
 
-			} else {
-				data[propertyTo][timeframe] -= values[i];
-			}
-
-		} else if (data[propertyAreaIDFrom][i] == data.itemID && (condition == undefined || condition[i])) {
-
-			if (values[i] > 0) {
-				data[propertyTo][timeframe] += values[i];
-
-			} else {
-				data[propertyFrom][timeframe] -= values[i];
+					} else {
+						data[propertyFrom][timeframe] -= values[i];
+					}
+				}
 			}
 		}
 	}
@@ -494,6 +489,8 @@ function addValuesForTimeframeAndID(data, timeframe, property, idValues, values)
 	}
 
 }
+
+
 
 function barPlot(plotElementID, data, timeframe, properties, colors, titles, layout) {
 
@@ -647,8 +644,7 @@ function sankeyPlot(
 ) {
 
 	let link = getLink(links, timeframe);
-
-	//labels bepalen
+	
 	labels = [];
 	for (var i = 0; i < properties.length; i++) {
 		labels.push(titles[properties[i]]);
@@ -662,18 +658,15 @@ function sankeyPlot(
 		align: "right"
 	};
 
-	// Voeg optionele kleuren toe
 	if (colors !== null) {
 		node.color = properties.map(p => colors[p]);
 	}
 
-	// Voeg optionele posities toe
 	if (positionsX !== null && positionsY !== null) {
 		node.x = properties.map(p => positionsX[p]);
 		node.y = properties.map(p => positionsY[p]);
 	}
 
-	// Maak het Sankey data object
 	let data = {
 		type: "sankey",
 		orientation: "h",

@@ -553,6 +553,19 @@ canvas {
 	transform: translateY(1px);
 }
 
+#wb-sankeyplot .card{
+	display:flex;
+	flex-direction: column;
+	height:100%;
+}
+
+#wb-sankeyplot{	
+	height:85vh;
+} 
+#sankeyPlot{	
+	height:100%;
+}
+
 </style>
 	<header>
 		<h2>Hydrologic System Overview</h2>
@@ -920,34 +933,29 @@ function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo, prope
 
 	for (let i = 0; i < values.length && i < data[propertyAreaIDFrom].length && i < data[propertAreaIDTo].length; i++) {
 
-		if ((data[propertAreaIDTo][i] == data.itemID) && (data[propertyAreaIDFrom][i] == data.itemID) && (condition == undefined || condition[i])) {
+		if (propertyInner != undefined && (data[propertAreaIDTo][i] == data.itemID) && (data[propertyAreaIDFrom][i] == data.itemID) && (condition == undefined || condition[i])) {
+			data[propertyInner][timeframe] += Math.abs(values[i]);
+		}
 
-			if (propertyInner != undefined) {
+		else {
+			if (data[propertAreaIDTo][i] == data.itemID && (condition == undefined || condition[i])) {
 
 				if (values[i] > 0) {
-					data[propertyInner][timeframe] += values[i];
+					data[propertyFrom][timeframe] += values[i];
 
 				} else {
-					data[propertyInner][timeframe] -= values[i];
+					data[propertyTo][timeframe] -= values[i];
 				}
-			}
 
-		} else if (data[propertAreaIDTo][i] == data.itemID && (condition == undefined || condition[i])) {
+				if (data[propertyAreaIDFrom][i] == data.itemID && (condition == undefined || condition[i])) {
 
-			if (values[i] > 0) {
-				data[propertyFrom][timeframe] += values[i];
+					if (values[i] > 0) {
+						data[propertyTo][timeframe] += values[i];
 
-			} else {
-				data[propertyTo][timeframe] -= values[i];
-			}
-
-		} else if (data[propertyAreaIDFrom][i] == data.itemID && (condition == undefined || condition[i])) {
-
-			if (values[i] > 0) {
-				data[propertyTo][timeframe] += values[i];
-
-			} else {
-				data[propertyFrom][timeframe] -= values[i];
+					} else {
+						data[propertyFrom][timeframe] -= values[i];
+					}
+				}
 			}
 		}
 	}
@@ -963,6 +971,8 @@ function addValuesForTimeframeAndID(data, timeframe, property, idValues, values)
 	}
 
 }
+
+
 
 function barPlot(plotElementID, data, timeframe, properties, colors, titles, layout) {
 
@@ -1116,8 +1126,7 @@ function sankeyPlot(
 ) {
 
 	let link = getLink(links, timeframe);
-
-	//labels bepalen
+	
 	labels = [];
 	for (var i = 0; i < properties.length; i++) {
 		labels.push(titles[properties[i]]);
@@ -1131,18 +1140,15 @@ function sankeyPlot(
 		align: "right"
 	};
 
-	// Voeg optionele kleuren toe
 	if (colors !== null) {
 		node.color = properties.map(p => colors[p]);
 	}
 
-	// Voeg optionele posities toe
 	if (positionsX !== null && positionsY !== null) {
 		node.x = properties.map(p => positionsX[p]);
 		node.y = properties.map(p => positionsY[p]);
 	}
 
-	// Maak het Sankey data object
 	let data = {
 		type: "sankey",
 		orientation: "h",
@@ -4660,13 +4666,13 @@ queries.getData(INLET_FLOW, false).map((values, timeframe, _array) =>
 
 
 queries.getData(WEIR_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValues(flowData, timeframe, WEIR_IN, WEIR_OUT, WEIR_AREA_FROM, WEIR_AREA_TO, values));
+	addFlowValuesWithInner(flowData, timeframe, WEIR_IN, WEIR_OUT, WEIR_INNER, WEIR_AREA_FROM, WEIR_AREA_TO, values));
 
 queries.getData(CULVERT_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValues(flowData, timeframe, CULVERT_IN, CULVERT_OUT, CULVERT_AREA_FROM, CULVERT_AREA_TO, values));
+	addFlowValuesWithInner(flowData, timeframe, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, CULVERT_AREA_FROM, CULVERT_AREA_TO, values));
 
 queries.getData(PUMP_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValues(flowData, timeframe, PUMP_IN, PUMP_OUT, PUMP_AREA_FROM, PUMP_AREA_TO, values));
+	addFlowValuesWithInner(flowData, timeframe, PUMP_IN, PUMP_OUT, PUMP_INNER, PUMP_AREA_FROM, PUMP_AREA_TO, values));
 
 //queries.getData(DRAINAGE_FLOW, false).map((values, index, _array) =>
 //	addFlowValues(flowData, index, DRAINGE_IN, DRAINAGE_OUT, DRAINAGE_AREA_FROM, DRAINAGE_AREA_TO, values));
@@ -4771,8 +4777,10 @@ for (let i = 0; i < timeframes; i++) {
 	//Wegzijging
 	addLink(links, i, BOTTOM_FLOW_OUT, MODEL_OUT, flowData[BOTTOM_FLOW_OUT][i]);
 
-	//Platen transpiratie
+	//Transpiratie
 	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
+	
+	//Verdamping
 	addLink(links, i, SURFACE_EVAPORATIONLAND, MODEL_OUT, flowData[SURFACE_EVAPORATIONLAND][i]);
 	addLink(links, i, SURFACE_EVAPORATIONWATER, MODEL_OUT, flowData[SURFACE_EVAPORATIONWATER][i]);
 
@@ -4796,11 +4804,6 @@ for (let i = 0; i < timeframes; i++) {
 	addLink(links, i, M3LAND, BREACH, flowData[BREACH_OUT][i]);
 	addLink(links, i, BREACH, MODEL_OUT, flowData[BREACH_OUT][i]);
 
-	//Verdamping
-	addLink(links, i, EVAPOTRANSPIRATION, MODEL_OUT, flowData[EVAPOTRANSPIRATION][i]);
-
-	//Transpiratie
-	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
 
 }
 
