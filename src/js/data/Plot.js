@@ -1,3 +1,5 @@
+import { getLink } from "./Data";
+
 
 export function barPlot(plotElementID, data, timeframe, properties, colors, titles, layout) {
 
@@ -151,8 +153,7 @@ export function sankeyPlot(
 ) {
 
 	let link = getLink(links, timeframe);
-
-	//labels bepalen
+	
 	labels = [];
 	for (var i = 0; i < properties.length; i++) {
 		labels.push(titles[properties[i]]);
@@ -166,18 +167,15 @@ export function sankeyPlot(
 		align: "right"
 	};
 
-	// Voeg optionele kleuren toe
 	if (colors !== null) {
 		node.color = properties.map(p => colors[p]);
 	}
 
-	// Voeg optionele posities toe
 	if (positionsX !== null && positionsY !== null) {
 		node.x = properties.map(p => positionsX[p]);
 		node.y = properties.map(p => positionsY[p]);
 	}
 
-	// Maak het Sankey data object
 	let data = {
 		type: "sankey",
 		orientation: "h",
