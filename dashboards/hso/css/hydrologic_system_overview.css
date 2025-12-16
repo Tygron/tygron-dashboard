@@ -218,3 +218,16 @@ canvas {
 .btn:active {
 	transform: translateY(1px);
 }
+
+#wb-sankeyplot .card{
+	display:flex;
+	flex-direction: column;
+	height:100%;
+}
+
+#wb-sankeyplot{	
+	height:85vh;
+} 
+#sankeyPlot{	
+	height:100%;
+}
