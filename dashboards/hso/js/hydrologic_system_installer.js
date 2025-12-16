@@ -242,7 +242,7 @@ function setHsoOverlay(overlays, selectedOverlayID) {
 	installer[vars.SELECTED_OVERLAY_ID] = selectedOverlayID;
 
 	setRequiredOverlayAttribute(HSO_OVERLAY_ATTRIBUTE, vars.SELECTED_OVERLAY_ID);
-
+	
 	const overlayIDs = []
 	for (let i = overlays.length - 1; i >= 0; i--) {
 		if (overlays[i].id != selectedOverlayID) {
@@ -1013,6 +1013,12 @@ function addAndSetNewTemplateTextPanel() {
 		installer.connector.post("event/editorpanel/set_name", null, [], (_d, _u, _qp, params) => {
 			params.push(installer[vars.DASHBOARD_PANEL_ID]);
 			params.push("Hydrological System Overview");
+		}),
+		
+		installer.connector.post("event/editorpanel/set_attribute", null, [], (_d, _u, _qp, params)=>{
+			params.push(installer[vars.DASHBOARD_PANEL_ID]);
+			params.push("POPUP_TYPE");
+			params.push(13.0);
 		}),
 
 		() => {
