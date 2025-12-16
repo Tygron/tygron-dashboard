@@ -106,34 +106,29 @@ export function addFlowValuesWithInner(data, timeframe, propertyFrom, propertyTo
 
 	for (let i = 0; i < values.length && i < data[propertyAreaIDFrom].length && i < data[propertAreaIDTo].length; i++) {
 
-		if ((data[propertAreaIDTo][i] == data.itemID) && (data[propertyAreaIDFrom][i] == data.itemID) && (condition == undefined || condition[i])) {
+		if (propertyInner != undefined && (data[propertAreaIDTo][i] == data.itemID) && (data[propertyAreaIDFrom][i] == data.itemID) && (condition == undefined || condition[i])) {
+			data[propertyInner][timeframe] += Math.abs(values[i]);
+		}
 
-			if (propertyInner != undefined) {
+		else {
+			if (data[propertAreaIDTo][i] == data.itemID && (condition == undefined || condition[i])) {
 
 				if (values[i] > 0) {
-					data[propertyInner][timeframe] += values[i];
+					data[propertyFrom][timeframe] += values[i];
 
 				} else {
-					data[propertyInner][timeframe] -= values[i];
+					data[propertyTo][timeframe] -= values[i];
 				}
-			}
 
-		} else if (data[propertAreaIDTo][i] == data.itemID && (condition == undefined || condition[i])) {
+				if (data[propertyAreaIDFrom][i] == data.itemID && (condition == undefined || condition[i])) {
 
-			if (values[i] > 0) {
-				data[propertyFrom][timeframe] += values[i];
+					if (values[i] > 0) {
+						data[propertyTo][timeframe] += values[i];
 
-			} else {
-				data[propertyTo][timeframe] -= values[i];
-			}
-
-		} else if (data[propertyAreaIDFrom][i] == data.itemID && (condition == undefined || condition[i])) {
-
-			if (values[i] > 0) {
-				data[propertyTo][timeframe] += values[i];
-
-			} else {
-				data[propertyFrom][timeframe] -= values[i];
+					} else {
+						data[propertyFrom][timeframe] -= values[i];
+					}
+				}
 			}
 		}
 	}
