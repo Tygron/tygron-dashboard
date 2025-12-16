@@ -4189,7 +4189,7 @@ subItems.forEach(btn => {
 
 // Default open
 document.querySelectorAll(".nav-item").forEach(item => item.click());
-	
+
 document.querySelector("[data-section='wb-volumetabel']").click();
 
 document.getElementById("waterAreaName").innerHTML = '$NAME';
@@ -4242,15 +4242,15 @@ data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
 function initVolumeTitles() {
 	let titles = {};
 
-	titles[TIMEFRAMES] = "Timeframes";
-	titles[TIMEFRAMETIMES] = "Tijdstap";
-	titles[M3LAND] = "Water op land [m³]";
-	titles[M3WATER] = "Oppervlaktewater [m³]";
-	titles[M3GROUND] = "Grondwater [m³]";
-	titles[M3STORAGE] = "Waterbergende voorzieningen [m³]";
-	titles[M3SEWER] = "Rioolwater [m³]";
-	titles[M3UNSATURATED] = "Berging onverzadidge zone [m³]";
-	titles[M3SATURATED] = "Berging verzadidge zone [m³]";
+	titles[TIMEFRAMES] = "Timeframe";//"Timeframe";
+	titles[TIMEFRAMETIMES] = "timestamp";//"Tijdstap";
+	titles[M3LAND] = "Water on land [m³]";// "Water op land [m³]";
+	titles[M3WATER] = "Surface water [m³]";//"Oppervlaktewater [m³]";
+	titles[M3GROUND] = "Groundwater [m³]";//"Grondwater [m³]";
+	titles[M3STORAGE] = "Building storage [m³]";//"Waterbergende voorzieningen [m³]";
+	titles[M3SEWER] = "Sewer storage [m³]";//"Rioolwater [m³]";
+	titles[M3UNSATURATED] = "Storage unsaturated zone [m³]";//"Berging onverzadidge zone [m³]";
+	titles[M3SATURATED] = "Storage saturated zone [m³]";//"Berging verzadidge zone [m³]";
 
 	return titles;
 }
@@ -4344,54 +4344,54 @@ function initFlowTitles() {
 	let flowTitles = {};
 	flowTitles[TIMEFRAMES] = "Timeframes";
 
-	flowTitles[RAINM3] = 'Neerslag [m³/tijdstap]';
-	flowTitles[RAINM3LAND] = 'Neerslag op land [m³/tijdstap]';
-	flowTitles[RAINM3WATER] = 'Neerslag op water [m³/tijdstap]';
-	flowTitles[RAINM3STORAGE] = 'Neerslag op bergende voorzieningen [m³/tijdstap]';
-	flowTitles[LANDSEWER] = 'Toestroom naar riool [m³/tijdstap]';
+	flowTitles[RAINM3] = 'Rainfall [m³/timeframe]';//'Neerslag [m³/tijdstap]';
+	flowTitles[RAINM3LAND] = 'Rainfall on land [m³/timeframe]';// 'Neerslag op land [m³/tijdstap]';
+	flowTitles[RAINM3WATER] = 'Rainfall on water [m³/timeframe]';//'Neerslag op water [m³/tijdstap]';
+	flowTitles[RAINM3STORAGE] = 'Rainfall on building storage [m³/timeframe]';//'Neerslag op bergende voorzieningen [m³/tijdstap]';
+	flowTitles[LANDSEWER] = 'Sewer in [m³/tijdstap]';//Toestroom naar riool [m³/tijdstap]';
 
-	flowTitles[EVAPOTRANSPIRATION] = 'Verdamping [m³/tijdstap]';
-	flowTitles[GROUND_TRANSPIRATION] = 'Plant transpiratie [m³/tijdstap]';
-	flowTitles[SURFACE_EVAPORATIONLAND] = 'Verdamping Land [m³/tijdstap]';
-	flowTitles[SURFACE_EVAPORATIONWATER] = 'Verdamping Water [m³/tijdstap]';
+	flowTitles[EVAPOTRANSPIRATION] = 'Evapotranspiration[m³/tijdstap]';//'Verdamping [m³/tijdstap]';
+	flowTitles[GROUND_TRANSPIRATION] = 'Plant transpiration [m³/tijdstap]';//'Plant transpiratie [m³/tijdstap]';
+	flowTitles[SURFACE_EVAPORATIONLAND] = 'Evaporation Land [m³/tijdstap]';//'Verdamping Land [m³/tijdstap]';
+	flowTitles[SURFACE_EVAPORATIONWATER] = 'Evaporation Water [m³/tijdstap]';// 'Verdamping Water [m³/tijdstap]';
 
 
-	flowTitles[SEWER_POC] = 'POCRiool [m³/tijdstap]';
+	flowTitles[SEWER_POC] = 'POC Sewer [m³/tijdstap]';//'POCRiool [m³/tijdstap]';
 
-	flowTitles[SEWER_OVERFLOW_OUT] = 'Riooloverstort [m³/tijdstap]';
+	flowTitles[SEWER_OVERFLOW_OUT] = 'Sewer Overflow [m³/tijdstap]';//'Riooloverstort [m³/tijdstap]';
 
-	flowTitles[INLET_SURFACE] = 'Inlaat bovengronds [m³/tijdstap]';
-	flowTitles[INLET_GROUND] = 'Inlaat ondergronds [m³/tijdstap]';
-	flowTitles[OUTLET_SURFACE] = "Uitlaat bovengronds [m³/tijdstap]";
-	flowTitles[OUTLET_GROUND] = "Uitlaat ondergronds [m³/tijdstap]";
-	flowTitles[BOTTOM_FLOW_IN] = "Kwel [m³/tijdstap]";
-	flowTitles[BOTTOM_FLOW_OUT] = "Uitzijging [m³/tijdstap]";
-	flowTitles[CULVERT] = "Duiker [m³/tijdstap]";
-	flowTitles[CULVERT_IN] = "Duiker in waterbeheergebied [m³/tijdstap]";
-	flowTitles[CULVERT_OUT] = "Duiker uit waterbeheergebied [m³/tijdstap]";
-	flowTitles[CULVERT_INNER] = "Duiker binnen waterbeheergebied [m³/tijdstap]";
-	flowTitles[PUMP] = "Pomp";
-	flowTitles[PUMP_IN] = "Pomp in waterbeheergebied [m³/tijdstap]";
-	flowTitles[PUMP_OUT] = "Pomp uit waterbeheergebied [m³/tijdstap]";
-	flowTitles[PUMP_INNER] = "Pomp binnen waterbeheergebied [m³/tijdstap]";
-	flowTitles[WEIR] = "Stuw";
-	flowTitles[WEIR_IN] = "Stuw in [m³/tijdstap]";
-	flowTitles[WEIR_OUT] = "Stuw uit [m³/tijdstap]";
-	flowTitles[WEIR_INNER] = "Stuw binnen waterbeheergebied [m³/tijdstap]";
-	flowTitles[MODEL_IN] = "Waterbeheergebied in [m³/tijdstap]";
-	flowTitles[MODEL_OUT] = "Waterbeheergebied uit [m³/tijdstap]";
+	flowTitles[INLET_SURFACE] = 'Inlet (surface) [m³/tijdstap]';//'Inlaat bovengronds [m³/tijdstap]';
+	flowTitles[INLET_GROUND] = 'Inlet (ground) [m³/tijdstap]';//'Inlaat ondergronds [m³/tijdstap]';
+	flowTitles[OUTLET_SURFACE] = 'Outlet (surface) [m³/tijdstap]';//'Uitlaat bovengronds [m³/tijdstap]';
+	flowTitles[OUTLET_GROUND] = 'Outlet (ground) [m³/tijdstap]';//'Uitlaat ondergronds [m³/tijdstap]';
+	flowTitles[BOTTOM_FLOW_IN] = 'Bottom flow in [m³/tijdstap]';//'Kwel [m³/tijdstap]';
+	flowTitles[BOTTOM_FLOW_OUT] = 'Bottom flow out [m³/tijdstap]';//'Uitzijging [m³/tijdstap]';
+	flowTitles[CULVERT] = 'Culvert [m³/tijdstap]';//'Duiker [m³/tijdstap]';
+	flowTitles[CULVERT_IN] = 'Culvert in [m³/tijdstap]';//'Duiker in waterbeheergebied [m³/tijdstap]';
+	flowTitles[CULVERT_OUT] = 'Culvert out [m³/tijdstap]';//'Duiker uit waterbeheergebied [m³/tijdstap]';
+	flowTitles[CULVERT_INNER] = 'Culvert within [m³/tijdstap]';//'Duiker binnen waterbeheergebied [m³/tijdstap]';
+	flowTitles[PUMP] = 'Pump';//'Pomp';
+	flowTitles[PUMP_IN] = 'Pump in [m³/tijdstap]';//'Pomp in waterbeheergebied [m³/tijdstap]';
+	flowTitles[PUMP_OUT] = 'Pump out [m³/tijdstap]';//'Pomp uit waterbeheergebied [m³/tijdstap]';
+	flowTitles[PUMP_INNER] = 'Pump within [m³/tijdstap]';//'Pomp binnen waterbeheergebied [m³/tijdstap]';
+	flowTitles[WEIR] = 'Weir';//'Stuw';
+	flowTitles[WEIR_IN] = 'Weir in [m³/tijdstap]';//'Stuw in [m³/tijdstap]';
+	flowTitles[WEIR_OUT] = 'Weir out [m³/tijdstap]';//'Stuw uit [m³/tijdstap]';
+	flowTitles[WEIR_INNER] = 'Weir within [m³/tijdstap]';//'Stuw binnen waterbeheergebied [m³/tijdstap]';
+	flowTitles[MODEL_IN] = 'Water Level Area in [m³/tijdstap]';//'Waterbeheergebied in [m³/tijdstap]';
+	flowTitles[MODEL_OUT] = 'Water Level Area out [m³/tijdstap]';//'Waterbeheergebied uit [m³/tijdstap]';
 
-	flowTitles[M3GROUND] = "Grondwater [m³]";
-	flowTitles[M3UNSATURATED] = "Onverzadigde zone [m³]";
-	flowTitles[M3SATURATED] = "Verzadigde zone [m³]";
-	flowTitles[M3LAND] = "Land [m³]";
-	flowTitles[M3WATER] = "Oppervlaktewater [m³]";
-	flowTitles[M3STORAGE] = "Berging voorzieningen [m³]";
-	flowTitles[M3TOTAL] = "Surface [m³]";
-	flowTitles[M3SEWER] = "Riolering [m³]";
-	flowTitles[BREACH] = "Bres";
-	flowTitles[BREACH_IN] = "Bres in [m³/tijdstap]";
-	flowTitles[BREACH_OUT] = "Bres uit [m³/tijdstap]";
+	flowTitles[M3GROUND] = 'Groundwater [m³]';//'Grondwater [m³]';
+	flowTitles[M3UNSATURATED] = 'Unsaturated zone [m³]';//'Onverzadigde zone [m³]';
+	flowTitles[M3SATURATED] = 'Saturated zone [m³]';//'Verzadigde zone [m³]';
+	flowTitles[M3LAND] = 'Land [m³]';//'Land [m³]';
+	flowTitles[M3WATER] = 'Surface water [m³]';//'Oppervlaktewater [m³]';
+	flowTitles[M3STORAGE] = 'Building storage [m³]';//'Berging voorzieningen [m³]';
+	flowTitles[M3TOTAL] = 'Surface [m³]';//'Surface [m³]';
+	flowTitles[M3SEWER] = 'Sewer [m³]';//'Riolering [m³]';
+	flowTitles[BREACH] = 'Breach';//'Bres';
+	flowTitles[BREACH_IN] = 'Breach in [m³/tijdstap]';//'Bres in [m³/tijdstap]';
+	flowTitles[BREACH_OUT] = 'Breach out [m³/tijdstap]';//'Bres uit [m³/tijdstap]';
 
 	return flowTitles;
 }
@@ -4512,7 +4512,7 @@ const areaID = queries.getData(AREA_ID, false);
 const flowTitles = initFlowTitles();
 const flowColors = initFlowColors();
 
-const flowProperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, M3LAND, M3WATER, M3GROUND, M3SATURATED, M3UNSATURATED, M3STORAGE, M3SEWER, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR_IN, WEIR_OUT, WEIR_INNER, BREACH_IN, BREACH_OUT];
+const flowProperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR_IN, WEIR_OUT, WEIR_INNER, BREACH_IN, BREACH_OUT];
 const flowData = createTimeframeData(timeframes, areaID, flowProperties);
 
 const CULVERT_AREA_FROM = "culvertAreaFrom";
@@ -5338,7 +5338,7 @@ function createCulverts() {
 
 			areaIDA: i < areaIDA.length ? areaIDA[i][0] : -1,
 			areaIDB: i < areaIDB.length ? areaIDB[i][0] : -1,
-			elevationA: i < elevationA.length ? elevationA[i][0] : -10000, 
+			elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
 			elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
 		};
 		culverts.push(culvert);
