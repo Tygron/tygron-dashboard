@@ -14,6 +14,7 @@ const FLOODING_OVERLAY_TYPE = "FLOODING";
 const WATER_LEVEL_KEY = "WATER_LEVEL";
 let PANEL_WIDTH = 800;
 let PANEL_HEIGHT = 800;
+const POPUP_TYPE = 13; //Water Arrow
 
 const vars = {
 	ADDED_OVERLAY_ID: "addedOverlayID",
@@ -1018,7 +1019,7 @@ function addAndSetNewTemplateTextPanel() {
 		installer.connector.post("event/editorpanel/set_attribute", null, [], (_d, _u, _qp, params)=>{
 			params.push(installer[vars.DASHBOARD_PANEL_ID]);
 			params.push("POPUP_TYPE");
-			params.push(13.0);
+			params.push(POPUP_TYPE);
 		}),
 
 		() => {
