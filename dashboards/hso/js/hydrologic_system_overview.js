@@ -48,6 +48,17 @@ const stepwise = (value, index, array) => index === 0 ? value : value - array[in
 const countPositive = value => Math.max(0, value);
 const countNegative = value => Math.abs(Math.min(0, value));
 
+const data = {};
+
+const TIMEFRAMES = 'timeframes';
+const TIMEFRAMETIMES = 'timeframetimes';
+queries.addQuery(TIMEFRAMETIMES,
+	'$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+	
+data[TIMEFRAMETIMES] = queries.getData(TIMEFRAMETIMES);
+data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
+const timeframes = data[TIMEFRAMES].length;
+var timeframe = timeframes - 1;
 
 /**
  * WEIRS
@@ -651,12 +662,7 @@ const M3UNSATURATED = 'm3Unsaturated';
 const M3SATURATED = 'm3Saturated';
 const M3STORAGE = 'm3Storage';
 const M3GROUND = 'm3Ground';
-const TIMEFRAMES = 'timeframes';
-const TIMEFRAMETIMES = 'timeframetimes';
 
-
-queries.addQuery(TIMEFRAMETIMES,
-	'$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(M3TOTAL,
 	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE');
 queries.addQuery(M3GROUND,
@@ -670,14 +676,12 @@ queries.addQuery(M3UNSATURATED,
 queries.addQuery(M3WATER,
 	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_M3WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
 
-const data = {};
-for (property of [TIMEFRAMETIMES, M3TOTAL, M3WATER, M3GROUND, M3STORAGE, M3SEWER, M3UNSATURATED]) {
+for (property of [ M3TOTAL, M3WATER, M3GROUND, M3STORAGE, M3SEWER, M3UNSATURATED]) {
 	data[property] = queries.getData(property);
 }
 
 data[M3SATURATED] = data[M3GROUND].map((value, index) => value - data[M3UNSATURATED][index])
 data[M3LAND] = data[M3TOTAL].map((value, index) => value - data[M3WATER][index]);
-data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
 
 function initVolumeTitles() {
 	let titles = {};
@@ -708,10 +712,6 @@ function initVolumeColors() {
 
 	return colors;
 }
-
-
-const timeframes = data[TIMEFRAMES].length;
-var timeframe = timeframes - 1;
 
 const properties = [TIMEFRAMES, TIMEFRAMETIMES, M3LAND, M3WATER, M3SATURATED, M3UNSATURATED, M3SEWER, M3STORAGE];
 const plotProperties = [TIMEFRAMES, M3LAND, M3WATER, M3SATURATED, M3UNSATURATED, M3SEWER, M3STORAGE];
@@ -1210,7 +1210,7 @@ for (let i = 0; i < timeframes; i++) {
 
 	//Transpiratie
 	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
-	
+
 	//Verdamping
 	addLink(links, i, SURFACE_EVAPORATIONLAND, MODEL_OUT, flowData[SURFACE_EVAPORATIONLAND][i]);
 	addLink(links, i, SURFACE_EVAPORATIONWATER, MODEL_OUT, flowData[SURFACE_EVAPORATIONWATER][i]);
