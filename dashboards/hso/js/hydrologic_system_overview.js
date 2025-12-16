@@ -91,7 +91,7 @@ function initVolumeTitles() {
 	let titles = {};
 
 	titles[TIMEFRAMES] = "Timeframe";//"Timeframe";
-	titles[TIMEFRAMETIMES] = "timestamp";//"Tijdstap";
+	titles[TIMEFRAMETIMES] = "Timestamp";//"Tijdstap";
 	titles[M3LAND] = "Water on land [m³]";// "Water op land [m³]";
 	titles[M3WATER] = "Surface water [m³]";//"Oppervlaktewater [m³]";
 	titles[M3GROUND] = "Groundwater [m³]";//"Grondwater [m³]";
@@ -191,6 +191,7 @@ function initFlowTitles() {
 
 	let flowTitles = {};
 	flowTitles[TIMEFRAMES] = "Timeframes";
+	flowTitles[TIMEFRAMETIMES] = "Timestamp";//"Tijdstap";
 
 	flowTitles[RAINM3] = 'Rainfall [m³/timeframe]';//'Neerslag [m³/tijdstap]';
 	flowTitles[RAINM3LAND] = 'Rainfall on land [m³/timeframe]';// 'Neerslag op land [m³/tijdstap]';
@@ -360,7 +361,7 @@ const areaID = queries.getData(AREA_ID, false);
 const flowTitles = initFlowTitles();
 const flowColors = initFlowColors();
 
-const flowProperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR_IN, WEIR_OUT, WEIR_INNER, BREACH_IN, BREACH_OUT];
+const flowProperties = [TIMEFRAMES, TIMEFRAMETIMES, MODEL_IN, MODEL_OUT, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR_IN, WEIR_OUT, WEIR_INNER, BREACH_IN, BREACH_OUT];
 const flowData = createTimeframeData(timeframes, areaID, flowProperties);
 
 const CULVERT_AREA_FROM = "culvertAreaFrom";
@@ -442,7 +443,7 @@ flowData[BOTTOM_FLOW_IN] = queries.getData(BOTTOM_FLOW).map(countPositive).map(s
 flowData[BOTTOM_FLOW_OUT] = queries.getData(BOTTOM_FLOW).map(countNegative).map(stepwise);
 
 
-
+flowData[TIMEFRAMETIMES] = data[TIMEFRAMETIMES];
 flowData[M3TOTAL] = data[M3TOTAL];
 flowData[M3WATER] = data[M3WATER];
 flowData[M3LAND] = data[M3LAND];
