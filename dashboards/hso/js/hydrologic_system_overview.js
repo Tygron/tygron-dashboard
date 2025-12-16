@@ -48,6 +48,598 @@ const stepwise = (value, index, array) => index === 0 ? value : value - array[in
 const countPositive = value => Math.max(0, value);
 const countNegative = value => Math.abs(Math.min(0, value));
 
+
+/**
+ * WEIRS
+ */
+
+function updateWeirDetails(weir) {
+
+	if (weir == null) {
+		weir = getDummyWeir();
+	}
+
+	weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
+
+
+
+	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
+	drawWeirFront(weirPanel.weirFrontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
+
+	updateWeirFlowPlot(weir);
+
+	updateWeirHeightPlot(weir);
+
+}
+
+function updateWeirFlowPlot(weir) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
+	let colors = {};
+	colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
+
+	let titles = {};
+	titles[WEIR_FLOW_OUTPUT] = "Flow";
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[WEIR_FLOW_OUTPUT] = weir.flows;
+
+	let layout = createWeirPlotLayout();
+	layout.title = {
+		text: "Flow (m³/s)"
+	};
+	xyPlot(weirPanel.weirFlowPlot, "scatter", data, properties, colors, titles, layout);
+}
+
+function createWeirPlotLayout() {
+
+	layout = createLayout();
+	layout.showLegend = true;
+	layout.width = 300;
+	layout.height = 200;
+	layout.margin = { l: 40, r: 40, t: 40, b: 40 };
+	return layout;
+}
+
+function updateWeirHeightPlot(weir) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
+	let colors = {};
+	colors[WEIR_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
+	colors[WEIR_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
+	colors[WEIR_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+
+	let titles = {};
+	titles[WEIR_HEIGHT_OUTPUT] = "Height";
+	titles[WEIR_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
+	titles[WEIR_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[WEIR_HEIGHT_OUTPUT] = weir.heights;
+	data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
+	data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
+
+	let layout = createWeirPlotLayout();
+	layout.title = {
+		text: "Height and Datum (m)"
+	};
+	xyPlot(weirPanel.weirHeightPlot, "scatter", data, properties, colors, titles, layout);
+}
+
+function selectWeir(index) {
+	let weirInfoTitle = weirPanel.weirInfoTitle;
+
+	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
+
+	if (weir == null) {
+		weirInfoTitle.innerHTML = "-";
+		updateWeirDetails(weir);
+		return;
+	}
+
+
+	weirInfoTitle.innerHTML = weir.name;
+	updateWeirDetails(weir);
+
+	let weirList = document.getElementById("weirList");
+	for (item of weirList.children) {
+		if (item.myIndex == index) {
+			item.classList.add('selected');
+		} else {
+			item.classList.remove('selected');
+		}
+	}
+}
+
+function getSelectedWeirIndex() {
+	for (item of document.getElementById("weirList").children) {
+		if (item.classList.contains('selected')) {
+			return item.myIndex;
+		}
+	}
+	return 0;
+}
+
+function addWeirListItem(index) {
+	let weirList = document.getElementById("weirList");
+
+
+	let listItem = document.createElement("a");
+	listItem.onclick = () => selectWeir(index);
+	listItem.innerHTML = weirs[index].name;
+	listItem.myIndex = index;
+
+	weirList.appendChild(listItem);
+
+};
+
+const HSO_OVERLAY_TIMEFRAMES = "hso_overlay_timeframes";
+const WEIR_NAMES = 'weir_name';
+const WEIR_HEIGHTS = 'weir_heights';
+const WEIR_WIDTH = 'weir_width';
+const WEIR_FLOW_OUTPUT = 'weir_flow_output';
+const WEIR_HEIGHT_OUTPUT = 'weir_height_output';
+const WEIR_DATUM_OUTPUT_A = 'weir_datum_output_a';
+const WEIR_DATUM_OUTPUT_B = 'weir_datum_output_b';
+const WEIR_DAM_WIDTH = 'weir_dam_width';
+const WEIR_DAM_HEIGHT = 'weir_dam_height';
+const WEIR_AREA_OUTPUT_A = 'weir_water_area_output_a';
+const WEIR_AREA_OUTPUT_B = 'weir_water_area_output_b';
+const WEIR_ANGLE = 'weir_angle';
+const WEIR_COEFFICIENT = 'weir_coefficient';
+const WEIR_N = 'weir_n';
+
+queries.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
+queries.addQuery(WEIR_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_FLOW_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_FLOW_OUTPUT_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_A_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B_AND_TIMEFRAME_IS_X');
+queries.addQuery(WEIR_DAM_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_0');
+queries.addQuery(WEIR_DAM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_1');
+queries.addQuery(WEIR_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
+queries.addQuery(WEIR_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
+queries.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_ANGLE');
+queries.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
+queries.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_N');
+
+const WEIR_PARAM_PROPERTIES = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
+const WEIR_PARAM_TITLES = {
+	"name": "Name",
+	"coefficient": "Coefficient",
+	"weirN": "Weir N",
+	"heights": "Height (m)",
+	"width": "Width (m)",
+	"angle": "Angle (°)",
+	"damWidth": "Dam Width (m)",
+	"damHeight": "Dam Height (m)"
+}
+
+const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB"];
+const WEIR_RESULT_TITLES = {
+	"name": WEIR_PARAM_TITLES["name"],
+	"flows": "Flow (M³/s)",
+	"heights": "Height (m)",
+	"datumsA": "Datum A (m)",
+	"datumsB": "Datum B (m)",
+	"areaOutputA": "Area ID A",
+	"areaOutputB": "Area ID B",
+
+}
+let weirTimeframe = 0;
+
+function createWeirs() {
+
+	let weirs = [];
+
+	let names = queries.getData(WEIR_NAMES, true);
+	let width = queries.getData(WEIR_WIDTH, true);
+	let heights = queries.getData(WEIR_HEIGHT_OUTPUT, true);
+	let flow = queries.getData(WEIR_FLOW_OUTPUT, true);
+	let datumA = queries.getData(WEIR_DATUM_OUTPUT_A, true);
+	let datumB = queries.getData(WEIR_DATUM_OUTPUT_B, true);
+	let damWidth = queries.getData(WEIR_DAM_WIDTH, true);
+	let damHeight = queries.getData(WEIR_DAM_HEIGHT, true);
+	let areaOutputA = queries.getData(WEIR_AREA_OUTPUT_A, true);
+	let areaOutputB = queries.getData(WEIR_AREA_OUTPUT_B, true);
+	let angle = queries.getData(WEIR_ANGLE, true);
+	let coefficient = queries.getData(WEIR_COEFFICIENT, true);
+	let weirN = queries.getData(WEIR_N, true);
+
+	for (let i = 0; i < names.length; i++) {
+
+		let weir = {
+			name: i < names.length ? names[i] : "Weir " + i,
+
+			// array values
+			heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
+			flows: i < flow.length ? flow[i] : Array(timeframes).fill(0),
+			datumsA: i < datumA.length ? datumA[i] : Array(timeframes).fill(-10000),
+			datumsB: i < datumB.length ? datumB[i] : Array(timeframes).fill(-10000),
+
+			// single value
+			width: i < width.length ? width[i][0] : 0,
+			damWidth: i < damWidth.length ? damWidth[i][0] : 0,
+			damHeight: i < damHeight.length ? damHeight[i][0] : -1,
+			areaOutputA: i < areaOutputA.length ? areaOutputA[i][0] : -1,
+			areaOutputB: i < areaOutputB.length ? areaOutputB[i][0] : -1,
+			angle: i < angle.length ? angle[i][0] : -10000,
+			coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
+			weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
+		};
+		weirs.push(weir);
+
+	}
+
+	return weirs;
+}
+
+function updateWeirList(weirs) {
+	removeAllChildren(document.getElementById("weirList"));
+
+	for (let i = 0; i < weirs.length; i++) {
+		addWeirListItem(i);
+	}
+
+	if (weirs.length > 0) {
+		selectWeir(0, weirTimeframe);
+	}
+}
+
+function fillWeirTables(weirs, timeframe) {
+	fillWeirParamTable(weirs, timeframe);
+	fillWeirResultTable(weirs, timeframe);
+}
+
+function fillWeirParamTable(weirs, timeframe) {
+
+	let paramTable = document.getElementById("weirParamTable");
+
+	clearTable(paramTable);
+
+	addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);
+	for (let weir of weirs) {
+		addTimeframeRow(paramTable, timeframe, weir, WEIR_PARAM_PROPERTIES, {});
+	}
+}
+
+function fillWeirResultTable(weirs, timeframe) {
+
+	let resultTable = document.getElementById("weirResultsTable");
+
+	clearTable(resultTable);
+
+	addHeaderRow(resultTable, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES);
+	for (let weir of weirs) {
+		addTimeframeRow(resultTable, timeframe, weir, WEIR_RESULT_PROPERTIES, {});
+	}
+}
+
+const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));
+setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, function() {
+	weirTimeframe = weirPanel.timeframeSlider.style.getPropertyValue("--value");
+	selectWeir(getSelectedWeirIndex());
+});
+
+const weirs = createWeirs();
+fillWeirTables(weirs, weirTimeframe);
+updateWeirList(weirs);
+
+const weirResultSlider = addTimeframeSlider(document.getElementById("weirResultSliderDiv"));
+const weirParamSlider = addTimeframeSlider(document.getElementById("weirParamSliderDiv"));
+setupTimeframeSlider(weirParamSlider, weirTimeframe, timeframes, function() {
+	let timeframe = weirParamSlider.style.getPropertyValue("--value");
+	weirResultSlider.style.setProperty("--value", timeframe);
+	fillWeirTables(weirs, timeframe);
+});
+setupTimeframeSlider(weirResultSlider, weirTimeframe, timeframes, function() {
+	let timeframe = weirResultSlider.style.getPropertyValue("--value");
+	weirParamSlider.style.setProperty("--value", timeframe);
+	fillWeirTables(weirs, timeframe);
+});
+
+addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
+addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir_results.csv", () => toCSVContent(weirs, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES, timeframes));
+
+/**
+ * CULVERTS
+ */
+function updateCulvertDetails(culvert) {
+
+	if (culvert == null) {
+		culvert = getDummyCulvert();
+	}
+
+	culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
+
+	drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB,
+		culvert.diameter, culvert.rectangularHeight, culvert.elevationA, culvert.elevationB);
+	drawCulvertFront(culvertPanel.culvertFrontCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, 1, culvert.culvertN);
+
+	updateCulvertFlowPlot(culvert);
+
+	updateCulvertHeightPlot(culvert);
+
+}
+
+function updateCulvertFlowPlot(culvert) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_FLOW_OUTPUT];
+	let colors = {};
+	colors[CULVERT_FLOW_OUTPUT] = [218, 10, 10, 0.5];
+
+	let titles = {};
+	titles[CULVERT_FLOW_OUTPUT] = "Flow";
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[CULVERT_FLOW_OUTPUT] = culvert.flows;
+
+	let layout = createWeirPlotLayout();
+	layout.title = {
+		text: "Flow (m³/s)"
+	};
+	xyPlot(culvertPanel.culvertFlowPlot, "scatter", data, properties, colors, titles, layout);
+}
+function updateCulvertHeightPlot(culvert) {
+
+	let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_HEIGHT_OUTPUT, CULVERT_DATUM_OUTPUT_A, CULVERT_DATUM_OUTPUT_B];
+	let colors = {};
+	colors[CULVERT_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
+	colors[CULVERT_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
+	colors[CULVERT_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+
+	let titles = {};
+	titles[CULVERT_HEIGHT_OUTPUT] = "Height";
+	titles[CULVERT_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
+	titles[CULVERT_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+
+	let data = {};
+	let dataTimeframes = [];
+	for (let t = 0; t < timeframes; t++) {
+		dataTimeframes.push(t);
+	}
+	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+	data[CULVERT_HEIGHT_OUTPUT] = culvert.heights;
+	data[CULVERT_DATUM_OUTPUT_A] = culvert.datumsA;
+	data[CULVERT_DATUM_OUTPUT_B] = culvert.datumsB;
+
+	let layout = createWeirPlotLayout();
+	layout.title = {
+		text: "Height and Datum (m)"
+	};
+	xyPlot(culvertPanel.culvertHeightPlot, "scatter", data, properties, colors, titles, layout);
+}
+
+function selectCulvert(index) {
+	let culvertInfoTitle = culvertPanel.culvertInfoTitle;
+
+	let culvert = index >= 0 && index < culverts.length ? culverts[index] : null;
+
+	if (culvert == null) {
+		culvertInfoTitle.innerHTML = "-";
+		updateCulvertDetails(culvert);
+		return;
+	}
+
+
+	culvertInfoTitle.innerHTML = culvert.name;
+	updateCulvertDetails(culvert);
+
+	let culvertList = document.getElementById("culvertList");
+	for (item of culvertList.children) {
+		if (item.myIndex == index) {
+			item.classList.add('selected');
+		} else {
+			item.classList.remove('selected');
+		}
+	}
+}
+
+function getSelectedCulvertIndex() {
+	for (item of document.getElementById("culvertList").children) {
+		if (item.classList.contains('selected')) {
+			return item.myIndex;
+		}
+	}
+	return 0;
+}
+
+function addCulvertListItem(index) {
+	let culvertList = document.getElementById("culvertList");
+
+
+	let listItem = document.createElement("a");
+	listItem.onclick = () => selectCulvert(index);
+	listItem.innerHTML = culverts[index].name;
+	listItem.myIndex = index;
+
+	culvertList.appendChild(listItem);
+
+};
+
+const CULVERT_NAMES = 'culvert_name';
+const CULVERT_DIAMETER = 'culvert_diameter';
+const CULVERT_DATUM_HEIGHT = 'culvert_heights';
+const CULVERT_RECTANGULAR_HEIGHT = 'culvert_width';
+const CULVERT_FLOW_OUTPUT = 'culvert_flow_output';
+const CULVERT_HEIGHT_OUTPUT = 'culvert_height_output';
+const CULVERT_DATUM_OUTPUT_A = 'culvert_datum_output_a';
+const CULVERT_DATUM_OUTPUT_B = 'culvert_datum_output_b';
+const CULVERT_DATUM_HEIGHT_OUTPUT_A = 'culvert_datum_height_output_a';
+const CULVERT_DATUM_HEIGHT_OUTPUT_B = 'culvert_datum_height_output_b';
+const CULVERT_AREA_OUTPUT_A = 'culvert_water_area_output_a';
+const CULVERT_AREA_OUTPUT_B = 'culvert_water_area_output_b';
+const CULVERT_N = 'culvert_n';
+
+queries.addQuery(CULVERT_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(CULVERT_DIAMETER, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_DIAMETER');
+queries.addQuery(CULVERT_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_N');
+queries.addQuery(CULVERT_DATUM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_THRESHOLD');
+queries.addQuery(CULVERT_RECTANGULAR_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_RECTANGULAR_HEIGHT');
+queries.addQuery(CULVERT_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
+queries.addQuery(CULVERT_FLOW_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_FLOW_OUTPUT_AND_TIMEFRAME_IS_X');
+queries.addQuery(CULVERT_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_A_AND_TIMEFRAME_IS_X');
+queries.addQuery(CULVERT_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B_AND_TIMEFRAME_IS_X');
+queries.addQuery(CULVERT_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
+queries.addQuery(CULVERT_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
+queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_4');
+queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_5');
+
+const CULVERT_PARAM_PROPERTIES = ["name", "diameter", "rectangularHeight", "datumHeight", "culvertN"];
+const CULVERT_PARAM_TITLES = {
+	"name": "Name",
+	"diameter": "Diameter (m)",
+	"rectangularHeight": "Rectangular Height (m)",
+	"datumHeight": "Datum Height (m)",
+	"culvertN": "Culvert N",
+}
+
+const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB"];
+const CULVERT_RESULT_TITLES = {
+	"name": CULVERT_PARAM_TITLES["name"],
+	"flows": "Flow (M³/s)",
+	"heights": "Height (m)",
+	"datumsA": "Water Level Datum A (m)",
+	"datumsB": "Water Level Datum B (m)",
+	"areaIDA": "Area ID A",
+	"areaIDB": "Area ID B",
+	"datumHeightOutputA": "Datum Elevation A (m)",
+	"datumHeightOutputB": "Datum Elevation B (m)",
+
+}
+let culvertTimeframe = 0;
+
+function createCulverts() {
+
+	let culverts = [];
+
+	let names = queries.getData(CULVERT_NAMES, true);
+	let diameters = queries.getData(CULVERT_DIAMETER, true);
+	let datumHeights = queries.getData(CULVERT_DATUM_HEIGHT, true);
+	let rectangularHeights = queries.getData(CULVERT_RECTANGULAR_HEIGHT, true);
+	let culvertNs = queries.getData(CULVERT_N, true);
+	let heights = queries.getData(CULVERT_HEIGHT_OUTPUT, true);
+	let flows = queries.getData(CULVERT_FLOW_OUTPUT, true);
+	let datumsA = queries.getData(CULVERT_DATUM_OUTPUT_A, true);
+	let datumsB = queries.getData(CULVERT_DATUM_OUTPUT_B, true);
+	let areaIDA = queries.getData(CULVERT_AREA_OUTPUT_A, true);
+	let areaIDB = queries.getData(CULVERT_AREA_OUTPUT_B, true);
+	let elevationA = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_A, true);
+	let elevationB = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_B, true);
+
+	for (let i = 0; i < names.length; i++) {
+
+		let culvert = {
+
+			name: i < names.length ? names[i] : "Culvert " + i,
+
+			// array values
+			heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
+			flows: i < flows.length ? flows[i] : Array(timeframes).fill(0),
+			datumsA: i < datumsA.length ? datumsA[i] : Array(timeframes).fill(-10000),
+			datumsB: i < datumsB.length ? datumsB[i] : Array(timeframes).fill(-10000),
+
+			// single value
+			datumHeight: i < datumHeights.length ? datumHeights[i][0] : -10000.0,
+			diameter: i < diameters.length ? diameters[i][0] : 0,
+			rectangularHeight: i < rectangularHeights.length ? rectangularHeights[i][0] : -10000.0,
+			culvertN: i < culvertNs.length && culvertNs[i][0] > 0 ? culvertNs[i][0] : 3 / 2,
+
+			areaIDA: i < areaIDA.length ? areaIDA[i][0] : -1,
+			areaIDB: i < areaIDB.length ? areaIDB[i][0] : -1,
+			elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
+			elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
+		};
+		culverts.push(culvert);
+
+	}
+
+	return culverts;
+}
+
+function updateCulvertList(culverts) {
+	removeAllChildren(document.getElementById("culvertList"));
+
+	for (let i = 0; i < culverts.length; i++) {
+		addCulvertListItem(i);
+	}
+
+	if (culverts.length > 0) {
+		selectCulvert(0, culvertTimeframe);
+	}
+}
+
+function fillCulvertTables(culverts, timeframe) {
+	fillCulvertParamTable(culverts, timeframe);
+	fillCulvertResultTable(culverts, timeframe);
+}
+
+function fillCulvertParamTable(culverts, timeframe) {
+
+	let paramTable = document.getElementById("culvertParamTable");
+
+	clearTable(paramTable);
+
+	addHeaderRow(paramTable, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES);
+	for (let culvert of culverts) {
+		addTimeframeRow(paramTable, timeframe, culvert, CULVERT_PARAM_PROPERTIES, {});
+	}
+}
+
+function fillCulvertResultTable(culverts, timeframe) {
+
+	let resultTable = document.getElementById("culvertResultsTable");
+
+	clearTable(resultTable);
+
+	addHeaderRow(resultTable, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES);
+	for (let culvert of culverts) {
+		addTimeframeRow(resultTable, timeframe, culvert, CULVERT_RESULT_PROPERTIES, {});
+	}
+}
+
+const culvertPanel = new CulvertPanel(document.getElementById("culvertDetailParent"));
+setupTimeframeSlider(culvertPanel.timeframeSlider, culvertTimeframe, timeframes, function() {
+	culvertTimeframe = culvertPanel.timeframeSlider.style.getPropertyValue("--value");
+	selectCulvert(getSelectedCulvertIndex());
+});
+
+const culverts = createCulverts();
+fillCulvertTables(culverts, culvertTimeframe);
+updateCulvertList(culverts);
+
+const culvertResultSlider = addTimeframeSlider(document.getElementById("culvertResultSliderDiv"));
+const culvertParamSlider = addTimeframeSlider(document.getElementById("culvertParamSliderDiv"));
+setupTimeframeSlider(culvertParamSlider, culvertTimeframe, timeframes, function() {
+	let timeframe = culvertParamSlider.style.getPropertyValue("--value");
+	culvertResultSlider.style.setProperty("--value", timeframe);
+	fillCulvertTables(culverts, timeframe);
+});
+setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function() {
+	let timeframe = culvertResultSlider.style.getPropertyValue("--value");
+	culvertParamSlider.style.setProperty("--value", timeframe);
+	fillCulvertTables(culverts, timeframe);
+});
+
+addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
+addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "culvert_results.csv", () => toCSVContent(culverts, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES, timeframes));
+
 /**
  * Volume section 
  */
@@ -671,595 +1263,4 @@ plotSankey();
 
 addDownloadHandler(document.getElementById("balanceCSVButton"), "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
 addDownloadHandler(document.getElementById("flowCSVButton"), "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
-
-/**
- * WEIRS
- */
-
-function updateWeirDetails(weir) {
-
-	if (weir == null) {
-		weir = getDummyWeir();
-	}
-
-	weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
-
-
-
-	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
-	drawWeirFront(weirPanel.weirFrontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
-
-	updateWeirFlowPlot(weir);
-
-	updateWeirHeightPlot(weir);
-
-}
-
-function updateWeirFlowPlot(weir) {
-
-	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
-	let colors = {};
-	colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
-
-	let titles = {};
-	titles[WEIR_FLOW_OUTPUT] = "Flow";
-
-	let data = {};
-	let dataTimeframes = [];
-	for (let t = 0; t < timeframes; t++) {
-		dataTimeframes.push(t);
-	}
-	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-	data[WEIR_FLOW_OUTPUT] = weir.flows;
-
-	let layout = createWeirPlotLayout();
-	layout.title = {
-		text: "Flow (m³/s)"
-	};
-	xyPlot(weirPanel.weirFlowPlot, "scatter", data, properties, colors, titles, layout);
-}
-
-function createWeirPlotLayout() {
-
-	layout = createLayout();
-	layout.showLegend = true;
-	layout.width = 300;
-	layout.height = 200;
-	layout.margin = { l: 40, r: 40, t: 40, b: 40 };
-	return layout;
-}
-
-function updateWeirHeightPlot(weir) {
-
-	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
-	let colors = {};
-	colors[WEIR_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
-	colors[WEIR_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
-	colors[WEIR_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
-
-	let titles = {};
-	titles[WEIR_HEIGHT_OUTPUT] = "Height";
-	titles[WEIR_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
-	titles[WEIR_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
-
-	let data = {};
-	let dataTimeframes = [];
-	for (let t = 0; t < timeframes; t++) {
-		dataTimeframes.push(t);
-	}
-	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-	data[WEIR_HEIGHT_OUTPUT] = weir.heights;
-	data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
-	data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
-
-	let layout = createWeirPlotLayout();
-	layout.title = {
-		text: "Height and Datum (m)"
-	};
-	xyPlot(weirPanel.weirHeightPlot, "scatter", data, properties, colors, titles, layout);
-}
-
-function selectWeir(index) {
-	let weirInfoTitle = weirPanel.weirInfoTitle;
-
-	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
-
-	if (weir == null) {
-		weirInfoTitle.innerHTML = "-";
-		updateWeirDetails(weir);
-		return;
-	}
-
-
-	weirInfoTitle.innerHTML = weir.name;
-	updateWeirDetails(weir);
-
-	let weirList = document.getElementById("weirList");
-	for (item of weirList.children) {
-		if (item.myIndex == index) {
-			item.classList.add('selected');
-		} else {
-			item.classList.remove('selected');
-		}
-	}
-}
-
-function getSelectedWeirIndex() {
-	for (item of document.getElementById("weirList").children) {
-		if (item.classList.contains('selected')) {
-			return item.myIndex;
-		}
-	}
-	return 0;
-}
-
-function addWeirListItem(index) {
-	let weirList = document.getElementById("weirList");
-
-
-	let listItem = document.createElement("a");
-	listItem.onclick = () => selectWeir(index);
-	listItem.innerHTML = weirs[index].name;
-	listItem.myIndex = index;
-
-	weirList.appendChild(listItem);
-
-};
-
-const HSO_OVERLAY_TIMEFRAMES = "hso_overlay_timeframes";
-const WEIR_NAMES = 'weir_name';
-const WEIR_HEIGHTS = 'weir_heights';
-const WEIR_WIDTH = 'weir_width';
-const WEIR_FLOW_OUTPUT = 'weir_flow_output';
-const WEIR_HEIGHT_OUTPUT = 'weir_height_output';
-const WEIR_DATUM_OUTPUT_A = 'weir_datum_output_a';
-const WEIR_DATUM_OUTPUT_B = 'weir_datum_output_b';
-const WEIR_DAM_WIDTH = 'weir_dam_width';
-const WEIR_DAM_HEIGHT = 'weir_dam_height';
-const WEIR_AREA_OUTPUT_A = 'weir_water_area_output_a';
-const WEIR_AREA_OUTPUT_B = 'weir_water_area_output_b';
-const WEIR_ANGLE = 'weir_angle';
-const WEIR_COEFFICIENT = 'weir_coefficient';
-const WEIR_N = 'weir_n';
-
-queries.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
-queries.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
-queries.addQuery(WEIR_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
-queries.addQuery(WEIR_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
-queries.addQuery(WEIR_FLOW_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_FLOW_OUTPUT_AND_TIMEFRAME_IS_X');
-queries.addQuery(WEIR_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_A_AND_TIMEFRAME_IS_X');
-queries.addQuery(WEIR_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B_AND_TIMEFRAME_IS_X');
-queries.addQuery(WEIR_DAM_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_0');
-queries.addQuery(WEIR_DAM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_DAM_OUTPUT_AND_INDEX_IS_1');
-queries.addQuery(WEIR_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
-queries.addQuery(WEIR_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
-queries.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_ANGLE');
-queries.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
-queries.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_N');
-
-const WEIR_PARAM_PROPERTIES = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
-const WEIR_PARAM_TITLES = {
-	"name": "Name",
-	"coefficient": "Coefficient",
-	"weirN": "Weir N",
-	"heights": "Height (m)",
-	"width": "Width (m)",
-	"angle": "Angle (°)",
-	"damWidth": "Dam Width (m)",
-	"damHeight": "Dam Height (m)"
-}
-
-const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB"];
-const WEIR_RESULT_TITLES = {
-	"name": WEIR_PARAM_TITLES["name"],
-	"flows": "Flow (M³/s)",
-	"heights": "Height (m)",
-	"datumsA": "Datum A (m)",
-	"datumsB": "Datum B (m)",
-	"areaOutputA": "Area ID A",
-	"areaOutputB": "Area ID B",
-
-}
-let weirTimeframe = 0;
-
-function createWeirs() {
-
-	let weirs = [];
-
-	let names = queries.getData(WEIR_NAMES, true);
-	let width = queries.getData(WEIR_WIDTH, true);
-	let heights = queries.getData(WEIR_HEIGHT_OUTPUT, true);
-	let flow = queries.getData(WEIR_FLOW_OUTPUT, true);
-	let datumA = queries.getData(WEIR_DATUM_OUTPUT_A, true);
-	let datumB = queries.getData(WEIR_DATUM_OUTPUT_B, true);
-	let damWidth = queries.getData(WEIR_DAM_WIDTH, true);
-	let damHeight = queries.getData(WEIR_DAM_HEIGHT, true);
-	let areaOutputA = queries.getData(WEIR_AREA_OUTPUT_A, true);
-	let areaOutputB = queries.getData(WEIR_AREA_OUTPUT_B, true);
-	let angle = queries.getData(WEIR_ANGLE, true);
-	let coefficient = queries.getData(WEIR_COEFFICIENT, true);
-	let weirN = queries.getData(WEIR_N, true);
-
-	for (let i = 0; i < names.length; i++) {
-
-		let weir = {
-			name: i < names.length ? names[i] : "Weir " + i,
-
-			// array values
-			heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
-			flows: i < flow.length ? flow[i] : Array(timeframes).fill(0),
-			datumsA: i < datumA.length ? datumA[i] : Array(timeframes).fill(-10000),
-			datumsB: i < datumB.length ? datumB[i] : Array(timeframes).fill(-10000),
-
-			// single value
-			width: i < width.length ? width[i][0] : 0,
-			damWidth: i < damWidth.length ? damWidth[i][0] : 0,
-			damHeight: i < damHeight.length ? damHeight[i][0] : -1,
-			areaOutputA: i < areaOutputA.length ? areaOutputA[i][0] : -1,
-			areaOutputB: i < areaOutputB.length ? areaOutputB[i][0] : -1,
-			angle: i < angle.length ? angle[i][0] : -10000,
-			coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
-			weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
-		};
-		weirs.push(weir);
-
-	}
-
-	return weirs;
-}
-
-function updateWeirList(weirs) {
-	removeAllChildren(document.getElementById("weirList"));
-
-	for (let i = 0; i < weirs.length; i++) {
-		addWeirListItem(i);
-	}
-
-	if (weirs.length > 0) {
-		selectWeir(0, weirTimeframe);
-	}
-}
-
-function fillWeirTables(weirs, timeframe) {
-	fillWeirParamTable(weirs, timeframe);
-	fillWeirResultTable(weirs, timeframe);
-}
-
-function fillWeirParamTable(weirs, timeframe) {
-
-	let paramTable = document.getElementById("weirParamTable");
-
-	clearTable(paramTable);
-
-	addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);
-	for (let weir of weirs) {
-		addTimeframeRow(paramTable, timeframe, weir, WEIR_PARAM_PROPERTIES, {});
-	}
-}
-
-function fillWeirResultTable(weirs, timeframe) {
-
-	let resultTable = document.getElementById("weirResultsTable");
-
-	clearTable(resultTable);
-
-	addHeaderRow(resultTable, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES);
-	for (let weir of weirs) {
-		addTimeframeRow(resultTable, timeframe, weir, WEIR_RESULT_PROPERTIES, {});
-	}
-}
-
-const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));
-setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, function() {
-	weirTimeframe = weirPanel.timeframeSlider.style.getPropertyValue("--value");
-	selectWeir(getSelectedWeirIndex());
-});
-
-const weirs = createWeirs();
-fillWeirTables(weirs, weirTimeframe);
-updateWeirList(weirs);
-
-const weirResultSlider = addTimeframeSlider(document.getElementById("weirResultSliderDiv"));
-const weirParamSlider = addTimeframeSlider(document.getElementById("weirParamSliderDiv"));
-setupTimeframeSlider(weirParamSlider, weirTimeframe, timeframes, function() {
-	let timeframe = weirParamSlider.style.getPropertyValue("--value");
-	weirResultSlider.style.setProperty("--value", timeframe);
-	fillWeirTables(weirs, timeframe);
-});
-setupTimeframeSlider(weirResultSlider, weirTimeframe, timeframes, function() {
-	let timeframe = weirResultSlider.style.getPropertyValue("--value");
-	weirParamSlider.style.setProperty("--value", timeframe);
-	fillWeirTables(weirs, timeframe);
-});
-
-addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
-addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir_results.csv", () => toCSVContent(weirs, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES, timeframes));
-
-/**
- * CULVERTS
- */
-function updateCulvertDetails(culvert) {
-
-	if (culvert == null) {
-		culvert = getDummyCulvert();
-	}
-
-	culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
-
-	drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB,
-		culvert.diameter, culvert.rectangularHeight, culvert.elevationA, culvert.elevationB);
-	drawCulvertFront(culvertPanel.culvertFrontCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, 1, culvert.culvertN);
-
-	updateCulvertFlowPlot(culvert);
-
-	updateCulvertHeightPlot(culvert);
-
-}
-
-function updateCulvertFlowPlot(culvert) {
-
-	let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_FLOW_OUTPUT];
-	let colors = {};
-	colors[CULVERT_FLOW_OUTPUT] = [218, 10, 10, 0.5];
-
-	let titles = {};
-	titles[CULVERT_FLOW_OUTPUT] = "Flow";
-
-	let data = {};
-	let dataTimeframes = [];
-	for (let t = 0; t < timeframes; t++) {
-		dataTimeframes.push(t);
-	}
-	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-	data[CULVERT_FLOW_OUTPUT] = culvert.flows;
-
-	let layout = createWeirPlotLayout();
-	layout.title = {
-		text: "Flow (m³/s)"
-	};
-	xyPlot(culvertPanel.culvertFlowPlot, "scatter", data, properties, colors, titles, layout);
-}
-function updateCulvertHeightPlot(culvert) {
-
-	let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_HEIGHT_OUTPUT, CULVERT_DATUM_OUTPUT_A, CULVERT_DATUM_OUTPUT_B];
-	let colors = {};
-	colors[CULVERT_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
-	colors[CULVERT_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
-	colors[CULVERT_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
-
-	let titles = {};
-	titles[CULVERT_HEIGHT_OUTPUT] = "Height";
-	titles[CULVERT_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
-	titles[CULVERT_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
-
-	let data = {};
-	let dataTimeframes = [];
-	for (let t = 0; t < timeframes; t++) {
-		dataTimeframes.push(t);
-	}
-	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-	data[CULVERT_HEIGHT_OUTPUT] = culvert.heights;
-	data[CULVERT_DATUM_OUTPUT_A] = culvert.datumsA;
-	data[CULVERT_DATUM_OUTPUT_B] = culvert.datumsB;
-
-	let layout = createWeirPlotLayout();
-	layout.title = {
-		text: "Height and Datum (m)"
-	};
-	xyPlot(culvertPanel.culvertHeightPlot, "scatter", data, properties, colors, titles, layout);
-}
-
-function selectCulvert(index) {
-	let culvertInfoTitle = culvertPanel.culvertInfoTitle;
-
-	let culvert = index >= 0 && index < culverts.length ? culverts[index] : null;
-
-	if (culvert == null) {
-		culvertInfoTitle.innerHTML = "-";
-		updateCulvertDetails(culvert);
-		return;
-	}
-
-
-	culvertInfoTitle.innerHTML = culvert.name;
-	updateCulvertDetails(culvert);
-
-	let culvertList = document.getElementById("culvertList");
-	for (item of culvertList.children) {
-		if (item.myIndex == index) {
-			item.classList.add('selected');
-		} else {
-			item.classList.remove('selected');
-		}
-	}
-}
-
-function getSelectedCulvertIndex() {
-	for (item of document.getElementById("culvertList").children) {
-		if (item.classList.contains('selected')) {
-			return item.myIndex;
-		}
-	}
-	return 0;
-}
-
-function addCulvertListItem(index) {
-	let culvertList = document.getElementById("culvertList");
-
-
-	let listItem = document.createElement("a");
-	listItem.onclick = () => selectCulvert(index);
-	listItem.innerHTML = culverts[index].name;
-	listItem.myIndex = index;
-
-	culvertList.appendChild(listItem);
-
-};
-
-const CULVERT_NAMES = 'culvert_name';
-const CULVERT_DIAMETER = 'culvert_diameter';
-const CULVERT_DATUM_HEIGHT = 'culvert_heights';
-const CULVERT_RECTANGULAR_HEIGHT = 'culvert_width';
-const CULVERT_FLOW_OUTPUT = 'culvert_flow_output';
-const CULVERT_HEIGHT_OUTPUT = 'culvert_height_output';
-const CULVERT_DATUM_OUTPUT_A = 'culvert_datum_output_a';
-const CULVERT_DATUM_OUTPUT_B = 'culvert_datum_output_b';
-const CULVERT_DATUM_HEIGHT_OUTPUT_A = 'culvert_datum_height_output_a';
-const CULVERT_DATUM_HEIGHT_OUTPUT_B = 'culvert_datum_height_output_b';
-const CULVERT_AREA_OUTPUT_A = 'culvert_water_area_output_a';
-const CULVERT_AREA_OUTPUT_B = 'culvert_water_area_output_b';
-const CULVERT_N = 'culvert_n';
-
-queries.addQuery(CULVERT_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
-queries.addQuery(CULVERT_DIAMETER, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_DIAMETER');
-queries.addQuery(CULVERT_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_N');
-queries.addQuery(CULVERT_DATUM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_THRESHOLD');
-queries.addQuery(CULVERT_RECTANGULAR_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_RECTANGULAR_HEIGHT');
-queries.addQuery(CULVERT_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
-queries.addQuery(CULVERT_FLOW_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_FLOW_OUTPUT_AND_TIMEFRAME_IS_X');
-queries.addQuery(CULVERT_DATUM_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_A_AND_TIMEFRAME_IS_X');
-queries.addQuery(CULVERT_DATUM_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_DATUM_OUTPUT_B_AND_TIMEFRAME_IS_X');
-queries.addQuery(CULVERT_AREA_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
-queries.addQuery(CULVERT_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
-queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_4');
-queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_5');
-
-const CULVERT_PARAM_PROPERTIES = ["name", "diameter", "rectangularHeight", "datumHeight", "culvertN"];
-const CULVERT_PARAM_TITLES = {
-	"name": "Name",
-	"diameter": "Diameter (m)",
-	"rectangularHeight": "Rectangular Height (m)",
-	"datumHeight": "Datum Height (m)",
-	"culvertN": "Culvert N",
-}
-
-const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB"];
-const CULVERT_RESULT_TITLES = {
-	"name": CULVERT_PARAM_TITLES["name"],
-	"flows": "Flow (M³/s)",
-	"heights": "Height (m)",
-	"datumsA": "Water Level Datum A (m)",
-	"datumsB": "Water Level Datum B (m)",
-	"areaIDA": "Area ID A",
-	"areaIDB": "Area ID B",
-	"datumHeightOutputA": "Datum Elevation A (m)",
-	"datumHeightOutputB": "Datum Elevation B (m)",
-
-}
-let culvertTimeframe = 0;
-
-function createCulverts() {
-
-	let culverts = [];
-
-	let names = queries.getData(CULVERT_NAMES, true);
-	let diameters = queries.getData(CULVERT_DIAMETER, true);
-	let datumHeights = queries.getData(CULVERT_DATUM_HEIGHT, true);
-	let rectangularHeights = queries.getData(CULVERT_RECTANGULAR_HEIGHT, true);
-	let culvertNs = queries.getData(CULVERT_N, true);
-	let heights = queries.getData(CULVERT_HEIGHT_OUTPUT, true);
-	let flows = queries.getData(CULVERT_FLOW_OUTPUT, true);
-	let datumsA = queries.getData(CULVERT_DATUM_OUTPUT_A, true);
-	let datumsB = queries.getData(CULVERT_DATUM_OUTPUT_B, true);
-	let areaIDA = queries.getData(CULVERT_AREA_OUTPUT_A, true);
-	let areaIDB = queries.getData(CULVERT_AREA_OUTPUT_B, true);
-	let elevationA = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_A, true);
-	let elevationB = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_B, true);
-
-	for (let i = 0; i < names.length; i++) {
-
-		let culvert = {
-
-			name: i < names.length ? names[i] : "Culvert " + i,
-
-			// array values
-			heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
-			flows: i < flows.length ? flows[i] : Array(timeframes).fill(0),
-			datumsA: i < datumsA.length ? datumsA[i] : Array(timeframes).fill(-10000),
-			datumsB: i < datumsB.length ? datumsB[i] : Array(timeframes).fill(-10000),
-
-			// single value
-			datumHeight: i < datumHeights.length ? datumHeights[i][0] : -10000.0,
-			diameter: i < diameters.length ? diameters[i][0] : 0,
-			rectangularHeight: i < rectangularHeights.length ? rectangularHeights[i][0] : -10000.0,
-			culvertN: i < culvertNs.length && culvertNs[i][0] > 0 ? culvertNs[i][0] : 3 / 2,
-
-			areaIDA: i < areaIDA.length ? areaIDA[i][0] : -1,
-			areaIDB: i < areaIDB.length ? areaIDB[i][0] : -1,
-			elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
-			elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
-		};
-		culverts.push(culvert);
-
-	}
-
-	return culverts;
-}
-
-function updateCulvertList(culverts) {
-	removeAllChildren(document.getElementById("culvertList"));
-
-	for (let i = 0; i < culverts.length; i++) {
-		addCulvertListItem(i);
-	}
-
-	if (culverts.length > 0) {
-		selectCulvert(0, culvertTimeframe);
-	}
-}
-
-function fillCulvertTables(culverts, timeframe) {
-	fillCulvertParamTable(culverts, timeframe);
-	fillCulvertResultTable(culverts, timeframe);
-}
-
-function fillCulvertParamTable(culverts, timeframe) {
-
-	let paramTable = document.getElementById("culvertParamTable");
-
-	clearTable(paramTable);
-
-	addHeaderRow(paramTable, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES);
-	for (let culvert of culverts) {
-		addTimeframeRow(paramTable, timeframe, culvert, CULVERT_PARAM_PROPERTIES, {});
-	}
-}
-
-function fillCulvertResultTable(culverts, timeframe) {
-
-	let resultTable = document.getElementById("culvertResultsTable");
-
-	clearTable(resultTable);
-
-	addHeaderRow(resultTable, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES);
-	for (let culvert of culverts) {
-		addTimeframeRow(resultTable, timeframe, culvert, CULVERT_RESULT_PROPERTIES, {});
-	}
-}
-
-const culvertPanel = new CulvertPanel(document.getElementById("culvertDetailParent"));
-setupTimeframeSlider(culvertPanel.timeframeSlider, culvertTimeframe, timeframes, function() {
-	culvertTimeframe = culvertPanel.timeframeSlider.style.getPropertyValue("--value");
-	selectCulvert(getSelectedCulvertIndex());
-});
-
-const culverts = createCulverts();
-fillCulvertTables(culverts, culvertTimeframe);
-updateCulvertList(culverts);
-
-const culvertResultSlider = addTimeframeSlider(document.getElementById("culvertResultSliderDiv"));
-const culvertParamSlider = addTimeframeSlider(document.getElementById("culvertParamSliderDiv"));
-setupTimeframeSlider(culvertParamSlider, culvertTimeframe, timeframes, function() {
-	let timeframe = culvertParamSlider.style.getPropertyValue("--value");
-	culvertResultSlider.style.setProperty("--value", timeframe);
-	fillCulvertTables(culverts, timeframe);
-});
-setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function() {
-	let timeframe = culvertResultSlider.style.getPropertyValue("--value");
-	culvertParamSlider.style.setProperty("--value", timeframe);
-	fillCulvertTables(culverts, timeframe);
-});
-
-addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
-addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "culvert_results.csv", () => toCSVContent(culverts, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES, timeframes));
 
