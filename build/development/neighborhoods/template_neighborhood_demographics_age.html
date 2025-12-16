@@ -134,6 +134,7 @@ html, body {
 	--tickInterval: 100/((var(--max)- var(--min))/var(--step))* var(--tickEvery, 1);
 	--tickIntervalPerc: calc(( 100% - var(--thumb-size))/( (var(--max)- var(--min))/var(--x-step))*
 		
+		
 		 var(--tickEvery, 1));
 	--completed: calc(( var(--value)- var(--min))/(var(--max)- var(--min))*
 		 100);
@@ -284,6 +285,8 @@ html, body {
 	width: 200px;
 	height: 75vh;
 	overflow-y: auto;
+	margin-right: 1em;
+	padding-right: 1em;
 }
 
 .water-structure-sidebar>.vertical-menu a {
@@ -295,7 +298,7 @@ html, body {
 	cursor: default;
 	border-radius: 5px;
 	margin-bottom: 3px;
-	font-size:12px;
+	font-size: 12px;
 }
 
 .water-structure-sidebar>.vertical-menu a:hover {
@@ -338,7 +341,7 @@ html, body {
 	max-width: fit-content;
 }
 
-.water-structure-detail{	
+.water-structure-detail {
 	flex: 3;
 }
 	html {
