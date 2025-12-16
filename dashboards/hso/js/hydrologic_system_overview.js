@@ -16,6 +16,7 @@ document.querySelectorAll(".nav-item").forEach(item => {
 		const target = document.getElementById(item.dataset.target);
 		if (!target) return;
 		target.classList.toggle("open");
+		item.classList.toggle("open");
 	});
 });
 
@@ -35,6 +36,8 @@ subItems.forEach(btn => {
 });
 
 // Default open
+document.querySelectorAll(".nav-item").forEach(item => item.click());
+	
 document.querySelector("[data-section='wb-volumetabel']").click();
 
 document.getElementById("waterAreaName").innerHTML = '$NAME';
