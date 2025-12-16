@@ -243,7 +243,7 @@ function setHsoOverlay(overlays, selectedOverlayID) {
 	installer[vars.SELECTED_OVERLAY_ID] = selectedOverlayID;
 
 	setRequiredOverlayAttribute(HSO_OVERLAY_ATTRIBUTE, vars.SELECTED_OVERLAY_ID);
-	
+
 	const overlayIDs = []
 	for (let i = overlays.length - 1; i >= 0; i--) {
 		if (overlays[i].id != selectedOverlayID) {
@@ -1015,8 +1015,8 @@ function addAndSetNewTemplateTextPanel() {
 			params.push(installer[vars.DASHBOARD_PANEL_ID]);
 			params.push("Hydrological System Overview");
 		}),
-		
-		installer.connector.post("event/editorpanel/set_attribute", null, [], (_d, _u, _qp, params)=>{
+
+		installer.connector.post("event/editorpanel/set_attribute", null, [], (_d, _u, _qp, params) => {
 			params.push(installer[vars.DASHBOARD_PANEL_ID]);
 			params.push("POPUP_TYPE");
 			params.push(POPUP_TYPE);
@@ -1058,19 +1058,55 @@ function setDashboardContent() {
 }
 
 function requestUpdateIndicators() {
-	appendFeedback("Recalculating project forcefully! (Implement request Overlay recalculation.)");
 
-	appendChains(
-		installer.connector.post("event/editor/update", null, [true]),
+	appendFeedback("Resetting X-Queries and recalculation of your project is required.");
+	appendFeedback("Tip: In case your Water Overlay was already calculated and has a long calculation time, you might want to deactivate it first.");
+	appendFeedback("Do you want to recalculate now or do it manually later? ");
 
-		() => addFinishButton()
+	const selectParent = document.createElement("div");
+	const yesButton = document.createElement("input");
+	yesButton.type = 'button';
+	yesButton.value = 'Now';
+	const noButton = document.createElement("input");
+	noButton.type = 'button';
+	noButton.value = 'Later';
 
-	);
+	yesButton.onclick = () => {
+		yesButton.disabled = true;
+		noButton.disabled = true;
+		noButton.style.display = 'none';
+
+		appendChains(
+			() => appendFeedback("Resetting X-Queries and recalculating project."),
+
+
+			installer.connector.post("event/editor/update", null, [true]),
+
+			() => addFinishButton()
+
+		);
+	};
+	noButton.onclick = () => {
+		yesButton.disabled = true;
+		noButton.disabled = true;
+		yesButton.style.display = 'none';
+
+		appendChains(
+			() => addFinishButton()
+
+		);
+
+	};
+
+	selectParent.appendChild(yesButton);
+	selectParent.appendChild(noButton);
+	appendFeedbackLine(selectParent);
+
 
 }
 function addFinishButton() {
 
-	appendFeedback("Installation of Hydrologic System Overview was successful. Click on finish to close this panel.");
+	appendFeedback("Installation of the Hydrologic System Overview was successful. Click on finish to close this panel.");
 
 	const selectParent = document.createElement("div");
 	const finishButton = document.createElement("input");
