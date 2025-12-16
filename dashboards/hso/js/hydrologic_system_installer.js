@@ -41,6 +41,7 @@ const vars = {
 	HSO_TEMPLATE_PANEL: "hsoTemplatePanel",
 	DASHBOARD_PANEL_ID: "dashboardPanelID",
 	DASHBOARD_CONTENT: "dashboardTextContent",
+	EDITOR_SELECT_PANEL_ID: "editorSelectPanelID",
 };
 
 const installer = {
@@ -866,6 +867,22 @@ function requestAreaSetup() {
 	);
 }
 
+function getEditorSelectPanel(panels) {
+
+	let parentID = installer[vars.DASHBOARD_PANEL_ID];
+	if (parentID == null) {
+		return -1;
+	}
+
+	for (let panel of panels) {
+		if (panel.parentID == parentID) {
+			return panel.id;
+		}
+	}
+
+	return -1;
+}
+
 
 function updatePanels(actionAfterRefresh) {
 
@@ -891,6 +908,7 @@ function updatePanels(actionAfterRefresh) {
 			installer[vars.TEMPLATE_TEXT_PANELS] = getTemplateTextPanels(panels, "AREAS", attribute, null);
 			installer[vars.HSO_TEMPLATE_PANELS] = getTemplateTextPanels(panels, "AREAS", attribute, HSO_PANEL_ATTRIBUTE);
 			installer[vars.HSO_TEMPLATE_PANEL] = getTemplateTextPanel(panels, "AREAS", attribute, HSO_PANEL_ATTRIBUTE);
+			installer[vars.EDITOR_SELECT_PANEL_ID] = getEditorSelectPanel(panels);
 		},
 
 		actionAfterRefresh
@@ -1116,7 +1134,13 @@ function addFinishButton() {
 	finishButton.onclick = () => {
 		finishButton.disabled = true;
 		app.panel("PANELS");
-		setTimeout(() => app.selectItem("PANELS", Number(installer[vars.DASHBOARD_PANEL_ID])), 500);
+
+		setTimeout(() =>
+			updatePanels(() => {
+				if (Number(installer[vars.EDITOR_SELECT_PANEL_ID]) >= 0) {
+					app.selectItem("PANELS", Number(installer[vars.EDITOR_SELECT_PANEL_ID]))
+				}
+			}), 500);
 	};
 
 	selectParent.appendChild(finishButton);
