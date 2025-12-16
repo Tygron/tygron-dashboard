@@ -568,13 +568,13 @@ for (let i = 0; i < timeframes; i++) {
 
 	//Berging Land
 	addLink(links, i, M3LAND, M3SEWER, flowData[LANDSEWER][i]);
-	addLink(links, i, M3LAND, EVAPOTRANSPIRATION, flowData[SURFACE_EVAPORATIONLAND][i]);
+	addLink(links, i, M3LAND, SURFACE_EVAPORATIONLAND, flowData[SURFACE_EVAPORATIONLAND][i]);
 	//addLink(links, i, M3LAND, M3GROUND, flowData[][i]);
 
 	//Berging oppervlaktewater
 	//addLink(links, i, M3WATER, M3GROUND, flowData[][i]);
 	addLink(links, i, M3WATER, WEIR, flowData[WEIR_OUT][i]);
-	addLink(links, i, M3WATER, EVAPOTRANSPIRATION, flowData[SURFACE_EVAPORATIONWATER][i]);
+	addLink(links, i, M3WATER, SURFACE_EVAPORATIONWATER, flowData[SURFACE_EVAPORATIONWATER][i]);
 	addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_OUT][i]);
 	addLink(links, i, M3WATER, OUTLET_SURFACE, flowData[OUTLET_SURFACE][i]);
 	addLink(links, i, M3WATER, PUMP, flowData[PUMP_OUT][i]);
@@ -618,6 +618,8 @@ for (let i = 0; i < timeframes; i++) {
 
 	//Platen transpiratie
 	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
+	addLink(links, i, SURFACE_EVAPORATIONLAND, MODEL_OUT, flowData[SURFACE_EVAPORATIONLAND][i]);
+	addLink(links, i, SURFACE_EVAPORATIONWATER, MODEL_OUT, flowData[SURFACE_EVAPORATIONWATER][i]);
 
 	//Stuw
 	addLink(links, i, WEIR, MODEL_OUT, flowData[WEIR_OUT][i]);
