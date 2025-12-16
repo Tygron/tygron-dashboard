@@ -505,13 +505,13 @@ queries.getData(INLET_FLOW, false).map((values, timeframe, _array) =>
 
 
 queries.getData(WEIR_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValues(flowData, timeframe, WEIR_IN, WEIR_OUT, WEIR_AREA_FROM, WEIR_AREA_TO, values));
+	addFlowValuesWithInner(flowData, timeframe, WEIR_IN, WEIR_OUT, WEIR_INNER, WEIR_AREA_FROM, WEIR_AREA_TO, values));
 
 queries.getData(CULVERT_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValues(flowData, timeframe, CULVERT_IN, CULVERT_OUT, CULVERT_AREA_FROM, CULVERT_AREA_TO, values));
+	addFlowValuesWithInner(flowData, timeframe, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, CULVERT_AREA_FROM, CULVERT_AREA_TO, values));
 
 queries.getData(PUMP_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValues(flowData, timeframe, PUMP_IN, PUMP_OUT, PUMP_AREA_FROM, PUMP_AREA_TO, values));
+	addFlowValuesWithInner(flowData, timeframe, PUMP_IN, PUMP_OUT, PUMP_INNER, PUMP_AREA_FROM, PUMP_AREA_TO, values));
 
 //queries.getData(DRAINAGE_FLOW, false).map((values, index, _array) =>
 //	addFlowValues(flowData, index, DRAINGE_IN, DRAINAGE_OUT, DRAINAGE_AREA_FROM, DRAINAGE_AREA_TO, values));
@@ -616,8 +616,10 @@ for (let i = 0; i < timeframes; i++) {
 	//Wegzijging
 	addLink(links, i, BOTTOM_FLOW_OUT, MODEL_OUT, flowData[BOTTOM_FLOW_OUT][i]);
 
-	//Platen transpiratie
+	//Transpiratie
 	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
+	
+	//Verdamping
 	addLink(links, i, SURFACE_EVAPORATIONLAND, MODEL_OUT, flowData[SURFACE_EVAPORATIONLAND][i]);
 	addLink(links, i, SURFACE_EVAPORATIONWATER, MODEL_OUT, flowData[SURFACE_EVAPORATIONWATER][i]);
 
@@ -641,11 +643,6 @@ for (let i = 0; i < timeframes; i++) {
 	addLink(links, i, M3LAND, BREACH, flowData[BREACH_OUT][i]);
 	addLink(links, i, BREACH, MODEL_OUT, flowData[BREACH_OUT][i]);
 
-	//Verdamping
-	addLink(links, i, EVAPOTRANSPIRATION, MODEL_OUT, flowData[EVAPOTRANSPIRATION][i]);
-
-	//Transpiratie
-	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
 
 }
 
