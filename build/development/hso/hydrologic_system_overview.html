@@ -703,6 +703,8 @@ canvas {
 					<div id="culvertResultSliderDiv"></div>
 					<button class="btn" id="culvertDownloadResultCsvButton">Download
 						CSV</button>
+					<button class="btn" id="culvertImportResultCsvButton">Import
+						CSV</button>
 
 					<table id="culvertResultsTable">
 						<thead>
@@ -774,6 +776,8 @@ canvas {
 					<h2>Weir Results</h2>
 					<div id="weirResultSliderDiv"></div>
 					<button class="btn" id="weirDownloadResultCsvButton">Download
+						CSV</button>
+					<button class="btn" id="weirImportResultCsvButton">Import
 						CSV</button>
 					<table id="weirResultsTable">
 						<thead>
@@ -3771,7 +3775,7 @@ class WeirPanel {
 		this.weirSideCanvasDiv.appendChild(this.weirSideCanvas);
 
 		this.weirSliderContainer = document.createElement("div");
-		parent.appendChild(this.weirSliderContainer);
+		this.weirDetailContainer.appendChild(this.weirSliderContainer);
 
 		this.timeframeSlider = addTimeframeSlider(this.weirSliderContainer);
 
@@ -4036,7 +4040,7 @@ function drawWeirSideDam(ctx, x, width, height) {
 	drawWeirBroadPerpendicular(ctx, x, width, height);
 }
 
-function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damHeight, flows, coefficient) {
+function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damWidth, damHeight, flows, coefficient) {
 
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
@@ -4044,6 +4048,10 @@ function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damHe
 
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
+
+	if (damWidth <= 0) {
+		damHeight = -10000;
+	}
 
 	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, damHeight);
@@ -4056,6 +4064,10 @@ function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damHe
 
 	if (range <= 0) {
 		return;
+	}
+
+	if (damHeight <= 0) {
+		damHeight = weirHeight;
 	}
 
 	let weirThickness = canvas.width / 8;
@@ -4151,6 +4163,10 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
 
+	if (weirDamWidth <= 0) {
+		weirDamHeight = -10000;
+	}
+
 	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, weirDamHeight);
 
@@ -4159,6 +4175,10 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
 	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
+
+	if (weirDamWidth <= 0) {
+		weirDamHeight = weirHeight;
+	}
 
 	let baseHeight = canvas.height / 8;
 	let multiplier = (canvas.height - baseHeight) / range;
@@ -4247,9 +4267,7 @@ function updateWeirDetails(weir) {
 
 	weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
 
-
-
-	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
+	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB,  weir.damWidth, weir.damHeight, weir.flows, weir.coefficient);
 	drawWeirFront(weirPanel.weirFrontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
 
 	updateWeirFlowPlot(weir);
@@ -4829,6 +4847,7 @@ setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function
 
 addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "culvert_results.csv", () => toCSVContent(culverts, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES, timeframes));
+//addImportHandler(document.getElementById("culvertImportResultCsvButton"),culverts, data[TIMEFRAMETIMES]);
 
 if (culverts.length <= 0) {
 	document.getElementById("navGroupCulverts").style.display = 'none';
