@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Read CSV File</title>
+</head>
+<body>
+	<input type="file" id="fileInput" accept=".csv" />
+	<pre id="output"></pre>
+
+	<script>
+	    document.getElementById('fileInput').addEventListener('change', function(event) {
+	        const file = event.target.files[0];
+	        if (file) {
+	            const reader = new FileReader();
+	            reader.onload = function(e) {
+	                processData(e.target.result);
+	            };
+	            reader.readAsText(file);
+	        }
+	    });
+        
+    
+
+		function processData(allText) {
+	    	var allTextLines = allText.split("\n");
+	    	var headers = allTextLines[0].split("\t");
+	    	var lines = [];
+	    	let include = [];
+	    	for(let i = 0; i < headers.length; i++){
+	    		headers[i] = headers[i].replaceAll("\t");
+	    		let incl = i == 0? true : headers[i] == null? false : headers[i].startsWith("WS000278");
+	    		include[i] = incl;
+	    	}
+			let outputElement = document.getElementById("output");
+	    	for(let i=1; i<allTextLines.length; i++) {
+	       		var data = allTextLines[i].split('\t');
+	        	if (data.length == headers.length) {
+	
+	            	let lineDiv = document.createElement("div");
+	            	lineDiv.style.display= "flex";
+	            	for (let j=0; j<headers.length; j++) {
+	            		if(include[j]){	  
+	            			let valueDiv = document.createElement("div");
+	            			value.innerHTML = data[j];
+	            			lineDiv.appendChild(valueDiv);
+	            	    }
+	            	}
+	            	
+	            	outputElement.appendChild(lineDiv);       	
+	        	}
+	    	}
+	    
+		}
+    </script>
+</body>
+</html>
