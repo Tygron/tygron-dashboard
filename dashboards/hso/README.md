@@ -138,7 +138,8 @@ On the right side you see the panel Body. Now select the tab **Template** and in
 
    Optionally, click the browser icon next to the close button to open the panel in your web browser.
 
-        <img width="226" height="152" alt="OpenHSOinBrowser" src="https://github.com/user-attachments/assets/407085e5-306f-4a2a-b854-ab75bc96b404" />
+<img width="226" height="152" alt="OpenHSOinBrowser" src="https://github.com/user-attachments/assets/db950881-4400-4bc9-bcf5-a8ea393f53e7" />
+
 
 
 Once the HSO is installed for a certain overlay, this overlay will have a new attribute: HSO_WATER_OVERLAY with an attributre values of 1. In case you switch the HSO with the installer to a different overlay, this attribute will be deleted. If you change the value to 0, the overlay will not be used for the HSO.
