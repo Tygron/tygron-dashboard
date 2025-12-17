@@ -72,9 +72,7 @@ function updateWeirDetails(weir) {
 
 	weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
 
-
-
-	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damHeight, weir.flows, weir.coefficient);
+	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB,  weir.damWidth, weir.damHeight, weir.flows, weir.coefficient);
 	drawWeirFront(weirPanel.weirFrontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
 
 	updateWeirFlowPlot(weir);
@@ -654,6 +652,7 @@ setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function
 
 addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "culvert_results.csv", () => toCSVContent(culverts, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES, timeframes));
+//addImportHandler(document.getElementById("culvertImportResultCsvButton"),culverts, data[TIMEFRAMETIMES]);
 
 if (culverts.length <= 0) {
 	document.getElementById("navGroupCulverts").style.display = 'none';

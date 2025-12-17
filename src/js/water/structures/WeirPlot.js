@@ -211,7 +211,7 @@ function drawWeirSideDam(ctx, x, width, height) {
 	drawWeirBroadPerpendicular(ctx, x, width, height);
 }
 
-export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damHeight, flows, coefficient) {
+export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damWidth, damHeight, flows, coefficient) {
 
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
@@ -219,6 +219,10 @@ export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight
 
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
+
+	if (damWidth <= 0) {
+		damHeight = -10000;
+	}
 
 	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, damHeight);
@@ -231,6 +235,10 @@ export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight
 
 	if (range <= 0) {
 		return;
+	}
+
+	if (damHeight <= 0) {
+		damHeight = weirHeight;
 	}
 
 	let weirThickness = canvas.width / 8;
@@ -326,6 +334,10 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
 
+	if (weirDamWidth <= 0) {
+		weirDamHeight = -10000;
+	}
+
 	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, weirDamHeight);
 
@@ -334,6 +346,10 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
 	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
+
+	if (weirDamWidth <= 0) {
+		weirDamHeight = weirHeight;
+	}
 
 	let baseHeight = canvas.height / 8;
 	let multiplier = (canvas.height - baseHeight) / range;
