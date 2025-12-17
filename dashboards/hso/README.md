@@ -1,4 +1,5 @@
 
+
 # Why an Hydrological System Overview (HSO)?
 The development of hydrological models typically follows several steps. First, the model is set up by adding the relevant data to the software. After this, an initial simulation can be run to evaluate the results. Often, the model will not yet perform as intended. In that case, adjustments are required. Sometimes better input data is needed, or calibration steps must be taken to improve parameter values. When a simulation does produce the expected outcomes, the base model is considered ready. From that point onward, different scenarios can be evaluated.
 
@@ -86,11 +87,15 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
 1. Start the Preview, log in, and create a new project or load an existing project.
 
 2. Add a Text Panel:
-   `Current Situation > Panels > Add Text Panel`  
+   `Current Situation > Panels > Add Text Panel`
+   
+   <img width="740" height="231" alt="AddTextPanel" src="https://github.com/user-attachments/assets/822d485b-c90e-49b9-8424-bfa5a265736e" />
+   
    - Give the panel a name, for example `Installer HSO`  
    - Click **Enlarge** on the *Panel Body*
 
-<img width="740" height="231" alt="AddTextPanel" src="https://github.com/user-attachments/assets/822d485b-c90e-49b9-8424-bfa5a265736e" />
+<img width="289" height="223" alt="HSOname" src="https://github.com/user-attachments/assets/2e089a4f-bfed-4c33-9325-fd5e6a2284af" />
+
 
 3. At the bottom of the enlarged panel, click **Insert GeoShare File**.  
    - In the top-right, switch to **Public Share**  
