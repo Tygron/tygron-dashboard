@@ -142,10 +142,41 @@ On the right side you see the panel Body. Now select the tab **Template** and in
 
 
 
+
+
+
+## Area and overlays
+
+The HSO is linked to a specific area. It provides information exclusively about the water balance and the hydraulic structures in relation to this area. It does not contain information outside the defined area.
+
+In addition, the HSO is linked to a single Water Overlay.
+
 Once the HSO is installed for a certain overlay, this overlay will have a new attribute: HSO_WATER_OVERLAY with an attributre values of 1. In case you switch the HSO with the installer to a different overlay, this attribute will be deleted. If you change the value to 0, the overlay will not be used for the HSO.
 
 <img width="268" height="58" alt="HSO_WATER_OVERLAY" src="https://github.com/user-attachments/assets/31099239-8f49-40e5-90d1-0b0b1cb0adbb" />
-   
+
+### Required overlays
+
+All required overlays are automatically created by the installer.
+
+The HSO currently requires 10 standard overlays:
+- Surface Last Value
+- Building Last Storage
+- Rainfall
+- Groundwater Last Storage
+- Sewer Last Value
+- Evapotranspiration
+- Surface Transpiration
+- Base Typology
+- Groundwater Last Unsaturated Storage
+
+In addition, 5 combo overlays are required:
+- Surface Last Value Water
+- Rainfall Water
+- Rainfall Land
+- Evaporation Water
+- Evaporation Land
+
 # The HSO compared to the Waterbalance in the Client
 In the client, a water balance is also available. This panel also presents a water balance, but it is primarily focused on visualizing the error that has occurred in the calculation. It does show total quantities, but these are not available per time step, for example. For this reason, users expressed the need for a more detailed overview.
 
