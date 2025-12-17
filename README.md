@@ -4,6 +4,8 @@ Toolset based on HTML5, CSS, Javascript, for the creation of Dashboards and othe
 
 This toolset is offered as-is, under the MIT license. This toolset is not part of the core Tygron Platform technology.
 
+One of the developed dashboards is the Hydrological System Overview. For more information, see this link: https://github.com/Tygron/tygron-dashboard/blob/main/dashboards/hso/README.md
+
 ## Description
 
 This toolset is intended to be used for the creation of advanded dashboards and interfaces to be used in combination with the Tygron Platform. It is developed as a code-base, and through a build-process and implementation-specific recipes multiple dashboards and other tools are created which can be directly used in the Tygron Platform Project.
