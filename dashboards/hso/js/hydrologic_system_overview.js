@@ -54,7 +54,7 @@ const TIMEFRAMES = 'timeframes';
 const TIMEFRAMETIMES = 'timeframetimes';
 queries.addQuery(TIMEFRAMETIMES,
 	'$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
-	
+
 data[TIMEFRAMETIMES] = queries.getData(TIMEFRAMETIMES);
 data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
 const timeframes = data[TIMEFRAMES].length;
@@ -363,6 +363,10 @@ setupTimeframeSlider(weirResultSlider, weirTimeframe, timeframes, function() {
 addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir_results.csv", () => toCSVContent(weirs, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES, timeframes));
 
+if (weirs.length <= 0) {
+	document.getElementById("navGroupWeirs").style.display = 'none';
+}
+
 /**
  * CULVERTS
  */
@@ -651,6 +655,9 @@ setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function
 addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "culvert_results.csv", () => toCSVContent(culverts, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES, timeframes));
 
+if (culverts.length <= 0) {
+	document.getElementById("navGroupCulverts").style.display = 'none';
+}
 /**
  * Volume section 
  */
@@ -676,7 +683,7 @@ queries.addQuery(M3UNSATURATED,
 queries.addQuery(M3WATER,
 	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_M3WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
 
-for (property of [ M3TOTAL, M3WATER, M3GROUND, M3STORAGE, M3SEWER, M3UNSATURATED]) {
+for (property of [M3TOTAL, M3WATER, M3GROUND, M3STORAGE, M3SEWER, M3UNSATURATED]) {
 	data[property] = queries.getData(property);
 }
 
