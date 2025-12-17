@@ -1,11 +1,17 @@
+
 # Why an Hydrological System Overview (HSO)?
 The development of hydrological models typically follows several steps. First, the model is set up by adding the relevant data to the software. After this, an initial simulation can be run to evaluate the results. Often, the model will not yet perform as intended. In that case, adjustments are required. Sometimes better input data is needed, or calibration steps must be taken to improve parameter values. When a simulation does produce the expected outcomes, the base model is considered ready. From that point onward, different scenarios can be evaluated.
 
 [placeholder afbeelding Modelleren in Tygron] (dashboards/hso/readmeimages/ModelrunTygron.png)
 
+<img width="1280" height="720" alt="ModelrunTygron" src="https://github.com/user-attachments/assets/d1637c7b-0933-47a7-abd7-d6a4256ebd2c" />
+
+
+
 The goal of the HSO is to simplify the process of test-running and calibrating a model. In any model, and especially in a raster-based model with many adjustable parameters, it is essential to maintain a clear understanding of what is happening internally. The HSO provides insight into the hydrological system itself, the water balance, and the functioning of all hydraulic structures. This contributes to better control and a deeper understanding of the model.
 
 [placeholder afbeelding profdraaine en kalibreren] (dashboards/hso/readmeimages/ModelCalibrationTygron.png)
+<img width="1669" height="798" alt="ModelCalibrationTygron" src="https://github.com/user-attachments/assets/ce547e76-5024-4bb9-beca-8aae9fcfc729" />
 
 
 When the base model meets expectations and scenario simulations begin, it once again becomes crucial to understand what the results represent. At this stage as well, the HSO supports the modeller in interpreting the outcomes.
@@ -89,7 +95,7 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
    - Give the panel a name, for example `Installer HSO`  
    - Click **Enlarge** on the *Panel Body*
 
-[placeholder add text panel]
+<img width="740" height="231" alt="AddTextPanel" src="https://github.com/user-attachments/assets/822d485b-c90e-49b9-8424-bfa5a265736e" />
 
 3. At the bottom of the enlarged panel, click **Insert GeoShare File**.  
    - In the top-right, switch to **Public Share**  
@@ -118,7 +124,7 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
 # The HSO compared to the Waterbalance in the Client
 In the client, a water balance is also available. This panel also presents a water balance, but it is primarily focused on visualizing the error that has occurred in the calculation. It does show total quantities, but these are not available per time step, for example. For this reason, users expressed the need for a more detailed overview.
 
-[placeholder afbeelding Show Water Balance] 
+<img width="355" height="412" alt="ClientWaterBalance" src="https://github.com/user-attachments/assets/6a19a53f-57ab-42c3-97c2-6ca4955749e6" />
  
 # Licensing
 The overview is released under the MIT License. This means that you are free to use, modify, and distribute the software, provided that the original copyright notice and license text are included in any copies or substantial portions of the software.
