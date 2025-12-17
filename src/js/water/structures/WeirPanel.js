@@ -117,7 +117,7 @@ export class WeirPanel {
 		this.weirSideCanvasDiv.appendChild(this.weirSideCanvas);
 
 		this.weirSliderContainer = document.createElement("div");
-		parent.appendChild(this.weirSliderContainer);
+		this.weirDetailContainer.appendChild(this.weirSliderContainer);
 
 		this.timeframeSlider = addTimeframeSlider(this.weirSliderContainer);
 
