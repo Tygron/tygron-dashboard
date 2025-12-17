@@ -10,7 +10,7 @@
 html, body {
 	padding: 5px;
 	background-color: white;
-	font-family: sans-serif;
+	font-family: Arial;
 }
 
 /* Style the button that is used to open and close the collapsible content */
@@ -3282,7 +3282,7 @@ class WeirPanel {
 		this.weirSideCanvasDiv.appendChild(this.weirSideCanvas);
 
 		this.weirSliderContainer = document.createElement("div");
-		parent.appendChild(this.weirSliderContainer);
+		this.weirDetailContainer.appendChild(this.weirSliderContainer);
 
 		this.timeframeSlider = addTimeframeSlider(this.weirSliderContainer);
 
@@ -3547,7 +3547,7 @@ function drawWeirSideDam(ctx, x, width, height) {
 	drawWeirBroadPerpendicular(ctx, x, width, height);
 }
 
-function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damHeight, flows, coefficient) {
+function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damWidth, damHeight, flows, coefficient) {
 
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
@@ -3555,6 +3555,10 @@ function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damHe
 
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
+
+	if (damWidth <= 0) {
+		damHeight = -10000;
+	}
 
 	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, damHeight);
@@ -3567,6 +3571,10 @@ function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damHe
 
 	if (range <= 0) {
 		return;
+	}
+
+	if (damHeight <= 0) {
+		damHeight = weirHeight;
 	}
 
 	let weirThickness = canvas.width / 8;
@@ -3662,6 +3670,10 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
 
+	if (weirDamWidth <= 0) {
+		weirDamHeight = -10000;
+	}
+
 	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, weirDamHeight);
 
@@ -3670,6 +3682,10 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
 	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
+
+	if (weirDamWidth <= 0) {
+		weirDamHeight = weirHeight;
+	}
 
 	let baseHeight = canvas.height / 8;
 	let multiplier = (canvas.height - baseHeight) / range;

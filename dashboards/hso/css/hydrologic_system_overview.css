@@ -209,6 +209,7 @@ canvas {
 	cursor: pointer;
 	font-size: 13px;
 	margin-top: 4px;
+	font-family: sans-serif;
 }
 
 .btn:hover {
