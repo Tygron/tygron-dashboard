@@ -1,7 +1,7 @@
 
 
 
-# Why an Hydrological System Overview (HSO)?
+# Why a Hydrological System Overview (HSO)?
 The development of hydrological models typically follows several steps. First, the model is set up by adding the relevant data to the software. After this, an initial simulation can be run to evaluate the results. Often, the model will not yet perform as intended. In that case, adjustments are required. Sometimes better input data is needed, or calibration steps must be taken to improve parameter values. When a simulation does produce the expected outcomes, the base model is considered ready. From that point onward, different scenarios can be evaluated.
 
 <img width="1280" height="720" alt="ModelrunTygron" src="https://github.com/user-attachments/assets/d1637c7b-0933-47a7-abd7-d6a4256ebd2c" />
@@ -11,10 +11,9 @@ The goal of the HSO is to simplify the process of test-running and calibrating a
 <img width="1669" height="798" alt="ModelCalibrationTygron" src="https://github.com/user-attachments/assets/ce547e76-5024-4bb9-beca-8aae9fcfc729" />
 
 
-When the base model meets expectations and scenario simulations begin, it once again becomes crucial to understand what the results represent. At this stage as well, the HSO supports the modeller in interpreting the outcomes.
+When the base model meets expectations and scenario simulations begin, it once again becomes crucial to understand what the results represent. At this stage too, the HSO supports the modeller in interpreting the outcomes.
 
 The HSO is explicitly not intended for adjusting values. It functions as a thermometer that reflects what is currently present in the model.
-
 
 
 # What is the HSO?
@@ -42,7 +41,7 @@ The Volume Plot is a bar chart representation of the Water Balance Table. Using 
 The Flow Table is a more detailed table than the Water Balance Table. It shows the different flows that occurred during a time step between the different water storage compartments. These are volumes per time step.
 
 ### Sankey Diagram
-The Sankey Diagram visualizes how water flows through the system. It shows from which water storage compartments the water flows to the next storage component. 
+The Sankey Diagram visualizes how water flows through the system. It shows from which water storage compartment the water flows to the next storage compartment. 
 This also includes Area In and Area Out, representing the aggregated inflow to and outflow from the area associated with the HSO.
 Using the slider, different time steps can be explored.
 
