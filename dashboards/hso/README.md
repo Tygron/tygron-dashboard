@@ -121,6 +121,7 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
    The Hydrological System Overview will now be displayed.
 
 Once the HSO is installed for a certain overlay, this overlay will have a new attribute: HSO_WATER_OVERLAY with an attributre values of 1. In case you switch the HSO with the installer to a different overlay, this attribute will be deleted. If you change the value to 0, the overlay will not be used for the HSO.
+
 <img width="268" height="58" alt="HSO_WATER_OVERLAY" src="https://github.com/user-attachments/assets/31099239-8f49-40e5-90d1-0b0b1cb0adbb" />
    
 # The HSO compared to the Waterbalance in the Client
