@@ -124,10 +124,18 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
   
 
 
-5. To inspect the HSO, navigate to  
+6. To inspect the HSO, navigate to  
    `Current Situation > Panels` and select **Hydrological System Overview**.
 
    For each area linked to the HSO, a separate panel is created. Select a panel and click **Open Panel** to open the HSO in the client.
+   Note that the installer has installed a Template Text Panel. It has linked the HSO to one or more areas witha certain attribute. To see which area attribute the HSO is linked select the parent of the template panel.
+   
+<img width="291" height="259" alt="HSOTemplateParent" src="https://github.com/user-attachments/assets/40ec4da4-6392-4a6a-8a44-bd2cc4460cd2" />
+
+On the right side you see the panel Body. Now select the tab **Template** and in the right bottum corner you will see to which attribute the HSO is linked.
+
+<img width="288" height="220" alt="AttributeTemplateLinked" src="https://github.com/user-attachments/assets/abad9a4b-be67-4783-a8e6-fd9f5dd1aa68" />
+
 
    Optionally, click the browser icon next to the close button to open the panel in your web browser.
 
