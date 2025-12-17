@@ -61,12 +61,22 @@ function appendChains(...functions) {
 	installer.chain = next;
 }
 
+function addFeedbackSection(){
+	let feedbackContainer = document.getElementById("feedback");
+	let feedbackSection = document.createElement("div");
+	feedbackSection.className = "feedbackSection";
+	feedbackContainer.appendChild(feedbackSection);
+}
+
 function appendFeedbackLine(element) {
 	element.classList.add("feedback-line");
-	let parent = document.getElementById("feedback");
-	parent.appendChild(element);
-	parent = parent.parentElement;
-	parent.scroll({ top: parent.scrollHeight, behavior: 'smooth' });
+	let feedbackContainer = document.getElementById("feedback");
+	if(!feedbackContainer.hasChildNodes()){
+		addFeedbackSection();
+	}	
+	let feedbackSection = feedbackContainer.lastChild;
+	feedbackSection.appendChild(element);
+	feedbackContainer.parentElement.scroll({ top: feedbackContainer.parentElement.scrollHeight, behavior: 'smooth' });
 }
 
 function appendFeedback(feedback) {
@@ -415,7 +425,7 @@ function requestInstallation() {
 
 	selectParent.appendChild(yesButton);
 	selectParent.appendChild(noButton);
-	appendFeedbackLine(selectParent);
+	appendFeedbackLine(selectParent);	
 }
 
 
@@ -423,7 +433,8 @@ function requestInstallation() {
  * Step 0: Run Installation
  */
 function runInstallation() {
-
+	
+	addFeedbackSection();
 	appendFeedback("Validating project setup");
 
 	installer.connector = connector(app.token());
@@ -628,6 +639,9 @@ function requestNewHsoOverlayType() {
  * Step 3 Setup HSO Result Children
  */
 function setupHsoResultChildren() {
+	
+	addFeedbackSection();
+	
 	let resultTypes = [
 		'SURFACE_LAST_VALUE',
 		'BUILDING_LAST_STORAGE',
@@ -671,6 +685,9 @@ function setupHsoResultChildren() {
  * Step 4: Setup HSO Combo Overlays
  */
 function setupHsoComboOverlays() {
+	
+	addFeedbackSection();
+	
 	let requiredCombos = [
 		{
 			name: 'HSO M3 in water',
@@ -761,6 +778,8 @@ function setupHsoComboOverlays() {
  */
 function setupHsoWaterLevelAreas() {
 
+	addFeedbackSection();
+	
 	let hsoOverlay = installer[vars.HSO_OVERLAY];
 	let key = hsoOverlay == null || hsoOverlay.keys["WATER_LEVEL"] == null ? "WATER_LEVEL" : hsoOverlay.keys["WATER_LEVEL"];
 
@@ -920,15 +939,17 @@ function updatePanels(actionAfterRefresh) {
  * Step 6 Setup dashboard template panel
  */
 function setupDashboardTemplatePanel() {
-
+	
 	appendChains(updatePanels(() => requestTemplatePanel()));
 }
 
 function requestTemplatePanel() {
-
+	
+	
 	let templateTextPanels = installer[vars.TEMPLATE_TEXT_PANELS];
 	let hsoTextPanel = installer[vars.HSO_TEMPLATE_PANEL];
 
+	addFeedbackSection();
 	appendFeedback("Select which Template Text Panel should be the HSO Template Panel:");
 
 	const selectionParent = document.createElement("div");
@@ -1048,6 +1069,7 @@ function addAndSetNewTemplateTextPanel() {
 
 
 function setDashboardContent() {
+		
 	appendChains(
 
 		getDashboardContent(),
@@ -1077,6 +1099,7 @@ function setDashboardContent() {
 
 function requestUpdateIndicators() {
 
+	addFeedbackSection();
 	appendFeedback("Resetting X-Queries and recalculation of your project is required.");
 	appendFeedback("Tip: In case your Water Overlay was already calculated and has a long calculation time, you might want to deactivate it first.");
 	appendFeedback("Do you want to recalculate now or do it manually later? ");
@@ -1124,6 +1147,7 @@ function requestUpdateIndicators() {
 }
 function addFinishButton() {
 
+	addFeedbackSection();
 	appendFeedback("Installation of the Hydrologic System Overview was successful. Click on finish to close this panel.");
 
 	const selectParent = document.createElement("div");
