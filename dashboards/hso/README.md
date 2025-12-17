@@ -98,13 +98,17 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
    - Select `installer.txt`  
    - Click **Select**  
    - Read and accept the disclaimer
-  
+
+
 4. Now you can open the text panel, and the installer for the HSO will start.
    The primary purpose of the installer is to create the required overlays and to link the dashboard to an area. The installer is designed to be idempotent: regardless of whether the required overlays already exist, it ensures that all overlays needed for the HSO are present and correctly configured.
    Each HSO is always linked to a single area. A project may contain multiple HSO dashboards, but each dashboard has a one-to-one relationship with an area. The installer assists in selecting and linking the correct area, ensuring that the HSO is always connected to the intended area.
    If no areas are present in the project, the installer can create a dummy area. This area has no geometry.
    To obtain meaningful results, geometry must be assigned to this area before the HSO will display relevant data.
    Once the installation of the HSO is complete, you can close the installer by clicking the **Finish** button.
+
+<img width="596" height="398" alt="InstallerStart" src="https://github.com/user-attachments/assets/9edeb045-f3ed-4bfa-8cc1-b9d75ddf07ab" />
+  
 
 
 5. To inspect the HSO, navigate to  
@@ -115,6 +119,9 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
    Optionally, click the browser icon next to the close button to open the panel in your web browser.
 
    The Hydrological System Overview will now be displayed.
+
+Once the HSO is installed for a certain overlay, this overlay will have a new attribute: HSO_WATER_OVERLAY with an attributre values of 1. In case you switch the HSO with the installer to a different overlay, this attribute will be deleted. If you change the value to 0, the overlay will not be used for the HSO.
+<img width="268" height="58" alt="HSO_WATER_OVERLAY" src="https://github.com/user-attachments/assets/31099239-8f49-40e5-90d1-0b0b1cb0adbb" />
    
 # The HSO compared to the Waterbalance in the Client
 In the client, a water balance is also available. This panel also presents a water balance, but it is primarily focused on visualizing the error that has occurred in the calculation. It does show total quantities, but these are not available per time step, for example. For this reason, users expressed the need for a more detailed overview.
