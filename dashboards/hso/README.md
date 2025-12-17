@@ -1,5 +1,6 @@
 
 
+
 # Why an Hydrological System Overview (HSO)?
 The development of hydrological models typically follows several steps. First, the model is set up by adding the relevant data to the software. After this, an initial simulation can be run to evaluate the results. Often, the model will not yet perform as intended. In that case, adjustments are required. Sometimes better input data is needed, or calibration steps must be taken to improve parameter values. When a simulation does produce the expected outcomes, the base model is considered ready. From that point onward, different scenarios can be evaluated.
 
@@ -97,15 +98,22 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
 <img width="289" height="223" alt="HSOname" src="https://github.com/user-attachments/assets/2e089a4f-bfed-4c33-9325-fd5e6a2284af" />
 
 
-3. At the bottom of the enlarged panel, click **Insert GeoShare File**.  
-   - In the top-right, switch to **Public Share**  
+3. At the bottom of the enlarged panel, click **Insert GeoShare File**.
+
+<img width="782" height="592" alt="Insert Geosherinstaller" src="https://github.com/user-attachments/assets/711efaa8-c609-4cfc-b0a8-68923300787d" />
+
+    
+   - In the top-right, switch to **Public Share**
+   - 
+<img width="292" height="99" alt="PublicShare" src="https://github.com/user-attachments/assets/a73cb597-e142-469b-a92b-1968fbba6f52" />
+     
    - Open the folder **dashboards**  
    - Select `installer.txt`  
    - Click **Select**  
    - Read and accept the disclaimer
 
 
-4. Now you can open the text panel, and the installer for the HSO will start.
+5. Now you can open the text panel, and the installer for the HSO will start.
    The primary purpose of the installer is to create the required overlays and to link the dashboard to an area. The installer is designed to be idempotent: regardless of whether the required overlays already exist, it ensures that all overlays needed for the HSO are present and correctly configured.
    Each HSO is always linked to a single area. A project may contain multiple HSO dashboards, but each dashboard has a one-to-one relationship with an area. The installer assists in selecting and linking the correct area, ensuring that the HSO is always connected to the intended area.
    If no areas are present in the project, the installer can create a dummy area. This area has no geometry.
