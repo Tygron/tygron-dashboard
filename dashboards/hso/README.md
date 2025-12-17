@@ -104,7 +104,7 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
 
     
    - In the top-right, switch to **Public Share**
-   - 
+
 <img width="292" height="99" alt="PublicShare" src="https://github.com/user-attachments/assets/a73cb597-e142-469b-a92b-1968fbba6f52" />
      
    - Open the folder **dashboards**  
@@ -132,14 +132,15 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
    
 <img width="291" height="259" alt="HSOTemplateParent" src="https://github.com/user-attachments/assets/40ec4da4-6392-4a6a-8a44-bd2cc4460cd2" />
 
-On the right side you see the panel Body. Now select the tab **Template** and in the right bottum corner you will see to which attribute the HSO is linked.
+On the right side you see the panel Body. Now select the tab **Template** and in the right bottum corner you will see to which attribute the HSO is linked. If you want you can select a different attribute here, but you could also use the installer to do this.  
 
 <img width="288" height="220" alt="AttributeTemplateLinked" src="https://github.com/user-attachments/assets/abad9a4b-be67-4783-a8e6-fd9f5dd1aa68" />
 
 
    Optionally, click the browser icon next to the close button to open the panel in your web browser.
 
-   The Hydrological System Overview will now be displayed.
+        <img width="226" height="152" alt="OpenHSOinBrowser" src="https://github.com/user-attachments/assets/407085e5-306f-4a2a-b854-ab75bc96b404" />
+
 
 Once the HSO is installed for a certain overlay, this overlay will have a new attribute: HSO_WATER_OVERLAY with an attributre values of 1. In case you switch the HSO with the installer to a different overlay, this attribute will be deleted. If you change the value to 0, the overlay will not be used for the HSO.
 
