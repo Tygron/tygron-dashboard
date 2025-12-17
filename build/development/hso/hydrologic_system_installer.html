@@ -357,11 +357,18 @@ html, body {
 	justify-content: center;
 	margin-top: 10px;
 	text-align: center;
+	color: #888888;
 }
 
 .feedback-line input,
 .feedback-line select{
 	margin-right: 0.5em;
+}
+
+.feedback-line select{
+	background: rgb(240, 240, 240);
+	font-family:sans-serif;
+	font-size:11px;
 }
 
 .feedbackSection{
@@ -376,6 +383,12 @@ html, body {
 .feedbackSection:last-child{
 	margin-bottom: 0px;
 	background-color: #dddddd;
+	color: unset;
+}
+
+.feedbackSection:last-child .feedback-line{
+	color:black;
+	
 }
 
 		body{}
