@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Read CSV File</title>
+<style>
+.line{
+	display:flex;
+	flex-direction: row;
+}
+.value{
+	margin-right: 5px;
+	background: red;
+	width: 150px;
+}
+
+.value:first-child{
+	width:200px;
+}
+
+</style>
 </head>
 <body>
 	<input type="file" id="fileInput" accept=".csv" />
@@ -21,29 +37,41 @@
 	        }
 	    });
         
-    
+    	//TODO: Add date compare: new Data(text)
 
-		function processData(allText) {
+		async function processData(allText) {
 	    	var allTextLines = allText.split("\n");
 	    	var headers = allTextLines[0].split("\t");
 	    	var lines = [];
 	    	let include = [];
+	    	let outputElement = document.getElementById("output");
+	    	let lineDiv = document.createElement("div");
+	        lineDiv.className = "line";
+	        outputElement.appendChild(lineDiv);
 	    	for(let i = 0; i < headers.length; i++){
 	    		headers[i] = headers[i].replaceAll("\t");
 	    		let incl = i == 0? true : headers[i] == null? false : headers[i].startsWith("WS000278");
 	    		include[i] = incl;
+	    		
+	    		if(incl){
+	    		let valueDiv = document.createElement("div");
+	            			valueDiv.className = "value";
+	            			valueDiv.innerHTML = headers[i];
+	            			lineDiv.appendChild(valueDiv);
+	    		}
 	    	}
-			let outputElement = document.getElementById("output");
-	    	for(let i=1; i<allTextLines.length; i++) {
+			for(let i=1; i<allTextLines.length; i++) {
 	       		var data = allTextLines[i].split('\t');
 	        	if (data.length == headers.length) {
 	
 	            	let lineDiv = document.createElement("div");
-	            	lineDiv.style.display= "flex";
+	            	lineDiv.className = "line";
+	            	
 	            	for (let j=0; j<headers.length; j++) {
 	            		if(include[j]){	  
 	            			let valueDiv = document.createElement("div");
-	            			value.innerHTML = data[j];
+	            			valueDiv.className = "value";
+	            			valueDiv.innerHTML = data[j];
 	            			lineDiv.appendChild(valueDiv);
 	            	    }
 	            	}
