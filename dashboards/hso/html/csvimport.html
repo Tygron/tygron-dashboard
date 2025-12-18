@@ -54,8 +54,7 @@
 		}
 	});
 	
-	function plotResults(){
-
+	function getTraces(){
 		let traces = [];
 		let headers = results[0];
 		let attributes = results[1];
@@ -89,9 +88,15 @@
 			
 				
 		}
+		return traces;
+	}
+	
+	function plotResults(){
 
+		
+let traces = getTraces();
 
-		var layout = {
+		let layout = {
 
 		  title: {text: 'Data values'}
 
