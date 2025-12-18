@@ -25,7 +25,16 @@
 </style>
 </head>
 <body>
-	<input type="file" id="fileInput" accept=".csv" />
+	<div>
+	<label>Start Date</label>
+	<input type="date" id="startDate"  name="Series start date" value="2021-03-21"/>
+	<label>End Date</label>
+	<input type="date" id="endDate"  name="Series end date" value="2021-03-28"/>
+	<label>Weir name: </label>
+	<input type='text' id="nameField" value=  "WS000278"/>
+	</div>
+	<div><input type="file" id="fileInput" accept=".csv" /></div>
+	
 	<p id="filefeedback" />
 	<pre id="output"></pre>
 
@@ -79,12 +88,13 @@
 			Plotly.newPlot('output', traces, layout);
 		}
 
+		let validNames = document.getElementById("nameField").value.split(",");
 		function isValidHeader(header) {
 			if (header == null || header.endsWith("comments")) {
 				return false;
 			}
 
-			let names = [ "WS00278" ];
+			let names = validNames;
 			for(name of names){
 				if(header.startsWith(name)){
 					return true;
@@ -93,18 +103,22 @@
 			return false;
 		}
 
-		const startDate = new Date("2021-03-21");
-		const endDate = new Date("2021-03-28");
+		
 		const reader = new WaterLevelCSVReader();
 		reader.setHeaderPredicate(isValidHeader);
-		reader.setStartDate(startDate);
-		reader.setEndDate(endDate);
 		reader.setOnFinish(plotResults);
 
 		document.getElementById('fileInput').addEventListener('change',
 				function(event) {
+					validNames = document.getElementById("nameField").value.split(",");
 					const file = event.target.files[0];
 					if (file) {
+						
+						const startDate = new Date(document.getElementById('startDate').value);
+						const endDate = new Date(document.getElementById('endDate').value);
+						reader.setStartDate(startDate);
+						reader.setEndDate(endDate);
+					
 						reader.readFromFile(file);
 					}
 				});
