@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Read CSV File</title>
 <style>
-.line{
-	display:flex;
+.line {
+	display: flex;
 	flex-direction: row;
 }
-.value{
+
+.value {
 	margin-right: 5px;
 	background: red;
 	width: 150px;
 }
 
-.value:first-child{
-	width:200px;
+.value:first-child {
+	width: 200px;
 }
-
 </style>
 </head>
 <body>
@@ -26,30 +26,70 @@
 	<pre id="output"></pre>
 
 	<script>
-	    document.getElementById('fileInput').addEventListener('change', function(event) {
+	let counter = 0;
+	let includes = [];
+	let outputElement = document.getElementById("output");
+    
+		document.getElementById('fileInput').addEventListener('change', function(event) {
 	        const file = event.target.files[0];
 	        if (file) {
-	            const reader = new FileReader();
-	            reader.onload = function(e) {
-	                processData(e.target.result);
-	            };
-	            reader.readAsText(file);
+				let url = URL.createObjectURL(file);
+				
+				(async()=> {
+					console.log("Start url reading");
+		        	for await (let line of makeTextFileLineIterator(url)) {
+						if(counter < 100){
+		        			process(line);
+						}
+						
+			    	}
+		        	console.log("Done processing");
+		        	})();
 	        }
 	    });
+	    
+	    async function* makeTextFileLineIterator(fileURL) {
+	    	  const utf8Decoder = new TextDecoder("utf-8");
+	    	  let response = await fetch(fileURL);
+	    	  let reader = response.body.getReader();
+	    	  let { value: chunk, done: readerDone } = await reader.read();
+	    	  chunk = chunk ? utf8Decoder.decode(chunk, { stream: true }) : "";
+
+	    	  let re = /\r\n|\n|\r/gm;
+	    	  let startIndex = 0;
+
+	    	  for (;;) {
+	    	    let result = re.exec(chunk);
+	    	    if (!result) {
+	    	      if (readerDone) {
+	    	        break;
+	    	      }
+	    	      let remainder = chunk.substr(startIndex);
+	    	      ({ value: chunk, done: readerDone } = await reader.read());
+	    	      chunk =
+	    	        remainder + (chunk ? utf8Decoder.decode(chunk, { stream: true }) : "");
+	    	      startIndex = re.lastIndex = 0;
+	    	      continue;
+	    	    }
+	    	    yield chunk.substring(startIndex, result.index);
+	    	    startIndex = re.lastIndex;
+	    	  }
+	    	  if (startIndex < chunk.length) {
+	    	    // last line didn't end in a newline char
+	    	    yield chunk.substr(startIndex);
+	    	  }
+	    	}
+
+	    	
         
     	//TODO: Add date compare: new Data(text)
-
-		async function processData(allText) {
-	    	var allTextLines = allText.split("\n");
-	    	var headers = allTextLines[0].split("\t");
-	    	var lines = [];
-	    	let include = [];
-	    	let outputElement = document.getElementById("output");
-	    	let lineDiv = document.createElement("div");
+		function processHeader(line){
+			let include = [];
+	    		let lineDiv = document.createElement("div");
 	        lineDiv.className = "line";
 	        outputElement.appendChild(lineDiv);
-	    	for(let i = 0; i < headers.length; i++){
-	    		headers[i] = headers[i].replaceAll("\t");
+	        var headers = line.split(';');
+	    	for(let i = 0; i < headers.length; i++){	    		
 	    		let incl = i == 0? true : headers[i] == null? false : headers[i].startsWith("WS000278");
 	    		include[i] = incl;
 	    		
@@ -59,15 +99,30 @@
 	            			valueDiv.innerHTML = headers[i];
 	            			lineDiv.appendChild(valueDiv);
 	    		}
-	    	}
-			for(let i=1; i<allTextLines.length; i++) {
-	       		var data = allTextLines[i].split('\t');
-	        	if (data.length == headers.length) {
+	    	}			
+			return include;
+    	}
+    	
+    	function process(line){
+    		if(counter == 0){
+				includes = processHeader(line);
+			}else{
+    	  		processLine(includes,line);
+			}
+    		counter++;
+    	}
+		
+    	function processLine(include, line) {
+	    	
+	    	var lines = [];
+	    	
+	       		var data = line.split(';');
+	        
 	
 	            	let lineDiv = document.createElement("div");
 	            	lineDiv.className = "line";
 	            	
-	            	for (let j=0; j<headers.length; j++) {
+	            	for (let j=0; j<data.length; j++) {
 	            		if(include[j]){	  
 	            			let valueDiv = document.createElement("div");
 	            			valueDiv.className = "value";
@@ -77,10 +132,10 @@
 	            	}
 	            	
 	            	outputElement.appendChild(lineDiv);       	
-	        	}
+	        	
 	    	}
 	    
-		}
+		
     </script>
 </body>
 </html>
