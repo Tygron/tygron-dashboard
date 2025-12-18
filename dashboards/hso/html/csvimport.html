@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.plot.ly/plotly-3.3.0.min.js" charset="utf-8"></script>
 <title>Read CSV File</title>
 <style>
 .line {
@@ -47,11 +48,59 @@
 				for await (let line of makeTextFileLineIterator(url)) {
 					process(line);
 				}
-				showResults();
+				plotResults();
 				document.getElementById("filefeedback").innerHTML = "Done processing";
 			})();
 		}
 	});
+	
+	function plotResults(){
+
+		let traces = [];
+		let headers = results[0];
+		let attributes = results[1];
+		for (let i = 0; i < headers.length && i < attributes.length; i++){
+			if(headers[i]== null || headers[i].length == 0 || headers[i].endsWith("quality")){
+				continue;
+			}
+			
+			var trace = {
+
+					  x: [],
+
+					  y: [],
+
+					  mode: 'lines+markers',
+
+					  name: attributes[i]
+
+					};
+			traces.push(trace);
+			
+			
+			for(let r = 0; r < results.length; r++){
+				if(results[r][i+1] == "original reliable"){
+					trace.x.push(new Date(results[r][0]));
+
+					let value = parseFloat(results[r][i].replace(",", "."));
+					trace.y.push(value);
+				}
+			}
+			
+				
+		}
+
+
+		var layout = {
+
+		  title: {text: 'Data values'}
+
+		};
+
+
+		Plotly.newPlot('output', traces, layout);
+	
+	}
 	
 	function showResults(){
 		
