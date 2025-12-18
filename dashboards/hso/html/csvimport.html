@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.plot.ly/plotly-3.3.0.min.js" charset="utf-8"></script>
+<script type="text/javascript"
+	src="../../../src/js/water/structures/WaterLevelCsvReader.js" charset="utf-8"></script>
 <title>Read CSV File</title>
 <style>
 .line {
@@ -28,194 +30,84 @@
 	<pre id="output"></pre>
 
 	<script>
-	const startDate = new Date("2020-03-21");
-	const endDate = new Date("2020-03-28");
-	const predicate = function(s){ return s== null || s.endsWith("comments")? false : s.startsWith("WS000278")};
-	let lineNumber = 0;
-	let includes = [];
-	let attributes = [];
-	let results = [];
+		function getWaterLevelTraces(results) {
+			let traces = [];
 
-	document.getElementById('fileInput').addEventListener('change', function(event) {
-		const file = event.target.files[0];
-		if (file) {
-			let url = URL.createObjectURL(file);
-			lineNumber = 0;
-			includes = [];
-			results = [];
-			(async () => {
-				document.getElementById("filefeedback").innerHTML = "Reading...";
-				for await (let line of makeTextFileLineIterator(url)) {
-					process(line);
-				}
-				plotResults();
-				document.getElementById("filefeedback").innerHTML = "Done processing";
-			})();
-		}
-	});
-	
-	function getTraces(){
-		let traces = [];
-		let headers = results[0];
-		let attributes = results[1];
-		for (let i = 0; i < headers.length && i < attributes.length; i++){
-			if(headers[i]== null || headers[i].length == 0 || headers[i].endsWith("quality")){
-				continue;
+			if (results == null || results.length < 2) {
+				return traces;
 			}
-			
-			var trace = {
 
-					  x: [],
-
-					  y: [],
-
-					  mode: 'lines+markers',
-
-					  name: attributes[i]
-
-					};
-			traces.push(trace);
-			
-			
-			for(let r = 0; r < results.length; r++){
-				if(results[r][i+1] == "original reliable"){
-					trace.x.push(new Date(results[r][0]));
-
-					let value = parseFloat(results[r][i].replace(",", "."));
-					trace.y.push(value);
-				}
-			}
-			
-				
-		}
-		return traces;
-	}
-	
-	function plotResults(){
-
-		
-let traces = getTraces();
-
-		let layout = {
-
-		  title: {text: 'Data values'}
-
-		};
-
-
-		Plotly.newPlot('output', traces, layout);
-	
-	}
-	
-	function showResults(){
-		
-		let outputElement = document.getElementById("output");
-		while(outputElement.lastChild!= null){
-			outputElement.removeChild(outputElement.lastChild);
-		}
-		
-		for (let j = 0; j < results.length; j++) {
-
-			let lineDiv = document.createElement("div");
-			lineDiv.className = "line";
-			let timeResults = results[j];
-			for(let i = 0; i < timeResults.length; i++){			
-				let valueDiv = document.createElement("div");
-				valueDiv.className = "value";
-				valueDiv.innerHTML = timeResults[i];
-				lineDiv.appendChild(valueDiv);			
-}
-			outputElement.appendChild(lineDiv);
-		}
-
-		
-	}
-
-	async function* makeTextFileLineIterator(fileURL) {
-		const utf8Decoder = new TextDecoder("utf-8");
-		let response = await fetch(fileURL);
-		let reader = response.body.getReader();
-		let { value: chunk, done: readerDone } = await reader.read();
-		chunk = chunk ? utf8Decoder.decode(chunk, { stream: true }) : "";
-
-		let re = /\r\n|\n|\r/gm;
-		let startIndex = 0;
-
-		for (; ;) {
-			let result = re.exec(chunk);
-			if (!result) {
-				if (readerDone) {
-					break;
-				}
-				let remainder = chunk.substr(startIndex);
-				({ value: chunk, done: readerDone } = await reader.read());
-				chunk =
-					remainder + (chunk ? utf8Decoder.decode(chunk, { stream: true }) : "");
-				startIndex = re.lastIndex = 0;
-				continue;
-			}
-			yield chunk.substring(startIndex, result.index);
-			startIndex = re.lastIndex;
-		}
-		if (startIndex < chunk.length) {
-			// last line didn't end in a newline char
-			yield chunk.substr(startIndex);
-		}
-	}
-	
-	function processHeader(line) {
-		
-		let headers = line.split(';');
-		let headerLine = [];
-		for (let i = 0; i < headers.length; i++) {
-
-			if(lineNumber == 0){			
-				includes.push( i == 0 || predicate == null ? true : predicate(headers[i]));
-			}
-			if(includes[i]){
-				headerLine.push(headers[i]);
-			}
-		}
-		results.push(headerLine);
-	}
-
-	function process(line) {
-		if (lineNumber <=1) {
-			processHeader(line);
-		} else {
-			processDateLine(line,startDate, endDate);
-		}
-		lineNumber++;
-	}
-	
-	function processDateLine(line) {
-
-		var lines = [];
-
-		var data = line.split(';');
-		if (data.length > 0 ) {
-			try {
-				let date = new Date(data[0]);
-				if (date < startDate || date > endDate) {
-					return;
+			let headers = results[0];
+			let attributes = results[1];
+			for (let i = 0; i < headers.length && i < attributes.length; i++) {
+				if (headers[i] == null || headers[i].length == 0
+						|| headers[i].endsWith("quality")) {
+					continue;
 				}
 
-			} catch (error) {
-				console.log("Failed to init date for " + data[0]);
-				return;
-			}
-		}
-		let resultLine = [];
-		for (let j = 0; j < data.length && j < includes.length; j++) {
-			if (includes[j]) {
-				resultLine.push(data[j]);
-			}
-		}
-		results.push(resultLine);		
+				let trace = {
+					x : [],
+					y : [],
+					mode : 'lines+markers',
+					name : headers[i] + " " + attributes[i]
+				};
+				traces.push(trace);
 
-	}
-	    
-		
-    </script>
+				for (let r = 0; r < results.length; r++) {
+					if (results[r][i + 1] == "original reliable") {
+						trace.x.push(new Date(results[r][0]));
+
+						let value = parseFloat(results[r][i].replace(",", "."));
+						trace.y.push(value);
+					}
+				}
+
+			}
+			return traces;
+		}
+
+		function plotResults(reader) {
+
+			let traces = getWaterLevelTraces(reader.getResults());
+
+			let layout = {
+				title : {
+					text : 'Data values'
+				}
+			};
+
+			Plotly.newPlot('output', traces, layout);
+		}
+
+		function isValidHeader(header) {
+			if (header == null || header.endsWith("comments")) {
+				return false;
+			}
+
+			let names = [ "WS00278" ];
+			for(name of names){
+				if(header.startsWith("WS000278")){
+					return true;
+				}
+			}
+			return false;
+		}
+
+		const startDate = new Date("2021-03-21");
+		const endDate = new Date("2021-03-28");
+		const reader = new WaterLevelCSVReader();
+		reader.setHeaderPredicate(isValidHeader);
+		reader.setStartDate(startDate);
+		reader.setEndDate(endDate);
+		reader.setOnFinish(plotResults);
+
+		document.getElementById('fileInput').addEventListener('change',
+				function(event) {
+					const file = event.target.files[0];
+					if (file) {
+						reader.readFromFile(file);
+					}
+				});
+	</script>
 </body>
 </html>
