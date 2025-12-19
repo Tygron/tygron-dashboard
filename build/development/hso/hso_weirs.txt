@@ -42,6 +42,13 @@ html, body {
 	transition: max-height 0.2s ease-out;
 }
 
+input[type=button], 
+input[type=file] {
+	color: black;
+	font-family: serif;
+	background-color: var(--tygron-blue);
+}
+
 .collapsible:after {
 	content: '\02795';
 	/* Unicode character for "plus" sign (+) */
@@ -121,6 +128,7 @@ html, body {
 	/* manipulate the number of steps if too many ticks exist, so there would only be 2*/
 	--tickInterval: 100/((var(--max)- var(--min))/var(--step))* var(--tickEvery, 1);
 	--tickIntervalPerc: calc(( 100% - var(--thumb-size))/( (var(--max)- var(--min))/var(--x-step))*
+		
 		
 		
 		 var(--tickEvery, 1));
