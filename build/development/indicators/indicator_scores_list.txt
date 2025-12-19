@@ -45,8 +45,7 @@ html, body {
 input[type=button], 
 input[type=file] {
 	color: black;
-	font-family: serif;
-	background-color: var(--tygron-blue);
+	font-family: serif;	
 }
 
 .collapsible:after {
