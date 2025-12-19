@@ -2676,13 +2676,26 @@ function drawTerrainBox(ctx, x, y, width, height) {
 	ctx.strokeRect(x, y, width, height);
 }
 
-function drawCulvertCircle(ctx, CentrePointX, CentrePointY, Radius, Circle) {
+function drawCulvertCircle(ctx, centrePointX, centrePointY, radius) {
+
 	ctx.beginPath();
-	ctx.arc(CentrePointX, CentrePointY, Radius, 0, Circle);
+	ctx.arc(centrePointX, centrePointY, radius, 0, 2 * Math.PI);
 	ctx.fillStyle = "grey";
 	ctx.fill();
-	ctx.lineWidth = 6;
+	ctx.lineWidth = 1;
 	ctx.stroke();
+	ctx.closePath();
+}
+
+function drawCulvertRectangle(ctx, x, y, width, height) {
+
+	ctx.beginPath();
+	ctx.rect(x - width / 2, y - height / 2, width, height);
+	ctx.fillStyle = "grey";
+	ctx.fill();
+	ctx.lineWidth = 1;
+	ctx.stroke();
+	ctx.closePath();
 }
 
 function drawHighWaterLevel(ctx, y, width, height) {
@@ -2696,7 +2709,7 @@ function drawLowWaterLevel(ctx, y, width, height) {
 	ctx.fillRect(0, y, width, height);
 }
 
-function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertHeight, culvertLength, culvertN) {
+function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight, culvertWidth, culvertRectangleHeight, elevationLeft, elevationRight, culvertLength, culvertN) {
 	if (!canvas || canvas.nodeName != "CANVAS") {
 		return;
 	}
@@ -2704,37 +2717,45 @@ function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight,
 	const ctx = canvas.getContext("2d");
 	clearWeirContext(ctx);
 
-	let minDatum = getMinDatumCulvert(culvertDatums, datumsLeft, datumsRight);
-	let maxDatum = getMaxDatumCulvert(culvertDatums, datumsLeft, datumsRight, culvertHeight);
+	let culvertHeight = culvertRectangleHeight > 0 ? culvertRectangleHeight : culvertWidth;
 
-	let range = maxDatum - minDatum;
+
+	//TODO: (Frank) Draw at an angle when threshold is not defined, straight at height of threshold otherwise!
 
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
 	let culvertDatum = Array.isArray(culvertDatums) ? culvertDatums[index] : culvertDatums;
+	culvertDatum = culvertDatums == 0 || culvertDatum == -10000 ? Math.min(elevationLeft, elevationRight) : culvertDatums;
+
+
+	let minDatum = getMinDatumCulvert(culvertDatum, elevationLeft, elevationRight);
+	let maxDatum = getMaxDatumCulvert(culvertDatum + culvertHeight, datumsLeft, datumsRight);
+
+	let range = maxDatum - minDatum;
+
 
 	let baseHeight = canvas.height / 8;
-	let heightMultiplier = (canvas.height - baseHeight) / range;
+	let heightMultiplier = (canvas.height - 3 * baseHeight) / range;
+
+	let waterWidth = canvas.width;
+	let terrainWidth = canvas.width;
+	let terrainTopY = baseHeight / 2.0;
 
 	//TODO: @Artist Please add draw functions
-	let culvertFrontCentrePointX = ctx.canvas.width / 2;
-	let culvertFrontCentrePointY = 120;
-	let culvertFrontCircle = 2 * Math.PI;
-	let culvertFrontRadius = 20;
-	let terrainHeight = 40;
-	let terrainWidth = canvas.width / 3;
-	let waterWidth = canvas.width;
-	let highWaterHeight = canvas.height / 2;
-	let waterLevelLow = canvas.height / 1.2;
-	let waterLevelHigh = canvas.height - 90
+	let x = ctx.canvas.width / 2.0;
+	let y = ctx.canvas.height - heightMultiplier*culvertHeight/2.0;
 
-	drawHighWaterLevel(ctx, highWaterHeight, waterWidth, highWaterHeight);
 
-	drawTerrainBox(ctx, terrainWidth, terrainHeight, terrainWidth, ctx.canvas.height);
+	//drawHighWaterLevel(ctx, highWaterHeight, waterWidth, highWaterHeight);
 
-	drawCulvertCircle(ctx, culvertFrontCentrePointX, culvertFrontCentrePointY, culvertFrontRadius, culvertFrontCircle);
+	drawTerrainBox(ctx, 0, terrainTopY, terrainWidth, ctx.canvas.height);
+	if (culvertRectangleHeight <= 0) {
+		drawCulvertCircle(ctx, x, y, culvertWidth * heightMultiplier/ 2.0);
+	} else {
+		drawCulvertRectangle(ctx, x, y, culvertWidth * heightMultiplier, culvertHeight * heightMultiplier);
+	}
 
-	drawLowWaterLevel(ctx, waterLevelLow, waterWidth, waterLevelLow);
+	//	drawLowWaterLevel(ctx, waterLevelLow, waterWidth, waterLevelLow);
 
 }
 
@@ -2748,7 +2769,7 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 
 	let culvertHeight = culvertRectangleHeight > 0 ? culvertRectangleHeight : culvertDiameter;
 
-	
+
 	//TODO: (Frank) Draw at an angle when threshold is not defined, straight at height of threshold otherwise!
 
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
