@@ -85,7 +85,7 @@ The HSO Dashboard is installed using the HSO Plugin that can be found on the pub
 
 2. Open the GeoShare: <br>
    Click on `GeoShare` in the ribbon bar <br>
-   or select `Current Situation > Geo Import > Show GeoShare`
+   Or select `Current Situation > Geo Import > Show GeoShare`
 
 3. Public Share
    - Switch to **Public Share**, found in the top-right section of the GeoShare panel.
