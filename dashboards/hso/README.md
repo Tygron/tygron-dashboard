@@ -109,18 +109,21 @@ The HSO Dashboard is installed using the HSO Plugin that can be found on the pub
 
 <img width="598" height="399" alt="InstallerStart" src="./readmeimages/HsoInstaller.png" />
   
-5. To open and inspect the HSO, navigate to  
-   `Current Situation > Panels` and select **Hydrological System Overview**.
+5. To open and inspect a HSO Dashboard, 
+   - Navigate to `Current Situation > Panels` 
+   - Select a panel starting with **Hydrological System Overview:**, followed by the name of the linked Water Level Area.
+   - Click on **Open Panel** in its detail panel.
 
-   For each area linked to the HSO, a separate panel is created. Select a panel and click **Open Panel** to open the HSO in the client.
-   Note that the installer has installed a Template Text Panel. It has linked the HSO to one or more areas witha certain attribute. To see which area attribute the HSO is linked select the parent of the template panel.
+# Areas linked to HSO Dashboard
+   The HSO installer adds a Template Text Panel that manages the content of the HSO Dashboard, as well as the instances that will be created. 
+   By default the HSO Dashboard is applied on Areas, identified by the attribute that was selected in the installer.
+   To inspect and adjust these settings, select the Template Text Panel named **Hydrological System Overview**. 
    
 <img width="291" height="259" alt="HSOTemplateParent" src="https://github.com/user-attachments/assets/40ec4da4-6392-4a6a-8a44-bd2cc4460cd2" />
 
-   On the right side you see the panel Body. Now select the tab **Template** and in the right bottum corner you will see to which attribute the HSO is linked. If you want you can select a different attribute here, but you could also use the installer to do this.  
+   On the right side you see the panel Body. Now select the tab **Template** and in the right bottom corner you will see to which attribute the HSO is linked. If you want you can select a different attribute here, but you could also use the installer to do this.  
 
 <img width="288" height="220" alt="AttributeTemplateLinked" src="https://github.com/user-attachments/assets/abad9a4b-be67-4783-a8e6-fd9f5dd1aa68" />
-
 
    Optionally, click the browser icon next to the close button to open the panel in your web browser.
 
