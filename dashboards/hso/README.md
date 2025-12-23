@@ -79,6 +79,7 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
 - Weirs  
 
 # How to install the HSO
+The HSO Dashboard is installed using the HSO Plugin that can be found on the public geoshare.
 
 1. Start the Preview, log in, and create a new project or load an existing project.
 
