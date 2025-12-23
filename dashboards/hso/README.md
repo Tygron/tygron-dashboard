@@ -106,10 +106,10 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
 
 <img width="292" height="99" alt="PublicShare" src="https://github.com/user-attachments/assets/a73cb597-e142-469b-a92b-1968fbba6f52" />
      
-   - Open the folder **dashboards**  
-   - Select `installer.txt`  
+   - Open the folder **plugins**  
+   - Select `hso.txt`  
    - Click **Select**  
-   - Read and accept the disclaimer
+   - Read and accept the optional disclaimer
 
 
 5. Now you can open the text panel, and the installer for the HSO will start.
