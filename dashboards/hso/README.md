@@ -107,7 +107,7 @@ The HSO Dashboard is installed using the HSO Plugin that can be found on the pub
    Once the installation of the HSO is complete, you can close the installer by clicking the **Finish** button. 
    The first HSO Dashboard will then be selected and opened in the editor.
 
-<img width="596" height="398" alt="InstallerStart" src="https://github.com/user-attachments/assets/9edeb045-f3ed-4bfa-8cc1-b9d75ddf07ab" />
+<img width="598" height="399" alt="InstallerStart" src="./readmeimages/HsoInstaller.png" />
   
 5. To open and inspect the HSO, navigate to  
    `Current Situation > Panels` and select **Hydrological System Overview**.
