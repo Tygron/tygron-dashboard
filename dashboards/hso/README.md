@@ -81,7 +81,7 @@ The Formula section embeds the corresponding Tygron Wiki page, which serves as t
 # How to install the HSO
 The HSO Dashboard is installed using the HSO Plugin that can be found on the public geoshare.
 
-1. Start the Preview, log in, and create a new project or load an existing project.
+1. Start the Tygron Client Application, log in, and load an existing project or create a new project.
 
 2. Open the GeoShare: <br>
    Click on `GeoShare` in the ribbon bar <br>
