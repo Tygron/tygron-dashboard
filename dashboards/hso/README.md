@@ -168,7 +168,7 @@ In the client, a water balance is also available. This panel also presents a wat
 
 # Requirements
 
-- **Tygron Platform** version **2025 or newer**
+- **Tygron Client Preview** version **2025 or newer**
 - The **2024 LTS** version is **not supported**
 
 # Licensing
