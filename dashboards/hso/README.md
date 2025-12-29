@@ -165,7 +165,12 @@ In addition, several additional combo overlays are added that splits result over
 In the client, a water balance is also available. This panel also presents a water balance, but it is primarily focused on visualizing the error that has occurred in the calculation. It does show total quantities, but these are not available per time step, for example. For this reason, users expressed the need for a more detailed overview.
 
 <img width="355" height="412" alt="ClientWaterBalance" src="https://github.com/user-attachments/assets/6a19a53f-57ab-42c3-97c2-6ca4955749e6" />
- 
+
+# Requirements
+
+- **Tygron Platform** version **2025 or newer**
+- The **2024 LTS** version is **not supported**
+
 # Licensing
 The overview is released under the MIT License. This means that you are free to use, modify, and distribute the software, provided that the original copyright notice and license text are included in any copies or substantial portions of the software.
 
