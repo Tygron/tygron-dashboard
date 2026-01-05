@@ -4,11 +4,11 @@
 # Why a Hydrological System Overview (HSO)?
 The development of hydrological models typically follows several steps. First, the model is set up by adding the relevant data to the software. After this, an initial simulation can be run to evaluate the results. Often, the model will not yet perform as intended. In that case, adjustments are required. Sometimes better input data is needed, or calibration steps must be taken to improve parameter values. When a simulation does produce the expected outcomes, the base model is considered ready. From that point onward, different scenarios can be evaluated.
 
-<img width="1280" height="720" alt="ModelrunTygron" src="https://github.com/user-attachments/assets/d1637c7b-0933-47a7-abd7-d6a4256ebd2c" />
+<img width="1280" height="720" alt="ModelrunTygron" src="./readmeimages/ModelrunTygron.png" />
 
 The goal of the HSO is to simplify the process of test-running and calibrating a model. In any model, and especially in a raster-based model with many adjustable parameters, it is essential to maintain a clear understanding of what is happening internally. The HSO provides insight into the hydrological system itself, the water balance, and the functioning of all hydraulic structures. This contributes to better control and a deeper understanding of the model.
 
-<img width="1669" height="798" alt="ModelCalibrationTygron" src="https://github.com/user-attachments/assets/ce547e76-5024-4bb9-beca-8aae9fcfc729" />
+<img width="1669" height="798" alt="ModelCalibrationTygron" src="./readmeimages/ModelCalibrationTygron.png" />
 
 When the base model meets expectations and scenario simulations begin, it once again becomes crucial to understand what the results represent. At this stage too, the HSO supports the modeller in interpreting the outcomes.
 
