@@ -442,4 +442,28 @@ describe('QueryDataManager', () => {
 
         expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
     });
+
+    it('can map a double array to a matrix', () => {
+
+        let queryDataManager = new QueryDataManager();
+
+        queryDataManager.addQuery('matrix', [2.0, 3.0, 5.0]);
+
+        let data = queryDataManager.getData('matrix', true, true);
+        let expected = [[2.0, 3.0, 5.0]];
+
+        expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
+    });
+
+    it('can map a doubles string to a matrix', () => {
+
+        let queryDataManager = new QueryDataManager();
+
+        queryDataManager.addQuery('matrix', "2.0 3.0 5.0");
+
+        let data = queryDataManager.getData('matrix', true, true);
+        let expected = [[2.0, 3.0, 5.0]];
+
+        expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
+    });
 });
