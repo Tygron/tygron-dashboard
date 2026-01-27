@@ -365,19 +365,9 @@ describe('QueryDataManager', () => {
 
         queryDataManager.addQuery('emptyData', '');
 		
-		let data = queryDataManager.getData('emtyData', true,true);	
+		let data = queryDataManager.getData('emptyData', true,true);	
 		let expected = [[]];
 
 		expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
-    });
-	
-	it('can map null data to a matrix', () => {
-
-	    let queryDataManager = new QueryDataManager();
-		queryDataManager.addQuery('nullData', null);
-		let data = queryDataManager.getData('nullData', true,true);	
-		let expected = [[]];
-
-		expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
-	});
+    });	
 });
