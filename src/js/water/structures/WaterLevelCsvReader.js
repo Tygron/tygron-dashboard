@@ -18,6 +18,7 @@ class WaterLevelCSVReader {
             this._startDate = new Date(startDate);
         }
     }
+	
     setEndDate(endDate) {
         if (endDate == null) {
             this._endDate = null;
@@ -33,7 +34,6 @@ class WaterLevelCSVReader {
     setOnFinish(onFinish) {
         this._onFinish = onFinish;
     }
-
 
     readFromFile(file) {
         this.readFromURL(URL.createObjectURL(file));
@@ -61,9 +61,6 @@ class WaterLevelCSVReader {
             }
         })();
     }
-
-
-
 
     _process(lineNumber, line) {
         if (lineNumber <= 1) {
