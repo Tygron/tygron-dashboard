@@ -1147,6 +1147,27 @@ class QueryDataManager {
 		let data = queryDataObject.getData(this.allowFallbackData);
 		return forceToArray ? ArrayUtils.coerceToArray(data) : data;
 	}
+	
+	/**
+	 * @description Wraps the data into an array of arrays, if it isn't already. 
+	 * @param {string} key 
+	 */
+	getMatrixData(key){
+		let queryDataObject = this.getQueryDataObject(key);
+		let data = queryDataObject.getData(this.allowFallbackData);
+		if(data == null){
+			return [[]];
+		}
+		if(Array.isArray(data) && data.length == 0){
+			return [[]];
+		}
+		
+		if(!Array.isArray(data)){
+			data= [data];
+		}	
+		
+		return Array.isArray(data[0])? data: [data];
+	}
 
 	getDataMatrix(key, outerArrayKey = null, innerArrayKey = null) {
 		let data = this._getDataMatrixUnbounded(key, outerArrayKey, innerArrayKey);
