@@ -1589,32 +1589,18 @@ class QueryDataManager {
 	hasData(key) {
 		return (!!this.queryDataObjects[key]);
 	}
-
-	getData(key, forceToArray = true) {
-		let queryDataObject = this.getQueryDataObject(key);
-		let data = queryDataObject.getData(this.allowFallbackData);
-		return forceToArray ? ArrayUtils.coerceToArray(data) : data;
-	}
-	
 	/**
-	 * @description Wraps the data into an array of arrays, if it isn't already. 
-	 * @param {string} key 
-	 */
-	getMatrixData(key){
+	 * * @param {boolean} forceToArray wrap the data in an array if it isn't
+		 * @param {boolean} forceArrayToArrays Wrap the array in an array if it isn't. Requires forceToArray to be true.
+		 */
+	getData(key, forceToArray = true, forceArrayToArrays = false) {
 		let queryDataObject = this.getQueryDataObject(key);
 		let data = queryDataObject.getData(this.allowFallbackData);
-		if(data == null){
-			return [[]];
+		data = forceToArray ? ArrayUtils.coerceToArray(data) : data;
+		if(forceToArray && forceArrayToArrays){
+			data = Array.isArray(data[0])? data: [data];
 		}
-		if(Array.isArray(data) && data.length == 0){
-			return [[]];
-		}
-		
-		if(!Array.isArray(data)){
-			data= [data];
-		}	
-		
-		return Array.isArray(data[0])? data: [data];
+		return data;
 	}
 
 	getDataMatrix(key, outerArrayKey = null, innerArrayKey = null) {
@@ -4408,12 +4394,12 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 
 // Sidebar toggles
 document.querySelectorAll(".nav-item").forEach(item => {
-	item.addEventListener("click", () => {
-		const target = document.getElementById(item.dataset.target);
-		if (!target) return;
-		target.classList.toggle("open");
-		item.classList.toggle("open");
-	});
+    item.addEventListener("click", () => {
+        const target = document.getElementById(item.dataset.target);
+        if (!target) return;
+        target.classList.toggle("open");
+        item.classList.toggle("open");
+    });
 });
 
 // Section switching
@@ -4421,14 +4407,14 @@ const allSections = document.querySelectorAll(".section");
 const subItems = document.querySelectorAll(".sub-item");
 
 subItems.forEach(btn => {
-	btn.addEventListener("click", () => {
-		subItems.forEach(s => s.classList.remove("active"));
-		btn.classList.add("active");
+    btn.addEventListener("click", () => {
+        subItems.forEach(s => s.classList.remove("active"));
+        btn.classList.add("active");
 
-		const id = btn.dataset.section;
-		allSections.forEach(sec => sec.classList.remove("active"));
-		document.getElementById(id).classList.add("active");
-	});
+        const id = btn.dataset.section;
+        allSections.forEach(sec => sec.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+    });
 });
 
 // Default open
@@ -4449,7 +4435,7 @@ const data = {};
 const TIMEFRAMES = 'timeframes';
 const TIMEFRAMETIMES = 'timeframetimes';
 queries.addQuery(TIMEFRAMETIMES,
-	'$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+    '$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 
 data[TIMEFRAMETIMES] = queries.getData(TIMEFRAMETIMES);
 data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
@@ -4462,129 +4448,129 @@ var timeframe = timeframes - 1;
 
 function updateWeirDetails(weir) {
 
-	if (weir == null) {
-		weir = getDummyWeir();
-	}
+    if (weir == null) {
+        weir = getDummyWeir();
+    }
 
-	weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
+    weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
 
-	drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB,  weir.damWidth, weir.damHeight, weir.flows, weir.coefficient);
-	drawWeirFront(weirPanel.weirFrontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
+    drawWeirSide(weirPanel.weirSideCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.damWidth, weir.damHeight, weir.flows, weir.coefficient);
+    drawWeirFront(weirPanel.weirFrontCanvas, weirTimeframe, weir.heights, weir.datumsA, weir.datumsB, weir.width, weir.damWidth, weir.damHeight, weir.flows, weir.n);
 
-	updateWeirFlowPlot(weir);
+    updateWeirFlowPlot(weir);
 
-	updateWeirHeightPlot(weir);
+    updateWeirHeightPlot(weir);
 
 }
 
 function updateWeirFlowPlot(weir) {
 
-	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
-	let colors = {};
-	colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
+    let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
+    let colors = {};
+    colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
 
-	let titles = {};
-	titles[WEIR_FLOW_OUTPUT] = "Flow";
+    let titles = {};
+    titles[WEIR_FLOW_OUTPUT] = "Flow";
 
-	let data = {};
-	let dataTimeframes = [];
-	for (let t = 0; t < timeframes; t++) {
-		dataTimeframes.push(t);
-	}
-	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-	data[WEIR_FLOW_OUTPUT] = weir.flows;
+    let data = {};
+    let dataTimeframes = [];
+    for (let t = 0;t < timeframes;t++) {
+        dataTimeframes.push(t);
+    }
+    data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+    data[WEIR_FLOW_OUTPUT] = weir.flows;
 
-	let layout = createWeirPlotLayout();
-	layout.title = {
-		text: "Flow (m³/s)"
-	};
-	xyPlot(weirPanel.weirFlowPlot, "scatter", data, properties, colors, titles, layout);
+    let layout = createWeirPlotLayout();
+    layout.title = {
+        text: "Flow (m³/s)"
+    };
+    xyPlot(weirPanel.weirFlowPlot, "scatter", data, properties, colors, titles, layout);
 }
 
 function createWeirPlotLayout() {
 
-	layout = createLayout();
-	layout.showLegend = true;
-	layout.width = 300;
-	layout.height = 200;
-	layout.margin = { l: 40, r: 40, t: 40, b: 40 };
-	return layout;
+    layout = createLayout();
+    layout.showLegend = true;
+    layout.width = 300;
+    layout.height = 200;
+    layout.margin = { l: 40, r: 40, t: 40, b: 40 };
+    return layout;
 }
 
 function updateWeirHeightPlot(weir) {
 
-	let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
-	let colors = {};
-	colors[WEIR_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
-	colors[WEIR_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
-	colors[WEIR_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+    let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
+    let colors = {};
+    colors[WEIR_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
+    colors[WEIR_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
+    colors[WEIR_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
 
-	let titles = {};
-	titles[WEIR_HEIGHT_OUTPUT] = "Height";
-	titles[WEIR_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
-	titles[WEIR_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+    let titles = {};
+    titles[WEIR_HEIGHT_OUTPUT] = "Height";
+    titles[WEIR_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
+    titles[WEIR_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
 
-	let data = {};
-	let dataTimeframes = [];
-	for (let t = 0; t < timeframes; t++) {
-		dataTimeframes.push(t);
-	}
-	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-	data[WEIR_HEIGHT_OUTPUT] = weir.heights;
-	data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
-	data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
+    let data = {};
+    let dataTimeframes = [];
+    for (let t = 0;t < timeframes;t++) {
+        dataTimeframes.push(t);
+    }
+    data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+    data[WEIR_HEIGHT_OUTPUT] = weir.heights;
+    data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
+    data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
 
-	let layout = createWeirPlotLayout();
-	layout.title = {
-		text: "Height and Datum (m)"
-	};
-	xyPlot(weirPanel.weirHeightPlot, "scatter", data, properties, colors, titles, layout);
+    let layout = createWeirPlotLayout();
+    layout.title = {
+        text: "Height and Datum (m)"
+    };
+    xyPlot(weirPanel.weirHeightPlot, "scatter", data, properties, colors, titles, layout);
 }
 
 function selectWeir(index) {
-	let weirInfoTitle = weirPanel.weirInfoTitle;
+    let weirInfoTitle = weirPanel.weirInfoTitle;
 
-	let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
+    let weir = index >= 0 && index < weirs.length ? weirs[index] : null;
 
-	if (weir == null) {
-		weirInfoTitle.innerHTML = "-";
-		updateWeirDetails(weir);
-		return;
-	}
+    if (weir == null) {
+        weirInfoTitle.innerHTML = "-";
+        updateWeirDetails(weir);
+        return;
+    }
 
 
-	weirInfoTitle.innerHTML = weir.name;
-	updateWeirDetails(weir);
+    weirInfoTitle.innerHTML = weir.name;
+    updateWeirDetails(weir);
 
-	let weirList = document.getElementById("weirList");
-	for (item of weirList.children) {
-		if (item.myIndex == index) {
-			item.classList.add('selected');
-		} else {
-			item.classList.remove('selected');
-		}
-	}
+    let weirList = document.getElementById("weirList");
+    for (item of weirList.children) {
+        if (item.myIndex == index) {
+            item.classList.add('selected');
+        } else {
+            item.classList.remove('selected');
+        }
+    }
 }
 
 function getSelectedWeirIndex() {
-	for (item of document.getElementById("weirList").children) {
-		if (item.classList.contains('selected')) {
-			return item.myIndex;
-		}
-	}
-	return 0;
+    for (item of document.getElementById("weirList").children) {
+        if (item.classList.contains('selected')) {
+            return item.myIndex;
+        }
+    }
+    return 0;
 }
 
 function addWeirListItem(index) {
-	let weirList = document.getElementById("weirList");
+    let weirList = document.getElementById("weirList");
 
 
-	let listItem = document.createElement("a");
-	listItem.onclick = () => selectWeir(index);
-	listItem.innerHTML = weirs[index].name;
-	listItem.myIndex = index;
+    let listItem = document.createElement("a");
+    listItem.onclick = () => selectWeir(index);
+    listItem.innerHTML = weirs[index].name;
+    listItem.myIndex = index;
 
-	weirList.appendChild(listItem);
+    weirList.appendChild(listItem);
 
 };
 
@@ -4621,120 +4607,120 @@ queries.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND
 
 const WEIR_PARAM_PROPERTIES = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
 const WEIR_PARAM_TITLES = {
-	"name": "Name",
-	"coefficient": "Coefficient",
-	"weirN": "Weir N",
-	"heights": "Height (m)",
-	"width": "Width (m)",
-	"angle": "Angle (°)",
-	"damWidth": "Dam Width (m)",
-	"damHeight": "Dam Height (m)"
+    "name": "Name",
+    "coefficient": "Coefficient",
+    "weirN": "Weir N",
+    "heights": "Height (m)",
+    "width": "Width (m)",
+    "angle": "Angle (°)",
+    "damWidth": "Dam Width (m)",
+    "damHeight": "Dam Height (m)"
 }
 
 const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB"];
 const WEIR_RESULT_TITLES = {
-	"name": WEIR_PARAM_TITLES["name"],
-	"flows": "Flow (M³/s)",
-	"heights": "Height (m)",
-	"datumsA": "Datum A (m)",
-	"datumsB": "Datum B (m)",
-	"areaOutputA": "Area ID A",
-	"areaOutputB": "Area ID B",
+    "name": WEIR_PARAM_TITLES["name"],
+    "flows": "Flow (M³/s)",
+    "heights": "Height (m)",
+    "datumsA": "Datum A (m)",
+    "datumsB": "Datum B (m)",
+    "areaOutputA": "Area ID A",
+    "areaOutputB": "Area ID B",
 
 }
 let weirTimeframe = 0;
 
 function createWeirs() {
 
-	let weirs = [];
+    let weirs = [];
 
-	let names = queries.getData(WEIR_NAMES, true);
-	let width = queries.getMatrixData(WEIR_WIDTH, true);
-	let heights = queries.getMatrixData(WEIR_HEIGHT_OUTPUT, true);
-	let flow = queries.getMatrixData(WEIR_FLOW_OUTPUT, true);
-	let datumA = queries.getMatrixData(WEIR_DATUM_OUTPUT_A, true);
-	let datumB = queries.getMatrixData(WEIR_DATUM_OUTPUT_B, true);
-	let damWidth = queries.getMatrixData(WEIR_DAM_WIDTH, true);
-	let damHeight = queries.getMatrixData(WEIR_DAM_HEIGHT, true);
-	let areaOutputA = queries.getMatrixData(WEIR_AREA_OUTPUT_A, true);
-	let areaOutputB = queries.getMatrixData(WEIR_AREA_OUTPUT_B, true);
-	let angle = queries.getMatrixData(WEIR_ANGLE, true);
-	let coefficient = queries.getMatrixData(WEIR_COEFFICIENT, true);
-	let weirN = queries.getMatrixData(WEIR_N, true);
+    let names = queries.getData(WEIR_NAMES, true);
+    let width = queries.getData(WEIR_WIDTH, true, true);
+    let heights = queries.getData(WEIR_HEIGHT_OUTPUT, true, true);
+    let flow = queries.getData(WEIR_FLOW_OUTPUT, true, true);
+    let datumA = queries.getData(WEIR_DATUM_OUTPUT_A, true, true);
+    let datumB = queries.getData(WEIR_DATUM_OUTPUT_B, true, true);
+    let damWidth = queries.getData(WEIR_DAM_WIDTH, true, true);
+    let damHeight = queries.getData(WEIR_DAM_HEIGHT, true, true);
+    let areaOutputA = queries.getData(WEIR_AREA_OUTPUT_A, true, true);
+    let areaOutputB = queries.getData(WEIR_AREA_OUTPUT_B, true, true);
+    let angle = queries.getData(WEIR_ANGLE, true, true);
+    let coefficient = queries.getData(WEIR_COEFFICIENT, true, true);
+    let weirN = queries.getData(WEIR_N, true, true);
 
-	for (let i = 0; i < names.length; i++) {
+    for (let i = 0;i < names.length;i++) {
 
-		let weir = {
-			name: i < names.length ? names[i] : "Weir " + i,
+        let weir = {
+            name: i < names.length ? names[i] : "Weir " + i,
 
-			// array values
-			heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
-			flows: i < flow.length ? flow[i] : Array(timeframes).fill(0),
-			datumsA: i < datumA.length ? datumA[i] : Array(timeframes).fill(-10000),
-			datumsB: i < datumB.length ? datumB[i] : Array(timeframes).fill(-10000),
+            // array values
+            heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
+            flows: i < flow.length ? flow[i] : Array(timeframes).fill(0),
+            datumsA: i < datumA.length ? datumA[i] : Array(timeframes).fill(-10000),
+            datumsB: i < datumB.length ? datumB[i] : Array(timeframes).fill(-10000),
 
-			// single value
-			width: i < width.length ? width[i][0] : 0,
-			damWidth: i < damWidth.length ? damWidth[i][0] : 0,
-			damHeight: i < damHeight.length ? damHeight[i][0] : -1,
-			areaOutputA: i < areaOutputA.length ? areaOutputA[i][0] : -1,
-			areaOutputB: i < areaOutputB.length ? areaOutputB[i][0] : -1,
-			angle: i < angle.length ? angle[i][0] : -10000,
-			coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
-			weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
-		};
-		weirs.push(weir);
+            // single value
+            width: i < width.length ? width[i][0] : 0,
+            damWidth: i < damWidth.length ? damWidth[i][0] : 0,
+            damHeight: i < damHeight.length ? damHeight[i][0] : -1,
+            areaOutputA: i < areaOutputA.length ? areaOutputA[i][0] : -1,
+            areaOutputB: i < areaOutputB.length ? areaOutputB[i][0] : -1,
+            angle: i < angle.length ? angle[i][0] : -10000,
+            coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
+            weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
+        };
+        weirs.push(weir);
 
-	}
+    }
 
-	return weirs;
+    return weirs;
 }
 
 function updateWeirList(weirs) {
-	removeAllChildren(document.getElementById("weirList"));
+    removeAllChildren(document.getElementById("weirList"));
 
-	for (let i = 0; i < weirs.length; i++) {
-		addWeirListItem(i);
-	}
+    for (let i = 0;i < weirs.length;i++) {
+        addWeirListItem(i);
+    }
 
-	if (weirs.length > 0) {
-		selectWeir(0, weirTimeframe);
-	}
+    if (weirs.length > 0) {
+        selectWeir(0, weirTimeframe);
+    }
 }
 
 function fillWeirTables(weirs, timeframe) {
-	fillWeirParamTable(weirs, timeframe);
-	fillWeirResultTable(weirs, timeframe);
+    fillWeirParamTable(weirs, timeframe);
+    fillWeirResultTable(weirs, timeframe);
 }
 
 function fillWeirParamTable(weirs, timeframe) {
 
-	let paramTable = document.getElementById("weirParamTable");
+    let paramTable = document.getElementById("weirParamTable");
 
-	clearTable(paramTable);
+    clearTable(paramTable);
 
-	addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);
-	for (let weir of weirs) {
-		addTimeframeRow(paramTable, timeframe, weir, WEIR_PARAM_PROPERTIES, {});
-	}
+    addHeaderRow(paramTable, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES);
+    for (let weir of weirs) {
+        addTimeframeRow(paramTable, timeframe, weir, WEIR_PARAM_PROPERTIES, {});
+    }
 }
 
 function fillWeirResultTable(weirs, timeframe) {
 
-	let resultTable = document.getElementById("weirResultsTable");
+    let resultTable = document.getElementById("weirResultsTable");
 
-	clearTable(resultTable);
+    clearTable(resultTable);
 
-	addHeaderRow(resultTable, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES);
-	for (let weir of weirs) {
-		addTimeframeRow(resultTable, timeframe, weir, WEIR_RESULT_PROPERTIES, {});
-	}
+    addHeaderRow(resultTable, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES);
+    for (let weir of weirs) {
+        addTimeframeRow(resultTable, timeframe, weir, WEIR_RESULT_PROPERTIES, {});
+    }
 }
 
 const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));
 setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, function() {
-	weirTimeframe = weirPanel.timeframeSlider.style.getPropertyValue("--value");
-	selectWeir(getSelectedWeirIndex());
+    weirTimeframe = weirPanel.timeframeSlider.style.getPropertyValue("--value");
+    selectWeir(getSelectedWeirIndex());
 });
 
 const weirs = createWeirs();
@@ -4744,21 +4730,21 @@ updateWeirList(weirs);
 const weirResultSlider = addTimeframeSlider(document.getElementById("weirResultSliderDiv"));
 const weirParamSlider = addTimeframeSlider(document.getElementById("weirParamSliderDiv"));
 setupTimeframeSlider(weirParamSlider, weirTimeframe, timeframes, function() {
-	let timeframe = weirParamSlider.style.getPropertyValue("--value");
-	weirResultSlider.style.setProperty("--value", timeframe);
-	fillWeirTables(weirs, timeframe);
+    let timeframe = weirParamSlider.style.getPropertyValue("--value");
+    weirResultSlider.style.setProperty("--value", timeframe);
+    fillWeirTables(weirs, timeframe);
 });
 setupTimeframeSlider(weirResultSlider, weirTimeframe, timeframes, function() {
-	let timeframe = weirResultSlider.style.getPropertyValue("--value");
-	weirParamSlider.style.setProperty("--value", timeframe);
-	fillWeirTables(weirs, timeframe);
+    let timeframe = weirResultSlider.style.getPropertyValue("--value");
+    weirParamSlider.style.setProperty("--value", timeframe);
+    fillWeirTables(weirs, timeframe);
 });
 
 addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir_results.csv", () => toCSVContent(weirs, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES, timeframes));
 
 if (weirs.length <= 0) {
-	document.getElementById("navGroupWeirs").style.display = 'none';
+    document.getElementById("navGroupWeirs").style.display = 'none';
 }
 
 /**
@@ -4766,119 +4752,119 @@ if (weirs.length <= 0) {
  */
 function updateCulvertDetails(culvert) {
 
-	if (culvert == null) {
-		culvert = getDummyCulvert();
-	}
+    if (culvert == null) {
+        culvert = getDummyCulvert();
+    }
 
-	culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
+    culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
 
-	drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB,
-		culvert.diameter, culvert.rectangularHeight, culvert.elevationA, culvert.elevationB);
-	drawCulvertFront(culvertPanel.culvertFrontCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, culvert.elevationA, culvert.elevationB,1, culvert.culvertN);
+    drawCulvertSide(culvertPanel.culvertSideCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB,
+        culvert.diameter, culvert.rectangularHeight, culvert.elevationA, culvert.elevationB);
+    drawCulvertFront(culvertPanel.culvertFrontCanvas, culvertTimeframe, culvert.datumHeight, culvert.datumsA, culvert.datumsB, culvert.diameter, culvert.rectangularHeight, culvert.elevationA, culvert.elevationB, 1, culvert.culvertN);
 
-	updateCulvertFlowPlot(culvert);
+    updateCulvertFlowPlot(culvert);
 
-	updateCulvertHeightPlot(culvert);
+    updateCulvertHeightPlot(culvert);
 
 }
 
 function updateCulvertFlowPlot(culvert) {
 
-	let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_FLOW_OUTPUT];
-	let colors = {};
-	colors[CULVERT_FLOW_OUTPUT] = [218, 10, 10, 0.5];
+    let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_FLOW_OUTPUT];
+    let colors = {};
+    colors[CULVERT_FLOW_OUTPUT] = [218, 10, 10, 0.5];
 
-	let titles = {};
-	titles[CULVERT_FLOW_OUTPUT] = "Flow";
+    let titles = {};
+    titles[CULVERT_FLOW_OUTPUT] = "Flow";
 
-	let data = {};
-	let dataTimeframes = [];
-	for (let t = 0; t < timeframes; t++) {
-		dataTimeframes.push(t);
-	}
-	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-	data[CULVERT_FLOW_OUTPUT] = culvert.flows;
+    let data = {};
+    let dataTimeframes = [];
+    for (let t = 0;t < timeframes;t++) {
+        dataTimeframes.push(t);
+    }
+    data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+    data[CULVERT_FLOW_OUTPUT] = culvert.flows;
 
-	let layout = createWeirPlotLayout();
-	layout.title = {
-		text: "Flow (m³/s)"
-	};
-	xyPlot(culvertPanel.culvertFlowPlot, "scatter", data, properties, colors, titles, layout);
+    let layout = createWeirPlotLayout();
+    layout.title = {
+        text: "Flow (m³/s)"
+    };
+    xyPlot(culvertPanel.culvertFlowPlot, "scatter", data, properties, colors, titles, layout);
 }
 function updateCulvertHeightPlot(culvert) {
 
-	let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_HEIGHT_OUTPUT, CULVERT_DATUM_OUTPUT_A, CULVERT_DATUM_OUTPUT_B];
-	let colors = {};
-	colors[CULVERT_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
-	colors[CULVERT_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
-	colors[CULVERT_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+    let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_HEIGHT_OUTPUT, CULVERT_DATUM_OUTPUT_A, CULVERT_DATUM_OUTPUT_B];
+    let colors = {};
+    colors[CULVERT_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
+    colors[CULVERT_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
+    colors[CULVERT_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
 
-	let titles = {};
-	titles[CULVERT_HEIGHT_OUTPUT] = "Height";
-	titles[CULVERT_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
-	titles[CULVERT_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+    let titles = {};
+    titles[CULVERT_HEIGHT_OUTPUT] = "Height";
+    titles[CULVERT_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
+    titles[CULVERT_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
 
-	let data = {};
-	let dataTimeframes = [];
-	for (let t = 0; t < timeframes; t++) {
-		dataTimeframes.push(t);
-	}
-	data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-	data[CULVERT_HEIGHT_OUTPUT] = culvert.heights;
-	data[CULVERT_DATUM_OUTPUT_A] = culvert.datumsA;
-	data[CULVERT_DATUM_OUTPUT_B] = culvert.datumsB;
+    let data = {};
+    let dataTimeframes = [];
+    for (let t = 0;t < timeframes;t++) {
+        dataTimeframes.push(t);
+    }
+    data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
+    data[CULVERT_HEIGHT_OUTPUT] = culvert.heights;
+    data[CULVERT_DATUM_OUTPUT_A] = culvert.datumsA;
+    data[CULVERT_DATUM_OUTPUT_B] = culvert.datumsB;
 
-	let layout = createWeirPlotLayout();
-	layout.title = {
-		text: "Height and Datum (m)"
-	};
-	xyPlot(culvertPanel.culvertHeightPlot, "scatter", data, properties, colors, titles, layout);
+    let layout = createWeirPlotLayout();
+    layout.title = {
+        text: "Height and Datum (m)"
+    };
+    xyPlot(culvertPanel.culvertHeightPlot, "scatter", data, properties, colors, titles, layout);
 }
 
 function selectCulvert(index) {
-	let culvertInfoTitle = culvertPanel.culvertInfoTitle;
+    let culvertInfoTitle = culvertPanel.culvertInfoTitle;
 
-	let culvert = index >= 0 && index < culverts.length ? culverts[index] : null;
+    let culvert = index >= 0 && index < culverts.length ? culverts[index] : null;
 
-	if (culvert == null) {
-		culvertInfoTitle.innerHTML = "-";
-		updateCulvertDetails(culvert);
-		return;
-	}
+    if (culvert == null) {
+        culvertInfoTitle.innerHTML = "-";
+        updateCulvertDetails(culvert);
+        return;
+    }
 
 
-	culvertInfoTitle.innerHTML = culvert.name;
-	updateCulvertDetails(culvert);
+    culvertInfoTitle.innerHTML = culvert.name;
+    updateCulvertDetails(culvert);
 
-	let culvertList = document.getElementById("culvertList");
-	for (item of culvertList.children) {
-		if (item.myIndex == index) {
-			item.classList.add('selected');
-		} else {
-			item.classList.remove('selected');
-		}
-	}
+    let culvertList = document.getElementById("culvertList");
+    for (item of culvertList.children) {
+        if (item.myIndex == index) {
+            item.classList.add('selected');
+        } else {
+            item.classList.remove('selected');
+        }
+    }
 }
 
 function getSelectedCulvertIndex() {
-	for (item of document.getElementById("culvertList").children) {
-		if (item.classList.contains('selected')) {
-			return item.myIndex;
-		}
-	}
-	return 0;
+    for (item of document.getElementById("culvertList").children) {
+        if (item.classList.contains('selected')) {
+            return item.myIndex;
+        }
+    }
+    return 0;
 }
 
 function addCulvertListItem(index) {
-	let culvertList = document.getElementById("culvertList");
+    let culvertList = document.getElementById("culvertList");
 
 
-	let listItem = document.createElement("a");
-	listItem.onclick = () => selectCulvert(index);
-	listItem.innerHTML = culverts[index].name;
-	listItem.myIndex = index;
+    let listItem = document.createElement("a");
+    listItem.onclick = () => selectCulvert(index);
+    listItem.innerHTML = culverts[index].name;
+    listItem.myIndex = index;
 
-	culvertList.appendChild(listItem);
+    culvertList.appendChild(listItem);
 
 };
 
@@ -4912,121 +4898,121 @@ queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDIN
 
 const CULVERT_PARAM_PROPERTIES = ["name", "diameter", "rectangularHeight", "datumHeight", "culvertN"];
 const CULVERT_PARAM_TITLES = {
-	"name": "Name",
-	"diameter": "Diameter (m)",
-	"rectangularHeight": "Rectangular Height (m)",
-	"datumHeight": "Datum Height (m)",
-	"culvertN": "Culvert N",
+    "name": "Name",
+    "diameter": "Diameter (m)",
+    "rectangularHeight": "Rectangular Height (m)",
+    "datumHeight": "Datum Height (m)",
+    "culvertN": "Culvert N",
 }
 
 const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB"];
 const CULVERT_RESULT_TITLES = {
-	"name": CULVERT_PARAM_TITLES["name"],
-	"flows": "Flow (M³/s)",
-	"heights": "Height (m)",
-	"datumsA": "Water Level Datum A (m)",
-	"datumsB": "Water Level Datum B (m)",
-	"areaIDA": "Area ID A",
-	"areaIDB": "Area ID B",
-	"datumHeightOutputA": "Datum Elevation A (m)",
-	"datumHeightOutputB": "Datum Elevation B (m)",
+    "name": CULVERT_PARAM_TITLES["name"],
+    "flows": "Flow (M³/s)",
+    "heights": "Height (m)",
+    "datumsA": "Water Level Datum A (m)",
+    "datumsB": "Water Level Datum B (m)",
+    "areaIDA": "Area ID A",
+    "areaIDB": "Area ID B",
+    "datumHeightOutputA": "Datum Elevation A (m)",
+    "datumHeightOutputB": "Datum Elevation B (m)",
 
 }
 let culvertTimeframe = 0;
 
 function createCulverts() {
 
-	let culverts = [];
+    let culverts = [];
 
-	let names = queries.getData(CULVERT_NAMES, true);
-	let diameters = queries.getMatrixData(CULVERT_DIAMETER, true);
-	let datumHeights = queries.getMatrixData(CULVERT_DATUM_HEIGHT, true);
-	let rectangularHeights = queries.getMatrixData(CULVERT_RECTANGULAR_HEIGHT, true);
-	let culvertNs = queries.getMatrixData(CULVERT_N, true);
-	let heights = queries.getMatrixData(CULVERT_HEIGHT_OUTPUT, true);
-	let flows = queries.getMatrixData(CULVERT_FLOW_OUTPUT, true);
-	let datumsA = queries.getMatrixData(CULVERT_DATUM_OUTPUT_A, true);
-	let datumsB = queries.getMatrixData(CULVERT_DATUM_OUTPUT_B, true);
-	let areaIDA = queries.getMatrixData(CULVERT_AREA_OUTPUT_A, true);
-	let areaIDB = queries.getMatrixData(CULVERT_AREA_OUTPUT_B, true);
-	let elevationA = queries.getMatrixData(CULVERT_DATUM_HEIGHT_OUTPUT_A, true);
-	let elevationB = queries.getMatrixData(CULVERT_DATUM_HEIGHT_OUTPUT_B, true);
+    let names = queries.getData(CULVERT_NAMES, true);
+    let diameters = queries.getData(CULVERT_DIAMETER, true, true);
+    let datumHeights = queries.getData(CULVERT_DATUM_HEIGHT, true, true);
+    let rectangularHeights = queries.getData(CULVERT_RECTANGULAR_HEIGHT, true, true);
+    let culvertNs = queries.getData(CULVERT_N, true, true);
+    let heights = queries.getData(CULVERT_HEIGHT_OUTPUT, true, true);
+    let flows = queries.getData(CULVERT_FLOW_OUTPUT, true, true);
+    let datumsA = queries.getData(CULVERT_DATUM_OUTPUT_A, true, true);
+    let datumsB = queries.getData(CULVERT_DATUM_OUTPUT_B, true, true);
+    let areaIDA = queries.getData(CULVERT_AREA_OUTPUT_A, true, true);
+    let areaIDB = queries.getData(CULVERT_AREA_OUTPUT_B, true, true);
+    let elevationA = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_A, true, true);
+    let elevationB = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_B, true, true);
 
-	for (let i = 0; i < names.length; i++) {
+    for (let i = 0;i < names.length;i++) {
 
-		let culvert = {
+        let culvert = {
 
-			name: i < names.length ? names[i] : "Culvert " + i,
+            name: i < names.length ? names[i] : "Culvert " + i,
 
-			// array values
-			heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
-			flows: i < flows.length ? flows[i] : Array(timeframes).fill(0),
-			datumsA: i < datumsA.length ? datumsA[i] : Array(timeframes).fill(-10000),
-			datumsB: i < datumsB.length ? datumsB[i] : Array(timeframes).fill(-10000),
+            // array values
+            heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
+            flows: i < flows.length ? flows[i] : Array(timeframes).fill(0),
+            datumsA: i < datumsA.length ? datumsA[i] : Array(timeframes).fill(-10000),
+            datumsB: i < datumsB.length ? datumsB[i] : Array(timeframes).fill(-10000),
 
-			// single value
-			datumHeight: i < datumHeights.length ? datumHeights[i][0] : -10000.0,
-			diameter: i < diameters.length ? diameters[i][0] : 0,
-			rectangularHeight: i < rectangularHeights.length ? rectangularHeights[i][0] : -10000.0,
-			culvertN: i < culvertNs.length && culvertNs[i][0] > 0 ? culvertNs[i][0] : 3 / 2,
+            // single value
+            datumHeight: i < datumHeights.length ? datumHeights[i][0] : -10000.0,
+            diameter: i < diameters.length ? diameters[i][0] : 0,
+            rectangularHeight: i < rectangularHeights.length ? rectangularHeights[i][0] : -10000.0,
+            culvertN: i < culvertNs.length && culvertNs[i][0] > 0 ? culvertNs[i][0] : 3 / 2,
 
-			areaIDA: i < areaIDA.length ? areaIDA[i][0] : -1,
-			areaIDB: i < areaIDB.length ? areaIDB[i][0] : -1,
-			elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
-			elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
-		};
-		culverts.push(culvert);
+            areaIDA: i < areaIDA.length ? areaIDA[i][0] : -1,
+            areaIDB: i < areaIDB.length ? areaIDB[i][0] : -1,
+            elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
+            elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
+        };
+        culverts.push(culvert);
 
-	}
+    }
 
-	return culverts;
+    return culverts;
 }
 
 function updateCulvertList(culverts) {
-	removeAllChildren(document.getElementById("culvertList"));
+    removeAllChildren(document.getElementById("culvertList"));
 
-	for (let i = 0; i < culverts.length; i++) {
-		addCulvertListItem(i);
-	}
+    for (let i = 0;i < culverts.length;i++) {
+        addCulvertListItem(i);
+    }
 
-	if (culverts.length > 0) {
-		selectCulvert(0, culvertTimeframe);
-	}
+    if (culverts.length > 0) {
+        selectCulvert(0, culvertTimeframe);
+    }
 }
 
 function fillCulvertTables(culverts, timeframe) {
-	fillCulvertParamTable(culverts, timeframe);
-	fillCulvertResultTable(culverts, timeframe);
+    fillCulvertParamTable(culverts, timeframe);
+    fillCulvertResultTable(culverts, timeframe);
 }
 
 function fillCulvertParamTable(culverts, timeframe) {
 
-	let paramTable = document.getElementById("culvertParamTable");
+    let paramTable = document.getElementById("culvertParamTable");
 
-	clearTable(paramTable);
+    clearTable(paramTable);
 
-	addHeaderRow(paramTable, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES);
-	for (let culvert of culverts) {
-		addTimeframeRow(paramTable, timeframe, culvert, CULVERT_PARAM_PROPERTIES, {});
-	}
+    addHeaderRow(paramTable, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES);
+    for (let culvert of culverts) {
+        addTimeframeRow(paramTable, timeframe, culvert, CULVERT_PARAM_PROPERTIES, {});
+    }
 }
 
 function fillCulvertResultTable(culverts, timeframe) {
 
-	let resultTable = document.getElementById("culvertResultsTable");
+    let resultTable = document.getElementById("culvertResultsTable");
 
-	clearTable(resultTable);
+    clearTable(resultTable);
 
-	addHeaderRow(resultTable, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES);
-	for (let culvert of culverts) {
-		addTimeframeRow(resultTable, timeframe, culvert, CULVERT_RESULT_PROPERTIES, {});
-	}
+    addHeaderRow(resultTable, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES);
+    for (let culvert of culverts) {
+        addTimeframeRow(resultTable, timeframe, culvert, CULVERT_RESULT_PROPERTIES, {});
+    }
 }
 
 const culvertPanel = new CulvertPanel(document.getElementById("culvertDetailParent"));
 setupTimeframeSlider(culvertPanel.timeframeSlider, culvertTimeframe, timeframes, function() {
-	culvertTimeframe = culvertPanel.timeframeSlider.style.getPropertyValue("--value");
-	selectCulvert(getSelectedCulvertIndex());
+    culvertTimeframe = culvertPanel.timeframeSlider.style.getPropertyValue("--value");
+    selectCulvert(getSelectedCulvertIndex());
 });
 
 const culverts = createCulverts();
@@ -5036,14 +5022,14 @@ updateCulvertList(culverts);
 const culvertResultSlider = addTimeframeSlider(document.getElementById("culvertResultSliderDiv"));
 const culvertParamSlider = addTimeframeSlider(document.getElementById("culvertParamSliderDiv"));
 setupTimeframeSlider(culvertParamSlider, culvertTimeframe, timeframes, function() {
-	let timeframe = culvertParamSlider.style.getPropertyValue("--value");
-	culvertResultSlider.style.setProperty("--value", timeframe);
-	fillCulvertTables(culverts, timeframe);
+    let timeframe = culvertParamSlider.style.getPropertyValue("--value");
+    culvertResultSlider.style.setProperty("--value", timeframe);
+    fillCulvertTables(culverts, timeframe);
 });
 setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function() {
-	let timeframe = culvertResultSlider.style.getPropertyValue("--value");
-	culvertParamSlider.style.setProperty("--value", timeframe);
-	fillCulvertTables(culverts, timeframe);
+    let timeframe = culvertResultSlider.style.getPropertyValue("--value");
+    culvertParamSlider.style.setProperty("--value", timeframe);
+    fillCulvertTables(culverts, timeframe);
 });
 
 addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
@@ -5051,7 +5037,7 @@ addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "c
 //addImportHandler(document.getElementById("culvertImportResultCsvButton"),culverts, data[TIMEFRAMETIMES]);
 
 if (culverts.length <= 0) {
-	document.getElementById("navGroupCulverts").style.display = 'none';
+    document.getElementById("navGroupCulverts").style.display = 'none';
 }
 /**
  * Volume section 
@@ -5066,53 +5052,53 @@ const M3STORAGE = 'm3Storage';
 const M3GROUND = 'm3Ground';
 
 queries.addQuery(M3TOTAL,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_SURFACE_LAST_VALUE');
 queries.addQuery(M3GROUND,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_GROUND_LAST_STORAGE');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_GROUND_LAST_STORAGE');
 queries.addQuery(M3STORAGE,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_BUILDING_LAST_STORAGE');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_BUILDING_LAST_STORAGE');
 queries.addQuery(M3SEWER,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_SEWER_LAST_VALUE');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_SEWER_LAST_VALUE');
 queries.addQuery(M3UNSATURATED,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_GROUND_LAST_UNSATURATED_STORAGE');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_GROUND_LAST_UNSATURATED_STORAGE');
 queries.addQuery(M3WATER,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_M3WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_M3WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
 
 for (property of [M3TOTAL, M3WATER, M3GROUND, M3STORAGE, M3SEWER, M3UNSATURATED]) {
-	data[property] = queries.getData(property);
+    data[property] = queries.getData(property);
 }
 
 data[M3SATURATED] = data[M3GROUND].map((value, index) => value - data[M3UNSATURATED][index])
 data[M3LAND] = data[M3TOTAL].map((value, index) => value - data[M3WATER][index]);
 
 function initVolumeTitles() {
-	let titles = {};
+    let titles = {};
 
-	titles[TIMEFRAMES] = "Timeframe";//"Timeframe";
-	titles[TIMEFRAMETIMES] = "Timestamp";//"Tijdstap";
-	titles[M3LAND] = "Water on land [m³]";// "Water op land [m³]";
-	titles[M3WATER] = "Surface water [m³]";//"Oppervlaktewater [m³]";
-	titles[M3GROUND] = "Groundwater [m³]";//"Grondwater [m³]";
-	titles[M3STORAGE] = "Building storage [m³]";//"Waterbergende voorzieningen [m³]";
-	titles[M3SEWER] = "Sewer storage [m³]";//"Rioolwater [m³]";
-	titles[M3UNSATURATED] = "Storage unsaturated zone [m³]";//"Berging onverzadidge zone [m³]";
-	titles[M3SATURATED] = "Storage saturated zone [m³]";//"Berging verzadidge zone [m³]";
+    titles[TIMEFRAMES] = "Timeframe";//"Timeframe";
+    titles[TIMEFRAMETIMES] = "Timestamp";//"Tijdstap";
+    titles[M3LAND] = "Water on land [m³]";// "Water op land [m³]";
+    titles[M3WATER] = "Surface water [m³]";//"Oppervlaktewater [m³]";
+    titles[M3GROUND] = "Groundwater [m³]";//"Grondwater [m³]";
+    titles[M3STORAGE] = "Building storage [m³]";//"Waterbergende voorzieningen [m³]";
+    titles[M3SEWER] = "Sewer storage [m³]";//"Rioolwater [m³]";
+    titles[M3UNSATURATED] = "Storage unsaturated zone [m³]";//"Berging onverzadidge zone [m³]";
+    titles[M3SATURATED] = "Storage saturated zone [m³]";//"Berging verzadidge zone [m³]";
 
-	return titles;
+    return titles;
 }
 
 function initVolumeColors() {
-	let colors = {};
+    let colors = {};
 
-	colors[M3WATER] = [10, 10, 218, 0.5];
-	colors[M3LAND] = [10, 218, 10, 0.5];
-	colors[M3GROUND] = [165, 42, 42, 0.5];
-	colors[M3STORAGE] = [218, 10, 10, 0.5];
-	colors[M3SEWER] = [128, 128, 128, 0.5];
-	colors[M3UNSATURATED] = [218, 165, 10, 0.5];
-	colors[M3SATURATED] = [10, 165, 165, 0.5];
+    colors[M3WATER] = [10, 10, 218, 0.5];
+    colors[M3LAND] = [10, 218, 10, 0.5];
+    colors[M3GROUND] = [165, 42, 42, 0.5];
+    colors[M3STORAGE] = [218, 10, 10, 0.5];
+    colors[M3SEWER] = [128, 128, 128, 0.5];
+    colors[M3UNSATURATED] = [218, 165, 10, 0.5];
+    colors[M3SATURATED] = [10, 165, 165, 0.5];
 
-	return colors;
+    return colors;
 }
 
 const properties = [TIMEFRAMES, TIMEFRAMETIMES, M3LAND, M3WATER, M3SATURATED, M3UNSATURATED, M3SEWER, M3STORAGE];
@@ -5131,7 +5117,7 @@ barPlotLayout.xaxis.title.text = "Component";
 const barSlider = addTimeframeSlider(document.getElementById("balanceSliderDiv"));
 
 function updateBarPlot() {
-	barPlot("balancePlot", data, barSlider.getValue(), plotProperties, volumeColors, volumeTitles, barPlotLayout);
+    barPlot("balancePlot", data, barSlider.getValue(), plotProperties, volumeColors, volumeTitles, barPlotLayout);
 }
 
 updateBarPlot();
@@ -5183,168 +5169,168 @@ const BREACH_OUT = "BREACH_OUT";
 
 function initFlowTitles() {
 
-	let flowTitles = {};
-	flowTitles[TIMEFRAMES] = "Timeframes";
-	flowTitles[TIMEFRAMETIMES] = "Timestamp";//"Tijdstap";
+    let flowTitles = {};
+    flowTitles[TIMEFRAMES] = "Timeframes";
+    flowTitles[TIMEFRAMETIMES] = "Timestamp";//"Tijdstap";
 
-	flowTitles[RAINM3] = 'Rainfall [m³/timeframe]';//'Neerslag [m³/tijdstap]';
-	flowTitles[RAINM3LAND] = 'Rainfall on land [m³/timeframe]';// 'Neerslag op land [m³/tijdstap]';
-	flowTitles[RAINM3WATER] = 'Rainfall on water [m³/timeframe]';//'Neerslag op water [m³/tijdstap]';
-	flowTitles[RAINM3STORAGE] = 'Rainfall on building storage [m³/timeframe]';//'Neerslag op bergende voorzieningen [m³/tijdstap]';
-	flowTitles[LANDSEWER] = 'Sewer in [m³/tijdstap]';//Toestroom naar riool [m³/tijdstap]';
+    flowTitles[RAINM3] = 'Rainfall [m³/timeframe]';//'Neerslag [m³/tijdstap]';
+    flowTitles[RAINM3LAND] = 'Rainfall on land [m³/timeframe]';// 'Neerslag op land [m³/tijdstap]';
+    flowTitles[RAINM3WATER] = 'Rainfall on water [m³/timeframe]';//'Neerslag op water [m³/tijdstap]';
+    flowTitles[RAINM3STORAGE] = 'Rainfall on building storage [m³/timeframe]';//'Neerslag op bergende voorzieningen [m³/tijdstap]';
+    flowTitles[LANDSEWER] = 'Sewer in [m³/tijdstap]';//Toestroom naar riool [m³/tijdstap]';
 
-	flowTitles[EVAPOTRANSPIRATION] = 'Evapotranspiration[m³/tijdstap]';//'Verdamping [m³/tijdstap]';
-	flowTitles[GROUND_TRANSPIRATION] = 'Plant transpiration [m³/tijdstap]';//'Plant transpiratie [m³/tijdstap]';
-	flowTitles[SURFACE_EVAPORATIONLAND] = 'Evaporation Land [m³/tijdstap]';//'Verdamping Land [m³/tijdstap]';
-	flowTitles[SURFACE_EVAPORATIONWATER] = 'Evaporation Water [m³/tijdstap]';// 'Verdamping Water [m³/tijdstap]';
+    flowTitles[EVAPOTRANSPIRATION] = 'Evapotranspiration[m³/tijdstap]';//'Verdamping [m³/tijdstap]';
+    flowTitles[GROUND_TRANSPIRATION] = 'Plant transpiration [m³/tijdstap]';//'Plant transpiratie [m³/tijdstap]';
+    flowTitles[SURFACE_EVAPORATIONLAND] = 'Evaporation Land [m³/tijdstap]';//'Verdamping Land [m³/tijdstap]';
+    flowTitles[SURFACE_EVAPORATIONWATER] = 'Evaporation Water [m³/tijdstap]';// 'Verdamping Water [m³/tijdstap]';
 
 
-	flowTitles[SEWER_POC] = 'POC Sewer [m³/tijdstap]';//'POCRiool [m³/tijdstap]';
+    flowTitles[SEWER_POC] = 'POC Sewer [m³/tijdstap]';//'POCRiool [m³/tijdstap]';
 
-	flowTitles[SEWER_OVERFLOW_OUT] = 'Sewer Overflow [m³/tijdstap]';//'Riooloverstort [m³/tijdstap]';
+    flowTitles[SEWER_OVERFLOW_OUT] = 'Sewer Overflow [m³/tijdstap]';//'Riooloverstort [m³/tijdstap]';
 
-	flowTitles[INLET_SURFACE] = 'Inlet (surface) [m³/tijdstap]';//'Inlaat bovengronds [m³/tijdstap]';
-	flowTitles[INLET_GROUND] = 'Inlet (ground) [m³/tijdstap]';//'Inlaat ondergronds [m³/tijdstap]';
-	flowTitles[OUTLET_SURFACE] = 'Outlet (surface) [m³/tijdstap]';//'Uitlaat bovengronds [m³/tijdstap]';
-	flowTitles[OUTLET_GROUND] = 'Outlet (ground) [m³/tijdstap]';//'Uitlaat ondergronds [m³/tijdstap]';
-	flowTitles[BOTTOM_FLOW_IN] = 'Bottom flow in [m³/tijdstap]';//'Kwel [m³/tijdstap]';
-	flowTitles[BOTTOM_FLOW_OUT] = 'Bottom flow out [m³/tijdstap]';//'Uitzijging [m³/tijdstap]';
-	flowTitles[CULVERT] = 'Culvert [m³/tijdstap]';//'Duiker [m³/tijdstap]';
-	flowTitles[CULVERT_IN] = 'Culvert in [m³/tijdstap]';//'Duiker in waterbeheergebied [m³/tijdstap]';
-	flowTitles[CULVERT_OUT] = 'Culvert out [m³/tijdstap]';//'Duiker uit waterbeheergebied [m³/tijdstap]';
-	flowTitles[CULVERT_INNER] = 'Culvert within [m³/tijdstap]';//'Duiker binnen waterbeheergebied [m³/tijdstap]';
-	flowTitles[PUMP] = 'Pump';//'Pomp';
-	flowTitles[PUMP_IN] = 'Pump in [m³/tijdstap]';//'Pomp in waterbeheergebied [m³/tijdstap]';
-	flowTitles[PUMP_OUT] = 'Pump out [m³/tijdstap]';//'Pomp uit waterbeheergebied [m³/tijdstap]';
-	flowTitles[PUMP_INNER] = 'Pump within [m³/tijdstap]';//'Pomp binnen waterbeheergebied [m³/tijdstap]';
-	flowTitles[WEIR] = 'Weir';//'Stuw';
-	flowTitles[WEIR_IN] = 'Weir in [m³/tijdstap]';//'Stuw in [m³/tijdstap]';
-	flowTitles[WEIR_OUT] = 'Weir out [m³/tijdstap]';//'Stuw uit [m³/tijdstap]';
-	flowTitles[WEIR_INNER] = 'Weir within [m³/tijdstap]';//'Stuw binnen waterbeheergebied [m³/tijdstap]';
-	flowTitles[MODEL_IN] = 'Water Level Area in [m³/tijdstap]';//'Waterbeheergebied in [m³/tijdstap]';
-	flowTitles[MODEL_OUT] = 'Water Level Area out [m³/tijdstap]';//'Waterbeheergebied uit [m³/tijdstap]';
+    flowTitles[INLET_SURFACE] = 'Inlet (surface) [m³/tijdstap]';//'Inlaat bovengronds [m³/tijdstap]';
+    flowTitles[INLET_GROUND] = 'Inlet (ground) [m³/tijdstap]';//'Inlaat ondergronds [m³/tijdstap]';
+    flowTitles[OUTLET_SURFACE] = 'Outlet (surface) [m³/tijdstap]';//'Uitlaat bovengronds [m³/tijdstap]';
+    flowTitles[OUTLET_GROUND] = 'Outlet (ground) [m³/tijdstap]';//'Uitlaat ondergronds [m³/tijdstap]';
+    flowTitles[BOTTOM_FLOW_IN] = 'Bottom flow in [m³/tijdstap]';//'Kwel [m³/tijdstap]';
+    flowTitles[BOTTOM_FLOW_OUT] = 'Bottom flow out [m³/tijdstap]';//'Uitzijging [m³/tijdstap]';
+    flowTitles[CULVERT] = 'Culvert [m³/tijdstap]';//'Duiker [m³/tijdstap]';
+    flowTitles[CULVERT_IN] = 'Culvert in [m³/tijdstap]';//'Duiker in waterbeheergebied [m³/tijdstap]';
+    flowTitles[CULVERT_OUT] = 'Culvert out [m³/tijdstap]';//'Duiker uit waterbeheergebied [m³/tijdstap]';
+    flowTitles[CULVERT_INNER] = 'Culvert within [m³/tijdstap]';//'Duiker binnen waterbeheergebied [m³/tijdstap]';
+    flowTitles[PUMP] = 'Pump';//'Pomp';
+    flowTitles[PUMP_IN] = 'Pump in [m³/tijdstap]';//'Pomp in waterbeheergebied [m³/tijdstap]';
+    flowTitles[PUMP_OUT] = 'Pump out [m³/tijdstap]';//'Pomp uit waterbeheergebied [m³/tijdstap]';
+    flowTitles[PUMP_INNER] = 'Pump within [m³/tijdstap]';//'Pomp binnen waterbeheergebied [m³/tijdstap]';
+    flowTitles[WEIR] = 'Weir';//'Stuw';
+    flowTitles[WEIR_IN] = 'Weir in [m³/tijdstap]';//'Stuw in [m³/tijdstap]';
+    flowTitles[WEIR_OUT] = 'Weir out [m³/tijdstap]';//'Stuw uit [m³/tijdstap]';
+    flowTitles[WEIR_INNER] = 'Weir within [m³/tijdstap]';//'Stuw binnen waterbeheergebied [m³/tijdstap]';
+    flowTitles[MODEL_IN] = 'Water Level Area in [m³/tijdstap]';//'Waterbeheergebied in [m³/tijdstap]';
+    flowTitles[MODEL_OUT] = 'Water Level Area out [m³/tijdstap]';//'Waterbeheergebied uit [m³/tijdstap]';
 
-	flowTitles[M3GROUND] = 'Groundwater [m³]';//'Grondwater [m³]';
-	flowTitles[M3UNSATURATED] = 'Unsaturated zone [m³]';//'Onverzadigde zone [m³]';
-	flowTitles[M3SATURATED] = 'Saturated zone [m³]';//'Verzadigde zone [m³]';
-	flowTitles[M3LAND] = 'Land [m³]';//'Land [m³]';
-	flowTitles[M3WATER] = 'Surface water [m³]';//'Oppervlaktewater [m³]';
-	flowTitles[M3STORAGE] = 'Building storage [m³]';//'Berging voorzieningen [m³]';
-	flowTitles[M3TOTAL] = 'Surface [m³]';//'Surface [m³]';
-	flowTitles[M3SEWER] = 'Sewer [m³]';//'Riolering [m³]';
-	flowTitles[BREACH] = 'Breach';//'Bres';
-	flowTitles[BREACH_IN] = 'Breach in [m³/tijdstap]';//'Bres in [m³/tijdstap]';
-	flowTitles[BREACH_OUT] = 'Breach out [m³/tijdstap]';//'Bres uit [m³/tijdstap]';
+    flowTitles[M3GROUND] = 'Groundwater [m³]';//'Grondwater [m³]';
+    flowTitles[M3UNSATURATED] = 'Unsaturated zone [m³]';//'Onverzadigde zone [m³]';
+    flowTitles[M3SATURATED] = 'Saturated zone [m³]';//'Verzadigde zone [m³]';
+    flowTitles[M3LAND] = 'Land [m³]';//'Land [m³]';
+    flowTitles[M3WATER] = 'Surface water [m³]';//'Oppervlaktewater [m³]';
+    flowTitles[M3STORAGE] = 'Building storage [m³]';//'Berging voorzieningen [m³]';
+    flowTitles[M3TOTAL] = 'Surface [m³]';//'Surface [m³]';
+    flowTitles[M3SEWER] = 'Sewer [m³]';//'Riolering [m³]';
+    flowTitles[BREACH] = 'Breach';//'Bres';
+    flowTitles[BREACH_IN] = 'Breach in [m³/tijdstap]';//'Bres in [m³/tijdstap]';
+    flowTitles[BREACH_OUT] = 'Breach out [m³/tijdstap]';//'Bres uit [m³/tijdstap]';
 
-	return flowTitles;
+    return flowTitles;
 }
 
 function initFlowColors() {
-	let flowColors = {};
-	// Model In/Out
-	flowColors[MODEL_IN] = [44, 160, 44, 0.5];           // Groen
-	flowColors[MODEL_OUT] = [214, 39, 40, 0.5];          // Rood
+    let flowColors = {};
+    // Model In/Out
+    flowColors[MODEL_IN] = [44, 160, 44, 0.5];           // Groen
+    flowColors[MODEL_OUT] = [214, 39, 40, 0.5];          // Rood
 
-	//Natuurlijlke processen
-	flowColors[RAINM3] = [31, 119, 180, 0.5];          // Donkerblauw - Neerslag
-	flowColors[RAINM3LAND] = [31, 119, 180, 0.5];          // Donkerblauw - Neerslag
-	flowColors[RAINM3WATER] = [31, 119, 180, 0.5];
-	flowColors[RAINM3STORAGE] = [31, 119, 180, 0.5];
+    //Natuurlijlke processen
+    flowColors[RAINM3] = [31, 119, 180, 0.5];          // Donkerblauw - Neerslag
+    flowColors[RAINM3LAND] = [31, 119, 180, 0.5];          // Donkerblauw - Neerslag
+    flowColors[RAINM3WATER] = [31, 119, 180, 0.5];
+    flowColors[RAINM3STORAGE] = [31, 119, 180, 0.5];
 
-	flowColors[LANDSEWER] = [31, 119, 180, 0.5];
-
-
-
-	flowColors[EVAPOTRANSPIRATION] = [31, 119, 180, 0.5];
-	flowColors[GROUND_TRANSPIRATION] = [31, 119, 180, 0.5];
-	flowColors[SURFACE_EVAPORATIONLAND] = [31, 119, 180, 0.5];
-	flowColors[SURFACE_EVAPORATIONWATER] = [31, 119, 180, 0.5];
+    flowColors[LANDSEWER] = [31, 119, 180, 0.5];
 
 
-	flowColors[BOTTOM_FLOW_IN] = [31, 119, 180, 0.5];
-	flowColors[BOTTOM_FLOW_OUT] = [31, 119, 180, 0.5];
 
-	// Berging - Lichtblauw
-	flowColors[M3LAND] = [196, 196, 220, 0.5];         // Berging land
-	flowColors[M3WATER] = [196, 196, 220, 0.5];        // Oppervlaktewater
-	flowColors[M3GROUND] = [196, 196, 220, 0.5];       // Bodem
-	flowColors[M3STORAGE] = [196, 196, 220, 0.5];      // Gebouwen
-	flowColors[M3UNSATURATED] = [196, 196, 220, 0.5];      // Onverzadidge zone
-	flowColors[M3SATURATED] = [196, 196, 220, 0.5];      // Verzadidge zone
-	flowColors[M3TOTAL] = [196, 196, 220, 0.5];        // Totale berging (optioneel)
+    flowColors[EVAPOTRANSPIRATION] = [31, 119, 180, 0.5];
+    flowColors[GROUND_TRANSPIRATION] = [31, 119, 180, 0.5];
+    flowColors[SURFACE_EVAPORATIONLAND] = [31, 119, 180, 0.5];
+    flowColors[SURFACE_EVAPORATIONWATER] = [31, 119, 180, 0.5];
 
-	// Kunstwerken - Oranje
-	flowColors[INLET_SURFACE] = [255, 127, 14, 0.5];
-	flowColors[INLET_GROUND] = [255, 127, 14, 0.5];
-	flowColors[OUTLET_SURFACE] = [255, 127, 14, 0.5];
-	flowColors[OUTLET_GROUND] = [255, 127, 14, 0.5];
-	flowColors[PUMP] = [255, 127, 14, 0.5];
-	flowColors[PUMP_IN] = [255, 127, 14, 0.5];
-	flowColors[PUMP_OUT] = [255, 127, 14, 0.5];
-	flowColors[PUMP_INNER] = [255, 127, 14, 0.5];
-	flowColors[SEWER_OVERFLOW_OUT] = [255, 127, 14, 0.5]; // Overstort
-	flowColors[SEWER_POC] = [255, 127, 14, 0.5];           // POC
-	flowColors[CULVERT] = [255, 127, 14, 0.5];
-	flowColors[CULVERT_IN] = [255, 127, 14, 0.5];
-	flowColors[CULVERT_OUT] = [255, 127, 14, 0.5];
-	flowColors[CULVERT_INNER] = [255, 127, 14, 0.5];
-	flowColors[WEIR] = [255, 127, 14, 0.5];
-	flowColors[WEIR_IN] = [255, 127, 14, 0.5];
-	flowColors[WEIR_OUT] = [255, 127, 14, 0.5];
-	flowColors[WEIR_INNER] = [255, 127, 14, 0.5];
-	flowColors[BREACH] = [255, 127, 14, 0.5];
-	flowColors[BREACH_IN] = [255, 127, 14, 0.5];
-	flowColors[BREACH_OUT] = [255, 127, 14, 0.5];
 
-	return flowColors;
+    flowColors[BOTTOM_FLOW_IN] = [31, 119, 180, 0.5];
+    flowColors[BOTTOM_FLOW_OUT] = [31, 119, 180, 0.5];
+
+    // Berging - Lichtblauw
+    flowColors[M3LAND] = [196, 196, 220, 0.5];         // Berging land
+    flowColors[M3WATER] = [196, 196, 220, 0.5];        // Oppervlaktewater
+    flowColors[M3GROUND] = [196, 196, 220, 0.5];       // Bodem
+    flowColors[M3STORAGE] = [196, 196, 220, 0.5];      // Gebouwen
+    flowColors[M3UNSATURATED] = [196, 196, 220, 0.5];      // Onverzadidge zone
+    flowColors[M3SATURATED] = [196, 196, 220, 0.5];      // Verzadidge zone
+    flowColors[M3TOTAL] = [196, 196, 220, 0.5];        // Totale berging (optioneel)
+
+    // Kunstwerken - Oranje
+    flowColors[INLET_SURFACE] = [255, 127, 14, 0.5];
+    flowColors[INLET_GROUND] = [255, 127, 14, 0.5];
+    flowColors[OUTLET_SURFACE] = [255, 127, 14, 0.5];
+    flowColors[OUTLET_GROUND] = [255, 127, 14, 0.5];
+    flowColors[PUMP] = [255, 127, 14, 0.5];
+    flowColors[PUMP_IN] = [255, 127, 14, 0.5];
+    flowColors[PUMP_OUT] = [255, 127, 14, 0.5];
+    flowColors[PUMP_INNER] = [255, 127, 14, 0.5];
+    flowColors[SEWER_OVERFLOW_OUT] = [255, 127, 14, 0.5]; // Overstort
+    flowColors[SEWER_POC] = [255, 127, 14, 0.5];           // POC
+    flowColors[CULVERT] = [255, 127, 14, 0.5];
+    flowColors[CULVERT_IN] = [255, 127, 14, 0.5];
+    flowColors[CULVERT_OUT] = [255, 127, 14, 0.5];
+    flowColors[CULVERT_INNER] = [255, 127, 14, 0.5];
+    flowColors[WEIR] = [255, 127, 14, 0.5];
+    flowColors[WEIR_IN] = [255, 127, 14, 0.5];
+    flowColors[WEIR_OUT] = [255, 127, 14, 0.5];
+    flowColors[WEIR_INNER] = [255, 127, 14, 0.5];
+    flowColors[BREACH] = [255, 127, 14, 0.5];
+    flowColors[BREACH_IN] = [255, 127, 14, 0.5];
+    flowColors[BREACH_OUT] = [255, 127, 14, 0.5];
+
+    return flowColors;
 }
 
 function initNodeColors() {
-	let nodeColors = {};
+    let nodeColors = {};
 
-	nodeColors[MODEL_IN] = "#2ca02c";
-	nodeColors[MODEL_OUT] = "#d62728";
-	nodeColors[M3LAND] = "#6699cc";
-	nodeColors[M3WATER] = "#6699cc";
-	nodeColors[M3GROUND] = "#6699cc";
-	nodeColors[M3STORAGE] = "#6699cc";
-	nodeColors[M3SEWER] = "#6699cc";
-	nodeColors[M3UNSATURATED] = "#6699cc";
-	nodeColors[M3SATURATED] = "#6699cc";
-	nodeColors[RAINM3] = "#1f77b4";
-	nodeColors[RAINM3LAND] = "#c5b0d5";
-	nodeColors[RAINM3WATER] = "#8c564b";
-	nodeColors[RAINM3STORAGE] = "#c49c94";
-	nodeColors[GROUND_TRANSPIRATION] = "#1f77b4";
-	nodeColors[EVAPOTRANSPIRATION] = "#1f77b4";
-	nodeColors[SURFACE_EVAPORATIONLAND] = "#1f77b4";
-	nodeColors[SURFACE_EVAPORATIONWATER] = "#1f77b4";
-	nodeColors[BOTTOM_FLOW_IN] = "#1f77b4";
-	nodeColors[BOTTOM_FLOW_OUT] = "#1f77b4";
-	nodeColors[LANDSEWER] = "#17becf";
-	nodeColors[SEWER_POC] = "#ff7f0e";
-	nodeColors[SEWER_OVERFLOW_OUT] = "#ff7f0e";
-	nodeColors[CULVERT] = "#ff7f0e";
-	nodeColors[CULVERT_IN] = "#ff7f0e";
-	nodeColors[CULVERT_OUT] = "#ff7f0e";
-	nodeColors[CULVERT_INNER] = "#ff7f0e";
-	nodeColors[INLET_SURFACE] = "#ff7f0e";
-	nodeColors[OUTLET_SURFACE] = "#ff7f0e";
-	nodeColors[INLET_GROUND] = "#ff7f0e";
-	nodeColors[OUTLET_GROUND] = "#ff7f0e";
-	nodeColors[PUMP] = "#ff7f0e";
-	nodeColors[PUMP_IN] = "#ff7f0e";
-	nodeColors[PUMP_OUT] = "#ff7f0e";
-	nodeColors[PUMP_INNER] = "#ff7f0e";
-	nodeColors[WEIR] = "#ff7f0e";
-	nodeColors[WEIR_IN] = "#ff7f0e";
-	nodeColors[WEIR_OUT] = "#ff7f0e";
-	nodeColors[WEIR_INNER] = "#ff7f0e";
-	nodeColors[BREACH] = "#ff7f0e";
-	nodeColors[BREACH_IN] = "#ff7f0e";
-	nodeColors[BREACH_OUT] = "#ff7f0e";
+    nodeColors[MODEL_IN] = "#2ca02c";
+    nodeColors[MODEL_OUT] = "#d62728";
+    nodeColors[M3LAND] = "#6699cc";
+    nodeColors[M3WATER] = "#6699cc";
+    nodeColors[M3GROUND] = "#6699cc";
+    nodeColors[M3STORAGE] = "#6699cc";
+    nodeColors[M3SEWER] = "#6699cc";
+    nodeColors[M3UNSATURATED] = "#6699cc";
+    nodeColors[M3SATURATED] = "#6699cc";
+    nodeColors[RAINM3] = "#1f77b4";
+    nodeColors[RAINM3LAND] = "#c5b0d5";
+    nodeColors[RAINM3WATER] = "#8c564b";
+    nodeColors[RAINM3STORAGE] = "#c49c94";
+    nodeColors[GROUND_TRANSPIRATION] = "#1f77b4";
+    nodeColors[EVAPOTRANSPIRATION] = "#1f77b4";
+    nodeColors[SURFACE_EVAPORATIONLAND] = "#1f77b4";
+    nodeColors[SURFACE_EVAPORATIONWATER] = "#1f77b4";
+    nodeColors[BOTTOM_FLOW_IN] = "#1f77b4";
+    nodeColors[BOTTOM_FLOW_OUT] = "#1f77b4";
+    nodeColors[LANDSEWER] = "#17becf";
+    nodeColors[SEWER_POC] = "#ff7f0e";
+    nodeColors[SEWER_OVERFLOW_OUT] = "#ff7f0e";
+    nodeColors[CULVERT] = "#ff7f0e";
+    nodeColors[CULVERT_IN] = "#ff7f0e";
+    nodeColors[CULVERT_OUT] = "#ff7f0e";
+    nodeColors[CULVERT_INNER] = "#ff7f0e";
+    nodeColors[INLET_SURFACE] = "#ff7f0e";
+    nodeColors[OUTLET_SURFACE] = "#ff7f0e";
+    nodeColors[INLET_GROUND] = "#ff7f0e";
+    nodeColors[OUTLET_GROUND] = "#ff7f0e";
+    nodeColors[PUMP] = "#ff7f0e";
+    nodeColors[PUMP_IN] = "#ff7f0e";
+    nodeColors[PUMP_OUT] = "#ff7f0e";
+    nodeColors[PUMP_INNER] = "#ff7f0e";
+    nodeColors[WEIR] = "#ff7f0e";
+    nodeColors[WEIR_IN] = "#ff7f0e";
+    nodeColors[WEIR_OUT] = "#ff7f0e";
+    nodeColors[WEIR_INNER] = "#ff7f0e";
+    nodeColors[BREACH] = "#ff7f0e";
+    nodeColors[BREACH_IN] = "#ff7f0e";
+    nodeColors[BREACH_OUT] = "#ff7f0e";
 
-	return nodeColors;
+    return nodeColors;
 }
 
 const AREA_ID = "AreaID";
@@ -5373,32 +5359,32 @@ const INLET_IS_UNDERGROUND = "inletIsUnderground";
 const INLET_IS_SURFACE = "inletIsSurface";
 
 queries.addQuery(CULVERT_AREA_FROM,
-	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
+    '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queries.addQuery(CULVERT_AREA_TO,
-	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
+    '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
 queries.addQuery(PUMP_AREA_FROM,
-	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_PUMP_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
+    '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_PUMP_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queries.addQuery(PUMP_AREA_TO,
-	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_PUMP_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
+    '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_PUMP_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
 queries.addQuery(INLET_AREA_FROM,
-	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
+    '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queries.addQuery(INLET_AREA_TO,
-	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
+    '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
 queries.addQuery(INLET_UNDERGROUND,
-	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_UNDERGROUND_AND_INDEX_IS_0');
+    '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_INLET_Q_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_UNDERGROUND_AND_INDEX_IS_0');
 queries.addQuery(WEIR_AREA_FROM,
-	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
+    '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queries.addQuery(WEIR_AREA_TO,
-	'$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
+    '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
 queries.addQuery(BREACH_AREA_FROM,
-	'$SELECT_ATTRIBUTE_WHERE_AREA_IS_XK_BREACH_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
+    '$SELECT_ATTRIBUTE_WHERE_AREA_IS_XK_BREACH_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_0');
 queries.addQuery(BREACH_AREA_TO,
-	'$SELECT_ATTRIBUTE_WHERE_AREA_IS_XK_BREACH_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
+    '$SELECT_ATTRIBUTE_WHERE_AREA_IS_XK_BREACH_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_1');
 
 for (property of
-	[CULVERT_AREA_FROM, CULVERT_AREA_TO, PUMP_AREA_FROM, PUMP_AREA_TO, INLET_AREA_FROM, INLET_AREA_TO,
-		WEIR_AREA_FROM, WEIR_AREA_TO, BREACH_AREA_FROM, BREACH_AREA_TO, INLET_UNDERGROUND]) {
-	flowData[property] = queries.getData(property);
+    [CULVERT_AREA_FROM, CULVERT_AREA_TO, PUMP_AREA_FROM, PUMP_AREA_TO, INLET_AREA_FROM, INLET_AREA_TO,
+        WEIR_AREA_FROM, WEIR_AREA_TO, BREACH_AREA_FROM, BREACH_AREA_TO, INLET_UNDERGROUND]) {
+    flowData[property] = queries.getData(property);
 }
 flowData[INLET_IS_SURFACE] = flowData[INLET_UNDERGROUND].map((value, _index) => value <= 0);
 flowData[INLET_IS_UNDERGROUND] = flowData[INLET_UNDERGROUND].map((value, _index) => value > 0);
@@ -5407,30 +5393,30 @@ flowData[TIMEFRAMES] = data[TIMEFRAMES];
 flowData[TIMEFRAMETIMES] = data[TIMEFRAMETIMES];
 
 queries.addQuery(RAINM3,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_RAIN');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_RAIN');
 queries.addQuery(RAINM3STORAGE,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_BUILDING_LAST_STORAGE');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_BUILDING_LAST_STORAGE');
 queries.addQuery(LANDSEWER,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_SEWER_LAST_VALUE');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_SEWER_LAST_VALUE');
 queries.addQuery(EVAPOTRANSPIRATION,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_EVAPOTRANSPIRATION');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_EVAPOTRANSPIRATION');
 queries.addQuery(GROUND_TRANSPIRATION,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_GROUND_TRANSPIRATION');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_GROUND_TRANSPIRATION');
 queries.addQuery(BOTTOM_FLOW,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_GROUND_BOTTOM_FLOW');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID_AND_RESULTTYPE_IS_GROUND_BOTTOM_FLOW');
 
 
 queries.addQuery(RAINM3LAND,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_RAIN_LAND_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_RAIN_LAND_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
 queries.addQuery(RAINM3WATER,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_RAIN_WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_RAIN_WATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
 queries.addQuery(SURFACE_EVAPORATIONLAND,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_EVAPORATIONLAND_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_EVAPORATIONLAND_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
 queries.addQuery(SURFACE_EVAPORATIONWATER,
-	'$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_EVAPORATIONWATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
+    '$SELECT_GRIDVOLUME_WHERE_GRID_WITH_ATTRIBUTE_IS_HSO_EVAPORATIONWATER_AND_TIMEFRAME_IS_X_AND_AREA_IS_ID');
 
 for (property of [RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, LANDSEWER, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, GROUND_TRANSPIRATION]) {
-	flowData[property] = queries.getData(property).map(stepwise);
+    flowData[property] = queries.getData(property).map(stepwise);
 }
 
 flowData[BOTTOM_FLOW_IN] = queries.getData(BOTTOM_FLOW).map(countPositive).map(stepwise);
@@ -5448,17 +5434,17 @@ flowData[M3UNSATURATED] = data[M3UNSATURATED];
 flowData[M3SATURATED] = data[M3SATURATED];
 
 flowData[MODEL_IN] = flowData[RAINM3].map((_, i) =>
-	flowData[RAINM3][i] +
-	flowData[INLET_GROUND][i] +
-	flowData[INLET_SURFACE][i] +
-	flowData[BOTTOM_FLOW_IN][i]
+    flowData[RAINM3][i] +
+    flowData[INLET_GROUND][i] +
+    flowData[INLET_SURFACE][i] +
+    flowData[BOTTOM_FLOW_IN][i]
 );
 
 flowData[MODEL_OUT] = flowData[EVAPOTRANSPIRATION].map((_, i) =>
-	flowData[EVAPOTRANSPIRATION][i] +
-	flowData[OUTLET_GROUND][i] +
-	flowData[OUTLET_SURFACE][i] +
-	flowData[BOTTOM_FLOW_OUT][i]
+    flowData[EVAPOTRANSPIRATION][i] +
+    flowData[OUTLET_GROUND][i] +
+    flowData[OUTLET_SURFACE][i] +
+    flowData[BOTTOM_FLOW_OUT][i]
 );
 
 const BREACH_FLOW = "BREACH_FLOW";
@@ -5471,41 +5457,41 @@ const SEWER_FLOW = "SEWER_FLOW";
 const SERVER_OVERFLOW = "SERVER_OVERFLOW";
 
 queries.addQuery(BREACH_FLOW,
-	'$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_AREA_IS_XK_BREACH_HEIGHT_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+    '$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_AREA_IS_XK_BREACH_HEIGHT_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(INLET_FLOW,
-	'$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_INLET_Q_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+    '$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_INLET_Q_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(WEIR_FLOW,
-	'$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_WEIR_HEIGHT_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+    '$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_WEIR_HEIGHT_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(CULVERT_FLOW,
-	'$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_CULVERT_DIAMETER_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+    '$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_CULVERT_DIAMETER_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(PUMP_FLOW,
-	'$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_PUMP_Q_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+    '$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_PUMP_Q_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(DRAINAGE_FLOW,
-	'$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_DRAINAGE_Q_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+    '$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_DRAINAGE_Q_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(SEWER_FLOW,
-	'$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_AREA_IS_XK_SEWER_STORAGE_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+    '$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_AREA_IS_XK_SEWER_STORAGE_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(SERVER_OVERFLOW,
-	'$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_SEWER_OVERFLOW_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+    '$SELECT_ATTRIBUTE_WHERE_KEY_IS_OBJECT_FLOW_OUTPUT_AND_BUILDING_IS_XK_SEWER_OVERFLOW_AND_TIMEFRAME_IS_Y_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 
 queries.getData(BREACH_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValues(flowData, timeframe, BREACH_IN, BREACH_OUT, BREACH_AREA_FROM, BREACH_AREA_TO, values));
+    addFlowValues(flowData, timeframe, BREACH_IN, BREACH_OUT, BREACH_AREA_FROM, BREACH_AREA_TO, values));
 
 queries.getData(INLET_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValues(flowData, timeframe, INLET_SURFACE, OUTLET_SURFACE, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_SURFACE));
+    addFlowValues(flowData, timeframe, INLET_SURFACE, OUTLET_SURFACE, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_SURFACE));
 
 
 queries.getData(INLET_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValues(flowData, timeframe, INLET_GROUND, OUTLET_GROUND, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_UNDERGROUND));
+    addFlowValues(flowData, timeframe, INLET_GROUND, OUTLET_GROUND, INLET_AREA_FROM, INLET_AREA_TO, values, condition = INLET_IS_UNDERGROUND));
 
 
 queries.getData(WEIR_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValuesWithInner(flowData, timeframe, WEIR_IN, WEIR_OUT, WEIR_INNER, WEIR_AREA_FROM, WEIR_AREA_TO, values));
+    addFlowValuesWithInner(flowData, timeframe, WEIR_IN, WEIR_OUT, WEIR_INNER, WEIR_AREA_FROM, WEIR_AREA_TO, values));
 
 queries.getData(CULVERT_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValuesWithInner(flowData, timeframe, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, CULVERT_AREA_FROM, CULVERT_AREA_TO, values));
+    addFlowValuesWithInner(flowData, timeframe, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, CULVERT_AREA_FROM, CULVERT_AREA_TO, values));
 
 queries.getData(PUMP_FLOW, false).map((values, timeframe, _array) =>
-	addFlowValuesWithInner(flowData, timeframe, PUMP_IN, PUMP_OUT, PUMP_INNER, PUMP_AREA_FROM, PUMP_AREA_TO, values));
+    addFlowValuesWithInner(flowData, timeframe, PUMP_IN, PUMP_OUT, PUMP_INNER, PUMP_AREA_FROM, PUMP_AREA_TO, values));
 
 //queries.getData(DRAINAGE_FLOW, false).map((values, index, _array) =>
 //	addFlowValues(flowData, index, DRAINGE_IN, DRAINAGE_OUT, DRAINAGE_AREA_FROM, DRAINAGE_AREA_TO, values));
@@ -5515,12 +5501,12 @@ const sewerPOC = queries.getData(SEWER_FLOW, false);
 
 let sewerPOCSums = [];
 
-for (let areaKey = 0; areaKey < sewerPOC.length; areaKey++) {
-	let areaValues = sewerPOC[areaKey];
-	for (let timeframeKey = 0; timeframeKey < areaValues.length; timeframeKey++) {
-		sewerPOCSums[timeframeKey] = sewerPOCSums[timeframeKey] ?? 0;
-		sewerPOCSums[timeframeKey] = sewerPOCSums[timeframeKey] + areaValues[timeframeKey];
-	}
+for (let areaKey = 0;areaKey < sewerPOC.length;areaKey++) {
+    let areaValues = sewerPOC[areaKey];
+    for (let timeframeKey = 0;timeframeKey < areaValues.length;timeframeKey++) {
+        sewerPOCSums[timeframeKey] = sewerPOCSums[timeframeKey] ?? 0;
+        sewerPOCSums[timeframeKey] = sewerPOCSums[timeframeKey] + areaValues[timeframeKey];
+    }
 }
 
 flowData[SEWER_POC] = sewerPOCSums;
@@ -5529,12 +5515,12 @@ const sewerOverflow = queries.getData(SERVER_OVERFLOW, false);
 
 let sewerOverflowSums = [];
 
-for (let buildingKey = 0; buildingKey < sewerOverflow.length; buildingKey++) {
-	let buildingValues = sewerOverflow[buildingKey];
-	for (let timeframeKey = 0; timeframeKey < buildingValues.length; timeframeKey++) {
-		sewerOverflowSums[timeframeKey] = sewerOverflowSums[timeframeKey] ?? 0;
-		sewerOverflowSums[timeframeKey] = sewerOverflowSums[timeframeKey] + buildingValues[timeframeKey];
-	}
+for (let buildingKey = 0;buildingKey < sewerOverflow.length;buildingKey++) {
+    let buildingValues = sewerOverflow[buildingKey];
+    for (let timeframeKey = 0;timeframeKey < buildingValues.length;timeframeKey++) {
+        sewerOverflowSums[timeframeKey] = sewerOverflowSums[timeframeKey] ?? 0;
+        sewerOverflowSums[timeframeKey] = sewerOverflowSums[timeframeKey] + buildingValues[timeframeKey];
+    }
 }
 
 flowData[SEWER_OVERFLOW_OUT] = sewerOverflowSums;
@@ -5544,98 +5530,98 @@ createTable("waterFlowTable", flowData, flowProperties, flowColors, flowTitles);
 const sankeyproperties = [TIMEFRAMES, MODEL_IN, MODEL_OUT, M3LAND, M3WATER, M3GROUND, M3SATURATED, M3UNSATURATED, M3STORAGE, M3SEWER, RAINM3, RAINM3LAND, RAINM3WATER, RAINM3STORAGE, GROUND_TRANSPIRATION, EVAPOTRANSPIRATION, SURFACE_EVAPORATIONLAND, SURFACE_EVAPORATIONWATER, BOTTOM_FLOW_IN, BOTTOM_FLOW_OUT, LANDSEWER, SEWER_POC, SEWER_OVERFLOW_OUT, CULVERT, CULVERT_IN, CULVERT_OUT, CULVERT_INNER, INLET_SURFACE, OUTLET_SURFACE, INLET_GROUND, OUTLET_GROUND, PUMP, PUMP_IN, PUMP_OUT, PUMP_INNER, WEIR, WEIR_IN, WEIR_OUT, WEIR_INNER, BREACH, BREACH_IN, BREACH_OUT];
 
 let links = createLinks(sankeyproperties);
-for (let i = 0; i < timeframes; i++) {
-	//Model in
-	addLink(links, i, MODEL_IN, RAINM3, flowData[RAINM3][i]);
-	addLink(links, i, MODEL_IN, INLET_GROUND, flowData[INLET_GROUND][i]);
-	addLink(links, i, MODEL_IN, INLET_SURFACE, flowData[INLET_SURFACE][i]);
-	addLink(links, i, MODEL_IN, BOTTOM_FLOW_IN, flowData[BOTTOM_FLOW_IN][i]);
-	addLink(links, i, MODEL_IN, CULVERT, flowData[CULVERT_IN][i]);
-	addLink(links, i, MODEL_IN, PUMP, flowData[PUMP_IN][i]);
-	addLink(links, i, MODEL_IN, WEIR, flowData[WEIR_IN][i]);
-	addLink(links, i, MODEL_IN, BREACH, flowData[BREACH_IN][i]);
+for (let i = 0;i < timeframes;i++) {
+    //Model in
+    addLink(links, i, MODEL_IN, RAINM3, flowData[RAINM3][i]);
+    addLink(links, i, MODEL_IN, INLET_GROUND, flowData[INLET_GROUND][i]);
+    addLink(links, i, MODEL_IN, INLET_SURFACE, flowData[INLET_SURFACE][i]);
+    addLink(links, i, MODEL_IN, BOTTOM_FLOW_IN, flowData[BOTTOM_FLOW_IN][i]);
+    addLink(links, i, MODEL_IN, CULVERT, flowData[CULVERT_IN][i]);
+    addLink(links, i, MODEL_IN, PUMP, flowData[PUMP_IN][i]);
+    addLink(links, i, MODEL_IN, WEIR, flowData[WEIR_IN][i]);
+    addLink(links, i, MODEL_IN, BREACH, flowData[BREACH_IN][i]);
 
-	//Neerslag	
-	addLink(links, i, RAINM3, M3LAND, flowData[RAINM3LAND][i]);
-	addLink(links, i, RAINM3, M3WATER, flowData[RAINM3WATER][i]);
-	addLink(links, i, RAINM3, M3STORAGE, flowData[RAINM3STORAGE][i]);
+    //Neerslag	
+    addLink(links, i, RAINM3, M3LAND, flowData[RAINM3LAND][i]);
+    addLink(links, i, RAINM3, M3WATER, flowData[RAINM3WATER][i]);
+    addLink(links, i, RAINM3, M3STORAGE, flowData[RAINM3STORAGE][i]);
 
-	//Berging Land
-	addLink(links, i, M3LAND, M3SEWER, flowData[LANDSEWER][i]);
-	addLink(links, i, M3LAND, SURFACE_EVAPORATIONLAND, flowData[SURFACE_EVAPORATIONLAND][i]);
-	//addLink(links, i, M3LAND, M3GROUND, flowData[][i]);
+    //Berging Land
+    addLink(links, i, M3LAND, M3SEWER, flowData[LANDSEWER][i]);
+    addLink(links, i, M3LAND, SURFACE_EVAPORATIONLAND, flowData[SURFACE_EVAPORATIONLAND][i]);
+    //addLink(links, i, M3LAND, M3GROUND, flowData[][i]);
 
-	//Berging oppervlaktewater
-	//addLink(links, i, M3WATER, M3GROUND, flowData[][i]);
-	addLink(links, i, M3WATER, WEIR, flowData[WEIR_OUT][i]);
-	addLink(links, i, M3WATER, SURFACE_EVAPORATIONWATER, flowData[SURFACE_EVAPORATIONWATER][i]);
-	addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_OUT][i]);
-	addLink(links, i, M3WATER, OUTLET_SURFACE, flowData[OUTLET_SURFACE][i]);
-	addLink(links, i, M3WATER, PUMP, flowData[PUMP_OUT][i]);
-	addLink(links, i, M3WATER, PUMP, flowData[PUMP_INNER][i]);
-	addLink(links, i, M3WATER, WEIR, flowData[WEIR_INNER][i]);
-	addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_INNER][i]);
+    //Berging oppervlaktewater
+    //addLink(links, i, M3WATER, M3GROUND, flowData[][i]);
+    addLink(links, i, M3WATER, WEIR, flowData[WEIR_OUT][i]);
+    addLink(links, i, M3WATER, SURFACE_EVAPORATIONWATER, flowData[SURFACE_EVAPORATIONWATER][i]);
+    addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_OUT][i]);
+    addLink(links, i, M3WATER, OUTLET_SURFACE, flowData[OUTLET_SURFACE][i]);
+    addLink(links, i, M3WATER, PUMP, flowData[PUMP_OUT][i]);
+    addLink(links, i, M3WATER, PUMP, flowData[PUMP_INNER][i]);
+    addLink(links, i, M3WATER, WEIR, flowData[WEIR_INNER][i]);
+    addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_INNER][i]);
 
 
-	//Berging Bodem
-	addLink(links, i, M3GROUND, BOTTOM_FLOW_OUT, flowData[BOTTOM_FLOW_OUT][i]);
-	addLink(links, i, M3GROUND, GROUND_TRANSPIRATION, flowData[GROUND_TRANSPIRATION][i]);
-	addLink(links, i, M3GROUND, OUTLET_GROUND, flowData[OUTLET_GROUND][i]);
+    //Berging Bodem
+    addLink(links, i, M3GROUND, BOTTOM_FLOW_OUT, flowData[BOTTOM_FLOW_OUT][i]);
+    addLink(links, i, M3GROUND, GROUND_TRANSPIRATION, flowData[GROUND_TRANSPIRATION][i]);
+    addLink(links, i, M3GROUND, OUTLET_GROUND, flowData[OUTLET_GROUND][i]);
 
-	//Berging Riool
-	addLink(links, i, M3SEWER, SEWER_OVERFLOW_OUT, flowData[SEWER_OVERFLOW_OUT][i]);
-	addLink(links, i, M3SEWER, SEWER_POC, flowData[SEWER_POC][i]);
+    //Berging Riool
+    addLink(links, i, M3SEWER, SEWER_OVERFLOW_OUT, flowData[SEWER_OVERFLOW_OUT][i]);
+    addLink(links, i, M3SEWER, SEWER_POC, flowData[SEWER_POC][i]);
 
-	//Inlaat Surface
-	addLink(links, i, INLET_SURFACE, M3LAND, flowData[INLET_SURFACE][i]); // Eigenlijk zou hier een uitsplitsing moeten zijn tussen een inlaat op land en een inlaat in het water
+    //Inlaat Surface
+    addLink(links, i, INLET_SURFACE, M3LAND, flowData[INLET_SURFACE][i]); // Eigenlijk zou hier een uitsplitsing moeten zijn tussen een inlaat op land en een inlaat in het water
 
-	//Inlaat Ground
-	addLink(links, i, INLET_GROUND, M3GROUND, flowData[INLET_GROUND][i]);
+    //Inlaat Ground
+    addLink(links, i, INLET_GROUND, M3GROUND, flowData[INLET_GROUND][i]);
 
-	//Uitlaat Surface
-	addLink(links, i, OUTLET_SURFACE, MODEL_OUT, flowData[OUTLET_SURFACE][i]);
+    //Uitlaat Surface
+    addLink(links, i, OUTLET_SURFACE, MODEL_OUT, flowData[OUTLET_SURFACE][i]);
 
-	//Uitlaat Land
-	addLink(links, i, OUTLET_GROUND, MODEL_OUT, flowData[OUTLET_GROUND][i]);
+    //Uitlaat Land
+    addLink(links, i, OUTLET_GROUND, MODEL_OUT, flowData[OUTLET_GROUND][i]);
 
-	//Kwel 
-	addLink(links, i, BOTTOM_FLOW_IN, M3GROUND, flowData[BOTTOM_FLOW_IN][i]);
+    //Kwel 
+    addLink(links, i, BOTTOM_FLOW_IN, M3GROUND, flowData[BOTTOM_FLOW_IN][i]);
 
-	//Riool overstort
-	addLink(links, i, SEWER_OVERFLOW_OUT, M3LAND, flowData[SEWER_OVERFLOW_OUT][i]);
+    //Riool overstort
+    addLink(links, i, SEWER_OVERFLOW_OUT, M3LAND, flowData[SEWER_OVERFLOW_OUT][i]);
 
-	//POC
-	addLink(links, i, SEWER_POC, MODEL_OUT, flowData[SEWER_POC][i]);
+    //POC
+    addLink(links, i, SEWER_POC, MODEL_OUT, flowData[SEWER_POC][i]);
 
-	//Wegzijging
-	addLink(links, i, BOTTOM_FLOW_OUT, MODEL_OUT, flowData[BOTTOM_FLOW_OUT][i]);
+    //Wegzijging
+    addLink(links, i, BOTTOM_FLOW_OUT, MODEL_OUT, flowData[BOTTOM_FLOW_OUT][i]);
 
-	//Transpiratie
-	addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
+    //Transpiratie
+    addLink(links, i, GROUND_TRANSPIRATION, MODEL_OUT, flowData[GROUND_TRANSPIRATION][i]);
 
-	//Verdamping
-	addLink(links, i, SURFACE_EVAPORATIONLAND, MODEL_OUT, flowData[SURFACE_EVAPORATIONLAND][i]);
-	addLink(links, i, SURFACE_EVAPORATIONWATER, MODEL_OUT, flowData[SURFACE_EVAPORATIONWATER][i]);
+    //Verdamping
+    addLink(links, i, SURFACE_EVAPORATIONLAND, MODEL_OUT, flowData[SURFACE_EVAPORATIONLAND][i]);
+    addLink(links, i, SURFACE_EVAPORATIONWATER, MODEL_OUT, flowData[SURFACE_EVAPORATIONWATER][i]);
 
-	//Stuw
-	addLink(links, i, WEIR, MODEL_OUT, flowData[WEIR_OUT][i]);
-	addLink(links, i, WEIR, M3WATER, flowData[WEIR_INNER][i]);
+    //Stuw
+    addLink(links, i, WEIR, MODEL_OUT, flowData[WEIR_OUT][i]);
+    addLink(links, i, WEIR, M3WATER, flowData[WEIR_INNER][i]);
 
-	//Duiker in
-	addLink(links, i, CULVERT, M3WATER, flowData[CULVERT_IN][i]);
-	addLink(links, i, CULVERT, M3WATER, flowData[CULVERT_INNER][i]);
+    //Duiker in
+    addLink(links, i, CULVERT, M3WATER, flowData[CULVERT_IN][i]);
+    addLink(links, i, CULVERT, M3WATER, flowData[CULVERT_INNER][i]);
 
-	//Duiker uit
-	addLink(links, i, CULVERT, MODEL_OUT, flowData[CULVERT_OUT][i]);
+    //Duiker uit
+    addLink(links, i, CULVERT, MODEL_OUT, flowData[CULVERT_OUT][i]);
 
-	//Pomp
-	addLink(links, i, PUMP, M3WATER, flowData[PUMP_IN][i]);
-	addLink(links, i, PUMP, M3WATER, flowData[PUMP_INNER][i]);
+    //Pomp
+    addLink(links, i, PUMP, M3WATER, flowData[PUMP_IN][i]);
+    addLink(links, i, PUMP, M3WATER, flowData[PUMP_INNER][i]);
 
-	//Bres
-	addLink(links, i, BREACH, M3LAND, flowData[BREACH_IN][i]);
-	addLink(links, i, M3LAND, BREACH, flowData[BREACH_OUT][i]);
-	addLink(links, i, BREACH, MODEL_OUT, flowData[BREACH_OUT][i]);
+    //Bres
+    addLink(links, i, BREACH, M3LAND, flowData[BREACH_IN][i]);
+    addLink(links, i, M3LAND, BREACH, flowData[BREACH_OUT][i]);
+    addLink(links, i, BREACH, MODEL_OUT, flowData[BREACH_OUT][i]);
 
 
 }
@@ -5646,16 +5632,16 @@ const sankeyLayout = createSankeyPlotLayout();
 const sankeySlider = addTimeframeSlider(document.getElementById("sankeySliderDiv"));
 
 function plotSankey() {
-	sankeyPlot(
-		"sankeyPlot",         // plotDivName
-		links,                // links
-		sankeySlider.getValue(),   // timeframe
-		sankeyproperties,     // properties
-		flowTitles,           // titles
-		sankeyLayout,         // layout
-		nodeColors           // kleuren als object
+    sankeyPlot(
+        "sankeyPlot",         // plotDivName
+        links,                // links
+        sankeySlider.getValue(),   // timeframe
+        sankeyproperties,     // properties
+        flowTitles,           // titles
+        sankeyLayout,         // layout
+        nodeColors           // kleuren als object
 
-	);
+    );
 }
 
 

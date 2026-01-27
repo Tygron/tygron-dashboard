@@ -1107,32 +1107,18 @@ class QueryDataManager {
 	hasData(key) {
 		return (!!this.queryDataObjects[key]);
 	}
-
-	getData(key, forceToArray = true) {
-		let queryDataObject = this.getQueryDataObject(key);
-		let data = queryDataObject.getData(this.allowFallbackData);
-		return forceToArray ? ArrayUtils.coerceToArray(data) : data;
-	}
-	
 	/**
-	 * @description Wraps the data into an array of arrays, if it isn't already. 
-	 * @param {string} key 
-	 */
-	getMatrixData(key){
+	 * * @param {boolean} forceToArray wrap the data in an array if it isn't
+		 * @param {boolean} forceArrayToArrays Wrap the array in an array if it isn't. Requires forceToArray to be true.
+		 */
+	getData(key, forceToArray = true, forceArrayToArrays = false) {
 		let queryDataObject = this.getQueryDataObject(key);
 		let data = queryDataObject.getData(this.allowFallbackData);
-		if(data == null){
-			return [[]];
+		data = forceToArray ? ArrayUtils.coerceToArray(data) : data;
+		if(forceToArray && forceArrayToArrays){
+			data = Array.isArray(data[0])? data: [data];
 		}
-		if(Array.isArray(data) && data.length == 0){
-			return [[]];
-		}
-		
-		if(!Array.isArray(data)){
-			data= [data];
-		}	
-		
-		return Array.isArray(data[0])? data: [data];
+		return data;
 	}
 
 	getDataMatrix(key, outerArrayKey = null, innerArrayKey = null) {
