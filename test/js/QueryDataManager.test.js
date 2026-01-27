@@ -377,7 +377,7 @@ describe('QueryDataManager', () => {
 
         queryDataManager.addQuery('single', 1.3);
 
-        let data = queryDataManager.getData('emptyData', true, true);
+        let data = queryDataManager.getData('single', true, true);
         let expected = [[1.3]];
 
         expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
