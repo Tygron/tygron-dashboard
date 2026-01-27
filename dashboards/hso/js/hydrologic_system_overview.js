@@ -9,6 +9,7 @@ import { WeirPanel } from "../../../src/js/water/structures/WeirPanel.js";
 import { CulvertPanel } from "../../../src/js/water/structures/CulvertPanel.js";
 import { drawWeirFront, drawWeirSide } from "../../../src/js/water/structures/WeirPlot.js";
 import { drawCulvertFront, drawCulvertSide } from "../../../src/js/water/structures/CulvertPlot.js";
+import { Installer } from "../../../src/js/io/Installer.js";
 
 // Sidebar toggles
 document.querySelectorAll(".nav-item").forEach(item => {
@@ -652,7 +653,6 @@ setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function
 
 addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "culvert_results.csv", () => toCSVContent(culverts, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES, timeframes));
-//addImportHandler(document.getElementById("culvertImportResultCsvButton"),culverts, data[TIMEFRAMETIMES]);
 
 if (culverts.length <= 0) {
     document.getElementById("navGroupCulverts").style.display = 'none';
@@ -1270,3 +1270,62 @@ plotSankey();
 addDownloadHandler(document.getElementById("balanceCSVButton"), "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
 addDownloadHandler(document.getElementById("flowCSVButton"), "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
 
+function showImportCSVButtons(show) {
+    document.getElementById("weirImportResultCsvButton").style.display = show ? "block" : "none";
+    document.getElementById("culvertImportResultCsvButton").style.display = show ? "block" : "none";
+
+}
+function isDateValid(dateStr) {
+    return !isNaN(new Date(dateStr));
+}
+
+function hasValidDateFormat() {
+
+    for (let timeframeTime of data[TIMEFRAMETIMES]) {
+        if (!isDateValid(timeframeTime)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+const installer = new Installer();
+function appendChains(...functions) {
+    installer.appendChains(functions);
+}
+
+document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event));
+document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event));
+
+function changeTimestamp() {
+    appendChains(
+        installer.getConnector().post("event/editorsetting/set_timestamp_format", null, ["YYYY-MM-dd HH:mm:ss"]),
+
+        () => showImportCSVButtons(true)
+    );
+}
+
+function onImportFileSelected(event) {
+
+    app.warning("Start processing data");
+
+}
+
+function validateTimestamp() {
+    if (typeof app !== "undefined") {
+        installer.init(app.token());
+        if (!hasValidDateFormat()) {
+            changeTimestamp();
+            showImportCSVButtons(false);
+        } else {
+            showImportCSVButtons(true);
+        }
+    } else {
+        showImportCSVButtons(false);
+    }
+}
+
+$(window).on("load", function() {
+
+    validateTimestamp();
+});
