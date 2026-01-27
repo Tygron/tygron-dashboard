@@ -190,7 +190,9 @@ export function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datum
 	let maxDatum = getMaxDatumCulvert(culvertDatum + culvertHeight, datumsLeft, datumsRight);
 
 	let range = maxDatum - minDatum;
-
+	if (range <= 0) {
+		return;
+	}
 
 	let baseHeight = canvas.height / 8;
 	let heightMultiplier = (canvas.height - 3 * baseHeight) / range;
@@ -240,7 +242,9 @@ export function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datums
 	let maxDatum = getMaxDatumCulvert(culvertDatum + culvertHeight, datumsLeft, datumsRight);
 
 	let range = maxDatum - minDatum;
-
+	if (range <= 0) {
+		return;
+	}
 
 	let baseHeight = canvas.height / 8;
 	let heightMultiplier = (canvas.height - 3 * baseHeight) / range;

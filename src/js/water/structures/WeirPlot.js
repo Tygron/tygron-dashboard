@@ -228,14 +228,13 @@ export function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, damHeight);
 
 	let range = maxDatum - minDatum;
-
-	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
-	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
-	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
-
 	if (range <= 0) {
 		return;
 	}
+	
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
 
 	if (damHeight <= 0) {
 		damHeight = weirHeight;
@@ -341,7 +340,10 @@ export function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRigh
 	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, weirDamHeight);
 
-	let range = maxDatum - minDatum;
+	let range = Math.max(maxDatum - minDatum, 0.001);
+	if (range <= 0) {
+		return;
+	}
 
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
