@@ -1584,6 +1584,27 @@ class QueryDataManager {
 		let data = queryDataObject.getData(this.allowFallbackData);
 		return forceToArray ? ArrayUtils.coerceToArray(data) : data;
 	}
+	
+	/**
+	 * @description Wraps the data into an array of arrays, if it isn't already. 
+	 * @param {string} key 
+	 */
+	getMatrixData(key){
+		let queryDataObject = this.getQueryDataObject(key);
+		let data = queryDataObject.getData(this.allowFallbackData);
+		if(data == null){
+			return [[]];
+		}
+		if(Array.isArray(data) && data.length == 0){
+			return [[]];
+		}
+		
+		if(!Array.isArray(data)){
+			data= [data];
+		}	
+		
+		return Array.isArray(data[0])? data: [data];
+	}
 
 	getDataMatrix(key, outerArrayKey = null, innerArrayKey = null) {
 		let data = this._getDataMatrixUnbounded(key, outerArrayKey, innerArrayKey);
@@ -4617,18 +4638,18 @@ function createWeirs() {
 	let weirs = [];
 
 	let names = queries.getData(WEIR_NAMES, true);
-	let width = queries.getDataMatrix(WEIR_WIDTH, true);
-	let heights = queries.getDataMatrix(WEIR_HEIGHT_OUTPUT, true);
-	let flow = queries.getDataMatrix(WEIR_FLOW_OUTPUT, true);
-	let datumA = queries.getDataMatrix(WEIR_DATUM_OUTPUT_A, true);
-	let datumB = queries.getDataMatrix(WEIR_DATUM_OUTPUT_B, true);
-	let damWidth = queries.getDataMatrix(WEIR_DAM_WIDTH, true);
-	let damHeight = queries.getDataMatrix(WEIR_DAM_HEIGHT, true);
-	let areaOutputA = queries.getDataMatrix(WEIR_AREA_OUTPUT_A, true);
-	let areaOutputB = queries.getDataMatrix(WEIR_AREA_OUTPUT_B, true);
-	let angle = queries.getDataMatrix(WEIR_ANGLE, true);
-	let coefficient = queries.getDataMatrix(WEIR_COEFFICIENT, true);
-	let weirN = queries.getDataMatrix(WEIR_N, true);
+	let width = queries.getMatrixData(WEIR_WIDTH, true);
+	let heights = queries.getMatrixData(WEIR_HEIGHT_OUTPUT, true);
+	let flow = queries.getMatrixData(WEIR_FLOW_OUTPUT, true);
+	let datumA = queries.getMatrixData(WEIR_DATUM_OUTPUT_A, true);
+	let datumB = queries.getMatrixData(WEIR_DATUM_OUTPUT_B, true);
+	let damWidth = queries.getMatrixData(WEIR_DAM_WIDTH, true);
+	let damHeight = queries.getMatrixData(WEIR_DAM_HEIGHT, true);
+	let areaOutputA = queries.getMatrixData(WEIR_AREA_OUTPUT_A, true);
+	let areaOutputB = queries.getMatrixData(WEIR_AREA_OUTPUT_B, true);
+	let angle = queries.getMatrixData(WEIR_ANGLE, true);
+	let coefficient = queries.getMatrixData(WEIR_COEFFICIENT, true);
+	let weirN = queries.getMatrixData(WEIR_N, true);
 
 	for (let i = 0; i < names.length; i++) {
 
@@ -4907,18 +4928,18 @@ function createCulverts() {
 	let culverts = [];
 
 	let names = queries.getData(CULVERT_NAMES, true);
-	let diameters = queries.getDataMatrix(CULVERT_DIAMETER, true);
-	let datumHeights = queries.getDataMatrix(CULVERT_DATUM_HEIGHT, true);
-	let rectangularHeights = queries.getDataMatrix(CULVERT_RECTANGULAR_HEIGHT, true);
-	let culvertNs = queries.getDataMatrix(CULVERT_N, true);
-	let heights = queries.getDataMatrix(CULVERT_HEIGHT_OUTPUT, true);
-	let flows = queries.getDataMatrix(CULVERT_FLOW_OUTPUT, true);
-	let datumsA = queries.getDataMatrix(CULVERT_DATUM_OUTPUT_A, true);
-	let datumsB = queries.getDataMatrix(CULVERT_DATUM_OUTPUT_B, true);
-	let areaIDA = queries.getDataMatrix(CULVERT_AREA_OUTPUT_A, true);
-	let areaIDB = queries.getDataMatrix(CULVERT_AREA_OUTPUT_B, true);
-	let elevationA = queries.getDataMatrix(CULVERT_DATUM_HEIGHT_OUTPUT_A, true);
-	let elevationB = queries.getDataMatrix(CULVERT_DATUM_HEIGHT_OUTPUT_B, true);
+	let diameters = queries.getMatrixData(CULVERT_DIAMETER, true);
+	let datumHeights = queries.getMatrixData(CULVERT_DATUM_HEIGHT, true);
+	let rectangularHeights = queries.getMatrixData(CULVERT_RECTANGULAR_HEIGHT, true);
+	let culvertNs = queries.getMatrixData(CULVERT_N, true);
+	let heights = queries.getMatrixData(CULVERT_HEIGHT_OUTPUT, true);
+	let flows = queries.getMatrixData(CULVERT_FLOW_OUTPUT, true);
+	let datumsA = queries.getMatrixData(CULVERT_DATUM_OUTPUT_A, true);
+	let datumsB = queries.getMatrixData(CULVERT_DATUM_OUTPUT_B, true);
+	let areaIDA = queries.getMatrixData(CULVERT_AREA_OUTPUT_A, true);
+	let areaIDB = queries.getMatrixData(CULVERT_AREA_OUTPUT_B, true);
+	let elevationA = queries.getMatrixData(CULVERT_DATUM_HEIGHT_OUTPUT_A, true);
+	let elevationB = queries.getMatrixData(CULVERT_DATUM_HEIGHT_OUTPUT_B, true);
 
 	for (let i = 0; i < names.length; i++) {
 
