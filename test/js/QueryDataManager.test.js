@@ -364,10 +364,46 @@ describe('QueryDataManager', () => {
         let queryDataManager = new QueryDataManager();
 
         queryDataManager.addQuery('emptyData', '');
-		
-		let data = queryDataManager.getData('emptyData', true,true);	
-		let expected = [[]];
 
-		expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
-    });	
+        let data = queryDataManager.getData('emptyData', true, true);
+        let expected = [[]];
+
+        expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
+    });
+
+    it('can map a single value to a matrix', () => {
+
+        let queryDataManager = new QueryDataManager();
+
+        queryDataManager.addQuery('single', 1.3);
+
+        let data = queryDataManager.getData('emptyData', true, true);
+        let expected = [[1.3]];
+
+        expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
+    });
+
+    it('can map a single value array to a matrix', () => {
+
+        let queryDataManager = new QueryDataManager();
+
+        queryDataManager.addQuery('singleArray', [1.5]);
+
+        let data = queryDataManager.getData('singleArray', true, true);
+        let expected = [[1.5]];
+
+        expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
+    });
+
+    it('can map a single value matrix to a matrix', () => {
+
+        let queryDataManager = new QueryDataManager();
+
+        queryDataManager.addQuery('emptyData', [[2.0]]);
+
+        let data = queryDataManager.getData('emptyData', true, true);
+        let expected = [[2.0]];
+
+        expect(JSON.stringify(data)).toBe(JSON.stringify(expected));
+    });
 });
