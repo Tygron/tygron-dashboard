@@ -459,7 +459,7 @@ describe('QueryDataManager', () => {
 
         let queryDataManager = new QueryDataManager();
 
-        queryDataManager.addQuery('matrix', "2.0, 3.0, 5.0");
+        queryDataManager.addQuery('matrix', "[2.0, 3.0, 5.0]");
 
         let data = queryDataManager.getData('matrix', true, true);
         let expected = [[2.0, 3.0, 5.0]];
