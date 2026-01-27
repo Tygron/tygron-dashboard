@@ -1466,6 +1466,40 @@ function _toCSVContentArray(data, properties, titles, timeframes) {
 	return csvContent;
 }
 
+
+class Installer {
+
+
+    _connector;
+    _chain;
+
+    init(appToken) {
+        this._connector = connector(appToken);
+        this._chain = this._connector.start();
+    }
+
+    appendChains(functions) {
+		if (typeof functions === 'function') {
+		    this._chain = this._chain.then(this._connector.chain(functions));
+		
+		}else if(Array.isArray(functions)){
+			for (let func of functions) {
+				this.appendChains(func);
+			}
+		}else{
+			console.log("Installer.AppendChains argument is ignored. It is not a function nor an array: " + functions);
+		}
+    }
+
+    getConnector() {
+        return this._connector;
+    }
+
+    catch(catcher) {
+        this._chain = this._chain.catch(error => catcher(error));
+    }
+}
+
 function hasRequiredAttributesAndValues(item, requiredAttributes) {
 
 	for (const key of requiredAttributes.keys()) {
@@ -3107,7 +3141,9 @@ function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight,
 	let maxDatum = getMaxDatumCulvert(culvertDatum + culvertHeight, datumsLeft, datumsRight);
 
 	let range = maxDatum - minDatum;
-
+	if (range <= 0) {
+		return;
+	}
 
 	let baseHeight = canvas.height / 8;
 	let heightMultiplier = (canvas.height - 3 * baseHeight) / range;
@@ -3157,7 +3193,9 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 	let maxDatum = getMaxDatumCulvert(culvertDatum + culvertHeight, datumsLeft, datumsRight);
 
 	let range = maxDatum - minDatum;
-
+	if (range <= 0) {
+		return;
+	}
 
 	let baseHeight = canvas.height / 8;
 	let heightMultiplier = (canvas.height - 3 * baseHeight) / range;
@@ -3770,14 +3808,13 @@ function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damWi
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, damHeight);
 
 	let range = maxDatum - minDatum;
-
-	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
-	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
-	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
-
 	if (range <= 0) {
 		return;
 	}
+	
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
 
 	if (damHeight <= 0) {
 		damHeight = weirHeight;
@@ -3883,7 +3920,10 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, weirDamHeight);
 
-	let range = maxDatum - minDatum;
+	let range = Math.max(maxDatum - minDatum, 0.001);
+	if (range <= 0) {
+		return;
+	}
 
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;

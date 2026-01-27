@@ -700,9 +700,7 @@ canvas {
 					<div id="culvertResultSliderDiv"></div>
 					<button class="btn" id="culvertDownloadResultCsvButton">Download
 						CSV</button>
-					<button class="btn" id="culvertImportResultCsvButton">Import
-						CSV</button>
-
+					<input type="file" id="culvertImportResultCsvButton" accept=".csv"/>
 					<table id="culvertResultsTable">
 						<thead>
 							<tr>
@@ -774,8 +772,7 @@ canvas {
 					<div id="weirResultSliderDiv"></div>
 					<button class="btn" id="weirDownloadResultCsvButton">Download
 						CSV</button>
-					<button class="btn" id="weirImportResultCsvButton">Import
-						CSV</button>
+					<input type="file" id="weirImportResultCsvButton" accept=".csv"/>
 					<table id="weirResultsTable">
 						<thead>
 							<tr>
@@ -1935,6 +1932,40 @@ function _toCSVContentArray(data, properties, titles, timeframes) {
 		}
 	}
 	return csvContent;
+}
+
+
+class Installer {
+
+
+    _connector;
+    _chain;
+
+    init(appToken) {
+        this._connector = connector(appToken);
+        this._chain = this._connector.start();
+    }
+
+    appendChains(functions) {
+		if (typeof functions === 'function') {
+		    this._chain = this._chain.then(this._connector.chain(functions));
+		
+		}else if(Array.isArray(functions)){
+			for (let func of functions) {
+				this.appendChains(func);
+			}
+		}else{
+			console.log("Installer.AppendChains argument is ignored. It is not a function nor an array: " + functions);
+		}
+    }
+
+    getConnector() {
+        return this._connector;
+    }
+
+    catch(catcher) {
+        this._chain = this._chain.catch(error => catcher(error));
+    }
 }
 
 function hasRequiredAttributesAndValues(item, requiredAttributes) {
@@ -3578,7 +3609,9 @@ function drawCulvertFront(canvas, index, culvertDatums, datumsLeft, datumsRight,
 	let maxDatum = getMaxDatumCulvert(culvertDatum + culvertHeight, datumsLeft, datumsRight);
 
 	let range = maxDatum - minDatum;
-
+	if (range <= 0) {
+		return;
+	}
 
 	let baseHeight = canvas.height / 8;
 	let heightMultiplier = (canvas.height - 3 * baseHeight) / range;
@@ -3628,7 +3661,9 @@ function drawCulvertSide(canvas, index, culvertDatums, datumsLeft, datumsRight, 
 	let maxDatum = getMaxDatumCulvert(culvertDatum + culvertHeight, datumsLeft, datumsRight);
 
 	let range = maxDatum - minDatum;
-
+	if (range <= 0) {
+		return;
+	}
 
 	let baseHeight = canvas.height / 8;
 	let heightMultiplier = (canvas.height - 3 * baseHeight) / range;
@@ -4241,14 +4276,13 @@ function drawWeirSide(canvas, index, weirHeights, datumsLeft, datumsRight, damWi
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, damHeight);
 
 	let range = maxDatum - minDatum;
-
-	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
-	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
-	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
-
 	if (range <= 0) {
 		return;
 	}
+	
+	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
+	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
+	let weirHeight = Array.isArray(weirHeights) ? weirHeights[index] : weirHeights;
 
 	if (damHeight <= 0) {
 		damHeight = weirHeight;
@@ -4354,7 +4388,10 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	let minDatum = getMinDatumWeir(weirHeights, datumsLeft, datumsRight);
 	let maxDatum = getMaxDatumWeir(weirHeights, datumsLeft, datumsRight, weirDamHeight);
 
-	let range = maxDatum - minDatum;
+	let range = Math.max(maxDatum - minDatum, 0.001);
+	if (range <= 0) {
+		return;
+	}
 
 	let datumLeft = Array.isArray(datumsLeft) ? datumsLeft[index] : datumsLeft;
 	let datumRight = Array.isArray(datumsRight) ? datumsRight[index] : datumsRight;
@@ -4377,6 +4414,7 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 	drawFrontWaterLevel(ctx, smallestWaterLevel, minDatum, baseHeight, multiplier);
 
 }
+
 
 
 
@@ -5031,7 +5069,6 @@ setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function
 
 addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "culvert_results.csv", () => toCSVContent(culverts, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES, timeframes));
-//addImportHandler(document.getElementById("culvertImportResultCsvButton"),culverts, data[TIMEFRAMETIMES]);
 
 if (culverts.length <= 0) {
     document.getElementById("navGroupCulverts").style.display = 'none';
@@ -5649,5 +5686,64 @@ plotSankey();
 addDownloadHandler(document.getElementById("balanceCSVButton"), "waterbalance.csv", () => toCSVContent(data, properties, volumeTitles, timeframes));
 addDownloadHandler(document.getElementById("flowCSVButton"), "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
 
+function showImportCSVButtons(show) {
+    document.getElementById("weirImportResultCsvButton").style.display = show ? "block" : "none";
+    document.getElementById("culvertImportResultCsvButton").style.display = show ? "block" : "none";
+
+}
+function isDateValid(dateStr) {
+    return !isNaN(new Date(dateStr));
+}
+
+function hasValidDateFormat() {
+
+    for (let timeframeTime of data[TIMEFRAMETIMES]) {
+        if (!isDateValid(timeframeTime)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+const installer = new Installer();
+function appendChains(...functions) {
+    installer.appendChains(functions);
+}
+
+document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event));
+document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event));
+
+function changeTimestamp() {
+    appendChains(
+        installer.getConnector().post("event/editorsetting/set_timestamp_format", null, ["YYYY-MM-dd HH:mm:ss"]),
+
+        () => showImportCSVButtons(true)
+    );
+}
+
+function onImportFileSelected(event) {
+
+    app.warning("Start processing data");
+
+}
+
+function validateTimestamp() {
+    if (typeof app !== "undefined") {
+        installer.init(app.token());
+        if (!hasValidDateFormat()) {
+            changeTimestamp();
+            showImportCSVButtons(false);
+        } else {
+            showImportCSVButtons(true);
+        }
+    } else {
+        showImportCSVButtons(false);
+    }
+}
+
+$(window).on("load", function() {
+
+    validateTimestamp();
+});
 
 	</script>
