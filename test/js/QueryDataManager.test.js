@@ -363,9 +363,7 @@ describe('QueryDataManager', () => {
 
         let queryDataManager = new QueryDataManager();
 
-        queryDataManager.addQueryData('emptyData', {
-            query: '',
-        });
+        queryDataManager.addQuery('emptyData', '');
 		
 		let data = queryDataManager.getData('emtyData', true,true);	
 		let expected = [[]];
@@ -376,7 +374,7 @@ describe('QueryDataManager', () => {
 	it('can map null data to a matrix', () => {
 
 	    let queryDataManager = new QueryDataManager();
-		
+		queryDataManager.addQuery('nullData', null);
 		let data = queryDataManager.getData('nullData', true,true);	
 		let expected = [[]];
 
