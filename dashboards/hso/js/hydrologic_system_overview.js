@@ -1325,7 +1325,7 @@ function onImportFileSelected(event, items) {
 
     const reader = new WaterLevelCSVReader();
     reader.setHeaderPredicate(isValidHeader);
-    reader.setOnFinish(plotResults);
+    //TODO: Implement reader.setOnFinish(plotResults);
 
     document.getElementById('fileInput').addEventListener('change',
         function(event) {
@@ -1358,7 +1358,7 @@ function validateTimestamp() {
         installer.init(app.token());
         if (!hasValidDateFormat()) {
             dialogPane.yesNo("Your project's date format is required to be updated before importing date related data. Do you want to do that right now?", (e) => { changeTimestamp() }, null);
-        } else {
+		} else {
             showImportCSVButtons(true);
         }
     } else {
