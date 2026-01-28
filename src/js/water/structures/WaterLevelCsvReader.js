@@ -1,4 +1,4 @@
-class WaterLevelCSVReader {
+export class WaterLevelCSVReader {
 
     _startDate = null;
     _endDate = null;
