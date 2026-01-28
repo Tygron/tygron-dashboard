@@ -10,6 +10,7 @@ import { CulvertPanel } from "../../../src/js/water/structures/CulvertPanel.js";
 import { drawWeirFront, drawWeirSide } from "../../../src/js/water/structures/WeirPlot.js";
 import { drawCulvertFront, drawCulvertSide } from "../../../src/js/water/structures/CulvertPlot.js";
 import { Installer } from "../../../src/js/io/Installer.js";
+import { DialogPane } from "../../../src/js/ui/DialogPane.js";
 
 // Sidebar toggles
 document.querySelectorAll(".nav-item").forEach(item => {
@@ -43,6 +44,7 @@ document.querySelector("[data-section='wb-volumetabel']").click();
 
 document.getElementById("waterAreaName").innerHTML = '$NAME';
 
+const dialogPane = new DialogPane(document.body);
 
 const queries = new QueryDataManager();
 const stepwise = (value, index, array) => index === 0 ? value : value - array[index - 1];
@@ -53,13 +55,27 @@ const data = {};
 
 const TIMEFRAMES = 'timeframes';
 const TIMEFRAMETIMES = 'timeframetimes';
+const START_DATE_MS = 'startDateMS';
+
 queries.addQuery(TIMEFRAMETIMES,
     '$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(START_DATE_MS,
+    '$SELECT_ATTRIBUTE_WHERE_NAME_IS_START_DATE_MS_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+
 
 data[TIMEFRAMETIMES] = queries.getData(TIMEFRAMETIMES);
 data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
 const timeframes = data[TIMEFRAMES].length;
+const startDate = new Date(queries.getData(START_DATE_MS));
 var timeframe = timeframes - 1;
+var endDate = null;
+try {
+    if (data[TIMEFRAMETIMES].length > 0) {
+        endDate = new Date(date[TIMEFRAMETIMES][date[TIMEFRAMETIMES].length - 1]);
+    }
+} catch (error) {
+    endDate = null;
+}
 
 /**
  * WEIRS
@@ -1294,8 +1310,8 @@ function appendChains(...functions) {
     installer.appendChains(functions);
 }
 
-document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event));
-document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event));
+document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event, weirs));
+document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event, culverts));
 
 function changeTimestamp() {
     appendChains(
@@ -1305,9 +1321,35 @@ function changeTimestamp() {
     );
 }
 
-function onImportFileSelected(event) {
+function onImportFileSelected(event, items) {
 
-    app.warning("Start processing data");
+    const reader = new WaterLevelCSVReader();
+    reader.setHeaderPredicate(isValidHeader);
+    reader.setOnFinish(plotResults);
+
+    document.getElementById('fileInput').addEventListener('change',
+        function(event) {
+
+            document.getElementById("output").style.display = 'none';
+
+
+            let validNames = [];
+            for (let item of items) {
+                if (item.name != null) {
+                    validNames.push(item.name);
+                }
+            }
+
+            const file = event.target.files[0];
+            if (file) {
+                dialogPane.setInfoText(`Importing ${file.name} ... please wait.`);
+                dialogPane.show();
+                reader.setStartDate(startDate);
+                reader.setEndDate(endDate);
+
+                reader.readFromFile(file);
+            }
+        });
 
 }
 
@@ -1315,8 +1357,7 @@ function validateTimestamp() {
     if (typeof app !== "undefined") {
         installer.init(app.token());
         if (!hasValidDateFormat()) {
-            changeTimestamp();
-            showImportCSVButtons(false);
+            dialogPane.yesNo("Your project's date format is required to be updated before importing date related data. Do you want to do that right now?", (e) => { changeTimestamp() }, null);
         } else {
             showImportCSVButtons(true);
         }
@@ -1324,6 +1365,22 @@ function validateTimestamp() {
         showImportCSVButtons(false);
     }
 }
+
+function isValidHeader(header) {
+    if (header == null || header.endsWith("comments")) {
+        return false;
+    }
+
+    let names = validNames;
+    for (let name of names) {
+        if (header.startsWith(name)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+let app = { token: () => "6c3554a151boGreCJrGjXH7GLudgYtEo" };
 
 $(window).on("load", function() {
 
