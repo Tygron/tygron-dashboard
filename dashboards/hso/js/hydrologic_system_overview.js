@@ -11,6 +11,7 @@ import { drawWeirFront, drawWeirSide } from "../../../src/js/water/structures/We
 import { drawCulvertFront, drawCulvertSide } from "../../../src/js/water/structures/CulvertPlot.js";
 import { Installer } from "../../../src/js/io/Installer.js";
 import { DialogPane } from "../../../src/js/ui/DialogPane.js";
+import { WaterLevelCSVReader } from "../../../src/js/water/structures/WaterLevelCsvReader.js";
 
 // Sidebar toggles
 document.querySelectorAll(".nav-item").forEach(item => {
@@ -224,6 +225,9 @@ const WEIR_AREA_OUTPUT_B = 'weir_water_area_output_b';
 const WEIR_ANGLE = 'weir_angle';
 const WEIR_COEFFICIENT = 'weir_coefficient';
 const WEIR_N = 'weir_n';
+const WEIR_CUSTOM_DATUM_A = 'weir_custom_datum_a';
+const WEIR_CUSTOM_DATUM_B = 'weir_custom_datum_b';
+const WEIR_CUSTOM_FLOW = 'weir_custom_flow';
 
 queries.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
@@ -240,6 +244,10 @@ queries.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT
 queries.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
 queries.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_N');
 
+queries.addQuery(WEIR_CUSTOM_DATUM_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_DATUM_A_AND_INDEX_IS_X');
+queries.addQuery(WEIR_CUSTOM_DATUM_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_DATUM_B_AND_INDEX_IS_X');
+queries.addQuery(WEIR_CUSTOM_FLOW, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_FLOW_AND_INDEX_IS_X');
+
 const WEIR_PARAM_PROPERTIES = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
 const WEIR_PARAM_TITLES = {
     "name": "Name",
@@ -249,18 +257,22 @@ const WEIR_PARAM_TITLES = {
     "width": "Width (m)",
     "angle": "Angle (°)",
     "damWidth": "Dam Width (m)",
-    "damHeight": "Dam Height (m)"
+    "damHeight": "Dam Height (m)",
+
 }
 
-const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB"];
+const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB", "customDatumA", "customDatumB", "customFlow"];
 const WEIR_RESULT_TITLES = {
     "name": WEIR_PARAM_TITLES["name"],
-    "flows": "Flow (M³/s)",
+    "flows": "Flow (m³/s)",
     "heights": "Height (m)",
     "datumsA": "Datum A (m)",
     "datumsB": "Datum B (m)",
     "areaOutputA": "Area ID A",
     "areaOutputB": "Area ID B",
+    "customDatumA": "Measurement Datum A (m)",
+    "customDatumB": "Measurement Datum B (m)",
+    "customFlow": "Measurement Flow (m³/s)",
 
 }
 let weirTimeframe = 0;
@@ -283,6 +295,10 @@ function createWeirs() {
     let coefficient = queries.getData(WEIR_COEFFICIENT, true, true);
     let weirN = queries.getData(WEIR_N, true, true);
 
+    let customDatumA = queries.getData(WEIR_CUSTOM_DATUM_A, true, true);
+    let customDatumB = queries.getData(WEIR_CUSTOM_DATUM_B, true, true);
+    let customFlow = queries.getData(WEIR_CUSTOM_FLOW, true, true);
+
     for (let i = 0;i < names.length;i++) {
 
         let weir = {
@@ -303,6 +319,10 @@ function createWeirs() {
             angle: i < angle.length ? angle[i][0] : -10000,
             coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
             weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
+
+            customDatumA: i < customDatumA ? customDatumA[i] : [],
+            customDatumB: i < customDatumB ? customDatumB[i] : [],
+            customFlow: i < customFlow ? customFlow[i] : [],
         };
         weirs.push(weir);
 
@@ -516,6 +536,9 @@ const CULVERT_DATUM_HEIGHT_OUTPUT_B = 'culvert_datum_height_output_b';
 const CULVERT_AREA_OUTPUT_A = 'culvert_water_area_output_a';
 const CULVERT_AREA_OUTPUT_B = 'culvert_water_area_output_b';
 const CULVERT_N = 'culvert_n';
+const CULVERT_CUSTOM_DATUM_A = 'culvert_custom_datum_a';
+const CULVERT_CUSTOM_DATUM_B = 'culvert_custom_datum_b';
+const CULVERT_CUSTOM_FLOW = 'culvert_custom_flow';
 
 queries.addQuery(CULVERT_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(CULVERT_DIAMETER, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_DIAMETER');
@@ -531,6 +554,10 @@ queries.addQuery(CULVERT_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_
 queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_4');
 queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_5');
 
+queries.addQuery(CULVERT_CUSTOM_DATUM_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_DATUM_A_AND_INDEX_IS_X');
+queries.addQuery(CULVERT_CUSTOM_DATUM_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_DATUM_B_AND_INDEX_IS_X');
+queries.addQuery(CULVERT_CUSTOM_FLOW, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_FLOW_AND_INDEX_IS_X');
+
 const CULVERT_PARAM_PROPERTIES = ["name", "diameter", "rectangularHeight", "datumHeight", "culvertN"];
 const CULVERT_PARAM_TITLES = {
     "name": "Name",
@@ -540,10 +567,10 @@ const CULVERT_PARAM_TITLES = {
     "culvertN": "Culvert N",
 }
 
-const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB"];
+const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB", "customDatumA", "customDatumB", "customFlow"];
 const CULVERT_RESULT_TITLES = {
     "name": CULVERT_PARAM_TITLES["name"],
-    "flows": "Flow (M³/s)",
+    "flows": "Flow (m³/s)",
     "heights": "Height (m)",
     "datumsA": "Water Level Datum A (m)",
     "datumsB": "Water Level Datum B (m)",
@@ -551,6 +578,9 @@ const CULVERT_RESULT_TITLES = {
     "areaIDB": "Area ID B",
     "datumHeightOutputA": "Datum Elevation A (m)",
     "datumHeightOutputB": "Datum Elevation B (m)",
+    "customDatumA": "Measurement Datum A (m)",
+    "customDatumB": "Measurement Datum B (m)",
+    "customFlow": "Measurement Flow (m³/s)"
 
 }
 let culvertTimeframe = 0;
@@ -572,6 +602,10 @@ function createCulverts() {
     let areaIDB = queries.getData(CULVERT_AREA_OUTPUT_B, true, true);
     let elevationA = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_A, true, true);
     let elevationB = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_B, true, true);
+
+    let customDatumA = queries.getData(CULVERT_CUSTOM_DATUM_A, true, true);
+    let customDatumB = queries.getData(CULVERT_CUSTOM_DATUM_B, true, true);
+    let customFlow = queries.getData(CUVLERT_CUSTOM_FLOW, true, true);
 
     for (let i = 0;i < names.length;i++) {
 
@@ -595,6 +629,10 @@ function createCulverts() {
             areaIDB: i < areaIDB.length ? areaIDB[i][0] : -1,
             elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
             elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
+
+            customDatumA: i < customDatumA.length ? customDatumA[i] : [],
+            customDatumB: i < customDatumB.length ? customDatumB[i] : [],
+            customFlow: i < customFlow.length ? customFlow[i] : [],
         };
         culverts.push(culvert);
 
@@ -1310,8 +1348,8 @@ function appendChains(...functions) {
     installer.appendChains(functions);
 }
 
-document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event, weirs));
-document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event, culverts));
+document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event, weirs, handleWeirValues));
+document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event, culverts, handleCulvertValues));
 
 function changeTimestamp() {
     appendChains(
@@ -1321,35 +1359,142 @@ function changeTimestamp() {
     );
 }
 
-function onImportFileSelected(event, items) {
+function getWaterLevelTraces(results) {
+    let traces = [];
+
+    if (results == null || results.length < 2) {
+        return traces;
+    }
+
+    let headers = results[0];
+    let attributes = results[1];
+    for (let i = 0;i < headers.length && i < attributes.length;i++) {
+        if (headers[i] == null || headers[i].length == 0
+            || headers[i].endsWith("quality")) {
+            continue;
+        }
+
+        let trace = {
+            x: [],
+            y: [],
+            mode: 'lines+markers',
+            name: headers[i] + " " + attributes[i],
+            myHeader: headers[i],
+            myAttribute: attributes[i],
+        };
+        traces.push(trace);
+
+        for (let r = 0;r < results.length;r++) {
+            if (results[r][i + 1] == "original reliable") {
+                trace.x.push(new Date(results[r][0]));
+
+                let value = parseFloat(results[r][i].replace(",", "."));
+                trace.y.push(value);
+            }
+        }
+
+    }
+    return traces;
+}
+
+function storeTraces(itemName, items, traces) {
+
+    for (let trace of traces) {
+
+        for (let item of items) {
+
+            if (trace.myHeader != item.name) {
+                continue;
+            }
+
+            console.log('Map trace values for ' + itemName + " : " + item.name + " with id " + item.id);
+
+            const startDateMS = startDate.getTime();
+            let valuesArray = [trace.x.length * 2];
+            for (let i = 0;i < trace.x.length;i++) {
+                let relativeMS = trace.x[i].getTime() - startDateMS;
+                valuesArray[2 * i] = relativeMS;
+                valuesArray[2 * i + 1] = trace.y[i];
+            }
+
+            if (item.customTraces == null) {
+                item.customTraces = new Map();
+            }
+            item.customTraces.set(trace.myAttribute, valuesArray);
+        }
+    }
+
+    for (let item of items) {
+        console.log(itemName + ": " + item.name);
+        if (item.customTraces == null) {
+            continue;
+        }
+        for (let [k, v] of item.customTraces) {
+            console.log(k + " : " + v);
+        }
+    }
+}
+
+function handleValues(itemName, items, results) {
+
+    if (results == null || results.length == 0) {
+        dialogPane.confirmClose("No matches found for " + itemName + "s");
+        return;
+    }
+
+    if (results.length == 1 && results[0].length == 0 || results[0].length == 1 && results[0][0] == '') {
+        dialogPane.confirmClose("No matches found for " + itemName + " names");
+        return;
+    }
+
+    let traces = getWaterLevelTraces(results);
+    if (traces.length == 0) {
+        dialogPane.confirmClose(results[0].length + " matches found, but no traces made for start and end time.")
+        return;
+    }
+
+    dialogPane.yesNo(results[0].length + " matches found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
+        storeTraces(items, traces);
+    }, null);
+}
+
+function handleWeirValues(reader) {
+    handleValues("Weir", weirs, reader.getResults());
+}
+
+function handleCulvertValues(reader) {
+    handleValues("Culvert", culverts, reader.getResults());
+}
+
+function onImportFileSelected(event, items, resultFunction) {
+
+    const isValidHeader = (header) => {
+        if (header == null || header.endsWith("comments")) {
+            return false;
+        }
+
+        for (let item of items) {
+            if (item.name != null && header.startsWith(item.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     const reader = new WaterLevelCSVReader();
     reader.setHeaderPredicate(isValidHeader);
-    //TODO: Implement reader.setOnFinish(plotResults);
+    reader.setOnFinish(resultFunction);
 
-    document.getElementById('fileInput').addEventListener('change',
-        function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        dialogPane.setInfoText(`Importing ${file.name} ... please wait.`);
+        dialogPane.show();
+        reader.setStartDate(startDate);
+        reader.setEndDate(endDate);
 
-            document.getElementById("output").style.display = 'none';
+        reader.readFromFile(file);
+    }
 
-
-            let validNames = [];
-            for (let item of items) {
-                if (item.name != null) {
-                    validNames.push(item.name);
-                }
-            }
-
-            const file = event.target.files[0];
-            if (file) {
-                dialogPane.setInfoText(`Importing ${file.name} ... please wait.`);
-                dialogPane.show();
-                reader.setStartDate(startDate);
-                reader.setEndDate(endDate);
-
-                reader.readFromFile(file);
-            }
-        });
 
 }
 
@@ -1358,26 +1503,12 @@ function validateTimestamp() {
         installer.init(app.token());
         if (!hasValidDateFormat()) {
             dialogPane.yesNo("Your project's date format is required to be updated before importing date related data. Do you want to do that right now?", (e) => { changeTimestamp() }, null);
-		} else {
+        } else {
             showImportCSVButtons(true);
         }
     } else {
         showImportCSVButtons(false);
     }
-}
-
-function isValidHeader(header) {
-    if (header == null || header.endsWith("comments")) {
-        return false;
-    }
-
-    let names = validNames;
-    for (let name of names) {
-        if (header.startsWith(name)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 let app = { token: () => "6c3554a151boGreCJrGjXH7GLudgYtEo" };
