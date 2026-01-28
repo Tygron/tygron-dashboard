@@ -605,7 +605,7 @@ function createCulverts() {
 
     let customDatumA = queries.getData(CULVERT_CUSTOM_DATUM_A, true, true);
     let customDatumB = queries.getData(CULVERT_CUSTOM_DATUM_B, true, true);
-    let customFlow = queries.getData(CUVLERT_CUSTOM_FLOW, true, true);
+    let customFlow = queries.getData(CULVERT_CUSTOM_FLOW, true, true);
 
     for (let i = 0;i < names.length;i++) {
 
