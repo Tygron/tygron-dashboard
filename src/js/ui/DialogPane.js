@@ -3,21 +3,21 @@ class DialogPane {
     constructor(parent) {
 
         this.dialogPane = document.createElement("div");
-		this.dialogPane.className = 'dialog-background-pane';
+        this.dialogPane.className = 'dialog-background-pane';
         parent.appendChild(this.dialogPane);
 
         this.centerDialog = document.createElement("div");
         this.centerDialog.className = "dialog-center-pane";
-		this.dialogPane.appendChild(this.centerDialog);
-		       
+        this.dialogPane.appendChild(this.centerDialog);
+
         this.infoText = document.createElement("p");
         this.centerDialog.appendChild(this.infoText);
-		
-		this.buttonBox = document.createElement("div");
-		this.buttonBox.className = 'dialog-button-box';
-		this.centerDialog.appendChild(this.buttonBox);
-		
-		
+
+        this.buttonBox = document.createElement("div");
+        this.buttonBox.className = 'dialog-button-box';
+        this.centerDialog.appendChild(this.buttonBox);
+
+
         this.yesButton = document.createElement("button");
         this.yesButton.innerHTML = "Yes";
         this.yesButton.style.display = 'none';
@@ -38,6 +38,8 @@ class DialogPane {
 
     setInfoText(text) {
         this.infoText.innerHTML = text;
+        this.yesButton.style.display = 'none';
+        this.noButton.style.display = 'none';
     }
 
     confirmClose(text, event) {
@@ -45,7 +47,7 @@ class DialogPane {
         this.yesButton.innerHTML = "Close";
         this.yesButton.style.display = "inline";
         this.noButton.style.display = 'none';
-		this.show();
+        this.show();
         let self = this;
         this.yesButton.onclick = (e) => {
             self.hide();
@@ -61,7 +63,7 @@ class DialogPane {
         this.yesButton.style.display = "inline";
         this.noButton.innerHTML = "No";
         this.noButton.style.display = 'inline';
-		this.show();
+        this.show();
         let self = this;
 
         this.yesButton.onclick = (e) => {
