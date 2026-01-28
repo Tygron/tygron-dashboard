@@ -7,6 +7,9 @@
 <script type="text/javascript"
 	src="../../../src/js/water/structures/WaterLevelCsvReader.js"
 	charset="utf-8"></script>
+<script type="text/javascript" src="../../../src/js/ui/DialogPane.js"
+	charset="utf-8"></script>	
+<link rel="stylesheet" href="../../dashboard.css">
 <title>Read CSV File</title>
 <style>
 .line {
@@ -42,83 +45,7 @@
 	<script>
 	
 
-		class DialogPane{
-
-			constructor(parent) {
-
-				this.dialogPane = document.createElement("div");
-				this.dialogPane.style = 'position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 100; background-color: rgba(200, 200, 200, 0.6); display: none';
-				parent.appendChild(this.dialogPane);
-				
-				this.centerDialog = document.createElement("div");
-				this.dialogPane.appendChild(this.centerDialog);
-
-				this.centerDialog.style.position='fixed';
-				this.centerDialog.style.top='50%';
-				this.centerDialog.style.left= '50%';
-				this.centerDialog.style.transform='translate(-50%, -50%)';
-				
-				this.infoText = document.createElement("p");
-				this.centerDialog.appendChild(this.infoText);
-				
-				this.yesButton = document.createElement("button");
-				this.yesButton.innerHTML = "Yes";
-				this.yesButton.style.display = 'none';
-				this.centerDialog.appendChild(this.yesButton);
-				this.noButton = document.createElement("button");
-				this.noButton.innerHTML = "No";
-				this.noButton.style.display = 'none';
-				this.centerDialog.appendChild(this.noButton);
-			}
-			
-			show(){
-				this.dialogPane.style.display = 'inherit';	
-			}
-			
-			hide(){
-				this.dialogPane.style.display = 'none';
-			}
-			
-			setInfoText(text){
-				this.infoText.innerHTML = text;
-			}
-			
-			confirmClose(text, event){
-				this.setInfoText(text);
-				this.yesButton.innerHTML = "Close";
-				this.yesButton.style.display = "inline";
-				this.noButton.style.display = 'none';
-				let self = this;
-				this.yesButton.onclick= (e)=>{
-					self.hide();
-					if(event!= null){
-						event(e);
-					}
-				};
-			}
-			
-			yesNo(text, yesEvent, noEvent){
-				this.setInfoText(text);
-				this.yesButton.innerHTML = "Yes";
-				this.yesButton.style.display = "inline";
-				this.noButton.innerHTML = "No";
-				this.noButton.style.display = 'inline';
-				let self = this;
-				
-				this.yesButton.onclick= (e)=>{
-					self.hide();
-					if(yesEvent!= null){
-						yesEvent(e);
-					}
-				};
-				this.noButton.onclick= (e)=>{
-					self.hide();
-					if(noEvent!= null){
-						noEvent(e);
-					}
-				};
-			}
-		}
+		
 		
 		var importPanel = null;
 		
