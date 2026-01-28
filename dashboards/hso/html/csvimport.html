@@ -37,11 +37,91 @@
 		<input type="file" id="fileInput" accept=".csv" />
 	</div>
 
-	<p id="filefeedback" />
-	<pre id="processing" style="display:none">Processing...</pre>
 	<pre id="output"></pre>
 
 	<script>
+	
+
+		class CSVImportPanel{
+
+			constructor(parent) {
+
+				this.dialogPane = document.createElement("div");
+				this.dialogPane.style = 'position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 100; background-color: rgba(200, 200, 200, 0.6); display: none';
+				parent.appendChild(this.dialogPane);
+				
+				this.centerDialog = document.createElement("div");
+				this.dialogPane.appendChild(this.centerDialog);
+
+				this.centerDialog.style.position='fixed';
+				this.centerDialog.style.top='50%';
+				this.centerDialog.style.left= '50%';
+				this.centerDialog.style.transform='translate(-50%, -50%)';
+				
+				this.infoText = document.createElement("p");
+				this.centerDialog.appendChild(this.infoText);
+				
+				this.yesButton = document.createElement("button");
+				this.yesButton.innerHTML = "Yes";
+				this.yesButton.style.display = 'none';
+				this.centerDialog.appendChild(this.yesButton);
+				this.noButton = document.createElement("button");
+				this.noButton.innerHTML = "No";
+				this.noButton.style.display = 'none';
+				this.centerDialog.appendChild(this.noButton);
+			}
+			
+			show(){
+				this.dialogPane.style.display = 'inherit';	
+			}
+			
+			hide(){
+				this.dialogPane.style.display = 'none';
+			}
+			
+			setInfoText(text){
+				this.infoText.innerHTML = text;
+			}
+			
+			confirmClose(text, event){
+				this.setInfoText(text);
+				this.yesButton.innerHTML = "Close";
+				this.yesButton.style.display = "inline";
+				this.noButton.style.display = 'none';
+				let self = this;
+				this.yesButton.onclick= (e)=>{
+					self.hide();
+					if(event!= null){
+						event(e);
+					}
+				};
+			}
+			
+			yesNo(text, yesEvent, noEvent){
+				this.setInfoText(text);
+				this.yesButton.innerHTML = "Yes";
+				this.yesButton.style.display = "inline";
+				this.noButton.innerHTML = "No";
+				this.noButton.style.display = 'inline';
+				let self = this;
+				
+				this.yesButton.onclick= (e)=>{
+					self.hide();
+					if(yesEvent!= null){
+						yesEvent(e);
+					}
+				};
+				this.noButton.onclick= (e)=>{
+					self.hide();
+					if(noEvent!= null){
+						noEvent(e);
+					}
+				};
+			}
+		}
+		
+		var importPanel = null;
+		
 		function getWaterLevelTraces(results) {
 			let traces = [];
 
@@ -61,7 +141,9 @@
 					x : [],
 					y : [],
 					mode : 'lines+markers',
-					name : headers[i] + " " + attributes[i]
+					name : headers[i] + " " + attributes[i],
+					myHeader: headers[i],
+					myAttribute: attributes[i],
 				};
 				traces.push(trace);
 
@@ -78,9 +160,72 @@
 			return traces;
 		}
 		
-		function plotResults(reader) {
+		let weirs = [{id:312, name:'WS000278'}];
 		
-			let traces = getWaterLevelTraces(reader.getResults());
+		function storeTraces(weirs, traces){
+
+			for(let trace of traces){
+				
+				for(let weir of weirs){
+					
+					if(trace.myHeader != weir.name){
+						continue;
+					}
+						
+					console.log('Map trace values for weir ' + weir.name + " with id " + weir.id);
+					const startDate = new Date(document.getElementById('startDate').value);
+					const startDateMS = startDate.getTime();
+					let valuesArray= [trace.x.length*2];
+					for(let i = 0; i < trace.x.length; i++){
+						let relativeMS = trace.x[i].getTime() - startDateMS;
+						valuesArray[2*i]=relativeMS;
+						valuesArray[2*i+1]=trace.y[i];
+					}
+						
+					if(weir.customTraces == null){
+						weir.customTraces = new Map();						
+					} 
+					weir.customTraces.set(trace.myAttribute, valuesArray);
+				}
+			}
+			
+			for(let weir of weirs){
+				console.log("Weir "+ weir.name);
+				if(weir.customTraces == null){
+					continue;
+				}
+				for(let [k,v] of weir.customTraces ){
+					console.log(k + " : " + v);
+				}
+			}
+		}
+		
+		function plotResults(reader) {
+
+			
+			
+			let results = reader.getResults();
+			if(results == null || results.length == 0){
+				if(importPanel!= null){
+					importPanel.confirmClose("No matches found for Weirs");
+				}
+				return;
+			}
+			
+			if(results.length == 1 && results[0].length == 0 || results[0].length == 1 && results[0][0]==''){
+				importPanel.confirmClose("No matches found for Weir names");
+				return;
+			}
+					
+			let traces = getWaterLevelTraces(results);
+			if(traces.length == 0){
+				importPanel.confirmClose(results[0].length +" matches found, but no traces made for start and end time.")
+				return;
+			}
+			
+			importPanel.yesNo(results[0].length +" matches found, "+ traces.length+ " traces made for start and end time.<br>Do you want to save these traces to your project?", (e)=>{
+				storeTraces(weirs, traces);
+			}, null);
 
 			let layout = {
 				title : {
@@ -88,7 +233,6 @@
 				}
 			};
 			
-			document.getElementById("processing").style.display = 'none';
 			document.getElementById("output").style.display = 'block';
 			Plotly.newPlot('output', traces, layout);
 		}
@@ -107,6 +251,8 @@
 			}
 			return false;
 		}
+		
+		
 
 		
 		const reader = new WaterLevelCSVReader();
@@ -117,12 +263,15 @@
 				function(event) {
 
 			document.getElementById("output").style.display = 'none';
-			document.getElementById("processing").style.display = 'block';
+			importPanel = new CSVImportPanel(document.body);
+			
+			
 			
 					validNames = document.getElementById("nameField").value.split(",");
 					const file = event.target.files[0];
 					if (file) {
-						
+						importPanel.setInfoText(`Importing ${file.name} ... please wait.`);
+						importPanel.show();
 						const startDate = new Date(document.getElementById('startDate').value);
 						const endDate = new Date(document.getElementById('endDate').value);
 						reader.setStartDate(startDate);
