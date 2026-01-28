@@ -45,6 +45,7 @@ class DialogPane {
         this.yesButton.innerHTML = "Close";
         this.yesButton.style.display = "inline";
         this.noButton.style.display = 'none';
+		this.show();
         let self = this;
         this.yesButton.onclick = (e) => {
             self.hide();
@@ -60,6 +61,7 @@ class DialogPane {
         this.yesButton.style.display = "inline";
         this.noButton.innerHTML = "No";
         this.noButton.style.display = 'inline';
+		this.show();
         let self = this;
 
         this.yesButton.onclick = (e) => {
