@@ -1454,7 +1454,7 @@ function handleValues(itemName, items, results) {
     }
 
     dialogPane.yesNo(results[0].length + " matches found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
-        storeTraces(items, traces);
+        storeTraces(itemName,items, traces);
     }, null);
 }
 
