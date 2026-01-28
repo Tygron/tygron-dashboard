@@ -67,7 +67,7 @@ queries.addQuery(START_DATE_MS,
 data[TIMEFRAMETIMES] = queries.getData(TIMEFRAMETIMES);
 data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
 const timeframes = data[TIMEFRAMES].length;
-const startDate = new Date(queries.getData(START_DATE_MS));
+const startDate = new Date(Math.round(queries.getData(START_DATE_MS)));
 var timeframe = timeframes - 1;
 var endDate = null;
 try {
@@ -261,7 +261,7 @@ const WEIR_PARAM_TITLES = {
 
 }
 
-const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB", "customDatumA", "customDatumB", "customFlow"];
+const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB"];
 const WEIR_RESULT_TITLES = {
     "name": WEIR_PARAM_TITLES["name"],
     "flows": "Flow (m³/s)",
@@ -567,7 +567,7 @@ const CULVERT_PARAM_TITLES = {
     "culvertN": "Culvert N",
 }
 
-const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB", "customDatumA", "customDatumB", "customFlow"];
+const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB"];
 const CULVERT_RESULT_TITLES = {
     "name": CULVERT_PARAM_TITLES["name"],
     "flows": "Flow (m³/s)",
@@ -1397,7 +1397,7 @@ function getWaterLevelTraces(results) {
     return traces;
 }
 
-function storeTraces(itemName, items, traces) {
+function storeTraces(itemName, items, postFixMapping, traces) {
 
     for (let trace of traces) {
 
@@ -1423,19 +1423,9 @@ function storeTraces(itemName, items, traces) {
             item.customTraces.set(trace.myAttribute, valuesArray);
         }
     }
-
-    for (let item of items) {
-        console.log(itemName + ": " + item.name);
-        if (item.customTraces == null) {
-            continue;
-        }
-        for (let [k, v] of item.customTraces) {
-            console.log(k + " : " + v);
-        }
-    }
 }
 
-function handleValues(itemName, items, results) {
+function handleValues(itemName, items, postFixMapping, results) {
 
     if (results == null || results.length == 0) {
         dialogPane.confirmClose("No matches found for " + itemName + "s");
@@ -1454,16 +1444,22 @@ function handleValues(itemName, items, results) {
     }
 
     dialogPane.yesNo(results[0].length + " matches found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
-        storeTraces(itemName,items, traces);
+        storeTraces(itemName, items, postFixMapping, traces);
     }, null);
 }
 
 function handleWeirValues(reader) {
-    handleValues("Weir", weirs, reader.getResults());
+    let postFixMapping = new Map();
+    postFixMapping.set("H.G.", "CUSTOM_DATUM_A");
+    postFixMapping.set("H.G.h", "CUSTOM_DATUM_B");
+    handleValues("Weir", weirs, postFixMapping, reader.getResults());
 }
 
 function handleCulvertValues(reader) {
-    handleValues("Culvert", culverts, reader.getResults());
+    let postFixMapping = new Map();
+    postFixMapping.set("H.G.", "CUSTOM_DATUM_A");
+    postFixMapping.set("H.G.h", "CUSTOM_DATUM_B");
+    handleValues("Culvert", culverts, postFixMapping, reader.getResults());
 }
 
 function onImportFileSelected(event, items, resultFunction) {
