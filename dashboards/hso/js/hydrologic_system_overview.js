@@ -1,6 +1,6 @@
 import { clearTable, createTable } from "../../../src/js/ui/Table.js";
 import { removeAllChildren } from "../../../src/js/ui/Dom.js";
-import { barPlot, createBarPlotLayout, sankeyPlot } from "../../../src/js/data/Plot.js";
+import { barPlot, createBarPlotLayout, sankeyPlot, xyTraces, xyPlot } from "../../../src/js/data/Plot.js";
 import { addTimeframeSlider, setupTimeframeSlider } from "../../../src/js/ui/Timeframeslider.js";
 import { addFlowValues, createLinks, createTimeframeData, addLink } from "../../../src/js/data/Data.js";
 import { toCSVContent, addDownloadHandler } from "../../../src/js/io/File.js";
@@ -72,7 +72,7 @@ var timeframe = timeframes - 1;
 var endDate = null;
 try {
     if (data[TIMEFRAMETIMES].length > 0) {
-        endDate = new Date(date[TIMEFRAMETIMES][date[TIMEFRAMETIMES].length - 1]);
+        endDate = new Date(data[TIMEFRAMETIMES][data[TIMEFRAMETIMES].length - 1]);
     }
 } catch (error) {
     endDate = null;
@@ -104,23 +104,31 @@ function updateWeirFlowPlot(weir) {
     let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
     let colors = {};
     colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
+	colors[WEIR_CUSTOM_FLOW] = [10, 218, 10, 0.5];
 
     let titles = {};
-    titles[WEIR_FLOW_OUTPUT] = "Flow";
+    titles[WEIR_FLOW_OUTPUT] = "Flow (m³/s)";
+	titles[WEIR_CUSTOM_FLOW] = "Measurement Flow (m³/s)";
 
-    let data = {};
-    let dataTimeframes = [];
-    for (let t = 0;t < timeframes;t++) {
-        dataTimeframes.push(t);
+    let plotdata = {};
+	plotdata[HSO_OVERLAY_TIMEFRAMES] = createTimeframeTimesData();
+    plotdata[WEIR_FLOW_OUTPUT] = weir.flows;
+
+	let traces = xyTraces("scatter", plotdata, properties, colors, titles);
+
+    let customFlow = createCustomDataTrace(weir.customFlow, WEIR_CUSTOM_FLOW, colors, titles);
+    if (customFlow.length > 0) {
+        traces.push(customFlow[0]);
     }
-    data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-    data[WEIR_FLOW_OUTPUT] = weir.flows;
 
     let layout = createWeirPlotLayout();
     layout.title = {
         text: "Flow (m³/s)"
     };
-    xyPlot(weirPanel.weirFlowPlot, "scatter", data, properties, colors, titles, layout);
+	
+	copyAndStorePreviousTraceVisibility(weirPanel.weirFlowPlot.id, traces);
+
+	Plotly.newPlot(weirPanel.weirFlowPlot, traces, layout);
 }
 
 function createWeirPlotLayout() {
@@ -133,34 +141,87 @@ function createWeirPlotLayout() {
     return layout;
 }
 
+function createTimeframeTimesData() {
+    let dataTimeframes = [];
+    for (let t = 0;t < timeframes;t++) {
+        try {
+            if (t < data[TIMEFRAMETIMES].length) {
+                dataTimeframes.push(new Date(data[TIMEFRAMETIMES][t]));
+            }
+        } catch (error) {
+            dataTimeframes.push(t);
+        }
+    }
+    return dataTimeframes;
+}
+
 function updateWeirHeightPlot(weir) {
 
     let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
+
+
     let colors = {};
     colors[WEIR_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
     colors[WEIR_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
     colors[WEIR_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+    colors[WEIR_CUSTOM_DATUM_A] = [218, 218, 10, 0.5];
+    colors[WEIR_CUSTOM_DATUM_B] = [10, 218, 218, 0.5];
 
     let titles = {};
     titles[WEIR_HEIGHT_OUTPUT] = "Height";
     titles[WEIR_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
     titles[WEIR_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+    titles[WEIR_CUSTOM_DATUM_A] = "Measurement A"; // replace A with water level area name
+    titles[WEIR_CUSTOM_DATUM_B] = "Measurement B"; // replace B with water level area name
 
-    let data = {};
-    let dataTimeframes = [];
-    for (let t = 0;t < timeframes;t++) {
-        dataTimeframes.push(t);
+    let plotdata = {};
+    plotdata[HSO_OVERLAY_TIMEFRAMES] = createTimeframeTimesData();
+    plotdata[WEIR_HEIGHT_OUTPUT] = weir.heights;
+    plotdata[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
+    plotdata[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
+
+    let traces = xyTraces("scatter", plotdata, properties, colors, titles);
+
+    let customA = createCustomDataTrace(weir.customDatumA, WEIR_CUSTOM_DATUM_A, colors, titles);
+    if (customA.length > 0) {
+        traces.push(customA[0]);
     }
-    data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-    data[WEIR_HEIGHT_OUTPUT] = weir.heights;
-    data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
-    data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
+
+    let customB = createCustomDataTrace(weir.customDatumB, WEIR_CUSTOM_DATUM_B, colors, titles);
+    if (customB.length > 0) {
+        traces.push(customB[0]);
+    }
 
     let layout = createWeirPlotLayout();
     layout.title = {
         text: "Height and Datum (m)"
     };
-    xyPlot(weirPanel.weirHeightPlot, "scatter", data, properties, colors, titles, layout);
+
+    copyAndStorePreviousTraceVisibility(weirPanel.weirHeightPlot.id, traces);
+
+    Plotly.newPlot(weirPanel.weirHeightPlot, traces, layout);
+
+}
+
+function createCustomDataTrace(values, propertyName, colors, titles) {
+    if (values == null || values.length == 0) {
+        return [];
+    }
+
+    let properties = [HSO_OVERLAY_TIMEFRAMES, propertyName];
+
+    let timeframeTimes = [];
+    let timeValues = [];
+    for (let i = 0;i < values.length - 1;i += 2) {
+        timeframeTimes.push(new Date(Math.round(values[i])));
+        timeValues.push(values[i + 1]);
+    }
+
+    let plotdata = {};
+    plotdata[HSO_OVERLAY_TIMEFRAMES] = timeframeTimes;
+    plotdata[propertyName] = timeValues;
+
+    return xyTraces("scatter", plotdata, properties, colors, titles);
 }
 
 function selectWeir(index) {
@@ -446,6 +507,7 @@ function updateCulvertFlowPlot(culvert) {
     };
     xyPlot(culvertPanel.culvertFlowPlot, "scatter", data, properties, colors, titles, layout);
 }
+
 function updateCulvertHeightPlot(culvert) {
 
     let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_HEIGHT_OUTPUT, CULVERT_DATUM_OUTPUT_A, CULVERT_DATUM_OUTPUT_B];
@@ -1348,8 +1410,8 @@ function appendChains(...functions) {
     installer.appendChains(functions);
 }
 
-document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event, weirs, handleWeirValues));
-document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event, culverts, handleCulvertValues));
+document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event, weirs, handleWeirCustomValues));
+document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event, culverts, handleCulvertCustomValues));
 
 function changeTimestamp() {
     appendChains(
@@ -1397,7 +1459,7 @@ function getWaterLevelTraces(results) {
     return traces;
 }
 
-function storeTraces(itemName, items, postFixMapping, traces) {
+function storeTraces(config, items, traces) {
 
     for (let trace of traces) {
 
@@ -1407,33 +1469,36 @@ function storeTraces(itemName, items, postFixMapping, traces) {
                 continue;
             }
 
-            console.log('Map trace values for ' + itemName + " : " + item.name + " with id " + item.id);
+            console.log('Map trace values for ' + config.itemName + " : " + item.name + " with id " + item.id);
 
-            const startDateMS = startDate.getTime();
-            let valuesArray = [trace.x.length * 2];
-            for (let i = 0;i < trace.x.length;i++) {
-                let relativeMS = trace.x[i].getTime() - startDateMS;
-                valuesArray[2 * i] = relativeMS;
-                valuesArray[2 * i + 1] = trace.y[i];
-            }
+            for (let mapping of config.mapping) {
+                if (mapping.suffix != trace.myAttribute) {
+                    continue;
+                }
 
-            if (item.customTraces == null) {
-                item.customTraces = new Map();
+                let valuesArray = [trace.x.length * 2];
+                for (let i = 0;i < trace.x.length;i++) {
+                    let relativeMS = trace.x[i].getTime();
+                    valuesArray[2 * i] = relativeMS;
+                    valuesArray[2 * i + 1] = trace.y[i];
+                }
+                item[mapping.property] = valuesArray;
+
+                //TODO: Send properties using app.
             }
-            item.customTraces.set(trace.myAttribute, valuesArray);
         }
     }
 }
 
-function handleValues(itemName, items, postFixMapping, results) {
+function handleCustomValues(config, items, results) {
 
     if (results == null || results.length == 0) {
-        dialogPane.confirmClose("No matches found for " + itemName + "s");
+        dialogPane.confirmClose("No matches found for " + config.itemName + "s");
         return;
     }
 
     if (results.length == 1 && results[0].length == 0 || results[0].length == 1 && results[0][0] == '') {
-        dialogPane.confirmClose("No matches found for " + itemName + " names");
+        dialogPane.confirmClose("No matches found for " + config.itemName + " names");
         return;
     }
 
@@ -1444,22 +1509,53 @@ function handleValues(itemName, items, postFixMapping, results) {
     }
 
     dialogPane.yesNo(results[0].length + " matches found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
-        storeTraces(itemName, items, postFixMapping, traces);
+        storeTraces(config, items, traces);
     }, null);
 }
 
-function handleWeirValues(reader) {
-    let postFixMapping = new Map();
-    postFixMapping.set("H.G.", "CUSTOM_DATUM_A");
-    postFixMapping.set("H.G.h", "CUSTOM_DATUM_B");
-    handleValues("Weir", weirs, postFixMapping, reader.getResults());
+function handleWeirCustomValues(reader) {
+    handleCustomValues({
+        itemName: "Weir",
+        mapping:
+            [{
+                attribute: "CUSTOM_DATUM_A",
+                property: "customDatumA",
+                suffix: "H.G"
+            }, {
+                attribute: "CUSTOM_DATUM_B",
+                property: "customDatumB",
+                suffix: "H.G.h"
+            },
+            {
+                attribute: "CUSTOM_FLOW",
+                property: "customFlow",
+                suffix: ""
+            }]
+    },
+        weirs,
+        reader.getResults());
 }
 
-function handleCulvertValues(reader) {
-    let postFixMapping = new Map();
-    postFixMapping.set("H.G.", "CUSTOM_DATUM_A");
-    postFixMapping.set("H.G.h", "CUSTOM_DATUM_B");
-    handleValues("Culvert", culverts, postFixMapping, reader.getResults());
+function handleCulvertCustomValues(reader) {
+    handleCustomValues({
+        itemName: "Culvert",
+        mapping: [{
+            attribute: "CUSTOM_DATUM_A",
+            property: "customDatumA",
+            suffix: "H.G"
+        }, {
+            attribute: "CUSTOM_DATUM_B",
+            property: "customDatumB",
+            suffix: "H.G.h"
+        },
+        {
+            attribute: "CUSTOM_FLOW",
+            property: "customFlow",
+            suffix: ""
+        }]
+    },
+        culverts,
+        reader.getResults());
 }
 
 function onImportFileSelected(event, items, resultFunction) {
@@ -1506,6 +1602,8 @@ function validateTimestamp() {
         showImportCSVButtons(false);
     }
 }
+
+let app = { token: () => "6c3554a1eBRoiEE5ILClasOSY09EUS4v" };
 
 $(window).on("load", function() {
 
