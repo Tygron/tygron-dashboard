@@ -84,6 +84,9 @@ input[type=button], input[type=file] {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	background-color: white;
+	padding: 1em;
+	border-radius: 0.5em;
+	border-width: 0px;	
 }
 .dialog-button-box{
 	display: flex;
@@ -1037,137 +1040,142 @@ function addValuesForTimeframeAndID(data, timeframe, property, idValues, values)
 
 function barPlot(plotElementID, data, timeframe, properties, colors, titles, layout) {
 
-	var traces = [];
+    var traces = [];
 
-	for (let i = 1; i < properties.length; i++) {
+    for (let i = 1;i < properties.length;i++) {
 
-		let trace = {
-			x: [],
-			y: [],
-			marker: {
-				color: []
-			},
-			name: [],
-			type: 'bar'
-		}
+        let trace = {
+            x: [],
+            y: [],
+            marker: {
+                color: []
+            },
+            name: [],
+            type: 'bar'
+        }
 
-		let property = properties[i];
+        let property = properties[i];
 
-		trace.x.push(titles[property]);
-		trace.y.push(data[property][timeframe]);
+        trace.x.push(titles[property]);
+        trace.y.push(data[property][timeframe]);
 
-		trace.marker.color.push("rgba(" + colors[property].join(",") + ")");
-		trace.name = titles[property];
+        trace.marker.color.push("rgba(" + colors[property].join(",") + ")");
+        trace.name = titles[property];
 
-		traces.push(trace);
-	}
+        traces.push(trace);
+    }
 
 
 
-	var layout = {
-		showlegend: true,
-	};
+    var layout = {
+        showlegend: true,
+    };
 
-	copyAndStorePreviousTraceVisibility(plotElementID, traces);
+    copyAndStorePreviousTraceVisibility(plotElementID, traces);
 
-	Plotly.newPlot(plotElementID, traces, layout);
+    Plotly.newPlot(plotElementID, traces, layout);
 }
 
 function copyAndStorePreviousTraceVisibility(elementName, traceData) {
-	let divElement = document.getElementById(elementName);
-	if (divElement != null) {
+    let divElement = document.getElementById(elementName);
+    if (divElement != null) {
 
-		if (divElement.traceData != null) {
+        if (divElement.traceData != null) {
 
-			for (oldTrace of divElement.traceData) {
+            for (oldTrace of divElement.traceData) {
 
-				for (newTrace of traceData) {
-					if (newTrace.name == oldTrace.name) {
-						newTrace.visible = oldTrace.visible;
-					}
-				}
-			}
-		}
+                for (newTrace of traceData) {
+                    if (newTrace.name == oldTrace.name) {
+                        newTrace.visible = oldTrace.visible;
+                    }
+                }
+            }
+        }
 
-		divElement.traceData = traceData;
-	}
+        divElement.traceData = traceData;
+    }
+}
+
+function xyTraces(type, data, properties, colors, titles) {
+    var traces = [];
+    let timeframeProperty = properties[0];
+
+    for (let i = 1;i < properties.length;i++) {
+
+        let property = properties[i];
+        let trace = {
+            x: data[timeframeProperty],
+            y: data[property],
+            marker: {
+                color: "black"
+            },
+            line: {
+                color: "rgba(" + colors[property].join(",") + ")"
+            },
+            name: titles[property],
+            type: type,
+            mode: 'lines+markers'
+        }
+
+        traces.push(trace);
+    }
+    return traces;
 }
 
 /**
  * Function assumes 
  */
-function xyPlot(plotElementID, type, data, properties, colors, titles, layout) {
+function xyPlot(plotElementID,type, data, properties, colors, titles, layout) {
 
-	var traces = [];
-	let timeframeProperty = properties[0];
+	let traces = xyTraces(type, data ,properties, colors, titles);
 
-	for (let i = 1; i < properties.length; i++) {
+    if (layout == undefined) {
+        layout = createLayout();
+        layout.showLegend = true;
+    }
 
-		let property = properties[i];
-		let trace = {
-			x: data[timeframeProperty],
-			y: data[property],
-			marker: {
-				color: "black"
-			},
-			line: {
-				color: "rgba(" + colors[property].join(",") + ")"
-			},
-			name: titles[property],
-			type: type,
-			mode: 'lines+markers'
-		}
+    copyAndStorePreviousTraceVisibility(plotElementID, traces);
 
-		traces.push(trace);
-	}
-
-	if (layout == undefined) {
-		layout = createLayout();
-		layout.showLegend = true;
-	}
-	
-	copyAndStorePreviousTraceVisibility(plotElementID, traces);
-
-	Plotly.newPlot(plotElementID, traces, layout);
+    Plotly.newPlot(plotElementID, traces, layout);
 }
 
 function volumeStackedPlot(plotElementID, data, properties, colors, titles, layout, percentual = false) {
 
-	var traces = [];
-	for (let i = 1; i < properties.length; i++) {
-		series = {};
+    var traces = [];
+    for (let i = 1;i < properties.length;i++) {
+        series = {};
 
-		series.x = [];
-		series.y = [];
+        series.x = [];
+        series.y = [];
 
-		if (titles != null && titles[properties[i]] != null) {
-			series.name = titles[properties[i]];
-		}
-		series.stackgroup = 'one';
-		if (percentual) {
-			series.groupnorm = 'percent';
-		}
-		series.fillcolor = "rgba(" + colors[properties[i]].join(",") + ")";
+        if (titles != null && titles[properties[i]] != null) {
+            series.name = titles[properties[i]];
+        }
+        series.stackgroup = 'one';
+        if (percentual) {
+            series.groupnorm = 'percent';
+        }
+        series.fillcolor = "rgba(" + colors[properties[i]].join(",") + ")";
 
-		for (let t = 0; t < data[properties[i]].length; t++) {
-			series.x.push(data[properties[0]][t]);
-			series.y.push(data[properties[i]][t]);
-		}
+        for (let t = 0;t < data[properties[i]].length;t++) {
+            series.x.push(data[properties[0]][t]);
+            series.y.push(data[properties[i]][t]);
+        }
 
-		traces.push(series);
-	}
+        traces.push(series);
+    }
 
-	if (layout == undefined) {
-		layout = {};
-	}
-	if (layout.title == undefined) {
-		layout.title = {
-			text: percentual ? 'Percentual Volume Stack' : 'Volume Stack'
-		}
-	}
-	copyAndStorePreviousTraceVisibility(plotElementID, traces);
+    if (layout == undefined) {
+        layout = {};
+    }
+    if (layout.title == undefined) {
+        layout.title = {
+            text: percentual ? 'Percentual Volume Stack' : 'Volume Stack'
+        }
+    }
+    copyAndStorePreviousTraceVisibility(plotElementID, traces);
 
-	Plotly.newPlot(plotElementID, traces, layout)
+    Plotly.newPlot(plotElementID, traces, layout)
 }
 
 
@@ -1175,130 +1183,130 @@ function volumeStackedPlot(plotElementID, data, properties, colors, titles, layo
 
 
 function sankeyPlot(
-	plotDivName,
-	links,
-	timeframe,
-	properties,
-	titles,
-	layout,
-	colors = null,
-	positionsX = null,
-	positionsY = null
+    plotDivName,
+    links,
+    timeframe,
+    properties,
+    titles,
+    layout,
+    colors = null,
+    positionsX = null,
+    positionsY = null
 ) {
 
-	let link = getLink(links, timeframe);
-	
-	labels = [];
-	for (var i = 0; i < properties.length; i++) {
-		labels.push(titles[properties[i]]);
-	}
+    let link = getLink(links, timeframe);
 
-	let node = {
-		pad: 15,
-		thickness: 20,
-		line: { color: "black", width: 0.5 },
-		label: labels,
-		align: "right"
-	};
+    labels = [];
+    for (var i = 0;i < properties.length;i++) {
+        labels.push(titles[properties[i]]);
+    }
 
-	if (colors !== null) {
-		node.color = properties.map(p => colors[p]);
-	}
+    let node = {
+        pad: 15,
+        thickness: 20,
+        line: { color: "black", width: 0.5 },
+        label: labels,
+        align: "right"
+    };
 
-	if (positionsX !== null && positionsY !== null) {
-		node.x = properties.map(p => positionsX[p]);
-		node.y = properties.map(p => positionsY[p]);
-	}
+    if (colors !== null) {
+        node.color = properties.map(p => colors[p]);
+    }
 
-	let data = {
-		type: "sankey",
-		orientation: "h",
-		node: node,
-		link: link
-	};
+    if (positionsX !== null && positionsY !== null) {
+        node.x = properties.map(p => positionsX[p]);
+        node.y = properties.map(p => positionsY[p]);
+    }
 
-	Plotly.newPlot(plotDivName, [data], layout);
+    let data = {
+        type: "sankey",
+        orientation: "h",
+        node: node,
+        link: link
+    };
+
+    Plotly.newPlot(plotDivName, [data], layout);
 }
 
 function createRadarPlot(plotDivName, labels, values, range, layout) {
 
-	if (Array.isArray(values)) {
-		console.error('Array provided for Radarplot rather than mapping. Placing values in mapping under key "Values".');
-		values = { 'Values': values };
-	}
+    if (Array.isArray(values)) {
+        console.error('Array provided for Radarplot rather than mapping. Placing values in mapping under key "Values".');
+        values = { 'Values': values };
+    }
 
-	let plotLabels = labels.slice(0, labels.length);
-	plotLabels.push(labels[0]);
+    let plotLabels = labels.slice(0, labels.length);
+    plotLabels.push(labels[0]);
 
-	let plotData = [];
-	for (let i in values) {
+    let plotData = [];
+    for (let i in values) {
 
-		let plotValues = [];
-		for (let l = 0; l < labels.length; l++) {
-			plotValues[l] = values[i][l] ?? 0;
-		}
+        let plotValues = [];
+        for (let l = 0;l < labels.length;l++) {
+            plotValues[l] = values[i][l] ?? 0;
+        }
 
-		plotValues.push(plotValues[0]);
+        plotValues.push(plotValues[0]);
 
-		plotData.push({
-			type: 'scatterpolar',
-			r: plotValues,
-			theta: plotLabels,
-			fill: 'toself',
-			name: i,
-			showlegend: true,
-		});
-	}
+        plotData.push({
+            type: 'scatterpolar',
+            r: plotValues,
+            theta: plotLabels,
+            fill: 'toself',
+            name: i,
+            showlegend: true,
+        });
+    }
 
-	let plotLayout = JSON.parse(JSON.stringify(layout)); //deep copy
+    let plotLayout = JSON.parse(JSON.stringify(layout)); //deep copy
 
-	plotLayout['polar'] ??= {
-		radialaxis: {
-			visible: true,
-			direction: 'clockwise',
-			range: [Math.min.apply(null, range), Math.max.apply(null, range)]
-		},
-		angularaxis: {
-			direction: 'clockwise'
-		},
-	};
+    plotLayout['polar'] ??= {
+        radialaxis: {
+            visible: true,
+            direction: 'clockwise',
+            range: [Math.min.apply(null, range), Math.max.apply(null, range)]
+        },
+        angularaxis: {
+            direction: 'clockwise'
+        },
+    };
 
-	Plotly.newPlot(plotDivName, plotData, plotLayout);
+    Plotly.newPlot(plotDivName, plotData, plotLayout);
 
 }
 
 function createPiePlot(plotDivName, labels, values, layout) {
-	if (!Array.isArray(values)) {
-		throw new Error('PiePlot requires an array of values. Provided was: ' + (typeof values));
-	}
+    if (!Array.isArray(values)) {
+        throw new Error('PiePlot requires an array of values. Provided was: ' + (typeof values));
+    }
 
-	let plotLabels = labels;
-	let plotValues = values;
+    let plotLabels = labels;
+    let plotValues = values;
 
-	let plotData = [{
-		'labels': plotLabels,
-		'values': plotValues,
-		'type': 'pie',
-		'sort': false
-	}];
+    let plotData = [{
+        'labels': plotLabels,
+        'values': plotValues,
+        'type': 'pie',
+        'sort': false
+    }];
 
-	let plotLayout = layout;
+    let plotLayout = layout;
 
-	Plotly.newPlot(plotDivName, plotData, plotLayout);
+    Plotly.newPlot(plotDivName, plotData, plotLayout);
 
 }
 
 function createLayout() {
-	/**
-	 * See https://plotly.com/javascript/reference/layout/
-	 */
+    /**
+     * See https://plotly.com/javascript/reference/layout/
+     */
 
-	const layout = {
-		title: {
-			automargin: undefined,
-			font: undefined, /*{color, family, lineposition,shadow, size style, textcase, variant, weight}*/
-			pad: undefined,  /*b, l ,r ,t*/
-			subtitle: undefined, /*{
+    const layout = {
+        title: {
+            automargin: undefined,
+            font: undefined, /*{color, family, lineposition,shadow, size style, textcase, variant, weight}*/
+            pad: undefined,  /*b, l ,r ,t*/
+            subtitle: undefined, /*{
 						font: undefined, 
 						text: undefined		
 						x: undefined,
@@ -1308,112 +1316,112 @@ function createLayout() {
 						yanchor: undefined, 
 						yref: undefined,}*/
 
-			text: undefined,
-			x: undefined,
-			xanchor: undefined,
-			xref: undefined,
-			y: undefined,
-			yanchor: undefined,
-			yref: undefined,
-		},
-		showLegend: undefined,
+            text: undefined,
+            x: undefined,
+            xanchor: undefined,
+            xref: undefined,
+            y: undefined,
+            yanchor: undefined,
+            yref: undefined,
+        },
+        showLegend: undefined,
 
-		legend: {
-			bgcolor: undefined,
-			bordercolor: undefined,
-			borderwidth: undefined,
-			entrywidth: undefined,
-			entrywidthmode: undefined,
-			font: undefined,
-			groupclick: undefined,
-			grouptitlefont: undefined,
-			indentation: undefined,
-			itemclick: undefined,
-			itemdoubleclick: undefined,
-			itemsizing: undefined,
-		}, //etc
+        legend: {
+            bgcolor: undefined,
+            bordercolor: undefined,
+            borderwidth: undefined,
+            entrywidth: undefined,
+            entrywidthmode: undefined,
+            font: undefined,
+            groupclick: undefined,
+            grouptitlefont: undefined,
+            indentation: undefined,
+            itemclick: undefined,
+            itemdoubleclick: undefined,
+            itemsizing: undefined,
+        }, //etc
 
-		xaxis: {
+        xaxis: {
 
-			title: {
+            title: {
 
-				text: '',
+                text: '',
 
-				font: {
+                font: {
 
-				}
+                }
 
-			},
+            },
 
-		},
+        },
 
-		yaxis: {
+        yaxis: {
 
-			title: {
+            title: {
 
-				text: '',
+                text: '',
 
-				font: {
+                font: {
 
-				}
+                }
 
-			}
+            }
 
-		}
-	};
-	return layout;
+        }
+    };
+    return layout;
 }
 
 function createVolumePlotLayout() {
-	const layout = createLayout();
-	/**
-	 * Override specific settings
-	 */
-	return layout;
+    const layout = createLayout();
+    /**
+     * Override specific settings
+     */
+    return layout;
 }
 
 function createBarPlotLayout(title) {
-	const layout = createLayout();
-	/**
-	 * Override specific settings
-	 */
-	layout.title.text = title;
-	return layout;
+    const layout = createLayout();
+    /**
+     * Override specific settings
+     */
+    layout.title.text = title;
+    return layout;
 }
 
 function createSankeyPlotLayout() {
-	const layout = createLayout();
-	/**
-	 * Override specific settings
-	 */
-	return layout;
+    const layout = createLayout();
+    /**
+     * Override specific settings
+     */
+    return layout;
 }
 
 function createRadarPlotLayout() {
-	const layout = createLayout();
-	layout['legend'] ??= {};
-	layout['margin'] ??= {};
+    const layout = createLayout();
+    layout['legend'] ??= {};
+    layout['margin'] ??= {};
 
-	Object.assign(layout['margin'], {
-		t: 32,
-		b: 32,
-		l: 48,
-		r: 48,
-		pad: 0,
-		autoexpand: true,
-	});
-	layout['showlegend'] ??= true;
-	layout['autosize'] ??= true;
+    Object.assign(layout['margin'], {
+        t: 32,
+        b: 32,
+        l: 48,
+        r: 48,
+        pad: 0,
+        autoexpand: true,
+    });
+    layout['showlegend'] ??= true;
+    layout['autosize'] ??= true;
 
-	return layout;
+    return layout;
 }
 
 function createPiePlotLayout() {
-	const layout = createLayout();
-	/**
-	 * Override specific settings
-	 */
-	return layout;
+    const layout = createLayout();
+    /**
+     * Override specific settings
+     */
+    return layout;
 }
 
 
@@ -4617,12 +4625,12 @@ queries.addQuery(START_DATE_MS,
 data[TIMEFRAMETIMES] = queries.getData(TIMEFRAMETIMES);
 data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
 const timeframes = data[TIMEFRAMES].length;
-const startDate = new Date(queries.getData(START_DATE_MS));
+const startDate = new Date(Math.round(queries.getData(START_DATE_MS)));
 var timeframe = timeframes - 1;
 var endDate = null;
 try {
     if (data[TIMEFRAMETIMES].length > 0) {
-        endDate = new Date(date[TIMEFRAMETIMES][date[TIMEFRAMETIMES].length - 1]);
+        endDate = new Date(data[TIMEFRAMETIMES][data[TIMEFRAMETIMES].length - 1]);
     }
 } catch (error) {
     endDate = null;
@@ -4654,23 +4662,31 @@ function updateWeirFlowPlot(weir) {
     let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
     let colors = {};
     colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
+	colors[WEIR_CUSTOM_FLOW] = [10, 218, 10, 0.5];
 
     let titles = {};
-    titles[WEIR_FLOW_OUTPUT] = "Flow";
+    titles[WEIR_FLOW_OUTPUT] = "Flow (m³/s)";
+	titles[WEIR_CUSTOM_FLOW] = "Measurement Flow (m³/s)";
 
-    let data = {};
-    let dataTimeframes = [];
-    for (let t = 0;t < timeframes;t++) {
-        dataTimeframes.push(t);
+    let plotdata = {};
+	plotdata[HSO_OVERLAY_TIMEFRAMES] = createTimeframeTimesData();
+    plotdata[WEIR_FLOW_OUTPUT] = weir.flows;
+
+	let traces = xyTraces("scatter", plotdata, properties, colors, titles);
+
+    let customFlow = createCustomDataTrace(weir.customFlow, WEIR_CUSTOM_FLOW, colors, titles);
+    if (customFlow.length > 0) {
+        traces.push(customFlow[0]);
     }
-    data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-    data[WEIR_FLOW_OUTPUT] = weir.flows;
 
     let layout = createWeirPlotLayout();
     layout.title = {
         text: "Flow (m³/s)"
     };
-    xyPlot(weirPanel.weirFlowPlot, "scatter", data, properties, colors, titles, layout);
+	
+	copyAndStorePreviousTraceVisibility(weirPanel.weirFlowPlot.id, traces);
+
+	Plotly.newPlot(weirPanel.weirFlowPlot, traces, layout);
 }
 
 function createWeirPlotLayout() {
@@ -4683,34 +4699,87 @@ function createWeirPlotLayout() {
     return layout;
 }
 
+function createTimeframeTimesData() {
+    let dataTimeframes = [];
+    for (let t = 0;t < timeframes;t++) {
+        try {
+            if (t < data[TIMEFRAMETIMES].length) {
+                dataTimeframes.push(new Date(data[TIMEFRAMETIMES][t]));
+            }
+        } catch (error) {
+            dataTimeframes.push(t);
+        }
+    }
+    return dataTimeframes;
+}
+
 function updateWeirHeightPlot(weir) {
 
     let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_HEIGHT_OUTPUT, WEIR_DATUM_OUTPUT_A, WEIR_DATUM_OUTPUT_B];
+
+
     let colors = {};
     colors[WEIR_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
     colors[WEIR_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
     colors[WEIR_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+    colors[WEIR_CUSTOM_DATUM_A] = [218, 218, 10, 0.5];
+    colors[WEIR_CUSTOM_DATUM_B] = [10, 218, 218, 0.5];
 
     let titles = {};
     titles[WEIR_HEIGHT_OUTPUT] = "Height";
     titles[WEIR_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
     titles[WEIR_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+    titles[WEIR_CUSTOM_DATUM_A] = "Measurement A"; // replace A with water level area name
+    titles[WEIR_CUSTOM_DATUM_B] = "Measurement B"; // replace B with water level area name
 
-    let data = {};
-    let dataTimeframes = [];
-    for (let t = 0;t < timeframes;t++) {
-        dataTimeframes.push(t);
+    let plotdata = {};
+    plotdata[HSO_OVERLAY_TIMEFRAMES] = createTimeframeTimesData();
+    plotdata[WEIR_HEIGHT_OUTPUT] = weir.heights;
+    plotdata[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
+    plotdata[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
+
+    let traces = xyTraces("scatter", plotdata, properties, colors, titles);
+
+    let customA = createCustomDataTrace(weir.customDatumA, WEIR_CUSTOM_DATUM_A, colors, titles);
+    if (customA.length > 0) {
+        traces.push(customA[0]);
     }
-    data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-    data[WEIR_HEIGHT_OUTPUT] = weir.heights;
-    data[WEIR_DATUM_OUTPUT_A] = weir.datumsA;
-    data[WEIR_DATUM_OUTPUT_B] = weir.datumsB;
+
+    let customB = createCustomDataTrace(weir.customDatumB, WEIR_CUSTOM_DATUM_B, colors, titles);
+    if (customB.length > 0) {
+        traces.push(customB[0]);
+    }
 
     let layout = createWeirPlotLayout();
     layout.title = {
         text: "Height and Datum (m)"
     };
-    xyPlot(weirPanel.weirHeightPlot, "scatter", data, properties, colors, titles, layout);
+
+    copyAndStorePreviousTraceVisibility(weirPanel.weirHeightPlot.id, traces);
+
+    Plotly.newPlot(weirPanel.weirHeightPlot, traces, layout);
+
+}
+
+function createCustomDataTrace(values, propertyName, colors, titles) {
+    if (values == null || values.length == 0) {
+        return [];
+    }
+
+    let properties = [HSO_OVERLAY_TIMEFRAMES, propertyName];
+
+    let timeframeTimes = [];
+    let timeValues = [];
+    for (let i = 0;i < values.length - 1;i += 2) {
+        timeframeTimes.push(new Date(Math.round(values[i])));
+        timeValues.push(values[i + 1]);
+    }
+
+    let plotdata = {};
+    plotdata[HSO_OVERLAY_TIMEFRAMES] = timeframeTimes;
+    plotdata[propertyName] = timeValues;
+
+    return xyTraces("scatter", plotdata, properties, colors, titles);
 }
 
 function selectWeir(index) {
@@ -4811,7 +4880,7 @@ const WEIR_PARAM_TITLES = {
 
 }
 
-const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB", "customDatumA", "customDatumB", "customFlow"];
+const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB"];
 const WEIR_RESULT_TITLES = {
     "name": WEIR_PARAM_TITLES["name"],
     "flows": "Flow (m³/s)",
@@ -4996,6 +5065,7 @@ function updateCulvertFlowPlot(culvert) {
     };
     xyPlot(culvertPanel.culvertFlowPlot, "scatter", data, properties, colors, titles, layout);
 }
+
 function updateCulvertHeightPlot(culvert) {
 
     let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_HEIGHT_OUTPUT, CULVERT_DATUM_OUTPUT_A, CULVERT_DATUM_OUTPUT_B];
@@ -5117,7 +5187,7 @@ const CULVERT_PARAM_TITLES = {
     "culvertN": "Culvert N",
 }
 
-const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB", "customDatumA", "customDatumB", "customFlow"];
+const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB"];
 const CULVERT_RESULT_TITLES = {
     "name": CULVERT_PARAM_TITLES["name"],
     "flows": "Flow (m³/s)",
@@ -5155,7 +5225,7 @@ function createCulverts() {
 
     let customDatumA = queries.getData(CULVERT_CUSTOM_DATUM_A, true, true);
     let customDatumB = queries.getData(CULVERT_CUSTOM_DATUM_B, true, true);
-    let customFlow = queries.getData(CUVLERT_CUSTOM_FLOW, true, true);
+    let customFlow = queries.getData(CULVERT_CUSTOM_FLOW, true, true);
 
     for (let i = 0;i < names.length;i++) {
 
@@ -5898,8 +5968,8 @@ function appendChains(...functions) {
     installer.appendChains(functions);
 }
 
-document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event, weirs, handleWeirValues));
-document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event, culverts, handleCulvertValues));
+document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event, weirs, handleWeirCustomValues));
+document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event, culverts, handleCulvertCustomValues));
 
 function changeTimestamp() {
     appendChains(
@@ -5947,7 +6017,7 @@ function getWaterLevelTraces(results) {
     return traces;
 }
 
-function storeTraces(itemName, items, traces) {
+function storeTraces(config, items, traces) {
 
     for (let trace of traces) {
 
@@ -5957,43 +6027,36 @@ function storeTraces(itemName, items, traces) {
                 continue;
             }
 
-            console.log('Map trace values for ' + itemName + " : " + item.name + " with id " + item.id);
+            console.log('Map trace values for ' + config.itemName + " : " + item.name + " with id " + item.id);
 
-            const startDateMS = startDate.getTime();
-            let valuesArray = [trace.x.length * 2];
-            for (let i = 0;i < trace.x.length;i++) {
-                let relativeMS = trace.x[i].getTime() - startDateMS;
-                valuesArray[2 * i] = relativeMS;
-                valuesArray[2 * i + 1] = trace.y[i];
+            for (let mapping of config.mapping) {
+                if (mapping.suffix != trace.myAttribute) {
+                    continue;
+                }
+
+                let valuesArray = [trace.x.length * 2];
+                for (let i = 0;i < trace.x.length;i++) {
+                    let relativeMS = trace.x[i].getTime();
+                    valuesArray[2 * i] = relativeMS;
+                    valuesArray[2 * i + 1] = trace.y[i];
+                }
+                item[mapping.property] = valuesArray;
+
+                //TODO: Send properties using app.
             }
-
-            if (item.customTraces == null) {
-                item.customTraces = new Map();
-            }
-            item.customTraces.set(trace.myAttribute, valuesArray);
-        }
-    }
-
-    for (let item of items) {
-        console.log(itemName + ": " + item.name);
-        if (item.customTraces == null) {
-            continue;
-        }
-        for (let [k, v] of item.customTraces) {
-            console.log(k + " : " + v);
         }
     }
 }
 
-function handleValues(itemName, items, results) {
+function handleCustomValues(config, items, results) {
 
     if (results == null || results.length == 0) {
-        dialogPane.confirmClose("No matches found for " + itemName + "s");
+        dialogPane.confirmClose("No matches found for " + config.itemName + "s");
         return;
     }
 
     if (results.length == 1 && results[0].length == 0 || results[0].length == 1 && results[0][0] == '') {
-        dialogPane.confirmClose("No matches found for " + itemName + " names");
+        dialogPane.confirmClose("No matches found for " + config.itemName + " names");
         return;
     }
 
@@ -6004,16 +6067,53 @@ function handleValues(itemName, items, results) {
     }
 
     dialogPane.yesNo(results[0].length + " matches found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
-        storeTraces(items, traces);
+        storeTraces(config, items, traces);
     }, null);
 }
 
-function handleWeirValues(reader) {
-    handleValues("Weir", weirs, reader.getResults());
+function handleWeirCustomValues(reader) {
+    handleCustomValues({
+        itemName: "Weir",
+        mapping:
+            [{
+                attribute: "CUSTOM_DATUM_A",
+                property: "customDatumA",
+                suffix: "H.G"
+            }, {
+                attribute: "CUSTOM_DATUM_B",
+                property: "customDatumB",
+                suffix: "H.G.h"
+            },
+            {
+                attribute: "CUSTOM_FLOW",
+                property: "customFlow",
+                suffix: ""
+            }]
+    },
+        weirs,
+        reader.getResults());
 }
 
-function handleCulvertValues(reader) {
-    handleValues("Culvert", culverts, reader.getResults());
+function handleCulvertCustomValues(reader) {
+    handleCustomValues({
+        itemName: "Culvert",
+        mapping: [{
+            attribute: "CUSTOM_DATUM_A",
+            property: "customDatumA",
+            suffix: "H.G"
+        }, {
+            attribute: "CUSTOM_DATUM_B",
+            property: "customDatumB",
+            suffix: "H.G.h"
+        },
+        {
+            attribute: "CUSTOM_FLOW",
+            property: "customFlow",
+            suffix: ""
+        }]
+    },
+        culverts,
+        reader.getResults());
 }
 
 function onImportFileSelected(event, items, resultFunction) {
@@ -6061,7 +6161,7 @@ function validateTimestamp() {
     }
 }
 
-let app = { token: () => "6c3554a151boGreCJrGjXH7GLudgYtEo" };
+let app = { token: () => "6c3554a1eBRoiEE5ILClasOSY09EUS4v" };
 
 $(window).on("load", function() {
 
