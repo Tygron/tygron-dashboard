@@ -1444,6 +1444,32 @@ function changeTimestamp() {
     );
 }
 
+function sendBuildingChanges(config, buildings) {
+	
+	let ids = [];
+	let attributes = [];
+	let values = [];
+	
+	for(let building of buildings){
+		for(let mappedProperty of config.mapping){
+			let propertyValue =building[mappedProperty.property];
+			if(propertyValue!= null && propertyValue.length> 0){
+				ids.push(building.id);
+				attributes.push(mappedProperty.attribute);
+				values.push(propertyValue);
+			}
+		}
+	}
+	
+	if(ids.length == 0){
+		return;
+	}
+	
+    appendChains(
+        installer.getConnector().post("event/editorbuilding/set_attributes", null, [ids, attributes, values])       
+    );
+}
+
 function getWaterLevelTraces(results) {
     let traces = [];
 
@@ -1483,7 +1509,8 @@ function getWaterLevelTraces(results) {
 }
 
 function storeTraces(config, items, traces) {
-
+	
+	let changed = false;
     for (let trace of traces) {
 
         for (let item of items) {
@@ -1506,11 +1533,15 @@ function storeTraces(config, items, traces) {
                     valuesArray[2 * i + 1] = trace.y[i];
                 }
                 item[mapping.property] = valuesArray;
+				changed = true;
 
                 //TODO: Send properties using app.
             }
         }
     }
+	if(changed){
+		sendBuildingChanges(config, items);
+	}
 }
 
 function handleCustomValues(config, items, results) {
@@ -1626,7 +1657,7 @@ function validateTimestamp() {
     }
 }
 
-let app = { token: () => "6c3554a1eBRoiEE5ILClasOSY09EUS4v" };
+let app = { token: () => "6c3554a15XoC0gjdW8GRj2q22fJbeY1Q" };
 
 $(window).on("load", function() {
 
