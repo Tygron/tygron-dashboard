@@ -104,17 +104,17 @@ function updateWeirFlowPlot(weir) {
     let properties = [HSO_OVERLAY_TIMEFRAMES, WEIR_FLOW_OUTPUT];
     let colors = {};
     colors[WEIR_FLOW_OUTPUT] = [218, 10, 10, 0.5];
-	colors[WEIR_CUSTOM_FLOW] = [10, 218, 10, 0.5];
+    colors[WEIR_CUSTOM_FLOW] = [10, 218, 10, 0.5];
 
     let titles = {};
     titles[WEIR_FLOW_OUTPUT] = "Flow (m³/s)";
-	titles[WEIR_CUSTOM_FLOW] = "Measurement Flow (m³/s)";
+    titles[WEIR_CUSTOM_FLOW] = "Measurement Flow (m³/s)";
 
     let plotdata = {};
-	plotdata[HSO_OVERLAY_TIMEFRAMES] = createTimeframeTimesData();
+    plotdata[HSO_OVERLAY_TIMEFRAMES] = createTimeframeTimesData();
     plotdata[WEIR_FLOW_OUTPUT] = weir.flows;
 
-	let traces = xyTraces("scatter", plotdata, properties, colors, titles);
+    let traces = xyTraces("scatter", plotdata, properties, colors, titles);
 
     let customFlow = createCustomDataTrace(weir.customFlow, WEIR_CUSTOM_FLOW, colors, titles);
     if (customFlow.length > 0) {
@@ -125,10 +125,10 @@ function updateWeirFlowPlot(weir) {
     layout.title = {
         text: "Flow (m³/s)"
     };
-	
-	copyAndStorePreviousTraceVisibility(weirPanel.weirFlowPlot.id, traces);
 
-	Plotly.newPlot(weirPanel.weirFlowPlot, traces, layout);
+    copyAndStorePreviousTraceVisibility(weirPanel.weirFlowPlot.id, traces);
+
+    Plotly.newPlot(weirPanel.weirFlowPlot, traces, layout);
 }
 
 function createWeirPlotLayout() {
@@ -511,31 +511,46 @@ function updateCulvertFlowPlot(culvert) {
 function updateCulvertHeightPlot(culvert) {
 
     let properties = [HSO_OVERLAY_TIMEFRAMES, CULVERT_HEIGHT_OUTPUT, CULVERT_DATUM_OUTPUT_A, CULVERT_DATUM_OUTPUT_B];
+
     let colors = {};
     colors[CULVERT_HEIGHT_OUTPUT] = [218, 10, 10, 0.5];
     colors[CULVERT_DATUM_OUTPUT_A] = [10, 218, 10, 0.5];
     colors[CULVERT_DATUM_OUTPUT_B] = [10, 10, 218, 0.5];
+    colors[CULVERT_CUSTOM_DATUM_A] = [218, 218, 10, 0.5];
+    colors[CULVERT_CUSTOM_DATUM_B] = [10, 218, 218, 0.5];
 
     let titles = {};
     titles[CULVERT_HEIGHT_OUTPUT] = "Height";
     titles[CULVERT_DATUM_OUTPUT_A] = "Datum A"; // replace A with water level area name
     titles[CULVERT_DATUM_OUTPUT_B] = "Datum B"; // replace B with water level area name
+    titles[CULVERT_CUSTOM_DATUM_A] = "Measurement A"; // replace A with water level area name
+    titles[CULVERT_CUSTOM_DATUM_B] = "Measurement B"; // replace B with water level area name
 
-    let data = {};
-    let dataTimeframes = [];
-    for (let t = 0;t < timeframes;t++) {
-        dataTimeframes.push(t);
+    let plotdata = {}; 
+    plotdata[HSO_OVERLAY_TIMEFRAMES] = createTimeframeTimesData();
+    plotdata[CULVERT_HEIGHT_OUTPUT] = culvert.heights;
+    plotdata[CULVERT_DATUM_OUTPUT_A] = culvert.datumsA;
+    plotdata[CULVERT_DATUM_OUTPUT_B] = culvert.datumsB;
+
+    let traces = xyTraces("scatter", plotdata, properties, colors, titles);
+    let customA = createCustomDataTrace(culvert.customDatumA, CULVERT_CUSTOM_DATUM_A, colors, titles);
+    if (customA.length > 0) {
+        traces.push(customA[0]);
     }
-    data[HSO_OVERLAY_TIMEFRAMES] = dataTimeframes;
-    data[CULVERT_HEIGHT_OUTPUT] = culvert.heights;
-    data[CULVERT_DATUM_OUTPUT_A] = culvert.datumsA;
-    data[CULVERT_DATUM_OUTPUT_B] = culvert.datumsB;
+
+    let customB = createCustomDataTrace(culvert.customDatumB, CULVERT_CUSTOM_DATUM_B, colors, titles);
+    if (customB.length > 0) {
+        traces.push(customB[0]);
+    }
 
     let layout = createWeirPlotLayout();
     layout.title = {
         text: "Height and Datum (m)"
     };
-    xyPlot(culvertPanel.culvertHeightPlot, "scatter", data, properties, colors, titles, layout);
+
+    copyAndStorePreviousTraceVisibility(culvertPanel.culvertHeightPlot.id, traces);
+
+    Plotly.newPlot(culvertPanel.culvertHeightPlot, traces, layout);
 }
 
 function selectCulvert(index) {
