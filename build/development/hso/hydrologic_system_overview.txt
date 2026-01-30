@@ -57,7 +57,7 @@ input[type=button], input[type=file] {
 }
 
 .dialog-background-pane {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	right: 0;
 	bottom: 0;
@@ -72,6 +72,7 @@ input[type=button], input[type=file] {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	background-color: white;
 }
 .dialog-button-box{
 	display: flex;
@@ -302,6 +303,245 @@ input[type=button], input[type=file] {
 	content: var(--text-value);
 	font: var(--value-font);
 }
+/*Hydologic System Overview override css here*/
+.column {
+	height: 100%;
+	max-height: auto;
+	overflow-x: scroll;
+	border: 1px solid grey;
+	border-radius: 20px;
+	box-shadow: 2px 2px 10px #c1c1c1;
+	font-family: Arial;
+	padding: 30px;
+	margin: 10px;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 50% auto;
+	/*grid-template-rows: 45% auto;*/
+	width: 100%;
+	height: 100%;
+	gap: 25px;
+}
+
+.flex-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.slider-background {
+	margin: 1em;
+	width: 95%;
+	height: 15px;
+}
+
+header {
+	padding: 14px 18px;
+	border: 2px black;
+	border-radius: 15px;
+	background: rgb(45, 45, 45);
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
+}
+
+header h1 {
+	margin: 0;
+	font-size: 18px;
+	letter-spacing: .2px
+}
+
+header .sub {
+	color: white;
+	font-size: 12px;
+	margin-top: 4px
+}
+
+.layout {
+	display: grid;
+	grid-template-columns: 240px 1fr;
+	min-height: calc(100vh - 60px);
+}
+
+.sidebar {
+	background: white;
+	border-radius: 15px;
+	padding: 10px 0px;
+	margin-top: 15px;
+	overflow-y: auto;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
+}
+
+.sidebar h3 {
+	font-size: 13px;
+	font-family: sans-serif;
+	margin: 10px 16px 4px;
+	color: black;
+	text-transform: uppercase;
+}
+
+.nav-group {
+	margin-bottom: 6px;
+}
+
+.nav-item {
+	cursor: pointer;
+	padding: 8px 16px;
+	color: black;
+	font-size: 13px;
+	font-family: sans-serif;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: background .15s;
+}
+
+.nav-item:hover {
+	background: rgb(222, 222, 222);
+}
+
+.nav-item span::after {
+	content: '▸';
+}
+
+.nav-item.open span::after {
+	content: '▾';
+}
+
+.subnav {
+	display: none;
+	flex-direction: column;
+}
+
+.subnav.open {
+	display: flex;
+}
+
+.sub-item {
+	padding: 7px 28px;
+	font-size: 12px;
+	font-family: sans-serif;
+	cursor: pointer;
+	color: rgb(40, 40, 40);
+	transition: background .15s;
+}
+
+.sub-item:hover {
+	background: rgb(222, 222, 222);
+}
+
+.sub-item.active {
+	background: orange;
+	color: black;
+	border-left: 3px solid black;
+	font-family: sans-serif;
+	font-size: 12px;
+}
+
+main {
+	padding: 16px;
+}
+
+.card {
+	background: white;
+	border-radius: 14px;
+	padding: 12px 14px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
+	margin-bottom: 12px;
+}
+
+h2 {
+	font-size: 15px;
+	font-family: sans-serif;
+	color: black;
+}
+
+header h2 {
+	margin: 0 0 8px;
+	color: white;
+}
+
+.section {
+	display: none;
+}
+
+.section.active {
+	display: block;
+}
+
+.section>iframe {
+	width: 100%;
+	height: calc(100vh - 130px);
+	border: 1px solid black;
+	border-radius: 12px;
+	background: salmon;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	margin-top: 8px;
+}
+
+th, td {
+	padding: 6px 8px;
+	border-bottom: 1px solid black;
+	text-align: left;
+}
+
+tr:hover td {
+	background: rgb(222, 222, 222);
+}
+
+tr.selected td {
+	background: sandybrown
+}
+
+canvas {
+	background: lavender;
+	border: 1px solid black;
+	width: 100%;
+}
+
+.btn {
+	appearance: none;
+	border: 1px solid black;
+	background: rgb(222, 222, 222);
+	color: black;
+	padding: 6px 10px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 13px;
+	margin-top: 4px;
+	font-family: sans-serif;
+}
+
+.btn:hover {
+	border-color: black;
+}
+
+.btn:active {
+	transform: translateY(1px);
+}
+
+#wb-sankeyplot .card {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+#wb-sankeyplot {
+	height: 85vh;
+}
+
+#sankeyPlot {
+	height: 100%;
+}
+
+.control-row {
+	display: flex;
+}
 
 .water-structure-sidebar {
 	flex: 1;
@@ -369,240 +609,6 @@ input[type=button], input[type=file] {
 
 .water-structure-detail {
 	flex: 3;
-}
-/*Hydologic System Overview override css here*/
-.column {
-	height: 100%;
-	max-height: auto;
-	overflow-x: scroll;
-	border: 1px solid grey;
-	border-radius: 20px;
-	box-shadow: 2px 2px 10px #c1c1c1;
-	font-family: Arial;
-	padding: 30px;
-	margin: 10px;
-}
-
-.grid {
-	display: grid;
-	grid-template-columns: 50% auto;
-	/*grid-template-rows: 45% auto;*/
-	width: 100%;
-	height: 100%;
-	gap: 25px;
-}
-
-.flex-container {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-}
-
-.slider-background {
-	margin: 1em;
-	width: 95%;
-	height: 15px;
-}
-
-header {
-	padding: 14px 18px;
-	border: 2px black;
-	border-radius: 15px;
-	background: rgb(45, 45, 45);
-	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
-}
-
-header h1 {
-	margin: 0;
-	font-size: 18px;
-	letter-spacing: .2px
-}
-
-header .sub {
-	color: white;
-	font-size: 12px;
-	margin-top: 4px
-}
-
-.layout {
-	display: grid;
-	grid-template-columns: 240px 1fr;
-	min-height: calc(100vh - 60px);
-}
-
-.sidebar {
-	background: white;
-	border-radius: 15px;
-	padding: 10px 0px ;
-	margin-top: 15px;
-	overflow-y: auto;
-	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
-}
-
-.sidebar h3 {
-	font-size: 13px;
-	font-family: sans-serif;
-	margin: 10px 16px 4px;
-	color: black;
-	text-transform: uppercase;
-}
-
-.nav-group {
-	margin-bottom: 6px;
-}
-
-.nav-item {
-	cursor: pointer;
-	padding: 8px 16px;
-	color: black;
-	font-size: 13px;
-	font-family: sans-serif;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	transition: background .15s;
-}
-
-.nav-item:hover {
-	background: rgb(222, 222, 222);
-}
-
-.nav-item span::after{
-	content: '▸';
-}
-
-.nav-item.open span::after{
-	content: '▾';
-}
-
-.subnav {
-	display: none;
-	flex-direction: column;
-}
-
-.subnav.open {
-	display: flex;
-}
-
-.sub-item {
-	padding: 7px 28px;
-	font-size: 12px;
-	font-family: sans-serif;
-	cursor: pointer;
-	color: rgb(40,40,40);
-	transition: background .15s;
-}
-
-.sub-item:hover {
-	background: rgb(222, 222, 222);
-}
-
-.sub-item.active {
-	background:orange;
-	color: black;
-	border-left: 3px solid black;
-	font-family: sans-serif;
-	font-size:12px;
-}
-
-main {	
-	padding: 16px;
-}
-
-.card {
-	background: white;
-	border-radius: 14px;
-	padding: 12px 14px;
-	box-shadow: 0px 0px 10px rgba(0, 0, 0, .15);
-	margin-bottom: 12px;
-}
-
-h2 {
-	font-size: 15px;
-	font-family: sans-serif;
-	color: black;
-}
-
-header h2 {
-	margin: 0 0 8px;
-	color: white;
-}
-
-.section {
-	display: none;
-}
-
-.section.active {
-	display: block;
-}
-
-.section>iframe {
-	width: 100%;	
-	height: calc(100vh - 130px);	
-	border: 1px solid black;
-	border-radius: 12px;
-	background: salmon;
-}
-
-table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 13px;
-	margin-top: 8px;
-}
-
-th, td {
-	padding: 6px 8px;
-	border-bottom: 1px solid black;
-	text-align: left;
-}
-
-tr:hover td {
-	background:rgb(222, 222, 222);
-}
-
-tr.selected td {
-	background: sandybrown
-}
-
-canvas {
-	background: lavender;
-	border: 1px solid black;
-	width: 100%;
-}
-
-.btn {
-	appearance: none;
-	border: 1px solid black;
-	background: rgb(222, 222, 222);
-	color: black;
-	padding: 6px 10px;
-	border-radius: 8px;
-	cursor: pointer;
-	font-size: 13px;
-	margin-top: 4px;
-	font-family: sans-serif;
-}
-
-.btn:hover {
-	border-color: black;
-}
-
-.btn:active {
-	transform: translateY(1px);
-}
-
-#wb-sankeyplot .card{
-	display:flex;
-	flex-direction: column;
-	height:100%;
-}
-
-#wb-sankeyplot{	
-	height:85vh;
-} 
-#sankeyPlot{	
-	height:100%;
 }
 
 </style>
@@ -729,9 +735,11 @@ canvas {
 				<div class="card">
 					<h2>Culvert Results</h2>
 					<div id="culvertResultSliderDiv"></div>
-					<button class="btn" id="culvertDownloadResultCsvButton">Download
-						CSV</button>
-					<input type="file" id="culvertImportResultCsvButton" accept=".csv"/>
+					<div class="control-row">
+						<button class="btn" id="culvertDownloadResultCsvButton">Download
+							CSV</button>
+						<input type="file" id="culvertImportResultCsvButton" accept=".csv" />
+					</div>
 					<table id="culvertResultsTable">
 						<thead>
 							<tr>
@@ -801,9 +809,11 @@ canvas {
 				<div class="card">
 					<h2>Weir Results</h2>
 					<div id="weirResultSliderDiv"></div>
-					<button class="btn" id="weirDownloadResultCsvButton">Download
-						CSV</button>
-					<input type="file" id="weirImportResultCsvButton" accept=".csv"/>
+					<div class="control-row">
+						<button class="btn" id="weirDownloadResultCsvButton">Download
+							CSV</button>
+						<input type="file" id="weirImportResultCsvButton" accept=".csv" />
+					</div>
 					<table id="weirResultsTable">
 						<thead>
 							<tr>
@@ -2350,21 +2360,21 @@ class DialogPane {
     constructor(parent) {
 
         this.dialogPane = document.createElement("div");
-		this.dialogPane.className = 'dialog-background-pane';
+        this.dialogPane.className = 'dialog-background-pane';
         parent.appendChild(this.dialogPane);
 
         this.centerDialog = document.createElement("div");
         this.centerDialog.className = "dialog-center-pane";
-		this.dialogPane.appendChild(this.centerDialog);
-		       
+        this.dialogPane.appendChild(this.centerDialog);
+
         this.infoText = document.createElement("p");
         this.centerDialog.appendChild(this.infoText);
-		
-		this.buttonBox = document.createElement("div");
-		this.buttonBox.className = 'dialog-button-box';
-		this.centerDialog.appendChild(this.buttonBox);
-		
-		
+
+        this.buttonBox = document.createElement("div");
+        this.buttonBox.className = 'dialog-button-box';
+        this.centerDialog.appendChild(this.buttonBox);
+
+
         this.yesButton = document.createElement("button");
         this.yesButton.innerHTML = "Yes";
         this.yesButton.style.display = 'none';
@@ -2385,6 +2395,8 @@ class DialogPane {
 
     setInfoText(text) {
         this.infoText.innerHTML = text;
+        this.yesButton.style.display = 'none';
+        this.noButton.style.display = 'none';
     }
 
     confirmClose(text, event) {
@@ -2392,6 +2404,7 @@ class DialogPane {
         this.yesButton.innerHTML = "Close";
         this.yesButton.style.display = "inline";
         this.noButton.style.display = 'none';
+        this.show();
         let self = this;
         this.yesButton.onclick = (e) => {
             self.hide();
@@ -2407,6 +2420,7 @@ class DialogPane {
         this.yesButton.style.display = "inline";
         this.noButton.innerHTML = "No";
         this.noButton.style.display = 'inline';
+        this.show();
         let self = this;
 
         this.yesButton.onclick = (e) => {
@@ -4536,6 +4550,8 @@ function drawWeirFront(canvas, index, weirHeights, datumsLeft, datumsRight, weir
 
 
 
+
+
 // Sidebar toggles
 document.querySelectorAll(".nav-item").forEach(item => {
     item.addEventListener("click", () => {
@@ -4568,6 +4584,7 @@ document.querySelector("[data-section='wb-volumetabel']").click();
 
 document.getElementById("waterAreaName").innerHTML = '$NAME';
 
+const dialogPane = new DialogPane(document.body);
 
 const queries = new QueryDataManager();
 const stepwise = (value, index, array) => index === 0 ? value : value - array[index - 1];
@@ -4578,13 +4595,27 @@ const data = {};
 
 const TIMEFRAMES = 'timeframes';
 const TIMEFRAMETIMES = 'timeframetimes';
+const START_DATE_MS = 'startDateMS';
+
 queries.addQuery(TIMEFRAMETIMES,
     '$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(START_DATE_MS,
+    '$SELECT_ATTRIBUTE_WHERE_NAME_IS_START_DATE_MS_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+
 
 data[TIMEFRAMETIMES] = queries.getData(TIMEFRAMETIMES);
 data[TIMEFRAMES] = data[TIMEFRAMETIMES].map((_value, index) => index);
 const timeframes = data[TIMEFRAMES].length;
+const startDate = new Date(queries.getData(START_DATE_MS));
 var timeframe = timeframes - 1;
+var endDate = null;
+try {
+    if (data[TIMEFRAMETIMES].length > 0) {
+        endDate = new Date(date[TIMEFRAMETIMES][date[TIMEFRAMETIMES].length - 1]);
+    }
+} catch (error) {
+    endDate = null;
+}
 
 /**
  * WEIRS
@@ -4733,6 +4764,9 @@ const WEIR_AREA_OUTPUT_B = 'weir_water_area_output_b';
 const WEIR_ANGLE = 'weir_angle';
 const WEIR_COEFFICIENT = 'weir_coefficient';
 const WEIR_N = 'weir_n';
+const WEIR_CUSTOM_DATUM_A = 'weir_custom_datum_a';
+const WEIR_CUSTOM_DATUM_B = 'weir_custom_datum_b';
+const WEIR_CUSTOM_FLOW = 'weir_custom_flow';
 
 queries.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
@@ -4749,6 +4783,10 @@ queries.addQuery(WEIR_ANGLE, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT
 queries.addQuery(WEIR_COEFFICIENT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_COEFFICIENT');
 queries.addQuery(WEIR_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_N');
 
+queries.addQuery(WEIR_CUSTOM_DATUM_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_DATUM_A_AND_INDEX_IS_X');
+queries.addQuery(WEIR_CUSTOM_DATUM_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_DATUM_B_AND_INDEX_IS_X');
+queries.addQuery(WEIR_CUSTOM_FLOW, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_FLOW_AND_INDEX_IS_X');
+
 const WEIR_PARAM_PROPERTIES = ["name", "coefficient", "weirN", "heights", "width", "angle", "damWidth", "damHeight"];
 const WEIR_PARAM_TITLES = {
     "name": "Name",
@@ -4758,18 +4796,22 @@ const WEIR_PARAM_TITLES = {
     "width": "Width (m)",
     "angle": "Angle (°)",
     "damWidth": "Dam Width (m)",
-    "damHeight": "Dam Height (m)"
+    "damHeight": "Dam Height (m)",
+
 }
 
-const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB"];
+const WEIR_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaOutputA", "areaOutputB", "customDatumA", "customDatumB", "customFlow"];
 const WEIR_RESULT_TITLES = {
     "name": WEIR_PARAM_TITLES["name"],
-    "flows": "Flow (M³/s)",
+    "flows": "Flow (m³/s)",
     "heights": "Height (m)",
     "datumsA": "Datum A (m)",
     "datumsB": "Datum B (m)",
     "areaOutputA": "Area ID A",
     "areaOutputB": "Area ID B",
+    "customDatumA": "Measurement Datum A (m)",
+    "customDatumB": "Measurement Datum B (m)",
+    "customFlow": "Measurement Flow (m³/s)",
 
 }
 let weirTimeframe = 0;
@@ -4792,6 +4834,10 @@ function createWeirs() {
     let coefficient = queries.getData(WEIR_COEFFICIENT, true, true);
     let weirN = queries.getData(WEIR_N, true, true);
 
+    let customDatumA = queries.getData(WEIR_CUSTOM_DATUM_A, true, true);
+    let customDatumB = queries.getData(WEIR_CUSTOM_DATUM_B, true, true);
+    let customFlow = queries.getData(WEIR_CUSTOM_FLOW, true, true);
+
     for (let i = 0;i < names.length;i++) {
 
         let weir = {
@@ -4812,6 +4858,10 @@ function createWeirs() {
             angle: i < angle.length ? angle[i][0] : -10000,
             coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
             weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
+
+            customDatumA: i < customDatumA ? customDatumA[i] : [],
+            customDatumB: i < customDatumB ? customDatumB[i] : [],
+            customFlow: i < customFlow ? customFlow[i] : [],
         };
         weirs.push(weir);
 
@@ -5025,6 +5075,9 @@ const CULVERT_DATUM_HEIGHT_OUTPUT_B = 'culvert_datum_height_output_b';
 const CULVERT_AREA_OUTPUT_A = 'culvert_water_area_output_a';
 const CULVERT_AREA_OUTPUT_B = 'culvert_water_area_output_b';
 const CULVERT_N = 'culvert_n';
+const CULVERT_CUSTOM_DATUM_A = 'culvert_custom_datum_a';
+const CULVERT_CUSTOM_DATUM_B = 'culvert_custom_datum_b';
+const CULVERT_CUSTOM_FLOW = 'culvert_custom_flow';
 
 queries.addQuery(CULVERT_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(CULVERT_DIAMETER, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_DIAMETER');
@@ -5040,6 +5093,10 @@ queries.addQuery(CULVERT_AREA_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_
 queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_4');
 queries.addQuery(CULVERT_DATUM_HEIGHT_OUTPUT_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_WATER_AREA_OUTPUT_AND_INDEX_IS_5');
 
+queries.addQuery(CULVERT_CUSTOM_DATUM_A, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_DATUM_A_AND_INDEX_IS_X');
+queries.addQuery(CULVERT_CUSTOM_DATUM_B, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_DATUM_B_AND_INDEX_IS_X');
+queries.addQuery(CULVERT_CUSTOM_FLOW, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_NAME_IS_CUSTOM_FLOW_AND_INDEX_IS_X');
+
 const CULVERT_PARAM_PROPERTIES = ["name", "diameter", "rectangularHeight", "datumHeight", "culvertN"];
 const CULVERT_PARAM_TITLES = {
     "name": "Name",
@@ -5049,10 +5106,10 @@ const CULVERT_PARAM_TITLES = {
     "culvertN": "Culvert N",
 }
 
-const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB"];
+const CULVERT_RESULT_PROPERTIES = ["name", "flows", "heights", "datumsA", "datumsB", "areaIDA", "areaIDB", "datumHeightOutputA", "datumHeightOutputB", "customDatumA", "customDatumB", "customFlow"];
 const CULVERT_RESULT_TITLES = {
     "name": CULVERT_PARAM_TITLES["name"],
-    "flows": "Flow (M³/s)",
+    "flows": "Flow (m³/s)",
     "heights": "Height (m)",
     "datumsA": "Water Level Datum A (m)",
     "datumsB": "Water Level Datum B (m)",
@@ -5060,6 +5117,9 @@ const CULVERT_RESULT_TITLES = {
     "areaIDB": "Area ID B",
     "datumHeightOutputA": "Datum Elevation A (m)",
     "datumHeightOutputB": "Datum Elevation B (m)",
+    "customDatumA": "Measurement Datum A (m)",
+    "customDatumB": "Measurement Datum B (m)",
+    "customFlow": "Measurement Flow (m³/s)"
 
 }
 let culvertTimeframe = 0;
@@ -5081,6 +5141,10 @@ function createCulverts() {
     let areaIDB = queries.getData(CULVERT_AREA_OUTPUT_B, true, true);
     let elevationA = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_A, true, true);
     let elevationB = queries.getData(CULVERT_DATUM_HEIGHT_OUTPUT_B, true, true);
+
+    let customDatumA = queries.getData(CULVERT_CUSTOM_DATUM_A, true, true);
+    let customDatumB = queries.getData(CULVERT_CUSTOM_DATUM_B, true, true);
+    let customFlow = queries.getData(CUVLERT_CUSTOM_FLOW, true, true);
 
     for (let i = 0;i < names.length;i++) {
 
@@ -5104,6 +5168,10 @@ function createCulverts() {
             areaIDB: i < areaIDB.length ? areaIDB[i][0] : -1,
             elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
             elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
+
+            customDatumA: i < customDatumA.length ? customDatumA[i] : [],
+            customDatumB: i < customDatumB.length ? customDatumB[i] : [],
+            customFlow: i < customFlow.length ? customFlow[i] : [],
         };
         culverts.push(culvert);
 
@@ -5819,8 +5887,8 @@ function appendChains(...functions) {
     installer.appendChains(functions);
 }
 
-document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event));
-document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event));
+document.getElementById('weirImportResultCsvButton').addEventListener('change', (event) => onImportFileSelected(event, weirs, handleWeirValues));
+document.getElementById("culvertImportResultCsvButton").addEventListener('change', (event) => onImportFileSelected(event, culverts, handleCulvertValues));
 
 function changeTimestamp() {
     appendChains(
@@ -5830,9 +5898,142 @@ function changeTimestamp() {
     );
 }
 
-function onImportFileSelected(event) {
+function getWaterLevelTraces(results) {
+    let traces = [];
 
-    app.warning("Start processing data");
+    if (results == null || results.length < 2) {
+        return traces;
+    }
+
+    let headers = results[0];
+    let attributes = results[1];
+    for (let i = 0;i < headers.length && i < attributes.length;i++) {
+        if (headers[i] == null || headers[i].length == 0
+            || headers[i].endsWith("quality")) {
+            continue;
+        }
+
+        let trace = {
+            x: [],
+            y: [],
+            mode: 'lines+markers',
+            name: headers[i] + " " + attributes[i],
+            myHeader: headers[i],
+            myAttribute: attributes[i],
+        };
+        traces.push(trace);
+
+        for (let r = 0;r < results.length;r++) {
+            if (results[r][i + 1] == "original reliable") {
+                trace.x.push(new Date(results[r][0]));
+
+                let value = parseFloat(results[r][i].replace(",", "."));
+                trace.y.push(value);
+            }
+        }
+
+    }
+    return traces;
+}
+
+function storeTraces(itemName, items, traces) {
+
+    for (let trace of traces) {
+
+        for (let item of items) {
+
+            if (trace.myHeader != item.name) {
+                continue;
+            }
+
+            console.log('Map trace values for ' + itemName + " : " + item.name + " with id " + item.id);
+
+            const startDateMS = startDate.getTime();
+            let valuesArray = [trace.x.length * 2];
+            for (let i = 0;i < trace.x.length;i++) {
+                let relativeMS = trace.x[i].getTime() - startDateMS;
+                valuesArray[2 * i] = relativeMS;
+                valuesArray[2 * i + 1] = trace.y[i];
+            }
+
+            if (item.customTraces == null) {
+                item.customTraces = new Map();
+            }
+            item.customTraces.set(trace.myAttribute, valuesArray);
+        }
+    }
+
+    for (let item of items) {
+        console.log(itemName + ": " + item.name);
+        if (item.customTraces == null) {
+            continue;
+        }
+        for (let [k, v] of item.customTraces) {
+            console.log(k + " : " + v);
+        }
+    }
+}
+
+function handleValues(itemName, items, results) {
+
+    if (results == null || results.length == 0) {
+        dialogPane.confirmClose("No matches found for " + itemName + "s");
+        return;
+    }
+
+    if (results.length == 1 && results[0].length == 0 || results[0].length == 1 && results[0][0] == '') {
+        dialogPane.confirmClose("No matches found for " + itemName + " names");
+        return;
+    }
+
+    let traces = getWaterLevelTraces(results);
+    if (traces.length == 0) {
+        dialogPane.confirmClose(results[0].length + " matches found, but no traces made for start and end time.")
+        return;
+    }
+
+    dialogPane.yesNo(results[0].length + " matches found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
+        storeTraces(items, traces);
+    }, null);
+}
+
+function handleWeirValues(reader) {
+    handleValues("Weir", weirs, reader.getResults());
+}
+
+function handleCulvertValues(reader) {
+    handleValues("Culvert", culverts, reader.getResults());
+}
+
+function onImportFileSelected(event, items, resultFunction) {
+
+    const isValidHeader = (header) => {
+        if (header == null || header.endsWith("comments")) {
+            return false;
+        }
+
+        for (let item of items) {
+            if (item.name != null && header.startsWith(item.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    const reader = new WaterLevelCSVReader();
+    reader.setHeaderPredicate(isValidHeader);
+    reader.setOnFinish(resultFunction);
+
+    const file = event.target.files[0];
+    if (file) {
+        dialogPane.setInfoText(`Importing ${file.name} ... please wait.`);
+        dialogPane.show();
+        reader.setStartDate(startDate);
+        reader.setEndDate(endDate);
+
+        reader.readFromFile(file);
+    }
+
 
 }
 
@@ -5840,8 +6041,7 @@ function validateTimestamp() {
     if (typeof app !== "undefined") {
         installer.init(app.token());
         if (!hasValidDateFormat()) {
-            changeTimestamp();
-            showImportCSVButtons(false);
+            dialogPane.yesNo("Your project's date format is required to be updated before importing date related data. Do you want to do that right now?", (e) => { changeTimestamp() }, null);
         } else {
             showImportCSVButtons(true);
         }
@@ -5849,6 +6049,8 @@ function validateTimestamp() {
         showImportCSVButtons(false);
     }
 }
+
+let app = { token: () => "6c3554a151boGreCJrGjXH7GLudgYtEo" };
 
 $(window).on("load", function() {
 
