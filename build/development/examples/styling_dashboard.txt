@@ -73,6 +73,9 @@ input[type=button], input[type=file] {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	background-color: white;
+	padding: 1em;
+	border-radius: 0.5em;
+	border-width: 0px;	
 }
 .dialog-button-box{
 	display: flex;
