@@ -1542,11 +1542,11 @@ function handleCulvertCustomValues(reader) {
         mapping: [{
             attribute: "CUSTOM_DATUM_A",
             property: "customDatumA",
-            suffix: "H.G"
+            suffix: "Hk"
         }, {
             attribute: "CUSTOM_DATUM_B",
             property: "customDatumB",
-            suffix: "H.G.h"
+            suffix: "Hk.h"
         },
         {
             attribute: "CUSTOM_FLOW",
