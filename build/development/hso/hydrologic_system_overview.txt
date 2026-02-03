@@ -4820,6 +4820,7 @@ function addWeirListItem(index) {
 
 const HSO_OVERLAY_TIMEFRAMES = "hso_overlay_timeframes";
 const WEIR_NAMES = 'weir_name';
+const WEIR_ITEM_IDS = 'weir_itemIDs';
 const WEIR_HEIGHTS = 'weir_heights';
 const WEIR_WIDTH = 'weir_width';
 const WEIR_FLOW_OUTPUT = 'weir_flow_output';
@@ -4838,6 +4839,7 @@ const WEIR_CUSTOM_DATUM_B = 'weir_custom_datum_b';
 const WEIR_CUSTOM_FLOW = 'weir_custom_flow';
 
 queries.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(WEIR_ITEM_IDS, '$SELECT_ID_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
 queries.addQuery(WEIR_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
 queries.addQuery(WEIR_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
@@ -4889,7 +4891,8 @@ function createWeirs() {
 
     let weirs = [];
 
-    let names = queries.getData(WEIR_NAMES, true);
+    let names = queries.getData(WEIR_NAMES, true, true);
+    let itemIDs = queries.getData(WEIR_ITEM_IDS, true, true);
     let width = queries.getData(WEIR_WIDTH, true, true);
     let heights = queries.getData(WEIR_HEIGHT_OUTPUT, true, true);
     let flow = queries.getData(WEIR_FLOW_OUTPUT, true, true);
@@ -4910,7 +4913,8 @@ function createWeirs() {
     for (let i = 0;i < names.length;i++) {
 
         let weir = {
-            name: i < names.length ? names[i] : "Weir " + i,
+            name: i < names.length && names[i].length > 0 ? names[i][0] : "Weir " + i,
+            itemID: i < itemIDs.length && itemIDs[i].length > 0 ? itemIDs[i][0] : -1,
 
             // array values
             heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
@@ -4928,9 +4932,9 @@ function createWeirs() {
             coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
             weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
 
-            customDatumA: i < customDatumA ? customDatumA[i] : [],
-            customDatumB: i < customDatumB ? customDatumB[i] : [],
-            customFlow: i < customFlow ? customFlow[i] : [],
+            customDatumA: i < customDatumA.length && customDatumA[i].some(v => v !== 0) ? customDatumA[i] : [],
+            customDatumB: i < customDatumB.length && customDatumB[i].some(v => v !== 0) ? customDatumB[i] : [],
+            customFlow: i < customFlow.length && customFlow[i].some(v => v !== 0) ? customFlow[i] : [],
         };
         weirs.push(weir);
 
@@ -5156,6 +5160,7 @@ function addCulvertListItem(index) {
 };
 
 const CULVERT_NAMES = 'culvert_name';
+const CULVERT_ITEM_IDS = 'culvert_itemID';
 const CULVERT_DIAMETER = 'culvert_diameter';
 const CULVERT_DATUM_HEIGHT = 'culvert_heights';
 const CULVERT_RECTANGULAR_HEIGHT = 'culvert_width';
@@ -5173,6 +5178,7 @@ const CULVERT_CUSTOM_DATUM_B = 'culvert_custom_datum_b';
 const CULVERT_CUSTOM_FLOW = 'culvert_custom_flow';
 
 queries.addQuery(CULVERT_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(CULVERT_ITEM_IDS, '$SELECT_ID_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(CULVERT_DIAMETER, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_DIAMETER');
 queries.addQuery(CULVERT_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_N');
 queries.addQuery(CULVERT_DATUM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_THRESHOLD');
@@ -5221,7 +5227,8 @@ function createCulverts() {
 
     let culverts = [];
 
-    let names = queries.getData(CULVERT_NAMES, true);
+    let names = queries.getData(CULVERT_NAMES, true, true);
+    let itemIDs = queries.getData(CULVERT_ITEM_IDS, true, true);
     let diameters = queries.getData(CULVERT_DIAMETER, true, true);
     let datumHeights = queries.getData(CULVERT_DATUM_HEIGHT, true, true);
     let rectangularHeights = queries.getData(CULVERT_RECTANGULAR_HEIGHT, true, true);
@@ -5243,7 +5250,8 @@ function createCulverts() {
 
         let culvert = {
 
-            name: i < names.length ? names[i] : "Culvert " + i,
+            name: i < names.length && names[i].length > 0 ? names[i][0] : "Culvert " + i,
+            itemID: i < itemIDs.length && itemIDs[i].length > 0 ? itemIDs[i][0] : -1,
 
             // array values
             heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
@@ -5262,9 +5270,9 @@ function createCulverts() {
             elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
             elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
 
-            customDatumA: i < customDatumA.length ? customDatumA[i] : [],
-            customDatumB: i < customDatumB.length ? customDatumB[i] : [],
-            customFlow: i < customFlow.length ? customFlow[i] : [],
+            customDatumA: i < customDatumA.length && customDatumA[i].some(v => v !== 0) ? customDatumA[i] : [],
+            customDatumB: i < customDatumB.length && customDatumB[i].some(v => v !== 0) ? customDatumB[i] : [],
+            customFlow: i < customFlow.length && customFlow[i].some(v => v !== 0) ? customFlow[i] : [],
         };
         culverts.push(culvert);
 
@@ -5998,10 +6006,14 @@ function sendBuildingChanges(config, buildings) {
     let values = [];
 
     for (let building of buildings) {
+
         for (let mappedProperty of config.mapping) {
+
             let propertyValue = building[mappedProperty.property];
-            if (propertyValue != null && propertyValue.length > 0) {
-                ids.push(building.id);
+
+            if (propertyValue != null && propertyValue.length > 0 && building.itemID != null && building.itemID >= 0) {
+
+                ids.push(building.itemID);
                 attributes.push(mappedProperty.attribute);
                 values.push(propertyValue);
             }
@@ -6017,20 +6029,21 @@ function sendBuildingChanges(config, buildings) {
     );
 }
 
-function hasSuffixMapping(config, suffix) {
+function getSuffixMapping(config, suffix) {
     if (!Array.isArray(config.mapping)) {
-        return false;
+        return null;
     }
 
     for (let mapping of config.mapping) {
         if (mapping.suffix == suffix) {
-            return true;
+            return mapping;
         }
     }
-    return false;
+    return null;
 }
 
 function getWaterLevelTraces(results) {
+
     let traces = [];
 
     if (results == null || results.length < 2) {
@@ -6083,11 +6096,16 @@ function storeTraces(config, items, traces) {
 
         for (let item of items) {
 
-            if (trace.header != item.name || !hasSuffixMapping(config, trace.suffix)) {
+            if (trace.header != item.name) {
+                continue;
+            }
+            let mapping = getSuffixMapping(config, trace.suffix);
+            if (mapping == null) {
                 continue;
             }
 
-            console.log('Mapped trace values for ' + config.itemName + " : " + item.name + " with id " + item.id);
+
+            console.log('Mapped trace values for ' + config.itemName + " : " + item.name + " with id " + item.itemID);
 
             let valuesArray = [trace.x.length * 2];
             for (let i = 0;i < trace.x.length;i++) {
@@ -6102,7 +6120,14 @@ function storeTraces(config, items, traces) {
     }
 
     if (changed) {
-        sendBuildingChanges(config, items);
+        if (typeof app !== "undefined") {
+            dialogPane.yesNo("Do you also want to send the data update for the " + config.itemName + " to the server session?<br>If so, do not forget to save the project if you want to keep this update.",
+                (e) => {
+                    sendBuildingChanges(config, items);
+                });
+        } else {
+            dialogPane.confirmClose("The data was only stored in this browser session, since it has no access to your project's API. Alternatively, open the panel and import the data during a session in the Tygron Client Application.");
+        }
     }
 }
 
@@ -6124,7 +6149,7 @@ function handleCustomValues(config, items, results) {
         return;
     }
 
-    dialogPane.yesNo(results[0].length + " matching columns found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
+    dialogPane.yesNo(results[0].length + " matching columns found, " + traces.length + " traces made for start and end time.<br>Do you want to apply these traces to the " + config.itemName + "s?", (e) => {
         storeTraces(config, items, traces);
     }, null);
 }
@@ -6215,9 +6240,11 @@ function validateTimestamp() {
             showImportCSVButtons(true);
         }
     } else {
-        showImportCSVButtons(false);
+        showImportCSVButtons(hasValidDateFormat());
     }
 }
+
+let app = { token: () => "6c3554a15XoC0gjdW8GRj2q22fJbeY1Q" };
 
 $(window).on("load", function() {
 
