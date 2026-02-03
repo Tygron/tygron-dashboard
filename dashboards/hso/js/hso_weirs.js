@@ -9,7 +9,7 @@ let weirs = [];
 function updateWeirDetails(weir) {
 
 	if (weir == null) {
-		weir = WeirPanel.getDummyWeir();
+		weir = WeirPanel.getDummyWeir(weirTimeframe);
 	}
 
 	weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);

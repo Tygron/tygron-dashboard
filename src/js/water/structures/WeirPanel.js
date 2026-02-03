@@ -3,14 +3,16 @@ import { addTimeframeSlider } from "../../ui/Timeframeslider.js";
 
 export class WeirPanel {
 
-	static getDummyWeir() {
+	static getDummyWeir(timeframes) {
+		timeframes = timeframes == null || Number.isNan(timeframes) ? 1 : Math.round(timeframes);
+			
 		return {
 			name: "-",
-			height: [-10000.0],
+			heights: [timeframes].fill(-10000.0),
 			width: 0,
-			flow: [0.0],
-			datumA: [-10000.0],
-			datumB: [-10000.0],
+			flows: [timeframes].fill(0.0),
+			datumsA: [timeframes].fill(-10000.0),
+			datumsB: [timeframes].fill(-10000.0),
 			damWidth: 0,
 			damHeight: -1,
 			areaOutputA: -1,
@@ -143,7 +145,7 @@ export class WeirPanel {
 	updateWeirDetailInfoPanel(weir, weirTimeframe) {
 
 		if (weir == null) {
-			weir = WeirPanel.getDummyWeir();
+			weir = WeirPanel.getDummyWeir(weirTimeframe);
 		}
 
 		this.weirInfoName.innerHTML = weir.name;

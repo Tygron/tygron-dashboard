@@ -3,7 +3,9 @@ import { addTimeframeSlider } from "../../ui/Timeframeslider.js";
 
 export class CulvertPanel {
 
-	static getDummyCulvert() {
+	static getDummyCulvert(timeframes) {
+		timeframes = timeframes == null || Number.isNan(timeframes) ? 1 : Math.round(timeframes);
+		
 		return {
 			name: "-",
 
@@ -11,10 +13,10 @@ export class CulvertPanel {
 			diameter: 0,
 			rectangularHeight: -10000.0,
 
-			heights: [-10000],
-			flows: [0.0],
-			datumsA: [-10000.0],
-			datumsB: [-10000.0],
+			heights: [timeframes].fill(-10000),
+			flows: [timeframes].fill(0.0),
+			datumsA: [timeframes].fill(-10000.0),
+			datumsB: [timeframes].fill(-10000.0),
 			areaIDA: -1,
 			areaIDB: -1,
 			datumHeightOutputA: -10000,
@@ -141,7 +143,7 @@ export class CulvertPanel {
 	updateCulvertDetailInfoPanel(culvert, culvertTimeframe) {
 
 		if (culvert == null) {
-			culvert = CulvertPanel.getDummyCulvert();
+			culvert = CulvertPanel.getDummyCulvert(culvertTimeframe);
 		}
 
 		this.culvertInfoName.innerHTML = culvert.name;
