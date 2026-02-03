@@ -1470,6 +1470,19 @@ function sendBuildingChanges(config, buildings) {
     );
 }
 
+function hasSuffixMapping(config, suffix) {
+    if (!Array.isArray(config.mapping)) {
+        return false;
+    }
+
+    for (let mapping of config.mapping) {
+        if (mapping.suffix == suffix) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function getWaterLevelTraces(results) {
     let traces = [];
 
@@ -1478,8 +1491,8 @@ function getWaterLevelTraces(results) {
     }
 
     let headers = results[0];
-    let attributes = results[1];
-    for (let i = 0;i < headers.length && i < attributes.length;i++) {
+    let suffix = results[1];
+    for (let i = 0;i < headers.length && i < suffix.length;i++) {
 
         // Quality column itself contains no values
         if (headers[i] == null || headers[i].length == 0
@@ -1491,9 +1504,9 @@ function getWaterLevelTraces(results) {
             x: [],
             y: [],
             mode: 'lines+markers',
-            name: headers[i] + " " + attributes[i],
-            myHeader: headers[i],
-            myAttribute: attributes[i],
+            name: headers[i] + " " + suffix[i],
+            header: headers[i],
+            suffix: suffix[i],
         };
 
         traces.push(trace);
@@ -1523,30 +1536,24 @@ function storeTraces(config, items, traces) {
 
         for (let item of items) {
 
-            if (trace.myHeader != item.name) {
+            if (trace.header != item.name || !hasSuffixMapping(config, trace.suffix)) {
                 continue;
             }
 
-            console.log('Map trace values for ' + config.itemName + " : " + item.name + " with id " + item.id);
+            console.log('Mapped trace values for ' + config.itemName + " : " + item.name + " with id " + item.id);
 
-            for (let mapping of config.mapping) {
-                if (mapping.suffix != trace.myAttribute) {
-                    continue;
-                }
-
-                let valuesArray = [trace.x.length * 2];
-                for (let i = 0;i < trace.x.length;i++) {
-                    let relativeMS = trace.x[i].getTime();
-                    valuesArray[2 * i] = relativeMS;
-                    valuesArray[2 * i + 1] = trace.y[i];
-                }
-                item[mapping.property] = valuesArray;
-                changed = true;
-
-                //TODO: Send properties using app.
+            let valuesArray = [trace.x.length * 2];
+            for (let i = 0;i < trace.x.length;i++) {
+                let relativeMS = trace.x[i].getTime();
+                valuesArray[2 * i] = relativeMS;
+                valuesArray[2 * i + 1] = trace.y[i];
             }
+            item[mapping.property] = valuesArray;
+            changed = true;
+
         }
     }
+
     if (changed) {
         sendBuildingChanges(config, items);
     }
