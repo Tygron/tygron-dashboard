@@ -4,7 +4,7 @@ import { addTimeframeSlider } from "../../ui/Timeframeslider.js";
 export class WeirPanel {
 
 	static getDummyWeir(timeframes) {
-		timeframes = timeframes == null || Number.isNan(timeframes) ? 1 : Math.round(timeframes);
+		timeframes = timeframes == null || Number.isNaN(timeframes) ? 1 : Math.round(timeframes);
 			
 		return {
 			name: "-",
