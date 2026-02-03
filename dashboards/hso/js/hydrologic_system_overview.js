@@ -1573,7 +1573,14 @@ function storeTraces(config, items, traces) {
     }
 
     if (changed) {
-        sendBuildingChanges(config, items);
+        if (app != null) {
+            dialogPane.yesNo("Do you also want to send the data update for the " + config.itemName + " to the server session?<br>If so, do not forget to save the project if you want to keep this update.",
+                (e) => {
+                    sendBuildingChanges(config, items);
+                });
+        } else {
+            dialogPane.confirmClose("The data was only stored in this browser session, since it has no access to your project's API. Alternatively, open the panel and import the data during a session in the Tygron Client Application.");
+        }
     }
 }
 
@@ -1595,7 +1602,7 @@ function handleCustomValues(config, items, results) {
         return;
     }
 
-    dialogPane.yesNo(results[0].length + " matching columns found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
+    dialogPane.yesNo(results[0].length + " matching columns found, " + traces.length + " traces made for start and end time.<br>Do you want to apply these traces to the " + config.itemName + "s?", (e) => {
         storeTraces(config, items, traces);
     }, null);
 }
@@ -1689,6 +1696,8 @@ function validateTimestamp() {
         showImportCSVButtons(false);
     }
 }
+
+let app = { token: () => "6c3554a15XoC0gjdW8GRj2q22fJbeY1Q" };
 
 $(window).on("load", function() {
 
