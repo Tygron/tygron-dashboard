@@ -1558,7 +1558,7 @@ function storeTraces(config, items, traces) {
             }
 
 
-            console.log('Mapped trace values for ' + config.itemName + " : " + item.name + " with id " + item.id);
+            console.log('Mapped trace values for ' + config.itemName + " : " + item.name + " with id " + item.itemID);
 
             let valuesArray = [trace.x.length * 2];
             for (let i = 0;i < trace.x.length;i++) {
