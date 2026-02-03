@@ -1573,7 +1573,7 @@ function storeTraces(config, items, traces) {
     }
 
     if (changed) {
-        if (app != null) {
+        if (typeof app !== "undefined") {
             dialogPane.yesNo("Do you also want to send the data update for the " + config.itemName + " to the server session?<br>If so, do not forget to save the project if you want to keep this update.",
                 (e) => {
                     sendBuildingChanges(config, items);
