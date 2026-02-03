@@ -385,9 +385,9 @@ function createWeirs() {
             coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
             weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
 
-            customDatumA: i < customDatumA ? customDatumA[i] : [],
-            customDatumB: i < customDatumB ? customDatumB[i] : [],
-            customFlow: i < customFlow ? customFlow[i] : [],
+            customDatumA: i < customDatumA.length && customDatumA[i].some(v => v !== 0) ? customDatumA[i] : [],
+            customDatumB: i < customDatumB.length && customDatumB[i].some(v => v !== 0) ? customDatumB[i] : [],
+            customFlow: i < customFlow.length && customFlow[i].some(v => v !== 0) ? customFlow[i] : [],
         };
         weirs.push(weir);
 
@@ -723,9 +723,9 @@ function createCulverts() {
             elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
             elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
 
-            customDatumA: i < customDatumA.length ? customDatumA[i] : [],
-            customDatumB: i < customDatumB.length ? customDatumB[i] : [],
-            customFlow: i < customFlow.length ? customFlow[i] : [],
+            customDatumA: i < customDatumA.length && customDatumA[i].some(v => v !== 0) ? customDatumA[i] : [],
+            customDatumB: i < customDatumB.length && customDatumB[i].some(v => v !== 0) ? customDatumB[i] : [],
+            customFlow: i < customFlow.length && customFlow[i].some(v => v !== 0) ? customFlow[i] : [],
         };
         culverts.push(culvert);
 
@@ -1549,14 +1549,14 @@ function storeTraces(config, items, traces) {
 
         for (let item of items) {
 
-			if (trace.header != item.name) {
+            if (trace.header != item.name) {
                 continue;
             }
-			let mapping = getSuffixMapping(config, trace.suffix);
-			if(mapping == null){
-				continue;
-			}
-			            
+            let mapping = getSuffixMapping(config, trace.suffix);
+            if (mapping == null) {
+                continue;
+            }
+
 
             console.log('Mapped trace values for ' + config.itemName + " : " + item.name + " with id " + item.id);
 
