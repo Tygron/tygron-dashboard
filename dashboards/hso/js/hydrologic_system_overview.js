@@ -456,10 +456,11 @@ function fillWeirResultTable(weirs, timeframe) {
 }
 
 const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));
+
 setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, function() {
     weirTimeframe = weirPanel.timeframeSlider.style.getPropertyValue("--value");
     selectWeir(getSelectedWeirIndex());
-});
+}, data[TIMEFRAMETIMES] );
 
 const weirs = createWeirs();
 fillWeirTables(weirs, weirTimeframe);
@@ -467,16 +468,18 @@ updateWeirList(weirs);
 
 const weirResultSlider = addTimeframeSlider(document.getElementById("weirResultSliderDiv"));
 const weirParamSlider = addTimeframeSlider(document.getElementById("weirParamSliderDiv"));
+
 setupTimeframeSlider(weirParamSlider, weirTimeframe, timeframes, function() {
     let timeframe = weirParamSlider.style.getPropertyValue("--value");
     weirResultSlider.style.setProperty("--value", timeframe);
     fillWeirTables(weirs, timeframe);
-});
+}, data[TIMEFRAMETIMES] );
+
 setupTimeframeSlider(weirResultSlider, weirTimeframe, timeframes, function() {
     let timeframe = weirResultSlider.style.getPropertyValue("--value");
     weirParamSlider.style.setProperty("--value", timeframe);
     fillWeirTables(weirs, timeframe);
-});
+}, data[TIMEFRAMETIMES] );
 
 addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir_results.csv", () => toCSVContent(weirs, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES, timeframes));
@@ -795,7 +798,7 @@ const culvertPanel = new CulvertPanel(document.getElementById("culvertDetailPare
 setupTimeframeSlider(culvertPanel.timeframeSlider, culvertTimeframe, timeframes, function() {
     culvertTimeframe = culvertPanel.timeframeSlider.style.getPropertyValue("--value");
     selectCulvert(getSelectedCulvertIndex());
-});
+}, data[TIMEFRAMETIMES] );
 
 const culverts = createCulverts();
 fillCulvertTables(culverts, culvertTimeframe);
@@ -807,12 +810,12 @@ setupTimeframeSlider(culvertParamSlider, culvertTimeframe, timeframes, function(
     let timeframe = culvertParamSlider.style.getPropertyValue("--value");
     culvertResultSlider.style.setProperty("--value", timeframe);
     fillCulvertTables(culverts, timeframe);
-});
+}, data[TIMEFRAMETIMES] );
 setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function() {
     let timeframe = culvertResultSlider.style.getPropertyValue("--value");
     culvertParamSlider.style.setProperty("--value", timeframe);
     fillCulvertTables(culverts, timeframe);
-});
+}, data[TIMEFRAMETIMES] );
 
 addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "culvert_results.csv", () => toCSVContent(culverts, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES, timeframes));
@@ -903,7 +906,7 @@ function updateBarPlot() {
 }
 
 updateBarPlot();
-setupTimeframeSlider(barSlider, timeframe, timeframes, updateBarPlot);
+setupTimeframeSlider(barSlider, timeframe, timeframes, updateBarPlot, data[TIMEFRAMETIMES] );
 
 
 /**
@@ -1427,7 +1430,7 @@ function plotSankey() {
 }
 
 
-setupTimeframeSlider(sankeySlider, timeframe, timeframes, plotSankey);
+setupTimeframeSlider(sankeySlider, timeframe, timeframes, plotSankey, data[TIMEFRAMETIMES] );
 
 plotSankey();
 
