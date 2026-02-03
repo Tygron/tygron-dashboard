@@ -199,7 +199,8 @@ canvas {
 	width: 100%;
 }
 
-.btn {
+.btn, 
+.custom-file-upload  {
 	appearance: none;
 	border: 1px solid black;
 	background: rgb(222, 222, 222);
@@ -212,12 +213,18 @@ canvas {
 	font-family: sans-serif;
 }
 
-.btn:hover {
+.btn:hover, 
+.custom-file-upload:hover {
 	border-color: black;
 }
 
-.btn:active {
+.btn:active, 
+.custom-file-upload:active {
 	transform: translateY(1px);
+}
+
+input[type="file"] {
+  display: none;
 }
 
 #wb-sankeyplot .card {
