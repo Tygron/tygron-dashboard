@@ -1717,8 +1717,6 @@ function validateTimestamp() {
     }
 }
 
-let app = { token: () => "6c3554a15XoC0gjdW8GRj2q22fJbeY1Q" };
-
 $(window).on("load", function() {
 
     validateTimestamp();
