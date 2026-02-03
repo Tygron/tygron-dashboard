@@ -344,8 +344,8 @@ function createWeirs() {
 
     let weirs = [];
 
-    let names = queries.getData(WEIR_NAMES, true);
-    let itemIDs = queries.getData(WEIR_ITEM_IDS, true);
+    let names = queries.getData(WEIR_NAMES, true, true);
+    let itemIDs = queries.getData(WEIR_ITEM_IDS, true, true);
     let width = queries.getData(WEIR_WIDTH, true, true);
     let heights = queries.getData(WEIR_HEIGHT_OUTPUT, true, true);
     let flow = queries.getData(WEIR_FLOW_OUTPUT, true, true);
@@ -366,8 +366,8 @@ function createWeirs() {
     for (let i = 0;i < names.length;i++) {
 
         let weir = {
-            name: i < names.length ? names[i] : "Weir " + i,
-            itemID: i < itemIDs.length ? itemIDs[i] : -1,
+            name: i < names.length && names[i].length > 0 ? names[i][0] : "Weir " + i,
+            itemID: i < itemIDs.length && itemIDs[i].length > 0 ? itemIDs[i][0] : -1,
 
             // array values
             heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
@@ -680,8 +680,8 @@ function createCulverts() {
 
     let culverts = [];
 
-    let names = queries.getData(CULVERT_NAMES, true);
-    let itemIDs = queries.getData(CULVERT_ITEM_IDS, true);
+    let names = queries.getData(CULVERT_NAMES, true, true);
+    let itemIDs = queries.getData(CULVERT_ITEM_IDS, true, true);
     let diameters = queries.getData(CULVERT_DIAMETER, true, true);
     let datumHeights = queries.getData(CULVERT_DATUM_HEIGHT, true, true);
     let rectangularHeights = queries.getData(CULVERT_RECTANGULAR_HEIGHT, true, true);
@@ -703,8 +703,8 @@ function createCulverts() {
 
         let culvert = {
 
-            name: i < names.length ? names[i] : "Culvert " + i,
-            itemID: i < itemIDs.length ? itemIDs[i] : -1,
+            name: i < names.length && names[i].length > 0 ? names[i][0] : "Culvert " + i,
+            itemID: i < itemIDs.length && itemIDs[i].length > 0 ? itemIDs[i][0] : -1,
 
             // array values
             heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
@@ -1696,6 +1696,8 @@ function validateTimestamp() {
         showImportCSVButtons(hasValidDateFormat());
     }
 }
+
+let app = { token: () => "6c3554a15XoC0gjdW8GRj2q22fJbeY1Q" };
 
 $(window).on("load", function() {
 
