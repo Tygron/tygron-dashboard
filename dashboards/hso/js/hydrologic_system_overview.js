@@ -273,6 +273,7 @@ function addWeirListItem(index) {
 
 const HSO_OVERLAY_TIMEFRAMES = "hso_overlay_timeframes";
 const WEIR_NAMES = 'weir_name';
+const WEIR_ITEM_IDS = 'weir_itemIDs';
 const WEIR_HEIGHTS = 'weir_heights';
 const WEIR_WIDTH = 'weir_width';
 const WEIR_FLOW_OUTPUT = 'weir_flow_output';
@@ -291,6 +292,7 @@ const WEIR_CUSTOM_DATUM_B = 'weir_custom_datum_b';
 const WEIR_CUSTOM_FLOW = 'weir_custom_flow';
 
 queries.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(WEIR_ITEM_IDS, '$SELECT_ID_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
 queries.addQuery(WEIR_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
 queries.addQuery(WEIR_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
@@ -343,6 +345,7 @@ function createWeirs() {
     let weirs = [];
 
     let names = queries.getData(WEIR_NAMES, true);
+    let itemIDs = queries.getData(WEIR_ITEM_IDS, true);
     let width = queries.getData(WEIR_WIDTH, true, true);
     let heights = queries.getData(WEIR_HEIGHT_OUTPUT, true, true);
     let flow = queries.getData(WEIR_FLOW_OUTPUT, true, true);
@@ -364,6 +367,7 @@ function createWeirs() {
 
         let weir = {
             name: i < names.length ? names[i] : "Weir " + i,
+            itemID: i < itemIDs.length ? itemIDs[i] : -1,
 
             // array values
             heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
@@ -609,6 +613,7 @@ function addCulvertListItem(index) {
 };
 
 const CULVERT_NAMES = 'culvert_name';
+const CULVERT_ITEM_IDS = 'culvert_itemID';
 const CULVERT_DIAMETER = 'culvert_diameter';
 const CULVERT_DATUM_HEIGHT = 'culvert_heights';
 const CULVERT_RECTANGULAR_HEIGHT = 'culvert_width';
@@ -626,6 +631,7 @@ const CULVERT_CUSTOM_DATUM_B = 'culvert_custom_datum_b';
 const CULVERT_CUSTOM_FLOW = 'culvert_custom_flow';
 
 queries.addQuery(CULVERT_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(CULVERT_ITEM_IDS, '$SELECT_ID_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(CULVERT_DIAMETER, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_DIAMETER');
 queries.addQuery(CULVERT_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_N');
 queries.addQuery(CULVERT_DATUM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_THRESHOLD');
@@ -675,6 +681,7 @@ function createCulverts() {
     let culverts = [];
 
     let names = queries.getData(CULVERT_NAMES, true);
+    let itemIDs = queries.getData(CULVERT_ITEM_IDS, true);
     let diameters = queries.getData(CULVERT_DIAMETER, true, true);
     let datumHeights = queries.getData(CULVERT_DATUM_HEIGHT, true, true);
     let rectangularHeights = queries.getData(CULVERT_RECTANGULAR_HEIGHT, true, true);
@@ -697,6 +704,7 @@ function createCulverts() {
         let culvert = {
 
             name: i < names.length ? names[i] : "Culvert " + i,
+            itemID: i < itemIDs.length ? itemIDs[i] : -1,
 
             // array values
             heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
@@ -1451,10 +1459,14 @@ function sendBuildingChanges(config, buildings) {
     let values = [];
 
     for (let building of buildings) {
+
         for (let mappedProperty of config.mapping) {
+
             let propertyValue = building[mappedProperty.property];
-            if (propertyValue != null && propertyValue.length > 0) {
-                ids.push(building.id);
+
+            if (propertyValue != null && propertyValue.length > 0 && building.itemID != null && building.itemID >= 0) {
+
+                ids.push(building.itemID);
                 attributes.push(mappedProperty.attribute);
                 values.push(propertyValue);
             }
@@ -1484,6 +1496,7 @@ function hasSuffixMapping(config, suffix) {
 }
 
 function getWaterLevelTraces(results) {
+
     let traces = [];
 
     if (results == null || results.length < 2) {
