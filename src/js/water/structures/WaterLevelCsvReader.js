@@ -2,9 +2,9 @@ export class WaterLevelCSVReader {
 
     _startDate = null;
     _endDate = null;
-    _acceptColumn = [];
+    _includedColumns = [];
     _dataRows = [];
-    _headerPredicate = (a) => true;
+    _includeColumnPredicate = (a) => true;
     _onFinish = null;
 
     constructor() {
@@ -27,8 +27,8 @@ export class WaterLevelCSVReader {
         }
     }
 
-    setHeaderPredicate(predicate) {
-        this._headerPredicate = predicate;
+    setIncludeColumnPredicate(predicate) {
+        this._includeColumnPredicate = predicate;
     }
 
     setOnFinish(onFinish) {
@@ -40,7 +40,7 @@ export class WaterLevelCSVReader {
     }
 
     init() {
-        this._acceptColumn = [];
+        this._includedColumns = [];
         this._dataRows = [];
     }
 
@@ -77,9 +77,9 @@ export class WaterLevelCSVReader {
         for (let i = 0;i < headers.length;i++) {
 
             if (lineNumber == 0) {
-                this._acceptColumn.push(i == 0 || this._headerPredicate == null ? true : this._headerPredicate(headers[i]));
+                this._includedColumns.push(i == 0 || this._includeColumnPredicate == null ? true : this._includeColumnPredicate(headers[i]));
             }
-            if (this._acceptColumn[i]) {
+            if (this._includedColumns[i]) {
                 headerLine.push(headers[i]);
             }
         }
@@ -103,8 +103,8 @@ export class WaterLevelCSVReader {
         }
 
         let dataRow = [];
-        for (let j = 0;j < data.length && j < this._acceptColumn.length;j++) {
-            if (this._acceptColumn[j]) {
+        for (let j = 0;j < data.length && j < this._includedColumns.length;j++) {
+            if (this._includedColumns[j]) {
                 dataRow.push(data[j]);
             }
         }
