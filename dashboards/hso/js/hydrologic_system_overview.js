@@ -500,8 +500,8 @@ function updateCulvertFlowPlot(culvert) {
     plotdata[CULVERT_FLOW_OUTPUT] = culvert.flows;
 
     let traces = xyTraces("scatter", plotdata, properties, colors, titles);
-    
-	let customFlow = createCustomDataTrace(culvert.customFlow, CULVERT_CUSTOM_FLOW, colors, titles);
+
+    let customFlow = createCustomDataTrace(culvert.customFlow, CULVERT_CUSTOM_FLOW, colors, titles);
     if (customFlow.length > 0) {
         traces.push(customFlow[0]);
     }
@@ -510,10 +510,10 @@ function updateCulvertFlowPlot(culvert) {
     layout.title = {
         text: "Flow (m³/s)"
     };
-		
-	copyAndStorePreviousTraceVisibility(culvertPanel.culvertFlowPlot.id, traces);
 
-	Plotly.newPlot(culvertPanel.culvertFlowPlot, traces, layout);
+    copyAndStorePreviousTraceVisibility(culvertPanel.culvertFlowPlot.id, traces);
+
+    Plotly.newPlot(culvertPanel.culvertFlowPlot, traces, layout);
 }
 
 function updateCulvertHeightPlot(culvert) {
@@ -1445,28 +1445,28 @@ function changeTimestamp() {
 }
 
 function sendBuildingChanges(config, buildings) {
-	
-	let ids = [];
-	let attributes = [];
-	let values = [];
-	
-	for(let building of buildings){
-		for(let mappedProperty of config.mapping){
-			let propertyValue =building[mappedProperty.property];
-			if(propertyValue!= null && propertyValue.length> 0){
-				ids.push(building.id);
-				attributes.push(mappedProperty.attribute);
-				values.push(propertyValue);
-			}
-		}
-	}
-	
-	if(ids.length == 0){
-		return;
-	}
-	
+
+    let ids = [];
+    let attributes = [];
+    let values = [];
+
+    for (let building of buildings) {
+        for (let mappedProperty of config.mapping) {
+            let propertyValue = building[mappedProperty.property];
+            if (propertyValue != null && propertyValue.length > 0) {
+                ids.push(building.id);
+                attributes.push(mappedProperty.attribute);
+                values.push(propertyValue);
+            }
+        }
+    }
+
+    if (ids.length == 0) {
+        return;
+    }
+
     appendChains(
-        installer.getConnector().post("event/editorbuilding/set_attributes", null, [ids, attributes, values])       
+        installer.getConnector().post("event/editorbuilding/set_attributes", null, [ids, attributes, values])
     );
 }
 
@@ -1480,6 +1480,8 @@ function getWaterLevelTraces(results) {
     let headers = results[0];
     let attributes = results[1];
     for (let i = 0;i < headers.length && i < attributes.length;i++) {
+
+        // Quality column itself contains no values
         if (headers[i] == null || headers[i].length == 0
             || headers[i].endsWith("quality")) {
             continue;
@@ -1493,24 +1495,30 @@ function getWaterLevelTraces(results) {
             myHeader: headers[i],
             myAttribute: attributes[i],
         };
+
         traces.push(trace);
 
         for (let r = 0;r < results.length;r++) {
-            if (results[r][i + 1] == "original reliable") {
-                trace.x.push(new Date(results[r][0]));
 
-                let value = parseFloat(results[r][i].replace(",", "."));
-                trace.y.push(value);
+            // Ignore unreliable quality values
+            if (i + 1 < headers.length && headers[i + 1].endsWith("quality") && results[r][i + 1] != "original reliable") {
+                continue;
             }
-        }
 
+            trace.x.push(new Date(results[r][0]));
+
+            //TODO: Replace later with number separator value.
+            let value = parseFloat(results[r][i].replace(",", "."));
+            trace.y.push(value);
+        }
     }
+
     return traces;
 }
 
 function storeTraces(config, items, traces) {
-	
-	let changed = false;
+
+    let changed = false;
     for (let trace of traces) {
 
         for (let item of items) {
@@ -1533,15 +1541,15 @@ function storeTraces(config, items, traces) {
                     valuesArray[2 * i + 1] = trace.y[i];
                 }
                 item[mapping.property] = valuesArray;
-				changed = true;
+                changed = true;
 
                 //TODO: Send properties using app.
             }
         }
     }
-	if(changed){
-		sendBuildingChanges(config, items);
-	}
+    if (changed) {
+        sendBuildingChanges(config, items);
+    }
 }
 
 function handleCustomValues(config, items, results) {
@@ -1614,7 +1622,7 @@ function handleCulvertCustomValues(reader) {
 
 function onImportFileSelected(event, items, resultFunction) {
 
-    const isValidHeader = (header) => {
+    const includeColumnPredicate = (header) => {
         if (header == null || header.endsWith("comments")) {
             return false;
         }
@@ -1628,7 +1636,7 @@ function onImportFileSelected(event, items, resultFunction) {
     }
 
     const reader = new WaterLevelCSVReader();
-    reader.setHeaderPredicate(isValidHeader);
+    reader.setIncludeColumnPredicate(includeColumnPredicate);
     reader.setOnFinish(resultFunction);
 
     const file = event.target.files[0];
