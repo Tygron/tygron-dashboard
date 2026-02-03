@@ -106,7 +106,7 @@ function pruneTimeframeValues(values) {
 function updateWeirDetails(weir) {
 
     if (weir == null) {
-        weir = getDummyWeir();
+        weir = WeirPanel.getDummyWeir();
     }
 
     weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
@@ -495,7 +495,7 @@ if (weirs.length <= 0) {
 function updateCulvertDetails(culvert) {
 
     if (culvert == null) {
-        culvert = getDummyCulvert();
+        culvert = CulvertPanel.getDummyCulvert();
     }
 
     culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
