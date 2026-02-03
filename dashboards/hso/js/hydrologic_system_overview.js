@@ -423,9 +423,7 @@ function updateWeirList(weirs) {
         addWeirListItem(i);
     }
 
-    if (weirs.length > 0) {
-        selectWeir(0, weirTimeframe);
-    }
+    selectWeir(0, weirTimeframe);   
 }
 
 function fillWeirTables(weirs, timeframe) {
@@ -761,9 +759,7 @@ function updateCulvertList(culverts) {
         addCulvertListItem(i);
     }
 
-    if (culverts.length > 0) {
-        selectCulvert(0, culvertTimeframe);
-    }
+    selectCulvert(0, culvertTimeframe);
 }
 
 function fillCulvertTables(culverts, timeframe) {
@@ -824,6 +820,7 @@ addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "c
 if (culverts.length <= 0) {
     document.getElementById("navGroupCulverts").style.display = 'none';
 }
+
 /**
  * Volume section 
  */
@@ -1601,6 +1598,7 @@ function storeTraces(config, items, traces) {
         } else {
             dialogPane.confirmClose("The data was only stored in this browser session, since it has no access to your project's API. Alternatively, open the panel and import the data during a session in the Tygron Client Application.");
         }
+		updateDetailPanels();
     }
 }
 
@@ -1702,6 +1700,11 @@ function onImportFileSelected(event, items, resultFunction) {
     }
 
 
+}
+
+function updateDetailPanels(){
+	selectWeir(getSelectedWeirIndex());
+	selectCulvert(getSelectedCulvertIndex());
 }
 
 function validateTimestamp() {
