@@ -507,7 +507,8 @@ canvas {
 	width: 100%;
 }
 
-.btn {
+.btn, 
+.custom-file-upload  {
 	appearance: none;
 	border: 1px solid black;
 	background: rgb(222, 222, 222);
@@ -520,12 +521,18 @@ canvas {
 	font-family: sans-serif;
 }
 
-.btn:hover {
+.btn:hover, 
+.custom-file-upload:hover {
 	border-color: black;
 }
 
-.btn:active {
+.btn:active, 
+.custom-file-upload:active {
 	transform: translateY(1px);
+}
+
+input[type="file"] {
+  display: none;
 }
 
 #wb-sankeyplot .card {
@@ -544,6 +551,7 @@ canvas {
 
 .control-row {
 	display: flex;
+	gap:0.5em;
 }
 
 .water-structure-sidebar {
@@ -741,7 +749,9 @@ canvas {
 					<div class="control-row">
 						<button class="btn" id="culvertDownloadResultCsvButton">Download
 							CSV</button>
-						<input type="file" id="culvertImportResultCsvButton" accept=".csv" />
+						<label for="culvertImportResultCsvButton" id="culvertImportResultCsvLabel"
+							class="custom-file-upload">Custom Upload</label> <input
+							type="file" id="culvertImportResultCsvButton" accept=".csv" />
 					</div>
 					<table id="culvertResultsTable">
 						<thead>
@@ -815,7 +825,9 @@ canvas {
 					<div class="control-row">
 						<button class="btn" id="weirDownloadResultCsvButton">Download
 							CSV</button>
-						<input type="file" id="weirImportResultCsvButton" accept=".csv" />
+						<label for="weirImportResultCsvButton" id="weirImportResultCsvLabel" class="custom-file-upload">Custom
+							Upload</label> <input type="file" id="weirImportResultCsvButton"
+							accept=".csv" />
 					</div>
 					<table id="weirResultsTable">
 						<thead>
@@ -3034,65 +3046,81 @@ function createTable(divName, data, properties, colors, titles) {
  * @param {Element} parent 
  */
 function addTimeframeSlider(parent) {
-	let sliderDiv = document.createElement("div");
-	sliderDiv.className = "timeframe-slider range--ticks slider-background";
+    let sliderDiv = document.createElement("div");
+    sliderDiv.className = "timeframe-slider range--ticks slider-background";
 
-	let style = sliderDiv.style;
-	style.setProperty('--max', 1);
-	style.setProperty('--min', 0);
-	style.setProperty('--step', 1);
-	style.setProperty('--tickEvery', 1);
-	style.setProperty('--value', 1);
-	style.setProperty('--text-value', "1");
+    let style = sliderDiv.style;
+    style.setProperty('--max', 1);
+    style.setProperty('--min', 0);
+    style.setProperty('--step', 1);
+    style.setProperty('--tickEvery', 1);
+    style.setProperty('--value', 1);
+    style.setProperty('--text-value', "1");
 
-	style.setProperty('--primaryColor', "red");
-	style.setProperty('--fill-color', "unset");
-	style.setProperty('--value-background', "unset");
-	style.setProperty('--value-active-color', "unset");
+    style.setProperty('--primaryColor', "red");
+    style.setProperty('--fill-color', "unset");
+    style.setProperty('--value-background', "unset");
+    style.setProperty('--value-active-color', "unset");
 
-	let sliderInput = document.createElement("input");
+    let sliderInput = document.createElement("input");
 
-	sliderInput.className = "timeframe-slider";
-	sliderInput.type = "range";
-	sliderInput.min = "0";
-	sliderInput.max = "1";
-	sliderInput.step = "1";
-	sliderInput.value = "1";
-	sliderInput.oninput = "this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))";
+    sliderInput.className = "timeframe-slider";
+    sliderInput.type = "range";
+    sliderInput.min = "0";
+    sliderInput.max = "1";
+    sliderInput.step = "1";
+    sliderInput.value = "1";
+    sliderInput.oninput = "this.parentNode.style.setProperty('--value',this.value); this.parentNode.style.setProperty('--text-value', JSON.stringify(this.value))";
 
-	let sliderOutput = document.createElement("output");
-	sliderDiv.appendChild(sliderInput);
-	sliderDiv.appendChild(sliderOutput);
+    let sliderOutput = document.createElement("output");
+    sliderDiv.appendChild(sliderInput);
+    sliderDiv.appendChild(sliderOutput);
 
-	if (parent != null) {
-		parent.appendChild(sliderDiv);
-	}
+    if (parent != null) {
+        parent.appendChild(sliderDiv);
+    }
 
-	sliderDiv.getValue = () => {return sliderDiv.style.getPropertyValue("--value")};
+    sliderDiv.getValue = () => { return sliderDiv.style.getPropertyValue("--value") };
 
-	return sliderDiv;
+    return sliderDiv;
 }
 
-function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput) {
+/**
+ * @param {*} timeframeSlider element created by @function addTimeframeSlider
+ * @param {*} timeframe for slider value
+ * @param {*} timeframes maximum number of timeframes
+ * @param {*} onInput function to call 
+ */
+function setupTimeframeSlider(timeframeSlider, timeframe, timeframes, onInput, timeframeNames) {
 
-	let sliderInput = timeframeSlider.getElementsByTagName('input')[0];
-	if (sliderInput != null) {
-		sliderInput.max = timeframes - 1;
-		sliderInput.value = timeframe;
+    let sliderInput = timeframeSlider.getElementsByTagName('input')[0];
+    if (sliderInput != null) {
+        sliderInput.max = timeframes - 1;
+        sliderInput.value = timeframe;
 
-		sliderInput.oninput = function() {
+        sliderInput.oninput = function() {
+			
 			timeframeSlider.style.setProperty('--value', sliderInput.value);
-			timeframeSlider.style.setProperty('--text-value', JSON.stringify(sliderInput.value))
-			onInput();
-		};
-	}
-
+			            
+			let textValue = Array.isArray(timeframeNames) && sliderInput.value < timeframeNames.length ? timeframeNames[sliderInput.value] : sliderInput.value;
+			 
+			timeframeSlider.style.setProperty('--text-value', JSON.stringify(textValue))
+            
+			if (typeof onInput === "function") {
+                onInput();
+            }
+        };
+    }
+	    
 	timeframeSlider.style.setProperty('--max', sliderInput.max);
-	timeframeSlider.style.setProperty('--min', 0);
-	timeframeSlider.style.setProperty('--step', 1);
-	timeframeSlider.style.setProperty('--tickEvery', 1);
-	timeframeSlider.style.setProperty('--value', sliderInput.value);
-	timeframeSlider.style.setProperty('--text-value', JSON.stringify(sliderInput.value));
+    timeframeSlider.style.setProperty('--min', 0);
+    timeframeSlider.style.setProperty('--step', 1);
+    timeframeSlider.style.setProperty('--tickEvery', 1);
+    timeframeSlider.style.setProperty('--value', sliderInput.value);
+	
+	let textValue = Array.isArray(timeframeNames) && sliderInput.value < timeframeNames.length ? timeframeNames[sliderInput.value] : sliderInput.value;
+		
+	timeframeSlider.style.setProperty('--text-value', JSON.stringify(textValue));
 
 }
 
@@ -4604,6 +4632,7 @@ const data = {};
 const TIMEFRAMES = 'timeframes';
 const TIMEFRAMETIMES = 'timeframetimes';
 const START_DATE_MS = 'startDateMS';
+let includeInnerFlow = false;
 
 queries.addQuery(TIMEFRAMETIMES,
     '$SELECT_NAME_WHERE_TIMEFRAME_IS_X_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
@@ -4635,7 +4664,7 @@ function pruneTimeframeValues(values) {
     }
 
     let endIndex = values.length;
-    for (let i = 2; i < values.length; i += 2) {
+    for (let i = 2;i < values.length;i += 2) {
         if (values[i] < values[i - 2]) {
             endIndex = i;
             break;
@@ -4970,7 +4999,7 @@ function updateWeirList(weirs) {
         addWeirListItem(i);
     }
 
-    selectWeir(0, weirTimeframe);   
+    selectWeir(0, weirTimeframe);
 }
 
 function fillWeirTables(weirs, timeframe) {
@@ -5003,10 +5032,11 @@ function fillWeirResultTable(weirs, timeframe) {
 }
 
 const weirPanel = new WeirPanel(document.getElementById("weirDetailParent"));
+
 setupTimeframeSlider(weirPanel.timeframeSlider, weirTimeframe, timeframes, function() {
     weirTimeframe = weirPanel.timeframeSlider.style.getPropertyValue("--value");
     selectWeir(getSelectedWeirIndex());
-});
+}, data[TIMEFRAMETIMES]);
 
 const weirs = createWeirs();
 fillWeirTables(weirs, weirTimeframe);
@@ -5014,16 +5044,18 @@ updateWeirList(weirs);
 
 const weirResultSlider = addTimeframeSlider(document.getElementById("weirResultSliderDiv"));
 const weirParamSlider = addTimeframeSlider(document.getElementById("weirParamSliderDiv"));
+
 setupTimeframeSlider(weirParamSlider, weirTimeframe, timeframes, function() {
     let timeframe = weirParamSlider.style.getPropertyValue("--value");
     weirResultSlider.style.setProperty("--value", timeframe);
     fillWeirTables(weirs, timeframe);
-});
+}, data[TIMEFRAMETIMES]);
+
 setupTimeframeSlider(weirResultSlider, weirTimeframe, timeframes, function() {
     let timeframe = weirResultSlider.style.getPropertyValue("--value");
     weirParamSlider.style.setProperty("--value", timeframe);
     fillWeirTables(weirs, timeframe);
-});
+}, data[TIMEFRAMETIMES]);
 
 addDownloadHandler(document.getElementById("weirDownloadParamCsvButton"), "weir_params.csv", () => toCSVContent(weirs, WEIR_PARAM_PROPERTIES, WEIR_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("weirDownloadResultCsvButton"), "weir_results.csv", () => toCSVContent(weirs, WEIR_RESULT_PROPERTIES, WEIR_RESULT_TITLES, timeframes));
@@ -5342,7 +5374,7 @@ const culvertPanel = new CulvertPanel(document.getElementById("culvertDetailPare
 setupTimeframeSlider(culvertPanel.timeframeSlider, culvertTimeframe, timeframes, function() {
     culvertTimeframe = culvertPanel.timeframeSlider.style.getPropertyValue("--value");
     selectCulvert(getSelectedCulvertIndex());
-});
+}, data[TIMEFRAMETIMES]);
 
 const culverts = createCulverts();
 fillCulvertTables(culverts, culvertTimeframe);
@@ -5354,12 +5386,12 @@ setupTimeframeSlider(culvertParamSlider, culvertTimeframe, timeframes, function(
     let timeframe = culvertParamSlider.style.getPropertyValue("--value");
     culvertResultSlider.style.setProperty("--value", timeframe);
     fillCulvertTables(culverts, timeframe);
-});
+}, data[TIMEFRAMETIMES]);
 setupTimeframeSlider(culvertResultSlider, culvertTimeframe, timeframes, function() {
     let timeframe = culvertResultSlider.style.getPropertyValue("--value");
     culvertParamSlider.style.setProperty("--value", timeframe);
     fillCulvertTables(culverts, timeframe);
-});
+}, data[TIMEFRAMETIMES]);
 
 addDownloadHandler(document.getElementById("culvertDownloadParamCsvButton"), "culvert_params.csv", () => toCSVContent(culverts, CULVERT_PARAM_PROPERTIES, CULVERT_PARAM_TITLES, timeframes));
 addDownloadHandler(document.getElementById("culvertDownloadResultCsvButton"), "culvert_results.csv", () => toCSVContent(culverts, CULVERT_RESULT_PROPERTIES, CULVERT_RESULT_TITLES, timeframes));
@@ -5450,7 +5482,7 @@ function updateBarPlot() {
 }
 
 updateBarPlot();
-setupTimeframeSlider(barSlider, timeframe, timeframes, updateBarPlot);
+setupTimeframeSlider(barSlider, timeframe, timeframes, updateBarPlot, data[TIMEFRAMETIMES]);
 
 
 /**
@@ -5887,9 +5919,12 @@ for (let i = 0;i < timeframes;i++) {
     addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_OUT][i]);
     addLink(links, i, M3WATER, OUTLET_SURFACE, flowData[OUTLET_SURFACE][i]);
     addLink(links, i, M3WATER, PUMP, flowData[PUMP_OUT][i]);
-    addLink(links, i, M3WATER, PUMP, flowData[PUMP_INNER][i]);
-    addLink(links, i, M3WATER, WEIR, flowData[WEIR_INNER][i]);
-    addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_INNER][i]);
+
+    if (includeInnerFlow) {
+        addLink(links, i, M3WATER, PUMP, flowData[PUMP_INNER][i]);
+        addLink(links, i, M3WATER, WEIR, flowData[WEIR_INNER][i]);
+        addLink(links, i, M3WATER, CULVERT, flowData[CULVERT_INNER][i]);
+    }
 
 
     //Berging Bodem
@@ -5934,18 +5969,24 @@ for (let i = 0;i < timeframes;i++) {
 
     //Stuw
     addLink(links, i, WEIR, MODEL_OUT, flowData[WEIR_OUT][i]);
-    addLink(links, i, WEIR, M3WATER, flowData[WEIR_INNER][i]);
+    if (includeInnerFlow) {
+        addLink(links, i, WEIR, M3WATER, flowData[WEIR_INNER][i]);
+    }
 
     //Duiker in
     addLink(links, i, CULVERT, M3WATER, flowData[CULVERT_IN][i]);
-    addLink(links, i, CULVERT, M3WATER, flowData[CULVERT_INNER][i]);
+    if (includeInnerFlow) {
+        addLink(links, i, CULVERT, M3WATER, flowData[CULVERT_INNER][i]);
+    }
 
     //Duiker uit
     addLink(links, i, CULVERT, MODEL_OUT, flowData[CULVERT_OUT][i]);
 
     //Pomp
     addLink(links, i, PUMP, M3WATER, flowData[PUMP_IN][i]);
-    addLink(links, i, PUMP, M3WATER, flowData[PUMP_INNER][i]);
+    if (includeInnerFlow) {
+        addLink(links, i, PUMP, M3WATER, flowData[PUMP_INNER][i]);
+    }
 
     //Bres
     addLink(links, i, BREACH, M3LAND, flowData[BREACH_IN][i]);
@@ -5974,7 +6015,7 @@ function plotSankey() {
 }
 
 
-setupTimeframeSlider(sankeySlider, timeframe, timeframes, plotSankey);
+setupTimeframeSlider(sankeySlider, timeframe, timeframes, plotSankey, data[TIMEFRAMETIMES]);
 
 plotSankey();
 
@@ -5982,8 +6023,8 @@ addDownloadHandler(document.getElementById("balanceCSVButton"), "waterbalance.cs
 addDownloadHandler(document.getElementById("flowCSVButton"), "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
 
 function showImportCSVButtons(show) {
-    document.getElementById("weirImportResultCsvButton").style.display = show ? "block" : "none";
-    document.getElementById("culvertImportResultCsvButton").style.display = show ? "block" : "none";
+    document.getElementById("weirImportResultCsvLabel").style.display = show ? "block" : "none";
+    document.getElementById("culvertImportResultCsvLabel").style.display = show ? "block" : "none";
 
 }
 function isDateValid(dateStr) {
@@ -6145,7 +6186,7 @@ function storeTraces(config, items, traces) {
         } else {
             dialogPane.confirmClose("The data was only stored in this browser session, since it has no access to your project's API. Alternatively, open the panel and import the data during a session in the Tygron Client Application.");
         }
-		updateDetailPanels();
+        updateDetailPanels();
     }
 }
 
@@ -6250,9 +6291,9 @@ function onImportFileSelected(event, items, resultFunction) {
 
 }
 
-function updateDetailPanels(){
-	selectWeir(getSelectedWeirIndex());
-	selectCulvert(getSelectedCulvertIndex());
+function updateDetailPanels() {
+    selectWeir(getSelectedWeirIndex());
+    selectCulvert(getSelectedCulvertIndex());
 }
 
 function validateTimestamp() {
