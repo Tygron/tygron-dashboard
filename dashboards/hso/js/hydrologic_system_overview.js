@@ -78,6 +78,26 @@ try {
     endDate = null;
 }
 
+function pruneTimeframeValues(values) {
+    if (!Array.isArray(values)) {
+        return [];
+    }
+
+    if (!values.some(v => v !== 0)) {
+        return [];
+    }
+
+    let endIndex = values.length;
+    for (let i = 2; i < values.length; i += 2) {
+        if (values[i] < values[i - 2]) {
+            endIndex = i;
+            break;
+        }
+    }
+    return endIndex == values.length ? values : values.slice(0, endIndex);
+
+}
+
 /**
  * WEIRS
  */
@@ -385,9 +405,9 @@ function createWeirs() {
             coefficient: i < coefficient.length && coefficient[i][0] > 0 ? coefficient[i][0] : 1.1,
             weirN: i < weirN.length && weirN[i][0] > 0 ? weirN[i][0] : 3 / 2,
 
-            customDatumA: i < customDatumA.length && customDatumA[i].some(v => v !== 0) ? customDatumA[i] : [],
-            customDatumB: i < customDatumB.length && customDatumB[i].some(v => v !== 0) ? customDatumB[i] : [],
-            customFlow: i < customFlow.length && customFlow[i].some(v => v !== 0) ? customFlow[i] : [],
+            customDatumA: i < customDatumA.length ? pruneTimeframeValues(customDatumA[i]) : [],
+            customDatumB: i < customDatumB.length ? pruneTimeframeValues(customDatumB[i]) : [],
+            customFlow: i < customFlow.length ? pruneTimeframeValues(customFlow[i]) : [],
         };
         weirs.push(weir);
 
@@ -723,9 +743,9 @@ function createCulverts() {
             elevationA: i < elevationA.length ? elevationA[i][0] : -10000,
             elevationB: i < elevationB.length ? elevationB[i][0] : -10000,
 
-            customDatumA: i < customDatumA.length && customDatumA[i].some(v => v !== 0) ? customDatumA[i] : [],
-            customDatumB: i < customDatumB.length && customDatumB[i].some(v => v !== 0) ? customDatumB[i] : [],
-            customFlow: i < customFlow.length && customFlow[i].some(v => v !== 0) ? customFlow[i] : [],
+            customDatumA: i < customDatumA.length ? pruneTimeframeValues(customDatumA[i]) : [],
+            customDatumB: i < customDatumB.length ? pruneTimeframeValues(customDatumB[i]) : [],
+            customFlow: i < customFlow.length ? pruneTimeframeValues(customFlow[i]) : [],
         };
         culverts.push(culvert);
 
