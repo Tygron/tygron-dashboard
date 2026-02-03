@@ -1936,74 +1936,80 @@ function connector(token, baseUrl, basePath,) {
 
 function addDownloadHandler(element, fileName, contentFunction) {
 
-	element.addEventListener('click', () => {
+    element.addEventListener('click', () => {
 
-		let content = contentFunction();
-		let blob = new Blob([content], { type: 'text/plain' });
+        let content = contentFunction();
+        let blob = new Blob([content], { type: 'text/plain' });
 
-		// temp link 
-		const link = document.createElement('a');
-		link.href = URL.createObjectURL(blob);
-		link.download = fileName;
-		link.click();
+        // temp link 
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
 
-		// cleanup
-		URL.revokeObjectURL(link.href);
-	});
+        // cleanup
+        URL.revokeObjectURL(link.href);
+    });
 }
 
 function toCSVContent(data, properties, titles, timeframes) {
-	if (Array.isArray(data)) {
-		return _toCSVContentArray(data, properties, titles, timeframes);
-	} else {
-		return _toCSVContentObject(data, properties, titles, timeframes);
-	}
+    if (Array.isArray(data)) {
+        return _toCSVContentArray(data, properties, titles, timeframes);
+    } else {
+        return _toCSVContentObject(data, properties, titles, timeframes);
+    }
 }
 
 function _toCSVContentObject(data, properties, titles, timeframes) {
 
-	let csvContent = "";
+    let csvContent = "";
 
-	for (let i = 0; i < properties.length; i++) {
-		csvContent += titles[properties[i]];
-		csvContent += i < properties.length - 1 ? "," : "\r\n";
-	}
+    for (let i = 0;i < properties.length;i++) {
+        csvContent += titles[properties[i]];
+        csvContent += i < properties.length - 1 ? "," : "\r\n";
+    }
 
-	for (let t = 0; t < timeframes; t++) {
-		for (let i = 0; i < properties.length; i++) {
-			csvContent += data[properties[i]][t];
-			csvContent += i < properties.length - 1 ? "," : "\r\n";
-		}
-	}
-	return csvContent;
+    for (let t = 0;t < timeframes;t++) {
+        for (let i = 0;i < properties.length;i++) {
+            csvContent += data[properties[i]][t];
+            csvContent += i < properties.length - 1 ? "," : "\r\n";
+        }
+    }
+    return csvContent;
 }
 
 function _toCSVContentArray(data, properties, titles, timeframes) {
 
-	let csvContent = "";
+    let csvContent = "";
 
-	for (let e = 0; e < data.length; e++) {
-		let entry = data[e];
-		for (let i = 0; i < properties.length; i++) {
-			csvContent += entry[properties[0]] + " " + titles[properties[i]];
-			csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
-		}
-	}
+    for (let e = 0;e < data.length;e++) {
+        let entry = data[e];
+        for (let i = 0;i < properties.length;i++) {
+            csvContent += entry[properties[0]] + " " + titles[properties[i]];
+            csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
+        }
+    }
 
-	for (let t = 0; t < timeframes; t++) {
-		for (let e = 0; e < data.length; e++) {
-			let entry = data[e];
-			for (let i = 0; i < properties.length; i++) {
+    for (let t = 0;t < timeframes;t++) {
+        for (let e = 0;e < data.length;e++) {
+            let entry = data[e];
+            for (let i = 0;i < properties.length;i++) {
 
-				csvContent += t < entry[properties[i]].length ?
-					entry[properties[i]][t] :
-					entry[properties[i]][entry[properties[i]].length - 1];
+                if (entry.hasOwnProperty(properties[i])) {
 
-				csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
-			}
-		}
-	}
-	return csvContent;
+                    csvContent += t < entry[properties[i]].length ?
+                        entry[properties[i]][t] :
+                        entry[properties[i]][entry[properties[i]].length - 1];
+
+                } else {
+                    csvContent += " ";
+                }
+				
+                csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
+            }
+        }
+    }
+    return csvContent;
 }
 
 
@@ -3426,7 +3432,9 @@ class NumberUtils {
 
 class CulvertPanel {
 
-	static getDummyCulvert() {
+	static getDummyCulvert(timeframes) {
+		timeframes = timeframes == null || Number.isNaN(timeframes) ? 1 : Math.round(timeframes);
+		
 		return {
 			name: "-",
 
@@ -3434,10 +3442,10 @@ class CulvertPanel {
 			diameter: 0,
 			rectangularHeight: -10000.0,
 
-			heights: [-10000],
-			flows: [0.0],
-			datumsA: [-10000.0],
-			datumsB: [-10000.0],
+			heights: [timeframes].fill(-10000),
+			flows: [timeframes].fill(0.0),
+			datumsA: [timeframes].fill(-10000.0),
+			datumsB: [timeframes].fill(-10000.0),
 			areaIDA: -1,
 			areaIDB: -1,
 			datumHeightOutputA: -10000,
@@ -3564,7 +3572,7 @@ class CulvertPanel {
 	updateCulvertDetailInfoPanel(culvert, culvertTimeframe) {
 
 		if (culvert == null) {
-			culvert = CulvertPanel.getDummyCulvert();
+			culvert = CulvertPanel.getDummyCulvert(culvertTimeframe);
 		}
 
 		this.culvertInfoName.innerHTML = culvert.name;
@@ -4050,14 +4058,16 @@ async function* makeTextFileLineIterator(fileURL) {
 
 class WeirPanel {
 
-	static getDummyWeir() {
+	static getDummyWeir(timeframes) {
+		timeframes = timeframes == null || Number.isNaN(timeframes) ? 1 : Math.round(timeframes);
+			
 		return {
 			name: "-",
-			height: [-10000.0],
+			heights: [timeframes].fill(-10000.0),
 			width: 0,
-			flow: [0.0],
-			datumA: [-10000.0],
-			datumB: [-10000.0],
+			flows: [timeframes].fill(0.0),
+			datumsA: [timeframes].fill(-10000.0),
+			datumsB: [timeframes].fill(-10000.0),
 			damWidth: 0,
 			damHeight: -1,
 			areaOutputA: -1,
@@ -4190,7 +4200,7 @@ class WeirPanel {
 	updateWeirDetailInfoPanel(weir, weirTimeframe) {
 
 		if (weir == null) {
-			weir = WeirPanel.getDummyWeir();
+			weir = WeirPanel.getDummyWeir(weirTimeframe);
 		}
 
 		this.weirInfoName.innerHTML = weir.name;
@@ -4692,7 +4702,7 @@ function pruneTimeframeValues(values) {
 function updateWeirDetails(weir) {
 
     if (weir == null) {
-        weir = getDummyWeir();
+        weir = WeirPanel.getDummyWeir(weirTimeframe);
     }
 
     weirPanel.updateWeirDetailInfoPanel(weir, weirTimeframe);
@@ -4898,8 +4908,8 @@ const WEIR_CUSTOM_DATUM_A = 'weir_custom_datum_a';
 const WEIR_CUSTOM_DATUM_B = 'weir_custom_datum_b';
 const WEIR_CUSTOM_FLOW = 'weir_custom_flow';
 
-queries.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
-queries.addQuery(WEIR_ITEM_IDS, '$SELECT_ID_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(WEIR_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(WEIR_ITEM_IDS, '$SELECT_ID_WHERE_BUILDING_IS_XK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(WEIR_HEIGHTS, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_HEIGHT_AND_TIMEFRAME_IS_X');
 queries.addQuery(WEIR_WIDTH, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_WEIR_WIDTH');
 queries.addQuery(WEIR_HEIGHT_OUTPUT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_WEIR_HEIGHT_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_OBJECT_HEIGHT_OUTPUT_AND_TIMEFRAME_IS_X');
@@ -4951,8 +4961,8 @@ function createWeirs() {
 
     let weirs = [];
 
-    let names = queries.getData(WEIR_NAMES, true, true);
-    let itemIDs = queries.getData(WEIR_ITEM_IDS, true, true);
+    let names = queries.getData(WEIR_NAMES, true);
+    let itemIDs = queries.getData(WEIR_ITEM_IDS, true);
     let width = queries.getData(WEIR_WIDTH, true, true);
     let heights = queries.getData(WEIR_HEIGHT_OUTPUT, true, true);
     let flow = queries.getData(WEIR_FLOW_OUTPUT, true, true);
@@ -4973,8 +4983,8 @@ function createWeirs() {
     for (let i = 0;i < names.length;i++) {
 
         let weir = {
-            name: i < names.length && names[i].length > 0 ? names[i][0] : "Weir " + i,
-            itemID: i < itemIDs.length && itemIDs[i].length > 0 ? itemIDs[i][0] : -1,
+            name: i < names.length ? names[i] : "Weir " + i,
+            itemID: i < itemIDs.length  ? itemIDs[i] : -1,
 
             // array values
             heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),
@@ -5081,7 +5091,7 @@ if (weirs.length <= 0) {
 function updateCulvertDetails(culvert) {
 
     if (culvert == null) {
-        culvert = getDummyCulvert();
+        culvert = CulvertPanel.getDummyCulvert(culvertTimeframe);
     }
 
     culvertPanel.updateCulvertDetailInfoPanel(culvert, culvertTimeframe);
@@ -5238,8 +5248,8 @@ const CULVERT_CUSTOM_DATUM_A = 'culvert_custom_datum_a';
 const CULVERT_CUSTOM_DATUM_B = 'culvert_custom_datum_b';
 const CULVERT_CUSTOM_FLOW = 'culvert_custom_flow';
 
-queries.addQuery(CULVERT_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
-queries.addQuery(CULVERT_ITEM_IDS, '$SELECT_ID_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(CULVERT_NAMES, '$SELECT_NAME_WHERE_BUILDING_IS_XK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
+queries.addQuery(CULVERT_ITEM_IDS, '$SELECT_ID_WHERE_BUILDING_IS_XK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY');
 queries.addQuery(CULVERT_DIAMETER, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_DIAMETER');
 queries.addQuery(CULVERT_N, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_N');
 queries.addQuery(CULVERT_DATUM_HEIGHT, '$SELECT_ATTRIBUTE_WHERE_BUILDING_IS_YK_CULVERT_DIAMETER_AND_GRID_WITH_ATTRIBUTE_IS_HSO_WATER_OVERLAY_AND_KEY_IS_CULVERT_THRESHOLD');
@@ -5288,8 +5298,8 @@ function createCulverts() {
 
     let culverts = [];
 
-    let names = queries.getData(CULVERT_NAMES, true, true);
-    let itemIDs = queries.getData(CULVERT_ITEM_IDS, true, true);
+    let names = queries.getData(CULVERT_NAMES, true);
+    let itemIDs = queries.getData(CULVERT_ITEM_IDS, true);
     let diameters = queries.getData(CULVERT_DIAMETER, true, true);
     let datumHeights = queries.getData(CULVERT_DATUM_HEIGHT, true, true);
     let rectangularHeights = queries.getData(CULVERT_RECTANGULAR_HEIGHT, true, true);
@@ -5311,8 +5321,8 @@ function createCulverts() {
 
         let culvert = {
 
-            name: i < names.length && names[i].length > 0 ? names[i][0] : "Culvert " + i,
-            itemID: i < itemIDs.length && itemIDs[i].length > 0 ? itemIDs[i][0] : -1,
+            name: i < names.length ? names[i] : "Culvert " + i,
+            itemID: i < itemIDs.length ? itemIDs[i] : -1,
 
             // array values
             heights: i < heights.length ? heights[i] : Array(timeframes).fill(-10000),

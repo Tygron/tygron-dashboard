@@ -1348,74 +1348,80 @@ function connector(token, baseUrl, basePath,) {
 
 function addDownloadHandler(element, fileName, contentFunction) {
 
-	element.addEventListener('click', () => {
+    element.addEventListener('click', () => {
 
-		let content = contentFunction();
-		let blob = new Blob([content], { type: 'text/plain' });
+        let content = contentFunction();
+        let blob = new Blob([content], { type: 'text/plain' });
 
-		// temp link 
-		const link = document.createElement('a');
-		link.href = URL.createObjectURL(blob);
-		link.download = fileName;
-		link.click();
+        // temp link 
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
 
-		// cleanup
-		URL.revokeObjectURL(link.href);
-	});
+        // cleanup
+        URL.revokeObjectURL(link.href);
+    });
 }
 
 function toCSVContent(data, properties, titles, timeframes) {
-	if (Array.isArray(data)) {
-		return _toCSVContentArray(data, properties, titles, timeframes);
-	} else {
-		return _toCSVContentObject(data, properties, titles, timeframes);
-	}
+    if (Array.isArray(data)) {
+        return _toCSVContentArray(data, properties, titles, timeframes);
+    } else {
+        return _toCSVContentObject(data, properties, titles, timeframes);
+    }
 }
 
 function _toCSVContentObject(data, properties, titles, timeframes) {
 
-	let csvContent = "";
+    let csvContent = "";
 
-	for (let i = 0; i < properties.length; i++) {
-		csvContent += titles[properties[i]];
-		csvContent += i < properties.length - 1 ? "," : "\r\n";
-	}
+    for (let i = 0;i < properties.length;i++) {
+        csvContent += titles[properties[i]];
+        csvContent += i < properties.length - 1 ? "," : "\r\n";
+    }
 
-	for (let t = 0; t < timeframes; t++) {
-		for (let i = 0; i < properties.length; i++) {
-			csvContent += data[properties[i]][t];
-			csvContent += i < properties.length - 1 ? "," : "\r\n";
-		}
-	}
-	return csvContent;
+    for (let t = 0;t < timeframes;t++) {
+        for (let i = 0;i < properties.length;i++) {
+            csvContent += data[properties[i]][t];
+            csvContent += i < properties.length - 1 ? "," : "\r\n";
+        }
+    }
+    return csvContent;
 }
 
 function _toCSVContentArray(data, properties, titles, timeframes) {
 
-	let csvContent = "";
+    let csvContent = "";
 
-	for (let e = 0; e < data.length; e++) {
-		let entry = data[e];
-		for (let i = 0; i < properties.length; i++) {
-			csvContent += entry[properties[0]] + " " + titles[properties[i]];
-			csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
-		}
-	}
+    for (let e = 0;e < data.length;e++) {
+        let entry = data[e];
+        for (let i = 0;i < properties.length;i++) {
+            csvContent += entry[properties[0]] + " " + titles[properties[i]];
+            csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
+        }
+    }
 
-	for (let t = 0; t < timeframes; t++) {
-		for (let e = 0; e < data.length; e++) {
-			let entry = data[e];
-			for (let i = 0; i < properties.length; i++) {
+    for (let t = 0;t < timeframes;t++) {
+        for (let e = 0;e < data.length;e++) {
+            let entry = data[e];
+            for (let i = 0;i < properties.length;i++) {
 
-				csvContent += t < entry[properties[i]].length ?
-					entry[properties[i]][t] :
-					entry[properties[i]][entry[properties[i]].length - 1];
+                if (entry.hasOwnProperty(properties[i])) {
 
-				csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
-			}
-		}
-	}
-	return csvContent;
+                    csvContent += t < entry[properties[i]].length ?
+                        entry[properties[i]][t] :
+                        entry[properties[i]][entry[properties[i]].length - 1];
+
+                } else {
+                    csvContent += " ";
+                }
+				
+                csvContent += e == data.length - 1 && i == properties.length - 1 ? "\r\n" : ",";
+            }
+        }
+    }
+    return csvContent;
 }
 
 
@@ -2838,7 +2844,9 @@ class NumberUtils {
 
 class CulvertPanel {
 
-	static getDummyCulvert() {
+	static getDummyCulvert(timeframes) {
+		timeframes = timeframes == null || Number.isNaN(timeframes) ? 1 : Math.round(timeframes);
+		
 		return {
 			name: "-",
 
@@ -2846,10 +2854,10 @@ class CulvertPanel {
 			diameter: 0,
 			rectangularHeight: -10000.0,
 
-			heights: [-10000],
-			flows: [0.0],
-			datumsA: [-10000.0],
-			datumsB: [-10000.0],
+			heights: [timeframes].fill(-10000),
+			flows: [timeframes].fill(0.0),
+			datumsA: [timeframes].fill(-10000.0),
+			datumsB: [timeframes].fill(-10000.0),
 			areaIDA: -1,
 			areaIDB: -1,
 			datumHeightOutputA: -10000,
@@ -2976,7 +2984,7 @@ class CulvertPanel {
 	updateCulvertDetailInfoPanel(culvert, culvertTimeframe) {
 
 		if (culvert == null) {
-			culvert = CulvertPanel.getDummyCulvert();
+			culvert = CulvertPanel.getDummyCulvert(culvertTimeframe);
 		}
 
 		this.culvertInfoName.innerHTML = culvert.name;
@@ -3462,14 +3470,16 @@ async function* makeTextFileLineIterator(fileURL) {
 
 class WeirPanel {
 
-	static getDummyWeir() {
+	static getDummyWeir(timeframes) {
+		timeframes = timeframes == null || Number.isNaN(timeframes) ? 1 : Math.round(timeframes);
+			
 		return {
 			name: "-",
-			height: [-10000.0],
+			heights: [timeframes].fill(-10000.0),
 			width: 0,
-			flow: [0.0],
-			datumA: [-10000.0],
-			datumB: [-10000.0],
+			flows: [timeframes].fill(0.0),
+			datumsA: [timeframes].fill(-10000.0),
+			datumsB: [timeframes].fill(-10000.0),
 			damWidth: 0,
 			damHeight: -1,
 			areaOutputA: -1,
@@ -3602,7 +3612,7 @@ class WeirPanel {
 	updateWeirDetailInfoPanel(weir, weirTimeframe) {
 
 		if (weir == null) {
-			weir = WeirPanel.getDummyWeir();
+			weir = WeirPanel.getDummyWeir(weirTimeframe);
 		}
 
 		this.weirInfoName.innerHTML = weir.name;
