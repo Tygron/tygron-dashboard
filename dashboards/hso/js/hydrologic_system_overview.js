@@ -1435,8 +1435,8 @@ addDownloadHandler(document.getElementById("balanceCSVButton"), "waterbalance.cs
 addDownloadHandler(document.getElementById("flowCSVButton"), "waterflow.csv", () => toCSVContent(flowData, flowProperties, flowTitles, timeframes));
 
 function showImportCSVButtons(show) {
-    document.getElementById("weirImportResultCsvButton").style.display = show ? "block" : "none";
-    document.getElementById("culvertImportResultCsvButton").style.display = show ? "block" : "none";
+    document.getElementById("weirImportResultCsvLabel").style.display = show ? "block" : "none";
+    document.getElementById("culvertImportResultCsvLabel").style.display = show ? "block" : "none";
 
 }
 function isDateValid(dateStr) {
