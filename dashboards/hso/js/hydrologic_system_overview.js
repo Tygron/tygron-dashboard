@@ -1693,7 +1693,7 @@ function validateTimestamp() {
             showImportCSVButtons(true);
         }
     } else {
-        showImportCSVButtons(false);
+        showImportCSVButtons(hasValidDateFormat());
     }
 }
 
