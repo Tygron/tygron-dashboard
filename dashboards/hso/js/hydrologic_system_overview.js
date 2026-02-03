@@ -1573,11 +1573,11 @@ function handleCustomValues(config, items, results) {
 
     let traces = getWaterLevelTraces(results);
     if (traces.length == 0) {
-        dialogPane.confirmClose(results[0].length + " matches found, but no traces made for start and end time.")
+        dialogPane.confirmClose(results[0].length + " matching columns found, but no traces made for start and end time.")
         return;
     }
 
-    dialogPane.yesNo(results[0].length + " matches found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
+    dialogPane.yesNo(results[0].length + " matching columns found, " + traces.length + " traces made for start and end time.<br>Do you want to save these traces to your project?", (e) => {
         storeTraces(config, items, traces);
     }, null);
 }
