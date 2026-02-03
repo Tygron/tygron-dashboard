@@ -1482,17 +1482,17 @@ function sendBuildingChanges(config, buildings) {
     );
 }
 
-function hasSuffixMapping(config, suffix) {
+function getSuffixMapping(config, suffix) {
     if (!Array.isArray(config.mapping)) {
-        return false;
+        return null;
     }
 
     for (let mapping of config.mapping) {
         if (mapping.suffix == suffix) {
-            return true;
+            return mapping;
         }
     }
-    return false;
+    return null;
 }
 
 function getWaterLevelTraces(results) {
@@ -1549,9 +1549,14 @@ function storeTraces(config, items, traces) {
 
         for (let item of items) {
 
-            if (trace.header != item.name || !hasSuffixMapping(config, trace.suffix)) {
+			if (trace.header != item.name) {
                 continue;
             }
+			let mapping = getSuffixMapping(config, trace.suffix);
+			if(mapping == null){
+				continue;
+			}
+			            
 
             console.log('Mapped trace values for ' + config.itemName + " : " + item.name + " with id " + item.id);
 
