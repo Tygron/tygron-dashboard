@@ -6138,7 +6138,7 @@ function storeTraces(config, items, traces) {
 
     if (changed) {
         if (typeof app !== "undefined") {
-            dialogPane.yesNo("Do you also want to send the data update for the " + config.itemName + " to the server session?<br>If so, do not forget to save the project if you want to keep this update.",
+            dialogPane.yesNo("The data is currently stored in this browser session. Do you also want to send the data to the project on the server?<br>If so, do not forget to save the project if you want to keep these changes.",
                 (e) => {
                     sendBuildingChanges(config, items);
                 });
@@ -6172,6 +6172,7 @@ function handleCustomValues(config, items, results) {
     }, null);
 }
 
+// CSV Value Handlers with Mappings
 function handleWeirCustomValues(reader) {
     handleCustomValues({
         itemName: "Weir",
